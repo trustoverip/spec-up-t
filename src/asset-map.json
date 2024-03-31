@@ -5,6 +5,7 @@
       "assets/css/prism.css",
       "assets/css/chart.css",
       "assets/css/search.css",
+      "assets/css/highlightMenuItems.css",
       "assets/css/index.css"
     ],
     "js": [
@@ -22,6 +23,7 @@
       "assets/js/popper.js",
       "assets/js/tippy.js",
       "assets/js/search.js",
+      "assets/js/highlightMenuItems.js",
       "assets/js/index.js"
     ]
   }
