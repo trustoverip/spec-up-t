@@ -6,6 +6,7 @@
       "assets/css/chart.css",
       "assets/css/search.css",
       "assets/css/highlightMenuItems.css",
+      "assets/css/backToTop.css",
       "assets/css/index.css"
     ],
     "js": [
@@ -24,6 +25,7 @@
       "assets/js/tippy.js",
       "assets/js/search.js",
       "assets/js/highlightMenuItems.js",
+      "assets/js/backToTop.js",
       "assets/js/index.js"
     ]
   }
