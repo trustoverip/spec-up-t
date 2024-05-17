@@ -37,7 +37,7 @@ function inPageSearch() {
       gleif: 'highlight-hits-GLEIF-h7vc6omi2hr2880'
    };
 
-   const highlightClassName = hitsStyleSelector[hitsStyle.toLowerCase()];
+   const hitsStyleSelectorClassName = hitsStyleSelector[hitsStyle.toLowerCase()];
 
    // Add an input element (for search) after the element with the id “logo”
    let search = document.createElement("input");
@@ -81,7 +81,7 @@ function inPageSearch() {
    function removeAllSpans() {
       let spans = document.querySelectorAll('span');
       spans.forEach(span => {
-         if (span.className === highlightClassName) {
+         if (span.className === hitsStyleSelectorClassName) {
             span.outerHTML = span.innerHTML;
          }
       });
@@ -101,7 +101,7 @@ function inPageSearch() {
       const article = document.querySelector('main article');
       if (!article) return; // Exit if no article found
       if (searchString === '') {
-         document.querySelectorAll('.' + highlightClassName).forEach(element => element.classList.remove(highlightClassName));
+         document.querySelectorAll('.' + hitsStyleSelectorClassName).forEach(element => element.classList.remove(hitsStyleSelectorClassName));
 
          totalHits = 0;
          totalHitsSpan.innerHTML = `${totalHits} ${hits}`;
@@ -126,7 +126,7 @@ function inPageSearch() {
             // Highlighted text
             const highlightSpan = document.createElement('span');
             highlightSpan.textContent = match[0];
-            highlightSpan.classList.add(highlightClassName);
+            highlightSpan.classList.add(hitsStyleSelectorClassName);
 
             // highlightSpan.id = `${highlightClassName}-${uniqueId}`;
             fragments.appendChild(highlightSpan);
@@ -153,7 +153,7 @@ function inPageSearch() {
 
       searchNodes(article);
 
-      let firstHighlight = document.querySelector('.' + highlightClassName);
+      let firstHighlight = document.querySelector('.' + hitsStyleSelectorClassName);
       if (firstHighlight !== null) {
          scrollToElementCenter(firstHighlight);
       }
@@ -163,7 +163,7 @@ function inPageSearch() {
 
    // Remove the highlighting spans
    function resetHighlights(article) {
-      const highlighted = article.querySelectorAll(highlightClassName);
+      const highlighted = article.querySelectorAll(hitsStyleSelectorClassName);
       highlighted.forEach(span => {
          const parent = span.parentNode;
          parent.replaceChild(document.createTextNode(span.textContent), span);
