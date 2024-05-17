@@ -13,6 +13,7 @@
 
 .highlight-hits {
   outline: 3px solid #1d6dae80;
+  position: relative;
 }
 
 /* Specific styles */
