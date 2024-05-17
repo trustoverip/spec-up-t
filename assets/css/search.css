@@ -11,52 +11,31 @@
   height: 1.5em;
 }
 
+.highlight-hits {
+  outline: 3px solid #1d6dae80;
+}
+
 /* Specific styles */
 .highlight-hits-DIF-h7vc6omi2hr2880 {
-  padding: 0 0.5em;
-  margin-left: 0.2em;
-  margin-right: 0.2em;
-
   background-color: #1d6dae11;
 }
 
 .highlight-hits-ToIP-h7vc6omi2hr2880 {
-  padding: 0 0.5em;
-  margin-left: 0.2em;
-  margin-right: 0.2em;
-
   background-color: #a9dde0b0;
 }
 
 .highlight-hits-BTC-h7vc6omi2hr2880 {
-  padding: 0 0.5em;
-  margin-left: 0.2em;
-  margin-right: 0.2em;
-
   background-color: #f19019a1;
 }
 
 .highlight-hits-KERI-h7vc6omi2hr2880 {
-  padding: 0 0.5em;
-  margin-left: 0.2em;
-  margin-right: 0.2em;
-
   background-color: #b5d070d5;
 }
 
 .highlight-hits-SSI-h7vc6omi2hr2880 {
-  padding: 0 0.5em;
-  margin-left: 0.2em;
-  margin-right: 0.2em;
-
   background-color: yellow;
-  border-bottom: 3px solid #1D6DAE;
 }
 
 .highlight-hits-GLEIF-h7vc6omi2hr2880 {
-  padding: 0 0.5em;
-  margin-left: 0.2em;
-  margin-right: 0.2em;
-
   background-color: #52dac6a6;
 }
