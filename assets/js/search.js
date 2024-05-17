@@ -126,9 +126,9 @@ function inPageSearch() {
             // Highlighted text
             const highlightSpan = document.createElement('span');
             highlightSpan.textContent = match[0];
-            highlightSpan.className = highlightClassName;
+            highlightSpan.classList.add(highlightClassName);
 
-            highlightSpan.id = `${highlightClassName}-${uniqueId}`;
+            // highlightSpan.id = `${highlightClassName}-${uniqueId}`;
             fragments.appendChild(highlightSpan);
 
             uniqueId++;
