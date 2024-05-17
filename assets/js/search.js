@@ -37,6 +37,7 @@ function inPageSearch() {
       gleif: 'highlight-hits-GLEIF-h7vc6omi2hr2880'
    };
 
+   const hitsClassName = "highlight-hits";
    const hitsStyleSelectorClassName = hitsStyleSelector[hitsStyle.toLowerCase()];
 
    // Add an input element (for search) after the element with the id “logo”
@@ -126,6 +127,7 @@ function inPageSearch() {
             // Highlighted text
             const highlightSpan = document.createElement('span');
             highlightSpan.textContent = match[0];
+            highlightSpan.classList.add(hitsClassName);
             highlightSpan.classList.add(hitsStyleSelectorClassName);
 
             // highlightSpan.id = `${highlightClassName}-${uniqueId}`;
