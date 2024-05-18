@@ -57,3 +57,24 @@
 #back-and-forth-buttons-container-search-h7vc6omi2hr2880 #one-match-backward-search-h7vc6omi2hr2880 {
   margin-right: 0.5em;
 }
+
+#container-search-h7vc6omi2hr2880 {
+  flex-basis: 100%;
+}
+
+.panel-header#header {
+  flex-wrap: wrap;
+  height: auto;
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+  #container-search-h7vc6omi2hr2880 {
+    flex-basis: auto;
+  }
+
+  .panel-header#header {
+    flex-wrap: nowrap;
+    height: var(--header-height);
+  }
+}
