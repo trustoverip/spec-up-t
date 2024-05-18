@@ -17,12 +17,12 @@ function inPageSearch() {
    /*****************/
    /* CONFIGURATION */
 
-   const domInjectAfter = document.getElementById("logo");// Inject the search bar after this element
+   const domInjectAfter = document.querySelector('span[issue-count]');// Inject the search bar after this element
    const matchesStyle = specConfig.searchHighlightStyle || 'ssi';
    const antiNameCollisions = 'search-h7vc6omi2hr2880';// random string to be added to classes, id's etc, to prevent name collisions in the global space
    const debounceTime = 600;
-   const matches = 'results';// What text to display after the number of matches
-   const searchBarPlaceholder = 'Search';
+   const matches = 'matches';// What text to display after the number of matches
+   const searchBarPlaceholder = '🔍';
    const searchableContent = document.querySelector('main article');
 
    /* END CONFIGURATION */
@@ -41,12 +41,17 @@ function inPageSearch() {
 
    /* Add DOM elements: search container with search bar, back and forth buttons, and results count */
 
+   let searchContainer = document.createElement("div");
+   searchContainer.setAttribute("id", "container-" + antiNameCollisions);
+   searchContainer.setAttribute("class", "container-" + antiNameCollisions);
+   domInjectAfter.after(searchContainer);
+
    // Add an input element (for search)
    let search = document.createElement("input");
    search.setAttribute("type", "text");
    search.setAttribute("id", antiNameCollisions);
    search.setAttribute("placeholder", searchBarPlaceholder);
-   domInjectAfter.after(search);
+   searchContainer.appendChild(search);
 
    setTimeout(() => {
       search.focus();
@@ -73,13 +78,15 @@ function inPageSearch() {
    backAndForthButtonsContainer.appendChild(goToNextMatchButton);
 
    // Add the container for the back and forth buttons
-   search.after(backAndForthButtonsContainer);
+   // search.after(backAndForthButtonsContainer);
+   searchContainer.appendChild(backAndForthButtonsContainer);
 
    // Add number of matches
    const totalMatchesSpan = document.createElement("span");
    totalMatchesSpan.setAttribute("id", "total-matches-" + antiNameCollisions);
    totalMatchesSpan.innerHTML = `0 ${matches}`;
-   backAndForthButtonsContainer.after(totalMatchesSpan);
+   // backAndForthButtonsContainer.after(totalMatchesSpan);
+   searchContainer.appendChild(totalMatchesSpan);
 
    // Add an event listener to the input element
    search.addEventListener("input", function () {
