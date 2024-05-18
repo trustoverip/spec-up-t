@@ -19,7 +19,7 @@ function inPageSearch() {
 
    const domInjectAfter = document.getElementById("logo");// Inject the search bar after this element
    const matchesStyle = specConfig.searchHighlightStyle || 'ssi';
-   const searchId = 'search-h7vc6omi2hr2880';
+   const antiNameCollisions = 'search-h7vc6omi2hr2880';// random string to be added to classes, id's etc, to prevent name collisions in the global space
    const debounceTime = 600;
    const matches = 'results';// What text to display after the number of matches
    const searchBarPlaceholder = 'Search';
@@ -30,12 +30,12 @@ function inPageSearch() {
 
    // Styling of search matches. See styles in /assets/css/search.css
    const matchesStyleSelector = {
-      dif: 'highlight-matches-DIF-h7vc6omi2hr2880',
-      toip: 'highlight-matches-ToIP-h7vc6omi2hr2880',
-      btc: 'highlight-matches-BTC-h7vc6omi2hr2880',
-      keri: 'highlight-matches-KERI-h7vc6omi2hr2880',
-      ssi: 'highlight-matches-SSI-h7vc6omi2hr2880',
-      gleif: 'highlight-matches-GLEIF-h7vc6omi2hr2880'
+      dif: 'highlight-matches-DIF-search-h7vc6omi2hr2880',
+      toip: 'highlight-matches-ToIP-search-h7vc6omi2hr2880',
+      btc: 'highlight-matches-BTC-search-h7vc6omi2hr2880',
+      keri: 'highlight-matches-KERI-search-h7vc6omi2hr2880',
+      ssi: 'highlight-matches-SSI-search-h7vc6omi2hr2880',
+      gleif: 'highlight-matches-GLEIF-search-h7vc6omi2hr2880'
    };
 
 
@@ -44,34 +44,40 @@ function inPageSearch() {
    // Add an input element (for search)
    let search = document.createElement("input");
    search.setAttribute("type", "text");
-   search.setAttribute("id", searchId);
+   search.setAttribute("id", antiNameCollisions);
    search.setAttribute("placeholder", searchBarPlaceholder);
    domInjectAfter.after(search);
 
+   setTimeout(() => {
+      search.focus();
+   }, 1000);
+
    // Add a container for the back and forth buttons
    const backAndForthButtonsContainer = document.createElement("div");
-   backAndForthButtonsContainer.setAttribute("id", "back-and-forth-buttons-container");
+   backAndForthButtonsContainer.setAttribute("id", "back-and-forth-buttons-container-" + antiNameCollisions);
 
    // Add a back button to the container for the back and forth buttons
-   const oneMatchBackward = document.createElement('button');
-   oneMatchBackward.setAttribute("id", "one-match-backward");
-   oneMatchBackward.setAttribute("disabled", "disabled");
-   oneMatchBackward.textContent = "▲";
-   backAndForthButtonsContainer.appendChild(oneMatchBackward);
+   const goToPreviousMatchButton = document.createElement('button');
+   goToPreviousMatchButton.setAttribute("id", "one-match-backward-" + antiNameCollisions);
+   goToPreviousMatchButton.setAttribute("disabled", "disabled");
+   goToPreviousMatchButton.setAttribute("title", "Go to previous match. Shortcut key: Left Arrow");
+   goToPreviousMatchButton.textContent = "▲";
+   backAndForthButtonsContainer.appendChild(goToPreviousMatchButton);
 
    // Add a forward button to the container for the back and forth buttons
-   const oneMatchForward = document.createElement('button');
-   oneMatchForward.setAttribute("id", "one-match-forward");
-   oneMatchForward.setAttribute("disabled", "disabled");
-   oneMatchForward.textContent = "▼";
-   backAndForthButtonsContainer.appendChild(oneMatchForward);
+   const goToNextMatchButton = document.createElement('button');
+   goToNextMatchButton.setAttribute("id", "one-match-forward-" + antiNameCollisions);
+   goToNextMatchButton.setAttribute("disabled", "disabled");
+   goToNextMatchButton.setAttribute("title", "Go to next match. Shortcut key: Right Arrow");
+   goToNextMatchButton.textContent = "▼";
+   backAndForthButtonsContainer.appendChild(goToNextMatchButton);
 
    // Add the container for the back and forth buttons
    search.after(backAndForthButtonsContainer);
 
    // Add number of matches
    const totalMatchesSpan = document.createElement("span");
-   totalMatchesSpan.setAttribute("id", "total-matches");
+   totalMatchesSpan.setAttribute("id", "total-matches-" + antiNameCollisions);
    totalMatchesSpan.innerHTML = `0 ${matches}`;
    backAndForthButtonsContainer.after(totalMatchesSpan);
 
@@ -82,7 +88,7 @@ function inPageSearch() {
    /* END Add DOM elements */
 
 
-   const matchesClassName = "highlight-matches";
+   const matchesClassName = "highlight-matches-" + antiNameCollisions;
    const matchesStyleSelectorClassName = matchesStyleSelector[matchesStyle.toLowerCase()];
 
 
@@ -134,54 +140,67 @@ function inPageSearch() {
    function handleBackAndForthButtonsDisabledState() {
       // Backward button
       if (activeMatchIndex <= 0) {
-         document.getElementById("one-match-backward").setAttribute("disabled", "disabled");
+         document.getElementById("one-match-backward-" + antiNameCollisions).setAttribute("disabled", "disabled");
       } else {
-         document.getElementById("one-match-backward").removeAttribute("disabled");
+         document.getElementById("one-match-backward-" + antiNameCollisions).removeAttribute("disabled");
       }
 
       // Forward button
       if (activeMatchIndex >= totalMatches - 1) {
-         document.getElementById("one-match-forward").setAttribute("disabled", "disabled");
+         document.getElementById("one-match-forward-" + antiNameCollisions).setAttribute("disabled", "disabled");
       } else {
-         document.getElementById("one-match-forward").removeAttribute("disabled");
+         document.getElementById("one-match-forward-" + antiNameCollisions).removeAttribute("disabled");
       }
    }
-
 
    // Debounce search input. Prepare the debounced function outside the event listener
    const debouncedSearchAndHighlight = debounce(searchAndHighlight, debounceTime);
 
-
-
-
-   oneMatchBackward.addEventListener("click", function () {
+   goToPreviousMatchButton.addEventListener("click", function () {
       activeMatchIndex--;
 
-      const extraHighlightedMatch = document.querySelector("#" + searchId + "-" + activeMatchIndex);
+      const extraHighlightedMatch = document.querySelector("#" + antiNameCollisions + "-" + activeMatchIndex);
       if (extraHighlightedMatch) {
          scrollToElementCenter(extraHighlightedMatch);
       }
       extraHighlightedMatch.classList.add("active");
-      setTimeout(() => {
-         extraHighlightedMatch.classList.remove("active");
-      }, 600);
 
-      handleBackAndForthButtonsDisabledState();
-   });
-   oneMatchForward.addEventListener("click", function () {
-      activeMatchIndex++;
-
-      const extraHighlightedMatch = document.querySelector("#" + searchId + "-" + activeMatchIndex);
-      if (extraHighlightedMatch) {
-         scrollToElementCenter(extraHighlightedMatch);
-      }
-
-      extraHighlightedMatch.classList.add("active");
+      // Works in tandem with “transition” in CSS
       setTimeout(() => {
          extraHighlightedMatch.classList.remove("active");
       }, 1000);
 
       handleBackAndForthButtonsDisabledState();
+   });
+   goToNextMatchButton.addEventListener("click", function () {
+      activeMatchIndex++;
+
+      const extraHighlightedMatch = document.querySelector("#" + antiNameCollisions + "-" + activeMatchIndex);
+      if (extraHighlightedMatch) {
+         scrollToElementCenter(extraHighlightedMatch);
+      }
+
+      extraHighlightedMatch.classList.add("active");
+
+      // Works in tandem with “transition” in CSS
+      setTimeout(() => {
+         extraHighlightedMatch.classList.remove("active");
+      }, 1000);
+
+      handleBackAndForthButtonsDisabledState();
+   });
+
+   // key bindings
+   document.addEventListener('keyup', (event) => {
+      switch (event.key) {
+         case "ArrowRight":
+            goToNextMatchButton.click();
+            break;
+
+         case "ArrowLeft":
+            goToPreviousMatchButton.click();
+            break;
+      }
    });
 
    // Runs after every search input (debounced)
@@ -214,7 +233,7 @@ function inPageSearch() {
             highlightSpan.textContent = match[0];
             highlightSpan.classList.add(matchesClassName);
             highlightSpan.classList.add(matchesStyleSelectorClassName);
-            highlightSpan.setAttribute("id", searchId + "-" + uniqueId);
+            highlightSpan.setAttribute("id", antiNameCollisions + "-" + uniqueId);
             fragments.appendChild(highlightSpan);
 
             // uniqueId starts at 0, so totalMatches is the number of uniqueId's + 1
