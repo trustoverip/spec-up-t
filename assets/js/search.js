@@ -18,42 +18,76 @@ function inPageSearch() {
    /* CONFIGURATION */
 
    const domInjectAfter = document.getElementById("logo");// Inject the search bar after this element
-   const hitsStyle = specConfig.searchHighlightStyle || 'ssi';
+   const matchesStyle = specConfig.searchHighlightStyle || 'ssi';
    const searchId = 'search-h7vc6omi2hr2880';
    const debounceTime = 600;
-   const hits = 'results';// What to display after the number of hits
+   const matches = 'results';// What text to display after the number of matches
    const searchBarPlaceholder = 'Search';
+   const searchableContent = document.querySelector('main article');
 
    /* END CONFIGURATION */
    /*********************/
 
-   // See styles in /assets/css/search.css
-   const hitsStyleSelector = {
-      dif: 'highlight-hits-DIF-h7vc6omi2hr2880',
-      toip: 'highlight-hits-ToIP-h7vc6omi2hr2880',
-      btc: 'highlight-hits-BTC-h7vc6omi2hr2880',
-      keri: 'highlight-hits-KERI-h7vc6omi2hr2880',
-      ssi: 'highlight-hits-SSI-h7vc6omi2hr2880',
-      gleif: 'highlight-hits-GLEIF-h7vc6omi2hr2880'
+   // Styling of search matches. See styles in /assets/css/search.css
+   const matchesStyleSelector = {
+      dif: 'highlight-matches-DIF-h7vc6omi2hr2880',
+      toip: 'highlight-matches-ToIP-h7vc6omi2hr2880',
+      btc: 'highlight-matches-BTC-h7vc6omi2hr2880',
+      keri: 'highlight-matches-KERI-h7vc6omi2hr2880',
+      ssi: 'highlight-matches-SSI-h7vc6omi2hr2880',
+      gleif: 'highlight-matches-GLEIF-h7vc6omi2hr2880'
    };
 
-   const hitsClassName = "highlight-hits";
-   const hitsStyleSelectorClassName = hitsStyleSelector[hitsStyle.toLowerCase()];
 
-   // Add an input element (for search) after the element with the id “logo”
+   /* Add DOM elements: search container with search bar, back and forth buttons, and results count */
+
+   // Add an input element (for search)
    let search = document.createElement("input");
    search.setAttribute("type", "text");
    search.setAttribute("id", searchId);
    search.setAttribute("placeholder", searchBarPlaceholder);
    domInjectAfter.after(search);
 
-   // Add number of hits
-   let totalHitsSpan = document.createElement("span");
-   totalHitsSpan.setAttribute("id", "total-hits");
-   totalHitsSpan.innerHTML = `0 ${hits}`;
-   search.after(totalHitsSpan);
+   // Add a container for the back and forth buttons
+   const backAndForthButtonsContainer = document.createElement("div");
+   backAndForthButtonsContainer.setAttribute("id", "back-and-forth-buttons-container");
 
-   let totalHits = 0;
+   // Add a back button to the container for the back and forth buttons
+   const oneMatchBackward = document.createElement('button');
+   oneMatchBackward.setAttribute("id", "one-match-backward");
+   oneMatchBackward.setAttribute("disabled", "disabled");
+   oneMatchBackward.textContent = "▲";
+   backAndForthButtonsContainer.appendChild(oneMatchBackward);
+
+   // Add a forward button to the container for the back and forth buttons
+   const oneMatchForward = document.createElement('button');
+   oneMatchForward.setAttribute("id", "one-match-forward");
+   oneMatchForward.setAttribute("disabled", "disabled");
+   oneMatchForward.textContent = "▼";
+   backAndForthButtonsContainer.appendChild(oneMatchForward);
+
+   // Add the container for the back and forth buttons
+   search.after(backAndForthButtonsContainer);
+
+   // Add number of matches
+   const totalMatchesSpan = document.createElement("span");
+   totalMatchesSpan.setAttribute("id", "total-matches");
+   totalMatchesSpan.innerHTML = `0 ${matches}`;
+   backAndForthButtonsContainer.after(totalMatchesSpan);
+
+   // Add an event listener to the input element
+   search.addEventListener("input", function () {
+      debouncedSearchAndHighlight(search.value);
+   });
+   /* END Add DOM elements */
+
+
+   const matchesClassName = "highlight-matches";
+   const matchesStyleSelectorClassName = matchesStyleSelector[matchesStyle.toLowerCase()];
+
+
+   let totalMatches = 0;
+   let activeMatchIndex = -1;
 
    function scrollToElementCenter(element) {
       // First, bring the element into view
@@ -80,40 +114,91 @@ function inPageSearch() {
    }
 
    function removeAllSpans() {
-      let spans = document.querySelectorAll('span');
+      let spans = document.querySelectorAll('span.' + matchesClassName);
       spans.forEach(span => {
-         if (span.className === hitsStyleSelectorClassName) {
+         const childNodes = Array.from(span.childNodes);
+
+         // Removes child elements (there are currently no child element b.t.w.)
+         childNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+               span.removeChild(node);
+            }
+         });
+
+         if (span.classList.contains(matchesClassName)) {
             span.outerHTML = span.innerHTML;
          }
       });
    }
 
-   // Prepare the debounced function outside the event listener
+   function handleBackAndForthButtonsDisabledState() {
+      // Backward button
+      if (activeMatchIndex <= 0) {
+         document.getElementById("one-match-backward").setAttribute("disabled", "disabled");
+      } else {
+         document.getElementById("one-match-backward").removeAttribute("disabled");
+      }
+
+      // Forward button
+      if (activeMatchIndex >= totalMatches - 1) {
+         document.getElementById("one-match-forward").setAttribute("disabled", "disabled");
+      } else {
+         document.getElementById("one-match-forward").removeAttribute("disabled");
+      }
+   }
+
+
+   // Debounce search input. Prepare the debounced function outside the event listener
    const debouncedSearchAndHighlight = debounce(searchAndHighlight, debounceTime);
 
-   // Add an event listener to the input element
-   search.addEventListener("input", function () {
-      debouncedSearchAndHighlight(search.value);
+
+
+
+   oneMatchBackward.addEventListener("click", function () {
+      activeMatchIndex--;
+
+      const extraHighlightedMatch = document.querySelector("#" + searchId + "-" + activeMatchIndex);
+      if (extraHighlightedMatch) {
+         scrollToElementCenter(extraHighlightedMatch);
+      }
+      extraHighlightedMatch.classList.add("active");
+      setTimeout(() => {
+         extraHighlightedMatch.classList.remove("active");
+      }, 600);
+
+      handleBackAndForthButtonsDisabledState();
+   });
+   oneMatchForward.addEventListener("click", function () {
+      activeMatchIndex++;
+
+      const extraHighlightedMatch = document.querySelector("#" + searchId + "-" + activeMatchIndex);
+      if (extraHighlightedMatch) {
+         scrollToElementCenter(extraHighlightedMatch);
+      }
+
+      extraHighlightedMatch.classList.add("active");
+      setTimeout(() => {
+         extraHighlightedMatch.classList.remove("active");
+      }, 1000);
+
+      handleBackAndForthButtonsDisabledState();
    });
 
+   // Runs after every search input (debounced)
    function searchAndHighlight(searchString) {
-
+      // Start clean
       removeAllSpans();
-      const article = document.querySelector('main article');
-      if (!article) return; // Exit if no article found
-      if (searchString === '') {
-         document.querySelectorAll('.' + hitsStyleSelectorClassName).forEach(element => element.classList.remove(hitsStyleSelectorClassName));
 
-         totalHits = 0;
-         totalHitsSpan.innerHTML = `${totalHits} ${hits}`;
+      // If the search string is empty, set total matches to zero and return
+      if (searchString === '') {
+         totalMatchesSpan.innerHTML = `0 ${matches}`;
          return
       };
 
-      resetHighlights(article);
-
       let uniqueId = 0;
 
-      function highlightText(node) {
+      // Highlight the text that matches the search string (case-insensitive) with a span element
+      function markAndCountMatches(node) {
          const nodeText = node.nodeValue;
          const regex = new RegExp(searchString, 'gi');
          let match;
@@ -127,13 +212,16 @@ function inPageSearch() {
             // Highlighted text
             const highlightSpan = document.createElement('span');
             highlightSpan.textContent = match[0];
-            highlightSpan.classList.add(hitsClassName);
-            highlightSpan.classList.add(hitsStyleSelectorClassName);
-
-            // highlightSpan.id = `${highlightClassName}-${uniqueId}`;
+            highlightSpan.classList.add(matchesClassName);
+            highlightSpan.classList.add(matchesStyleSelectorClassName);
+            highlightSpan.setAttribute("id", searchId + "-" + uniqueId);
             fragments.appendChild(highlightSpan);
 
+            // uniqueId starts at 0, so totalMatches is the number of uniqueId's + 1
+            totalMatches = uniqueId + 1;
+
             uniqueId++;
+
             lastIndex = match.index + match[0].length;
          }
 
@@ -142,10 +230,12 @@ function inPageSearch() {
          return fragments;
       }
 
+      // Recursive function that searches all nodes in the DOM tree and highlights the text that matches the search string (case-insensitive) with a span element
       function searchNodes(node) {
          if (node.nodeType === 3) { // Node.TEXT_NODE
-            const fragments = highlightText(node);
-            if (fragments.childNodes.length > 1) { // Replace the text node with the fragments if there were matches
+            const fragments = markAndCountMatches(node);
+            if (fragments.childNodes.length > 1) {
+               // Replace the text node with the fragments if there were matches
                node.parentNode.replaceChild(fragments, node);
             }
          } else if (node.nodeType === 1) { // Node.ELEMENT_NODE
@@ -153,24 +243,23 @@ function inPageSearch() {
          }
       }
 
-      searchNodes(article);
+      searchNodes(searchableContent);
 
-      let firstHighlight = document.querySelector('.' + hitsStyleSelectorClassName);
+      // Scroll to the first match
+      // Using querySelector instead of querySelectorAll because we only want to select the first element
+      let firstHighlight = document.querySelector('.' + matchesStyleSelectorClassName);
       if (firstHighlight !== null) {
          scrollToElementCenter(firstHighlight);
       }
 
-      totalHitsSpan.innerHTML = `${uniqueId} ${hits}`;
-   }
+      // Update the total matches counter
+      totalMatchesSpan.innerHTML = `${totalMatches} ${matches}`;
 
-   // Remove the highlighting spans
-   function resetHighlights(article) {
-      const highlighted = article.querySelectorAll(hitsStyleSelectorClassName);
-      highlighted.forEach(span => {
-         const parent = span.parentNode;
-         parent.replaceChild(document.createTextNode(span.textContent), span);
-         parent.normalize(); // This merges adjacent text nodes
-      });
+      // Disable the back and forth buttons if there are no matches
+      handleBackAndForthButtonsDisabledState();
+
+      // Update the active match index
+      activeMatchIndex = -1;
    }
 }
 
