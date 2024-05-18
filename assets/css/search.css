@@ -11,32 +11,49 @@
   height: 1.5em;
 }
 
-.highlight-hits {
+.highlight-matches-search-h7vc6omi2hr2880 {
   outline: 3px solid #1d6dae80;
-  position: relative;
+
+  /* Works in tandem with the setTimeout in JS: */
+  transition: outline 0.3s ease-in-out;
+}
+
+.highlight-matches-search-h7vc6omi2hr2880.active {
+  outline: 8px solid #1d6dae;
+
+  /* Works in tandem with the setTimeout in JS: */
+  transition: outline 1s ease-in-out;
 }
 
 /* Specific styles */
-.highlight-hits-DIF-h7vc6omi2hr2880 {
+.highlight-matches-DIF-search-h7vc6omi2hr2880 {
   background-color: #1d6dae11;
 }
 
-.highlight-hits-ToIP-h7vc6omi2hr2880 {
+.highlight-matches-ToIP-search-h7vc6omi2hr2880 {
   background-color: #a9dde0b0;
 }
 
-.highlight-hits-BTC-h7vc6omi2hr2880 {
+.highlight-matches-BTC-search-h7vc6omi2hr2880 {
   background-color: #f19019a1;
 }
 
-.highlight-hits-KERI-h7vc6omi2hr2880 {
+.highlight-matches-KERI-search-h7vc6omi2hr2880 {
   background-color: #b5d070d5;
 }
 
-.highlight-hits-SSI-h7vc6omi2hr2880 {
+.highlight-matches-SSI-search-h7vc6omi2hr2880 {
   background-color: yellow;
 }
 
-.highlight-hits-GLEIF-h7vc6omi2hr2880 {
+.highlight-matches-GLEIF-search-h7vc6omi2hr2880 {
   background-color: #52dac6a6;
+}
+
+#back-and-forth-buttons-container-search-h7vc6omi2hr2880 {
+  padding: 0;
+}
+
+#back-and-forth-buttons-container-search-h7vc6omi2hr2880 #one-match-backward-search-h7vc6omi2hr2880 {
+  margin-right: 0.5em;
 }
