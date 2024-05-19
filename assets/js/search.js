@@ -175,7 +175,7 @@ function inPageSearch() {
       // Works in tandem with “transition” in CSS
       setTimeout(() => {
          extraHighlightedMatch.classList.remove("active");
-      }, 1000);
+      }, 3000);
 
       handleBackAndForthButtonsDisabledState();
    });
@@ -192,7 +192,7 @@ function inPageSearch() {
       // Works in tandem with “transition” in CSS
       setTimeout(() => {
          extraHighlightedMatch.classList.remove("active");
-      }, 1000);
+      }, 3000);
 
       handleBackAndForthButtonsDisabledState();
    });
@@ -218,6 +218,7 @@ function inPageSearch() {
       // If the search string is empty, set total matches to zero and return
       if (searchString === '') {
          totalMatchesSpan.innerHTML = `0 ${matches}`;
+         activeMatchIndex = -1;
          return
       };
 
