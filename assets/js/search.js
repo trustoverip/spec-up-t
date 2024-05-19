@@ -160,6 +160,10 @@ function inPageSearch() {
       }
    }
 
+   function setTotalMatches() {
+      totalMatchesSpan.innerHTML = `${totalMatches} ${matches}`;
+   }
+
    // Debounce search input. Prepare the debounced function outside the event listener
    const debouncedSearchAndHighlight = debounce(search, debounceTime);
 
@@ -201,11 +205,11 @@ function inPageSearch() {
    document.addEventListener('keyup', (event) => {
       switch (event.key) {
          case "ArrowRight":
-            goToNextMatchButton.click();
+            goToNextMatchButton.click(); // Simulate a click on button
             break;
 
          case "ArrowLeft":
-            goToPreviousMatchButton.click();
+            goToPreviousMatchButton.click(); // Simulate a click on button
             break;
       }
    });
@@ -215,10 +219,11 @@ function inPageSearch() {
       // Start clean
       removeAllSpans();
 
-      // If the search string is empty, set total matches to zero and return
+      totalMatches = 0;
+      activeMatchIndex = -1;
+      // If the search string is empty, return
       if (searchString === '') {
-         totalMatchesSpan.innerHTML = `0 ${matches}`;
-         activeMatchIndex = -1;
+         setTotalMatches();
          return
       };
 
@@ -280,7 +285,7 @@ function inPageSearch() {
       }
 
       // Update the total matches counter
-      totalMatchesSpan.innerHTML = `${totalMatches} ${matches}`;
+      setTotalMatches();
 
       // Disable the back and forth buttons if there are no matches
       handleBackAndForthButtonsDisabledState();
