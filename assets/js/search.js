@@ -47,14 +47,14 @@ function inPageSearch() {
    domInjectAfter.after(searchContainer);
 
    // Add an input element (for search)
-   let search = document.createElement("input");
-   search.setAttribute("type", "text");
-   search.setAttribute("id", antiNameCollisions);
-   search.setAttribute("placeholder", searchBarPlaceholder);
-   searchContainer.appendChild(search);
+   let searchInput = document.createElement("input");
+   searchInput.setAttribute("type", "text");
+   searchInput.setAttribute("id", antiNameCollisions);
+   searchInput.setAttribute("placeholder", searchBarPlaceholder);
+   searchContainer.appendChild(searchInput);
 
    setTimeout(() => {
-      search.focus();
+      searchInput.focus();
    }, 1000);
 
    // Add a container for the back and forth buttons
@@ -89,8 +89,8 @@ function inPageSearch() {
    searchContainer.appendChild(totalMatchesSpan);
 
    // Add an event listener to the input element
-   search.addEventListener("input", function () {
-      debouncedSearchAndHighlight(search.value);
+   searchInput.addEventListener("input", function () {
+      debouncedSearchAndHighlight(searchInput.value);
    });
    /* END Add DOM elements */
 
@@ -161,7 +161,7 @@ function inPageSearch() {
    }
 
    // Debounce search input. Prepare the debounced function outside the event listener
-   const debouncedSearchAndHighlight = debounce(searchAndHighlight, debounceTime);
+   const debouncedSearchAndHighlight = debounce(search, debounceTime);
 
    goToPreviousMatchButton.addEventListener("click", function () {
       activeMatchIndex--;
@@ -211,7 +211,7 @@ function inPageSearch() {
    });
 
    // Runs after every search input (debounced)
-   function searchAndHighlight(searchString) {
+   function search(searchString) {
       // Start clean
       removeAllSpans();
 
