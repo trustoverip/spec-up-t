@@ -1,11 +1,11 @@
 {
-  "name": "spec-up",
-  "version": "0.10.7",
-  "description": "Technical specification drafting tool that generates rich specification documents from markdown.",
+  "name": "spec-up-t",
+  "version": "0.11.0",
+  "description": "Technical specification drafting tool that generates rich specification documents from markdown. Forked from https://github.com/decentralized-identity/spec-up by Daniel Buchner (https://github.com/csuwildcat)",
   "main": "./index",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/decentralized-identity/spec-up.git"
+    "url": "git+https://github.com/blockchainbird/spec-up-t.git"
   },
   "scripts": {
     "edit": "node -e \"require('./index')()\"",
@@ -19,12 +19,12 @@
     "editor",
     "standards"
   ],
-  "author": "Daniel Buchner",
+  "author": "Blockchain Bird",
   "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/decentralized-identity/spec-up/issues"
+    "url": "https://github.com/blockchainbird/spec-up-t/issues"
   },
-  "homepage": "https://github.com/decentralized-identity/spec-up#readme",
+  "homepage": "https://github.com/blockchainbird/spec-up-t#readme",
   "dependencies": {
     "@traptitech/markdown-it-katex": "3.3.0",
     "axios": "0.21.2",
