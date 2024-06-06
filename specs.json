@@ -16,6 +16,13 @@
           "PE": "https://identity.foundation/presentation-exchange"
         }
       ],
+      "external_specs_repos": [
+        {
+          "external_spec": "PE",
+          "url": "https://github.com/decentralized-identity/presentation-exchange",
+          "terms_dir": "spec"
+        }
+      ],
       "assets": [
         {
           "path": "/custom-assets/custom.css"
