@@ -26,6 +26,7 @@
       "assets/js/search.js",
       "assets/js/highlightMenuItems.js",
       "assets/js/backToTop.js",
+      "assets/js/show-commit-hashes.js",
       "assets/js/index.js"
     ]
   }
