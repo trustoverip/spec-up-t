@@ -1,6 +1,6 @@
 {
   "name": "spec-up-t",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "Technical specification drafting tool that generates rich specification documents from markdown. Forked from https://github.com/decentralized-identity/spec-up by Daniel Buchner (https://github.com/csuwildcat)",
   "main": "./index",
   "repository": {
@@ -10,7 +10,8 @@
   "scripts": {
     "edit": "node -e \"require('./index')()\"",
     "render": "node -e \"require('./index')({ nowatch: true })\"",
-    "dev": "node -e \"require('./index')({ dev: true })\""
+    "dev": "node -e \"require('./index')({ dev: true })\"",
+    "split": "node -e \"require('./src/split-terms-and-definitions')\""
   },
   "keywords": [
     "spec",
