@@ -41,7 +41,7 @@ function fetchCommitHashes() {
             const diff = document.createElement('a');
             diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash + '..main/' + match.terms_dir + '/' + match.term.replace(/ /g, ' - ').toLowerCase() + '.md';
             diff.target = '_blank';
-            diff.classList.add('diff');
+            diff.classList.add('diff', 'xref-info-links');
             diff.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
             diff.innerHTML = 'Diff';
             element.parentNode.insertBefore(diff, element.nextSibling);
@@ -51,7 +51,7 @@ function fetchCommitHashes() {
             const latestVersion = document.createElement('a');
             latestVersion.href = 'https://github.com/' + match.owner + '/' + match.repo + '/blob/main/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md';
             latestVersion.target = '_blank';
-            latestVersion.classList.add('latest-version');
+            latestVersion.classList.add('latest-version', 'xref-info-links');
             latestVersion.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
             latestVersion.innerHTML = 'Latest version';
             diff.parentNode.insertBefore(latestVersion, element.nextSibling);
@@ -63,7 +63,7 @@ function fetchCommitHashes() {
             const exactCommitHash = document.createElement('a');
             exactCommitHash.href = 'https://github.com/' + match.owner + '/' + match.repo + '/blob/' + match.commitHash + '/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md';
             exactCommitHash.target = '_blank';
-            exactCommitHash.classList.add('exact-commit-hash');
+            exactCommitHash.classList.add('exact-commit-hash', 'xref-info-links');
             exactCommitHash.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
             exactCommitHash.innerHTML = '(' + commitHashShort + ')';
             latestVersion.parentNode.insertBefore(exactCommitHash, element.nextSibling);
