@@ -65,7 +65,7 @@ function fetchCommitHashes() {
             exactCommitHash.target = '_blank';
             exactCommitHash.classList.add('exact-commit-hash', 'xref-info-links');
             exactCommitHash.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
-            exactCommitHash.innerHTML = '(' + commitHashShort + ')';
+            exactCommitHash.innerHTML = commitHashShort;
             latestVersion.parentNode.insertBefore(exactCommitHash, element.nextSibling);
          }
       });
