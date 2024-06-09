@@ -5,13 +5,12 @@
  * @since 2024-06-09
  */
 
-const path = require('path');
-const fs = require('fs-extra');
-const config = fs.readJsonSync('./specs.json');
-const specDirectories = config.specs.map(spec => spec.spec_directory + '/term-definitions');
-
 // Get the current working directory
 const projectRoot = process.cwd();
+const path = require('path');
+const fs = require('fs-extra');
+const config = fs.readJsonSync(path.join(projectRoot, '/', 'specs.json'));
+const specDirectories = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
 
 // Create a path for the output file in the project root
 const outputPath = path.join(projectRoot, 'output/xrefs-data.js');
