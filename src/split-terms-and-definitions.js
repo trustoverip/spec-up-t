@@ -4,6 +4,8 @@
  * @since 2024-05-16
  */
 
+//TODO: specs.specs[0] should be replaced with code that loops through all specs
+
 const fs = require('fs');
 const path = require('path');
 const fixContent = require('./fix-content.js');
@@ -22,7 +24,7 @@ const specs = require('../specs.json');
 /* CONFIG */
 const config = {
   sourceGlossaryFileToBeSplit: 'terms_and_definitions.md', // This is the file that will be split up
-  markdownSplittedFilesDir: "term-definitions",
+  markdownSplittedFilesDir: specs.specs[0].spec_terms_directory,
   definitionStringHead: '[[def:' // This is the string that indicates the start of a definition and is used as a divider to split up the files
 };
 /* END CONFIG */
