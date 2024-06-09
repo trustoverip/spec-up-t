@@ -21,8 +21,8 @@
             "logo_link": "https://github.com/decentralized-identity/spec-up",
             "source": {
                 "host": "github",
-                "account": "decentralized-identity",
-                "repo": "spec-up"
+                "account": "blockchainbird",
+                "repo": "spec-up-t"
             },
             "external_specs": [
                 {
