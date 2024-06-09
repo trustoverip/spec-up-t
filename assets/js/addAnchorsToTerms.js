@@ -1,7 +1,5 @@
 function addAnchorsToTerms() {
-
     const dts = document.querySelectorAll('dt > span');
-    console.log('dts: ', dts);
 
     dts.forEach(dt => {
         // dt.classList.add('toc-anchor');
