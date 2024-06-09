@@ -1,61 +1,73 @@
 {
-  "specs": [
-    {
-      "title": "Spec-Up Example",
-      "spec_directory": "./single-file-test",
-      "output_path": "./",
-      "logo": "logo.svg",
-      "logo_link": "https://github.com/decentralized-identity/spec-up",
-      "source": {
-        "host": "github",
-        "account": "decentralized-identity",
-        "repo": "spec-up"
-      },
-      "external_specs": [
+    "specs": [
         {
-          "PE": "https://identity.foundation/presentation-exchange"
+            "title": "Spec-Up ToIP example",
+            "spec_directory": "./spec",
+            "spec_terms_directory": "term-definitions",
+            "output_path": "./docs",
+            "markdown_paths": [
+                "title.md",
+                "header.md",
+                "toc.md",
+                "introduction.md",
+                "referenced_glossaries.md",
+                "terms_and_definitions.md",
+                "term-definitions/term-1.md",
+                "term-definitions/term-2.md",
+                "term-definitions/term-3.md",
+                "term-definitions/term-4.md"
+            ],
+            "logo": "../logo.svg",
+            "logo_link": "https://github.com/decentralized-identity/spec-up",
+            "source": {
+                "host": "github",
+                "account": "decentralized-identity",
+                "repo": "spec-up"
+            },
+            "external_specs": [
+                {
+                    "PE": "https://identity.foundation/presentation-exchange"
+                },
+                {
+                    "test-1": "https://kordwarshuis.github.io/spec-up-xref-test-1/"
+                },
+                {
+                    "test-2": "https://kordwarshuis.github.io/spec-up-xref-test-2/"
+                }
+            ],
+            "external_specs_repos": [
+                {
+                    "external_spec": "PE",
+                    "url": "https://github.com/decentralized-identity/presentation-exchange",
+                    "terms_dir": "spec"
+                },
+                {
+                    "external_spec": "test-1",
+                    "url": "https://github.com/kordwarshuis/spec-up-xref-test-1",
+                    "terms_dir": "spec/term-definitions"
+                },
+                {
+                    "external_spec": "test-2",
+                    "url": "https://github.com/kordwarshuis/spec-up-xref-test-2",
+                    "terms_dir": "spec/term-definitions"
+                }
+            ],
+            "assets": [
+                {
+                    "path": "/custom-assets/custom.css"
+                },
+                {
+                    "path": "/custom-assets/custom-head.js",
+                    "inject": "head"
+                },
+                {
+                    "path": "/custom-assets/custom-body.js",
+                    "inject": "body",
+                    "module": true
+                }
+            ],
+            "katex": false,
+            "searchHighlightStyle": "ssi"
         }
-      ],
-      "external_specs_repos": [
-        {
-          "external_spec": "PE",
-          "url": "https://github.com/decentralized-identity/presentation-exchange",
-          "terms_dir": "spec"
-        }
-      ],
-      "assets": [
-        {
-          "path": "/custom-assets/custom.css"
-        },
-        {
-          "path": "/custom-assets/custom-head.js",
-          "inject": "head"
-        },
-        {
-          "path": "/custom-assets/custom-body.js",
-          "inject": "body",
-          "module": true
-        }
-      ],
-      "katex": true,
-      "searchHighlightStyle": "ssi"
-    },
-    {
-      "title": "Spec-Up Multi-File Example",
-      "spec_directory": "./multi-file-test",
-      "markdown_paths": [
-        "header.md",
-        "abstract.md",
-        "getting-started.md",
-        "features.md"
-      ],
-      "logo": "../logo.svg",
-      "logo_link": "https://github.com/decentralized-identity/spec-up",
-      "source": {
-        "host": "github",
-        "account": "decentralized-identity",
-        "repo": "spec-up"
-      }
-    }
-  ]
+    ]
 }
