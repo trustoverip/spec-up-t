@@ -31,7 +31,7 @@ module.exports = function(options = {}) {
     }
   ];
 
-  // getXrefsData();
+  getXrefsData();
 
   // Get the current working directory
   const projectRoot = process.cwd();
@@ -50,12 +50,6 @@ module.exports = function(options = {}) {
     console.error(error);
     xrefsData = "";
   }
-
-
-
-  console.log('xrefsData: ', xrefsData);
-
-
 
   function applyReplacers(doc) {
     return doc.replace(replacerRegex, function (match, type, args) {
