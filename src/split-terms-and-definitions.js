@@ -23,17 +23,42 @@ const specs = require('../specs.json');
 
 /* CONFIG */
 const config = {
-  sourceGlossaryFileToBeSplit: 'terms_and_definitions.md', // This is the file that will be split up
-  markdownSplittedFilesDir: specs.specs[0].spec_terms_directory,
+  termsFileToBeSplit: 'terms_and_definitions.md', // This is the file that will be split up
+  termFilesDir: specs.specs[0].spec_terms_directory,
   definitionStringHead: '[[def:' // This is the string that indicates the start of a definition and is used as a divider to split up the files
 };
 /* END CONFIG */
+
+// Path to directory with the markdown file to be split up
+const pathToTermsFileToBeSplit = path.join(specs.specs[0].spec_directory, "/", config.termsFileToBeSplit)
+
+// Path to directory with the resulting files (one term per file)
+const pathToTermFilesDir = path.join(specs.specs[0].spec_directory, "/", config.termFilesDir);
+
+// First testing, continue or not?
+// Test if a directory exists at the pathToTermFilesDir path
+console.log(`Only split if ${pathToTermFilesDir} directory does not exist, or has no markdown files. Otherwise, stop.`);
+if (!fs.existsSync(pathToTermFilesDir)) {
+  console.log('Directory does not exist. Ok to proceed');
+} else {
+  console.log('Directory exists');
+  const files = fs.readdirSync(pathToTermFilesDir);
+  const mdFilesCount = files.filter(file => file.endsWith('.md')).length;
+
+  //test if number of files with extension “.md” is higher than zero
+  if (mdFilesCount > 0) {
+    console.log('There are .md files in the directory. Stopping.');
+    return;
+  } else {
+    console.log('There are no .md files in the directory. Ok to proceed');
+  }
+}
 
 // Array that holds markdown filenames in the desired order
 const arrMarkdownFileNamesAndFileOrder = specs.specs[0].markdown_paths;
 
 // Position in arrMarkdownFileNamesAndFileOrder where to insert new filenames
-let numMarkdownFileNamesAndOrderInsertPosition = arrMarkdownFileNamesAndFileOrder.indexOf(config.sourceGlossaryFileToBeSplit);
+let numMarkdownFileNamesAndOrderInsertPosition = arrMarkdownFileNamesAndFileOrder.indexOf(config.termsFileToBeSplit);
 
 /**
  * Inserts the given string into the specified array at the current insert position.
@@ -52,22 +77,20 @@ function insertGlossaryFileNameInSpecsJSON(markdownFileNamesAndFileOrder, termFi
 arrMarkdownFileNamesAndFileOrder.splice(numMarkdownFileNamesAndOrderInsertPosition, 1);
 
 // Variable that holds the file content, read from disk
-const glossaryFileContent = fs.readFileSync(path.join(specs.specs[0].spec_directory, "/", config.sourceGlossaryFileToBeSplit), 'utf8');
+const glossaryFileContent = fs.readFileSync(pathToTermsFileToBeSplit, 'utf8');
 
 // Perform a few basic fixes on the source file
-fixContent.fixGlossaryFile();
+fixContent.fixGlossaryFile(pathToTermsFileToBeSplit);
 
-// Directory with the splitted files with path
-const markdownSplittedFilesDirWithPath = path.join(specs.specs[0].spec_directory, "/", config.markdownSplittedFilesDir);
 
 // Remove directory with the splitted files if it exists
-if (fs.existsSync(markdownSplittedFilesDirWithPath)) {
-  fs.rmdirSync(markdownSplittedFilesDirWithPath, { recursive: true });
+if (fs.existsSync(pathToTermFilesDir)) {
+  fs.rmdirSync(pathToTermFilesDir, { recursive: true });
 }
 
 // Create directory that is going to hold splitted files if it doesn't exist
-if (!fs.existsSync(markdownSplittedFilesDirWithPath)) {
-  fs.mkdirSync(markdownSplittedFilesDirWithPath, { recursive: true });
+if (!fs.existsSync(pathToTermFilesDir)) {
+  fs.mkdirSync(pathToTermFilesDir, { recursive: true });
 }
 
 // Find the terms by looking at the predictable string that indicates the start of a definition
@@ -100,13 +123,13 @@ sections.forEach((section, index) => {
     // Write separate files to disk
     fs.writeFileSync(
       // Where to write to:
-      path.join(specs.specs[0].spec_directory, "/", config.markdownSplittedFilesDir, "/", filename),
+      path.join(pathToTermFilesDir, "/", filename),
       // What to write:
       config.definitionStringHead + section
     );
 
     // Add file path to specs
-    insertGlossaryFileNameInSpecsJSON(arrMarkdownFileNamesAndFileOrder, path.join(config.markdownSplittedFilesDir, '/', filename));
+    insertGlossaryFileNameInSpecsJSON(arrMarkdownFileNamesAndFileOrder, path.join(config.termFilesDir, '/', filename));
   }
 });
 
