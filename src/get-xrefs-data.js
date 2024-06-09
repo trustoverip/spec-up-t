@@ -15,6 +15,7 @@ const projectRoot = process.cwd();
 
 // Create a path for the output file in the project root
 const outputPath = path.join(projectRoot, 'output/xrefs-data.js');
+console.log('outputPath: ', outputPath);
 
 function getXrefsData() {
     let allXrefs = {};
