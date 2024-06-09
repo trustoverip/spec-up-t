@@ -6,6 +6,7 @@ module.exports = function(options = {}) {
     validateReferences,
     findExternalSpecByKey
   } = require('./references.js');
+  const {getXrefsData} = require('./src/get-xrefs-data.js');
   const gulp = require('gulp');
   const fs = require('fs-extra');
   const path = require('path');
@@ -30,8 +31,34 @@ module.exports = function(options = {}) {
     }
   ];
 
-  function applyReplacers(doc){
-    return doc.replace(replacerRegex, function(match, type, args){
+  // getXrefsData();
+
+  // Get the current working directory
+  const projectRoot = process.cwd();
+  // Create a path for the output file in the project root
+  const inputPath = path.join(projectRoot, 'output/xrefs-data.js');
+  // Read './xrefs-data.js' as a string
+  let xrefsData;
+  try {
+    if (fs.existsSync(inputPath)) {
+      xrefsData = fs.readFileSync(inputPath, 'utf8');
+      xrefsData = '<script>' + xrefsData + '</script>';
+    } else {
+      xrefsData = "";
+    }
+  } catch (error) {
+    console.error(error);
+    xrefsData = "";
+  }
+
+
+
+  console.log('xrefsData: ', xrefsData);
+
+
+
+  function applyReplacers(doc) {
+    return doc.replace(replacerRegex, function (match, type, args) {
       let replacer = replacers.find(r => type.trim().match(r.test));
       return replacer ? replacer.transform(...args.trim().split(replacerArgsRegex)) : match;
     });
@@ -218,6 +245,7 @@ module.exports = function(options = {}) {
                   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400&display=swap" rel="stylesheet">
 
                   ${assets.head}
+                  ${xrefsData}
                 </head>
                 <body features="${Object.keys(features).join(' ')}">
                   
