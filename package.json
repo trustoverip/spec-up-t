@@ -10,8 +10,7 @@
   "scripts": {
     "edit": "node -e \"require('./index')()\"",
     "render": "node -e \"require('./index')({ nowatch: true })\"",
-    "dev": "node -e \"require('./index')({ dev: true })\"",
-    "split": "node -e \"require('./src/split-terms-and-definitions')\""
+    "dev": "node -e \"require('./index')({ dev: true })\""
   },
   "keywords": [
     "spec",
