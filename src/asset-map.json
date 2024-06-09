@@ -29,6 +29,7 @@
       "assets/js/highlightMenuItems.js",
       "assets/js/backToTop.js",
       "assets/js/show-commit-hashes.js",
+      "assets/js/addAnchorsToTerms.js",
       "assets/js/index.js"
     ]
   }
