@@ -190,11 +190,9 @@ function getXrefsData() {
     });
 
     async function fetchLatestCommitHashes() {
-
-        // // temporary no github api call
-        // for (const match of allXrefs.xrefs) {
-        //     match.commitHash = await fetchLatestCommitHash(match);
-        // }
+        for (const match of allXrefs.xrefs) {
+            match.commitHash = await fetchLatestCommitHash(match);
+        }
     }
 
     // Call the function and wait for it to complete before writing to the file
