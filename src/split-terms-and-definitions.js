@@ -19,6 +19,9 @@ const fs = require('fs');
 const path = require('path');
 const fixContent = require('./fix-content.js');
 
+// Get the current working directory
+const projectRoot = process.cwd();
+
 // if “specs.unsplit.json” does not yet exist, copy “specs.json” to “specs.unsplit.json” so we have a backup
 if (!fs.existsSync('specs.unsplit.json')) {
   fs.copyFileSync('specs.json', 'specs.unsplit.json');
@@ -39,10 +42,10 @@ const config = {
 /* END CONFIG */
 
 // Path to directory with the markdown file to be split up
-const pathToTermsFileToBeSplit = path.join(specs.specs[0].spec_directory, "/", config.termsFileToBeSplit)
+const pathToTermsFileToBeSplit = path.join(projectRoot, "/", specs.specs[0].spec_directory, "/", config.termsFileToBeSplit)
 
 // Path to directory with the resulting files (one term per file)
-const pathToTermFilesDir = path.join(specs.specs[0].spec_directory, "/", config.termFilesDir);
+const pathToTermFilesDir = path.join(projectRoot, "/", specs.specs[0].spec_directory, "/", config.termFilesDir);
 
 // First testing, continue or not?
 // Test if a directory exists at the pathToTermFilesDir path
