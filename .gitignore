@@ -1,5 +1,6 @@
 .DS_Store
 **/fonts/
+output
 
 # Logs
 logs
