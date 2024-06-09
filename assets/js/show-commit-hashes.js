@@ -1,16 +1,9 @@
-/*
-  Author: Kor Dwarshuis, kor@dwarshuis.com
-  Created: 2024-04-01
-  Description: 
-
-*/
-
 /**
- * @file This file fetches 
+ * @file This file fetches information about xrefs from various places (including the GitHub API) and stores it in a JavaScript file that is included in the HTML output of the specification.
  * @author Kor Dwarshuis
  * @version 0.0.1
  * @license MIT
- * @since 2024-06-08
+ * @since 2024-06-09
  */
 
 function fetchCommitHashes() {
