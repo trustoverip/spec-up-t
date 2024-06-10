@@ -3,7 +3,7 @@
         {
             "title": "Spec-Up ToIP example",
             "spec_directory": "./spec",
-            "spec_terms_directory": "term-definitions",
+            "spec_terms_directory": "terms-definitions",
             "output_path": "./docs",
             "markdown_paths": [
                 "title.md",
@@ -12,10 +12,10 @@
                 "introduction.md",
                 "referenced_glossaries.md",
                 "terms_and_definitions.md",
-                "term-definitions/term-1.md",
-                "term-definitions/term-2.md",
-                "term-definitions/term-3.md",
-                "term-definitions/term-4.md"
+                "terms-definitions/term-1.md",
+                "terms-definitions/term-2.md",
+                "terms-definitions/term-3.md",
+                "terms-definitions/term-4.md"
             ],
             "logo": "../logo.svg",
             "logo_link": "https://github.com/decentralized-identity/spec-up",
