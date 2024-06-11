@@ -33,6 +33,8 @@ module.exports = function(options = {}) {
 
   getXrefsData();
 
+
+  // Test if xrefs-data.js exists
   // Get the current working directory:
   const projectRoot = process.cwd();
   // Create a path for the output file in the project root:
@@ -46,10 +48,6 @@ module.exports = function(options = {}) {
   } catch (error) {
     console.error(error);
   }
-
-
-
-
 
   function applyReplacers(doc) {
     return doc.replace(replacerRegex, function (match, type, args) {
