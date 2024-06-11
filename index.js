@@ -31,9 +31,6 @@ module.exports = function(options = {}) {
     }
   ];
 
-  getXrefsData();
-
-
   // Test if xrefs-data.js exists
   // Get the current working directory:
   const projectRoot = process.cwd();
