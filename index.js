@@ -203,6 +203,31 @@ module.exports = function(options = {}) {
         anchorClassName: 'toc-anchor'
       })
       .use(require('@traptitech/markdown-it-katex'))
+    
+    // Custom plugin to add class to <dl>
+    function addClassToDefinitionList(md) {
+      const originalRender = md.renderer.rules.dl_open || function (tokens, idx, options, env, self) {
+        return self.renderToken(tokens, idx, options);
+      };
+
+      md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
+        tokens[idx].attrPush(['class', 'terms-and-definitions-list']);
+        return originalRender(tokens, idx, options, env, self);
+      };
+    }
+
+    md.use(addClassToDefinitionList);
+
+    // Example markdown to test the functionality
+    const markdown = `
+Term 1
+: Definition 1
+
+Term 2
+: Definition 2
+`;
+
+    console.log(md.render(markdown));
 
     async function render(spec, assets) {
       try {
