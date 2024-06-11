@@ -218,17 +218,6 @@ module.exports = function(options = {}) {
 
     md.use(addClassToDefinitionList);
 
-    // Example markdown to test the functionality
-    const markdown = `
-Term 1
-: Definition 1
-
-Term 2
-: Definition 2
-`;
-
-    console.log(md.render(markdown));
-
     async function render(spec, assets) {
       try {
         noticeTitles = {};
