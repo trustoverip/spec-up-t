@@ -33,23 +33,23 @@ module.exports = function(options = {}) {
 
   getXrefsData();
 
-  // Get the current working directory
+  // Get the current working directory:
   const projectRoot = process.cwd();
-  // Create a path for the output file in the project root
+  // Create a path for the output file in the project root:
   const inputPath = path.join(projectRoot, 'output/xrefs-data.js');
-  // Read './xrefs-data.js' as a string
-  let xrefsData;
+  let xrefsData = "";
+
   try {
     if (fs.existsSync(inputPath)) {
-      xrefsData = fs.readFileSync(inputPath, 'utf8');
-      xrefsData = '<script>' + xrefsData + '</script>';
-    } else {
-      xrefsData = "";
+      xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
     }
   } catch (error) {
     console.error(error);
-    xrefsData = "";
   }
+
+
+
+
 
   function applyReplacers(doc) {
     return doc.replace(replacerRegex, function (match, type, args) {
