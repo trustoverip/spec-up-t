@@ -8,7 +8,7 @@
 
 function editTermButtons() {
    // find the definition list that is the next sibling of #terms-definitions
-   const termsDefinitions = document.querySelector('#terms-definitions ~ dl');
+   const termsDefinitions = document.querySelector('.terms-and-definitions-list');
 
    // Remove "./" or "/" from the beginning of a string and "/" at the end of the string
    function cleanPath(path) {
