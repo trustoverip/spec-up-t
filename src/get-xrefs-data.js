@@ -9,7 +9,6 @@
 
 const fs = require('fs-extra');
 const config = fs.readJsonSync('specs.json');
-console.log('config: ', config);
 const specDirectories = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
 
 // Create directory named “output” in the project root if it does not yet exist
@@ -55,41 +54,47 @@ function getXrefsData() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            console.log("Github API request successful");
+            console.log(`Github API request for the term “${match.term}” was successful`);
 
             // Extract JSON data from the response
             const data = await response.json();
 
             // Check if there are any commits
             if (data.length === 0) {
-                console.log("no CommitHash");
+                console.log(`No commit hash found for the term “${match.term}”`);
 
                 return;
             }
 
             // Process the last ten commits
             const commits = data.slice(0, 1); // Get only the last commit
-
-            return commits.map(commit => commit.sha);
+            const commitHash = commits.map(commit => commit.sha);
+            
+            console.log(`Commit hash found for the term “${match.term}”: `, commitHash);
+            return commitHash;
 
             // return;
         } catch (error) {
-            console.error('Failed to fetch commit hash:', error);
+            console.error(`Failed to fetch commit hash for the term “${match.term}”:`, error);
         }
     }
 
     // Go through all directories that contain files with a term and definition
+    console.log('All “spec_directory” found in specs.json: ', specDirectories);
     specDirectories.forEach(specDirectory => {
+        console.log(`Current spec_directory: `, specDirectory);
         // read directory
         fs.readdirSync(specDirectory).forEach(file => {
             // read file
             if (file.endsWith('.md')) {
+                console.log(`Markdown file referenced in spec_directory: `, file);
                 const markdown = fs.readFileSync(`${specDirectory}/${file}`, 'utf8');
                 // create regex that finds “[[xref:.*]]”
                 const regex = /\[\[xref:.*?\]\]/g;
                 if (regex.test(markdown)) {
                     const xrefs = markdown.match(regex);
                     xrefs.forEach(xref => {
+                        console.log(`Xref found in ${file}: `, xref);
                         // example of xref: [[xref: PE, Holder]]
                         allXrefs.xrefs.add(xref);
                     });
