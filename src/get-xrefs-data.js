@@ -55,6 +55,8 @@ function getXrefsData() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
+            console.log("Github API request successful");
+
             // Extract JSON data from the response
             const data = await response.json();
 
