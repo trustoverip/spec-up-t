@@ -1,14 +1,13 @@
+# Spec-Up-T
 
-
-<p align="center">
+<div align="center">
 
 <img src="./specup_logo.png">
 
-<h3 style="display: block; margin: 0 auto; text-align: center;">Markdown » Spec-Up</h3>
+<h2 style="display: block; margin: 0 auto; text-align: center;">Markdown » Spec-Up</h2>
+</div>
 
-</p>
-
-
+## Intro
 
 Spec-Up is a technical specification development tool that enables you to create rich specification documents for standards bodies and engineering projects by writing in an extended version of markdown that features all the bells and whistles - for example: advanced syntax highlighting, notice blocks, complex tables, charts, UML diagrams, and more.
 
@@ -22,11 +21,26 @@ Spec-Up-T stays in sync with Spec-Up, and currently adds the following extra fun
 
 ## Setup
 
-Installing Spec-Up is easy peasy lemon squeezy:
+Install Spec-Up-T as follows:
 
-0. Node.JS, i.e. `nvm` and its package manager `npm`, are required to run spec-up. WSL2 users should look [here](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-wsl#install-nvm-nodejs-and-npm) for specific instructions. 
-1. Run `npm install spec-up` in the root directory of the repo to install all dependencies.
-2. Create a `specs.json` file **in the root folder of your repository** to specify configuration values used in the generation of your spec documents. The values in your `specs.json` file include things like where your spec's markdown files are located, where to output the generated spec document, and various metadata values used in rendering, such as the title, logo, and repo links for each of your specs. The following are the required/optional fields supported in the `specs.json` config file:
+- Open your terminal and go to the target directory
+- Run `npx create-spec-up-starterpack@latest`
+This will create a working Spec-Up-T installation in a new directory called `spec-up-t-starter-pack`
+
+- Rename this directory to your liking, for example `my-new-specification`
+- Go into this dir:
+`cd my-new-specification`
+You are now in this dir.
+
+- Install all dependencies:
+`npm run install`
+
+Now you have a basic Spec-Up-T install with the following content:
+- a `specs.json` file
+- a `spec/` directory with a sample markdown files
+- (and more)
+
+The`specs.json` file **in the root folder of your repository** specifies configuration values used in the generation of your spec documents. The values in your `specs.json` file include things like where your spec's markdown files are located, where to output the generated spec document, and various metadata values used in rendering, such as the title, logo, and repo links for each of your specs. The following are the required/optional fields supported in the `specs.json` config file:
 
     - **`public_root`** _(PATH STRING, optional)_ - For some platforms and services where you may want to output your rendered spec, the pathing may differ from the directory structure of your local project. To account for this, you can use the `public_root` property to specify the insertion of a path segment to account for the different in pathing between your local renders and wherever you publish your spec to.
     - **`specs`** _(ARRAY, required)_ - the `specs` array contains descriptor objects for each of the specs you are generating in your project, and are composed of the following required and optional properties:
@@ -46,9 +60,8 @@ Installing Spec-Up is easy peasy lemon squeezy:
                 "repo": "sidetree"
             }
             ```
-3. In your main node.js file, or as a package.json script entry, use this invocation call: `require('spec-up')()`
 
-Boom! That's it. You're ready to start rendering specs as HTML sites locally and/or pushing them to github pages however you see fit to automate.
+You're ready to start rendering specs as HTML sites locally and/or pushing them to github pages however you see fit to automate.
 
 ## Running the scripts locally
 
