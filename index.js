@@ -6,7 +6,6 @@ module.exports = function(options = {}) {
     validateReferences,
     findExternalSpecByKey
   } = require('./references.js');
-  const {getXrefsData} = require('./src/get-xrefs-data.js');
   const gulp = require('gulp');
   const fs = require('fs-extra');
   const path = require('path');
