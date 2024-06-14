@@ -6,19 +6,19 @@
  */
 
 // Get the current working directory
-const projectRoot = process.cwd();
-const path = require('path');
+
 const fs = require('fs-extra');
-const config = fs.readJsonSync(path.join(projectRoot, '/', 'specs.json'));
+const config = fs.readJsonSync('specs.json');
+console.log('config: ', config);
 const specDirectories = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
 
 // Create directory named “output” in the project root if it does not yet exist
-if (!fs.existsSync(path.join(projectRoot, '/output'))) {
-    fs.mkdirSync(path.join(projectRoot, '/output'));
+if (!fs.existsSync('output')) {
+    fs.mkdirSync('output');
 }
 
 // Create a path for the output file in the project root
-const outputPath = path.join(projectRoot, '/output/xrefs-data.js');
+const outputPath = 'output/xrefs-data.js';
 
 function getXrefsData() {
     let allXrefs = {};
