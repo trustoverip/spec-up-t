@@ -31,11 +31,8 @@ module.exports = function(options = {}) {
     }
   ];
 
-  // Test if xrefs-data.js exists
-  // Get the current working directory:
-  const projectRoot = process.cwd();
-  // Create a path for the output file in the project root:
-  const inputPath = path.join(projectRoot, 'output/xrefs-data.js');
+  // Test if xrefs-data.js exists, else make it an empty string
+  const inputPath = 'output/xrefs-data.js';
   let xrefsData = "";
 
   try {
