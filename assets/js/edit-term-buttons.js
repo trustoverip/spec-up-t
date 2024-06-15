@@ -7,8 +7,8 @@
  */
 
 function editTermButtons() {
-   // Find the definition list
-   const termsDefinitions = document.querySelector('.terms-and-definitions-list');
+   // Find the definition list. This does not work ok. Disabled for now.
+   // const termsDefinitions = document.querySelector('.terms-and-definitions-list');
 
    // Remove "./" or "/" from the beginning of a string and "/" at the end of the string
    function cleanPath(path) {
