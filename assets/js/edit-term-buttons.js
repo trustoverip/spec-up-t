@@ -30,9 +30,9 @@ function editTermButtons() {
    // Example usage with the string from the file
 
    const cleanedSpecDir = cleanPath(specConfig.spec_directory);
-
-   termsDefinitions.querySelectorAll('dt').forEach(term => {
-      const url = term.querySelector('span').getAttribute('id');
+   
+   document.querySelectorAll('span[id^="term:"]').forEach(term => {
+      const url = term.getAttribute('id');
 
       // cut “url” on the “:” and keep the second part
       const fileName = url.split(":")[1];
