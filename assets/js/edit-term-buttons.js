@@ -38,7 +38,7 @@ function editTermButtons() {
       const fileName = url.split(":")[1];
 
       // add edit and history buttons to term
-      term.innerHTML += `<sup class="edit-term-button-sup"><a target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/blob/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="edit-term-button">Edit</a></sup><sup class="history-term-button-sup"><a target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/commits/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="history-term-button">History</a></sup>`;
+      term.innerHTML += `<sup class="edit-term-button-sup"><a target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/blob/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="edit-term-button btn">Edit</a></sup><sup class="history-term-button-sup"><a target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/commits/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="history-term-button btn">History</a></sup>`;
    });
 }
 
