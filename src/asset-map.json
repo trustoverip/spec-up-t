@@ -9,7 +9,8 @@
       "assets/css/highlightMenuItems.css",
       "assets/css/xrefs.css",
       "assets/css/backToTop.css",
-      "assets/css/index.css"
+      "assets/css/index.css",
+      "assets/css/bootstrap-parts.css"
     ],
     "js": [
       "assets/js/utils.js",
