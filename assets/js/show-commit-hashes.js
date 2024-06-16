@@ -28,14 +28,14 @@ function fetchCommitHashes() {
       // allXrefs is an object that is available in the global scope
       allXrefs.xrefs.forEach((match) => {
          if (match.externalSpec === splitHref[1] && match.term.toLowerCase() === splitHref[2].toLowerCase()) {
-            const commitHashShort = match.commitHash && match.commitHash[0] ? match.commitHash[0].substring(0, 7) : 'No commit hash found';
+            const commitHashShort = match.commitHash && match.commitHash[0] ? match.commitHash[0].substring(0, 7) : 'No hash';
 
             // Diff of the latest commit hash of a term-file and the referenced commit hash
             const diff = document.createElement('a');
             diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash + '..main/' + match.terms_dir + '/' + match.term.replace(/ /g, ' - ').toLowerCase() + '.md';
             diff.target = '_blank';
-            diff.classList.add('diff', 'xref-info-links');
-            diff.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
+            diff.classList.add('diff', 'xref-info-links', 'btn');
+            // diff.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
             diff.innerHTML = 'Diff';
             element.parentNode.insertBefore(diff, element.nextSibling);
 
@@ -44,9 +44,9 @@ function fetchCommitHashes() {
             const latestVersion = document.createElement('a');
             latestVersion.href = 'https://github.com/' + match.owner + '/' + match.repo + '/blob/main/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md';
             latestVersion.target = '_blank';
-            latestVersion.classList.add('latest-version', 'xref-info-links');
-            latestVersion.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
-            latestVersion.innerHTML = 'Latest version';
+            latestVersion.classList.add('latest-version', 'xref-info-links', 'btn');
+            // latestVersion.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
+            latestVersion.innerHTML = 'Latest';
             diff.parentNode.insertBefore(latestVersion, element.nextSibling);
 
 
@@ -56,8 +56,8 @@ function fetchCommitHashes() {
             const exactCommitHash = document.createElement('a');
             exactCommitHash.href = 'https://github.com/' + match.owner + '/' + match.repo + '/blob/' + match.commitHash + '/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md';
             exactCommitHash.target = '_blank';
-            exactCommitHash.classList.add('exact-commit-hash', 'xref-info-links');
-            exactCommitHash.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
+            exactCommitHash.classList.add('exact-commit-hash', 'xref-info-links', 'btn');
+            // exactCommitHash.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
             exactCommitHash.innerHTML = commitHashShort;
             latestVersion.parentNode.insertBefore(exactCommitHash, element.nextSibling);
          }
