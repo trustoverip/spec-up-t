@@ -7,8 +7,16 @@
  */
 
 function editTermButtons() {
-   // Find the definition list. This does not work ok. Disabled for now.
-   // const termsDefinitions = document.querySelector('.terms-and-definitions-list');
+   // Function to find the deepest <span>
+   // Spec-Up is generating nested spans. The deepest span is the main term, and that is what we need.
+   function findDeepestSpan(element) {
+      let currentElement = element;
+      // While there is a <span> child, keep going deeper
+      while (currentElement.querySelector('span[id^="term:"]')) {
+         currentElement = currentElement.querySelector('span[id^="term:"]');
+      }
+      return currentElement;
+   }
 
    // Remove "./" or "/" from the beginning of a string and "/" at the end of the string
    function cleanPath(path) {
@@ -31,14 +39,19 @@ function editTermButtons() {
 
    const cleanedSpecDir = cleanPath(specConfig.spec_directory);
    
-   document.querySelectorAll('span[id^="term:"]').forEach(term => {
+   // Find all definition terms that have spans with the id of "term:...". These are the definitions we are looking for.
+   document.querySelectorAll('dt:has(> span[id^="term:"])').forEach(item => {
+      const term = findDeepestSpan(item);
+      console.log('term: ', term);
       const url = term.getAttribute('id');
+      console.log('url: ', url);
 
       // cut “url” on the “:” and keep the second part
       const fileName = url.split(":")[1];
+      console.log('fileName: ', fileName);
 
       // add edit and history buttons to term
-      term.innerHTML += `<sup class="edit-term-button-sup"><a target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/blob/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="edit-term-button btn">Edit</a></sup><sup class="history-term-button-sup"><a target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/commits/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="history-term-button btn">History</a></sup>`;
+      term.innerHTML += `<sup class="edit-term-button-sup"><a target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/blob/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="edit-term-button btn">Edit ${fileName}</a></sup><sup class="history-term-button-sup"><a target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/commits/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="history-term-button btn">History</a></sup>`;
    });
 }
 
