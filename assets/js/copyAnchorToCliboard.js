@@ -8,7 +8,7 @@ function copyAnchorToCliboard() {
     // add click event to all .toc-anchor via event delegation
     document.addEventListener('click', function (e) {
         if (e.target.classList.contains('toc-anchor')) {
-            e.preventDefault();
+            // e.preventDefault(); // De-activated, since currently We explicitly want to keep the default behavior of the anchor link
             const anchorText = e.target.href;
             navigator.clipboard.writeText(anchorText).then(() => {
                 console.log('Anchor copied to clipboard');
