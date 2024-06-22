@@ -1,5 +1,5 @@
 /**
- * @file This file creates a JavaScript file with the data for the xrefs. It fetches the latest commit hash of the term files from the GitHub API and stores the data in a JavaScript file that is included in the HTML output of the specification. This file is run as a Node.js script.
+ * @file This file creates a JavaScript file with the data for the xrefs. It fetches the latest commit hash of the term files from the GitHub API and stores the data in a JavaScript file that is included in the HTML output of the specification. The outputted JS file serves as a source for the JS code that will be included in the html file.
  * @author Kor Dwarshuis
  * @version 1.0.0
  * @since 2024-06-09
