@@ -9,14 +9,15 @@ const fs = require('fs-extra');
 const config = fs.readJsonSync('specs.json');
 const specDirectories = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
 
-// Create directory named “output” in the project root if it does not yet exist
-if (!fs.existsSync('output')) {
-    fs.mkdirSync('output');
-}
 
 // Create a path for the output file in the project root
 const outputPathJSON = path.join(config.specs[0].output_path, 'term-relations-data.json');
 const outputPathJS = path.join(config.specs[0].output_path, 'term-relations-data.js');
+
+// Create directory named “output” in the project root if it does not yet exist
+if (!fs.existsSync(config.specs[0].output_path)) {
+    fs.mkdirSync(config.specs[0].output_path);
+}
 
 function createTermRelations() {
     let allDefs = {};
