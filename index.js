@@ -6,6 +6,10 @@ module.exports = function(options = {}) {
     validateReferences,
     findExternalSpecByKey
   } = require('./references.js');
+
+  const { createTermRelations } = require('./src/create-term-relations.js');
+  createTermRelations();
+
   const gulp = require('gulp');
   const fs = require('fs-extra');
   const path = require('path');
