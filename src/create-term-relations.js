@@ -15,8 +15,8 @@ if (!fs.existsSync('output')) {
 }
 
 // Create a path for the output file in the project root
-const outputPathJSON = 'output/term-relations-data.json';
-const outputPathJS = 'output/term-relations-data.js';
+const outputPathJSON = path.join(config.specs[0].output_path, 'term-relations-data.json');
+const outputPathJS = path.join(config.specs[0].output_path, 'term-relations-data.js');
 
 function createTermRelations() {
     let allDefs = {};
