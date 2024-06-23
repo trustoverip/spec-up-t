@@ -11,8 +11,15 @@ const specDirectories = config.specs.map(spec => spec.spec_directory + '/' + spe
 
 
 // Create a path for the output file in the project root
-const outputPathJSON = path.join(config.specs[0].output_path, 'term-relations-data.json');
-const outputPathJS = path.join(config.specs[0].output_path, 'term-relations-data.js');
+
+// // A: to the directory that will be published
+// const outputPathJSON = path.join(config.specs[0].output_path, 'term-relations-data.json');
+// const outputPathJS = path.join(config.specs[0].output_path, 'term-relations-data.js');
+
+// B: to the “output” directory
+const outputPathJSON = path.join('output', 'term-relations-data.json');
+const outputPathJS = path.join('output', 'term-relations-data.js');
+
 
 // Create directory named “output” in the project root if it does not yet exist
 if (!fs.existsSync(config.specs[0].output_path)) {
