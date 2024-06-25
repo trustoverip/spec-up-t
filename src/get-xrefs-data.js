@@ -16,8 +16,14 @@ if (!fs.existsSync('output')) {
     fs.mkdirSync('output');
 }
 
+// Create directory named “output/xrefs” in the project root if it does not yet exist
+if (!fs.existsSync('output/xrefs')) {
+    fs.mkdirSync('output/xrefs');
+}
+
 // Create a path for the output file in the project root
 const outputPath = 'output/xrefs-data.js';
+const outputPathTimeStamped = 'output/xrefs/xrefs-data-' + Date.now() + '.js';
 
 function getXrefsData() {
     let allXrefs = {};
@@ -212,6 +218,7 @@ function getXrefsData() {
 
         // Write the JS code to a .js file
         fs.writeFileSync(outputPath, stringReadyForFileWrite, 'utf8');
+        fs.writeFileSync(outputPathTimeStamped, stringReadyForFileWrite, 'utf8');
     });
 }
 
