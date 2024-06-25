@@ -1,5 +1,5 @@
 /**
- * @file This file fetches information about xrefs from various places (including the GitHub API) and stores it in a JavaScript file that is included in the HTML output of the specification.
+ * @file This file fetches and displays commit hashes by matching elements with `data-local-href` attributes against the `allXrefs` global object.
  * @author Kor Dwarshuis
  * @version 0.0.1
  * @license MIT
@@ -32,7 +32,7 @@ function fetchCommitHashes() {
 
             // Diff of the latest commit hash of a term-file and the referenced commit hash
             const diff = document.createElement('a');
-            diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash + '..main/' + match.terms_dir + '/' + match.term.replace(/ /g, ' - ').toLowerCase() + '.md';
+            diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash[0] + '..main';
             diff.target = '_blank';
             diff.classList.add('diff', 'xref-info-links', 'btn');
             // diff.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
