@@ -32,7 +32,7 @@ function fetchCommitHashes() {
 
             // Diff of the latest commit hash of a term-file and the referenced commit hash
             const diff = document.createElement('a');
-            diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash[0] + '..main';
+            diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash[0] + '../main';
             diff.target = '_blank';
             diff.classList.add('diff', 'xref-info-links', 'btn');
             // diff.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
