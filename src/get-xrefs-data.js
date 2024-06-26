@@ -23,7 +23,7 @@ if (!fs.existsSync('output/xrefs-history')) {
 
 // Create a path for the output file in the project root
 const outputPath = 'output/xrefs-data.js';
-const outputPathTimeStamped = 'output/xrefs/xrefs-data-' + Date.now() + '.js';
+const outputPathTimeStamped = 'output/xrefs-history/xrefs-data-' + Date.now() + '.js';
 
 function getXrefsData() {
     let allXrefs = {};
