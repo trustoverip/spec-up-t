@@ -19,26 +19,106 @@ Spec-Up-T stays in sync with Spec-Up, and currently adds the following extra fun
 1. Search & Find
 2. Splitter for Terms and Definition section following the [Termininology Governance Guide](https://trustoverip.github.io/ctwg-terminology-governance-guide/) and various meeting report since [CTWG April 2024](https://wiki.trustoverip.org/display/HOME/2024-04-22+CTWG+Meeting+Notes).
 
-## Setup
+## Installation
 
-Install Spec-Up-T as follows:
+### Short video
 
-- Open your terminal and go to the target directory
-- Run `npx create-spec-up-starterpack@latest`
-This will create a working Spec-Up-T installation in a new directory called `spec-up-t-starter-pack`
+Let's install **Spec-Up-T**. This short video shows the process.
 
-- Rename this directory to your liking, for example `my-new-specification`
-- Go into this dir:
-`cd my-new-specification`
-You are now in this dir.
+<video src={require('/static/video/installer-spec-up-t.mp4').default} controls muted autoplay loop></video>
+
+### Getting Started
+
+Now let's do it ourselves. Get started by **creating a new site**.
+
+### What you'll need
+
+- [Node.js](https://nodejs.org/en/download/):
+  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+- A [webbrowser](https://en.wikipedia.org/wiki/Web_browser). You are probably reading this in a browser, so you already have one.
+
+### Install a new site
+
+#### General info
+
+Installing Spec-Up-T works similarly to installing any other npm package. You install it locally (not globally) and then you run it.
+
+#### Install a new Spec-Up-T site
+
+```bash
+npx create-spec-up-t my-spec-up-t-website
+```
+
+*my-spec-up-t-website* can be anything you want it to be (however it is recommended to not use spaces or special characters in directory names).
+
+You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor. It should work on any operating system (not tested yet).
+
+This will create a working Spec-Up-T installation in a new directory called `my-spec-up-t-website`
+
+You should now have a directory called `my-spec-up-t-website`.
+
+#### Go into the directory
+
+- Go into this directory (folder) that was just created:
+
+```bash
+cd my-spec-up-t-website
+```
+
+You are now in this directory.
+
+#### Install all dependencies
 
 - Install all dependencies:
-`npm run install`
+
+```
+npm run install
+```
+
+It can take some time, and you should see multiple lines of output during installation.
+
+When the prompt is visible again, you should now have a directory called `node_modules`.
+
+#### Look up xrefs
+
+- Look up xrefs:
+
+```
+npm run xrefs
+```
+
+Now the references to external specs are generated, if any.
+
+#### Create index.html
+
+The final result should be just one file: `index.html`.
+
+- Create index.html:
+
+```
+npm run render
+```
+
+Now an index.html file is created in the `docs` directory. This is the default directory, specified in the `specs.json` file.
+
+#### You are ready
 
 Now you have a basic Spec-Up-T install with the following content:
+
 - a `specs.json` file
 - a `spec/` directory with a sample markdown files
-- (and more)
+- a `docs` directory with a sample index.html file
+- a `node_modules` directory, a `package.json` file and a `package-lock.json` file (these three elements belong to the `npm` system)
+
+#### View your specification
+
+So the `index.html` is the endresult. You should view it in a browser. The simplest way to do so is go to the file with your Explorer, Finder or other file manager, and double-click on it. Usually it now opens in your browser.
+
+If not, go to the browser, and try to open the file from the browser menu.
+
+### More info
+
+#### The `specs.json` file
 
 The`specs.json` file **in the root folder of your repository** specifies configuration values used in the generation of your spec documents. The values in your `specs.json` file include things like where your spec's markdown files are located, where to output the generated spec document, and various metadata values used in rendering, such as the title, logo, and repo links for each of your specs. The following are the required/optional fields supported in the `specs.json` config file:
 
@@ -63,7 +143,7 @@ The`specs.json` file **in the root folder of your repository** specifies configu
 
 You're ready to start rendering specs as HTML sites locally and/or pushing them to github pages however you see fit to automate.
 
-## Running the scripts locally
+#### Running the scripts locally
 
 If your `spec.json` and `package.json` and `package-lock.json` files are in working order and in the root folder of the repo from which it will be deployed, Spec-up can be called by command line (from the root of your repo) in three different modes:
 
@@ -73,97 +153,15 @@ If your `spec.json` and `package.json` and `package-lock.json` files are in work
 |`npm run render`|this renders the site once and does not keep a gulpy watch on the underlying files.|
 |`npm run dev`|this enables debugging features.|
 
-## Automation
+#### Automation
 
 The above scripts can easily be triggered by github actions.  See [this repo's example](https://github.com/decentralized-identity/spec-up/blob/master/.github/workflows/render-specs.yml)
 
-## Versioning
-
-The recommended method for hosting multiple historical versions of a given specification at the same URL is simply to duplicate the source file(s) in a subdirectory and to host each version in a fixed subdirectory of the output target (i.e., the GitHub-Pages site). These multiple set-up and output directories can be set by multiple `spec` objects in the `specs` array of the `spec.json` file. For example:
-
-```json
-{
-  "specs": [
-    {
-      "title": "Wallet And Credential Interactions",
-      "spec_directory": "./",
-      "output_path": "./build",
-      "logo": "https://rawcdn.githack.com/decentralized-identity/decentralized-identity.github.io/a3ca39717e440302d1fd99a796e7f00e1c42eb2d/images/logo-flat.svg",
-      "logo_link": "https://identity.foundation",
-      "source": {
-        "host": "github",
-        "account": "decentralized-identity",
-        "repo": "waci-presentation-exchange"
-      }
-    },
-    {
-      "title": "Wallet And Credential Interactions",
-      "spec_directory": "./v0.1.0",
-      "output_path": "./build/v0.1.0",
-      "logo": "https://rawcdn.githack.com/decentralized-identity/decentralized-identity.github.io/a3ca39717e440302d1fd99a796e7f00e1c42eb2d/images/logo-flat.svg",
-      "logo_link": "https://identity.foundation",
-      "source": {
-        "host": "github",
-        "account": "decentralized-identity",
-        "repo": "waci-presentation-exchange"
-      }
-    }   
-  ]
-}
-```
-*Note: when copying a version into a subdirectory, relative references, including image links or [[include]] blocks that copy in example files or test vectors, may break; a quick CTRL-F "../" is recommended*
-
-In the above example, the files in `./v0.1.0` will not be rendered by the build process that searches "./" for markdown files and vice versa-- changing either will not trigger a new build of the other in each PR.
-
-### Version numbering
-
-DIF Recommends 3-decimal versions à la SemVer (i.e., v0.1.0 instead of v0.1).
-
-### Cross-linking across versions
-
-Links from the currently/nightly/unstable spec to stable/archival versions and vice versa are not automatically generated by the current version of spec-up, so the recommended best practice is to manually add links above the "Editors" section.  See:
-
-<details><summary>Examples from Presentation Exchange</summary>
-
-Unstable version:
-```
-Presentation Exchange 2.0.0
-==================
-
-**Specification Status:** Working Group Draft
-
-**Latest Draft:**
-  [identity.foundation/presentation-exchange](https://identity.foundation/presentation-exchange)
-
-**Ratified Versions:**
-~ **v1.0.0** - [https://identity.foundation/presentation-exchange/spec/v1.0.0](https://identity.foundation/presentation-exchange/spec/v1.0.0)
-
-```
-
-Stable Version:
-```
-Presentation Exchange v1.0.0
-==================
-
-**Specification Status:** DIF Ratified Specification
-
-**Latest Draft:**
-  [identity.foundation/presentation-exchange](https://identity.foundation/presentation-exchange)
-```
-</details>
-
-### Archiving stable versions beyond github
-
-Additionally, some editors may prefer to keep an immutable archive in a system like web.archive.org.  For example:
-
-```
-**Specification Status:** Draft V0.1 (snapshotted and archived on [web.archive.org](https://web.archive.org/web/20211206215823/https://identity.foundation/waci-presentation-exchange/))
-```
-
-## Troubleshooting
+#### Troubleshooting
 
 - WSL2 users are recommended to use the `bash` option rather than `PowerShell` in the terminal of Visual Studio Code.
 - Some users have reported problems using spec-up with node versions 15+; to pin to an older version, simple run:
+
 ```
 nvm install 14
 nvm use 14
