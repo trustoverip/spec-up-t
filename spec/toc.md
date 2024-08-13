@@ -1,4 +1,0 @@
-
-[//]: # (Pandoc Formatting Macros)
-
-[//]: # (\toc)
