@@ -29,10 +29,10 @@
                     "PE": "https://identity.foundation/presentation-exchange"
                 },
                 {
-                    "test-1": "https://kordwarshuis.github.io/spec-up-xref-test-1/"
+                    "test-1": "https://blockchainbird.github.io/spec-up-xref-test-1/"
                 },
                 {
-                    "test-2": "https://kordwarshuis.github.io/spec-up-xref-test-2/"
+                    "test-2": "https://blockchainbird.github.io/spec-up-xref-test-2/"
                 }
             ],
             "external_specs_repos": [
@@ -43,12 +43,12 @@
                 },
                 {
                     "external_spec": "test-1",
-                    "url": "https://github.com/kordwarshuis/spec-up-xref-test-1",
+                    "url": "https://github.com/blockchainbird/spec-up-xref-test-1",
                     "terms_dir": "spec/term-definitions"
                 },
                 {
                     "external_spec": "test-2",
-                    "url": "https://github.com/kordwarshuis/spec-up-xref-test-2",
+                    "url": "https://github.com/blockchainbird/spec-up-xref-test-2",
                     "terms_dir": "spec/term-definitions"
                 }
             ],
