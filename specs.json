@@ -1,7 +1,7 @@
 {
     "specs": [
         {
-            "title": "Spec-Up ToIP example",
+            "title": "Spec-Up-T",
             "spec_directory": "./spec",
             "spec_terms_directory": "terms-definitions",
             "output_path": "./docs",
