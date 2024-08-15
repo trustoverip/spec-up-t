@@ -202,9 +202,24 @@ function getXrefsData() {
         });
     });
 
+    // Loop through all xrefs and fetch the latest commit hash for each term and add it to the xref object
+    /* Example of xref after adding commitHash:
+        xref:  {
+            "externalSpec": "test-1",
+            "term": "Aal",
+            "repoUrl": "https://github.com/blockchainbird/spec-up-xref-test-1",
+            "terms_dir": "spec/term-definitions",
+            "owner": "blockchainbird",
+            "repo": "spec-up-xref-test-1",
+            "site": "https://blockchainbird.github.io/spec-up-xref-test-1/",
+            "commitHash": [
+                "f66951f1d378490289caab9c51141b44a0438365"
+            ]
+        }
+    */
     async function fetchLatestCommitHashes() {
-        for (const match of allXrefs.xrefs) {
-            match.commitHash = await fetchLatestCommitHash(match);
+        for (const xref of allXrefs.xrefs) {
+            xref.commitHash = await fetchLatestCommitHash(xref);
         }
     }
 
