@@ -128,8 +128,8 @@ function getXrefsData() {
     });
 
     // trim every entry of allMatches
-    allXrefs.xrefs = allXrefs.xrefs.map(match => {
-        return match.trim();
+    allXrefs.xrefs = allXrefs.xrefs.map(xref => {
+        return xref.trim();
     });
 
     // split every entry of allMatches on the first comma, replace the entry with an object that has two keys: one that contains everything before the comma and one that contains everything after the comma
@@ -181,7 +181,7 @@ function getXrefsData() {
         xref.repo = urlParts[2];
     });
 
-    allXrefs.xrefs.forEach(match => {
+    allXrefs.xrefs.forEach(xref => {
         // loop through array of specs in config
         config.specs.forEach(spec => {
             if (spec.external_specs) {
@@ -194,8 +194,8 @@ function getXrefsData() {
                 // ]
                 spec.external_specs.forEach(externalSpec => {
                     const key = Object.keys(externalSpec)[0];
-                    if (key === match.externalSpec) {
-                        match.site = externalSpec[key];
+                    if (key === xref.externalSpec) {
+                        xref.site = externalSpec[key];
                     }
                 });
             }
