@@ -14,7 +14,7 @@
                 "terms-definitions/term-4.md",
                 "outro.md"
             ],
-            "logo": "../logo.svg",
+            "logo": "logo.svg",
             "logo_link": "https://github.com/blockchainbird/spec-up-t",
             "source": {
                 "host": "github",
