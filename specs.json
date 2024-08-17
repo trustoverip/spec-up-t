@@ -15,7 +15,7 @@
                 "example-markup-in-markdown.md",
                 "outro.md"
             ],
-            "logo": "logo.svg",
+            "logo": "https://raw.githubusercontent.com/blockchainbird/spec-up-t/master/logo.svg",
             "logo_link": "https://github.com/blockchainbird/spec-up-t",
             "source": {
                 "host": "github",
