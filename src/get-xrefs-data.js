@@ -128,8 +128,8 @@ function getXrefsData() {
     });
 
     // trim every entry of allMatches
-    allXrefs.xrefs = allXrefs.xrefs.map(match => {
-        return match.trim();
+    allXrefs.xrefs = allXrefs.xrefs.map(xref => {
+        return xref.trim();
     });
 
     // split every entry of allMatches on the first comma, replace the entry with an object that has two keys: one that contains everything before the comma and one that contains everything after the comma
@@ -181,7 +181,7 @@ function getXrefsData() {
         xref.repo = urlParts[2];
     });
 
-    allXrefs.xrefs.forEach(match => {
+    allXrefs.xrefs.forEach(xref => {
         // loop through array of specs in config
         config.specs.forEach(spec => {
             if (spec.external_specs) {
@@ -194,17 +194,32 @@ function getXrefsData() {
                 // ]
                 spec.external_specs.forEach(externalSpec => {
                     const key = Object.keys(externalSpec)[0];
-                    if (key === match.externalSpec) {
-                        match.site = externalSpec[key];
+                    if (key === xref.externalSpec) {
+                        xref.site = externalSpec[key];
                     }
                 });
             }
         });
     });
 
+    // Loop through all xrefs and fetch the latest commit hash for each term and add it to the xref object
+    /* Example of xref after adding commitHash:
+        xref:  {
+            "externalSpec": "test-1",
+            "term": "Aal",
+            "repoUrl": "https://github.com/blockchainbird/spec-up-xref-test-1",
+            "terms_dir": "spec/term-definitions",
+            "owner": "blockchainbird",
+            "repo": "spec-up-xref-test-1",
+            "site": "https://blockchainbird.github.io/spec-up-xref-test-1/",
+            "commitHash": [
+                "f66951f1d378490289caab9c51141b44a0438365"
+            ]
+        }
+    */
     async function fetchLatestCommitHashes() {
-        for (const match of allXrefs.xrefs) {
-            match.commitHash = await fetchLatestCommitHash(match);
+        for (const xref of allXrefs.xrefs) {
+            xref.commitHash = await fetchLatestCommitHash(xref);
         }
     }
 
