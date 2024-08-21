@@ -7,6 +7,9 @@ module.exports = function(options = {}) {
     findExternalSpecByKey
   } = require('./references.js');
 
+  const { processMarkdownFiles } = require('./src/fix-markdown-files.js');
+  processMarkdownFiles('./spec');
+  
   const { createTermRelations } = require('./src/create-term-relations.js');
   createTermRelations();
 
