@@ -22,8 +22,9 @@ if (!fs.existsSync('output/xrefs-history')) {
 }
 
 // Create a path for the output file in the project root
-const outputPath = 'output/xrefs-data.js';
-const outputPathTimeStamped = 'output/xrefs-history/xrefs-data-' + Date.now() + '.js';
+const outputPathJSON = 'output/xrefs-data.json';
+const outputPathJS = 'output/xrefs-data.js';
+const outputPathJSTimeStamped = 'output/xrefs-history/xrefs-data-' + Date.now() + '.js';
 
 function getXrefsData() {
     let allXrefs = {};
@@ -228,12 +229,15 @@ function getXrefsData() {
         // Convert allXrefsStr to a JSON string with indentation
         const allXrefsStr = JSON.stringify(allXrefs, null, 2);
 
+        // // Write the JSON code to a .json file
+        fs.writeFileSync(outputPathJSON, allXrefsStr, 'utf8');
+
         // Create the JS code for the assignment
         const stringReadyForFileWrite = `const allXrefs = ${allXrefsStr};`;
 
         // Write the JS code to a .js file
-        fs.writeFileSync(outputPath, stringReadyForFileWrite, 'utf8');
-        fs.writeFileSync(outputPathTimeStamped, stringReadyForFileWrite, 'utf8');
+        fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
+        fs.writeFileSync(outputPathJSTimeStamped, stringReadyForFileWrite, 'utf8');
     });
 }
 
