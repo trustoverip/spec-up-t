@@ -7,6 +7,9 @@ module.exports = function(options = {}) {
     findExternalSpecByKey
   } = require('./references.js');
 
+  const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
+  runJsonKeyValidatorSync();
+
   const { processMarkdownFiles } = require('./src/fix-markdown-files.js');
   processMarkdownFiles('./spec');
   
