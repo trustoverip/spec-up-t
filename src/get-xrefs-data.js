@@ -14,7 +14,7 @@ if (!fs.existsSync('output')) {
     fs.mkdirSync('output');
 }
 
-// Create directory named “output/xrefs” in the project root if it does not yet exist
+// Create directory named “output/xrefs-history” in the project root if it does not yet exist
 if (!fs.existsSync('output/xrefs-history')) {
     fs.mkdirSync('output/xrefs-history');
 }
