@@ -63,7 +63,7 @@ function getXrefsData() {
 
             console.log(`Github API request for the term “${match.term}” was successful`);
 
-            // Extract JSON data from the response
+            // Extract JSON data from the response, see https://blockchainbird.github.io/spec-up-t-website/docs/various-roles/developers-guide/#example-of-api-response for example response
             const data = await response.json();
 
             // Check if there are any commits
