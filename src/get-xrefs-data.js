@@ -120,21 +120,22 @@ function getXrefsData() {
 
     // The following steps create an array of objects with the keys “externalSpec” and “term” for each xref by splitting the xref string on the comma and removing the “[[xref:” and “]]” parts
 
-    // remove “[[xref:” from the beginning of every value in allMatches
+    // Step 1: remove “[[xref:” from the beginning of every value in allMatches
     allXrefs.xrefs = allXrefs.xrefs.map(xref => {
         return xref.replace(/\[\[xref:/, '');
     });
-    // remove “]]” from the end of every value in allMatches
+
+    // Step 2: remove “]]” from the end of every value in allMatches
     allXrefs.xrefs = allXrefs.xrefs.map(xref => {
         return xref.replace(/\]\]/, '');
     });
 
-    // trim every entry of allMatches
+    // Step 3: trim every entry of allMatches
     allXrefs.xrefs = allXrefs.xrefs.map(xref => {
         return xref.trim();
     });
 
-    // split every entry of allMatches on the first comma, replace the entry with an object that has two keys: one that contains everything before the comma and one that contains everything after the comma
+    // Step 4: split every entry of allMatches on the first comma, replace the entry with an object that has two keys: one that contains everything before the comma and one that contains everything after the comma
     allXrefs.xrefs = allXrefs.xrefs.map(xref => {
         let [externalSpec, term] = xref.split(/,/, 2);
         return {
@@ -145,7 +146,6 @@ function getXrefsData() {
 
     // Example output:
     // allXrefs.xrefs: [
-    //     { externalSpec: 'PE', term: 'Holder' },
     //     { externalSpec: 'test-1', term: 'Aal' },
     //     { externalSpec: 'test-2', term: 'Abac' }
     // ]
