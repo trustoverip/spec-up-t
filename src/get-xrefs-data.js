@@ -102,7 +102,7 @@ function getXrefsData() {
                     const xrefs = markdown.match(regex);
                     xrefs.forEach(xref => {
                         console.log(`Xref found in ${file}: `, xref);
-                        // example of xref: [[xref: PE, Holder]]
+                        // example of xref: [xref: test-1, Aal]
                         allXrefs.xrefs.add(xref);
                     });
                 }
