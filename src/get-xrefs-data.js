@@ -114,7 +114,6 @@ function getXrefsData() {
 
     // Example output:
     // allXrefs.xrefs: [
-    //     '[[xref: PE, Holder]]',
     //     '[[xref: test-1, Aal]]',
     //     '[[xref: test-2, Abac]]'
     // ]
