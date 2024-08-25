@@ -118,6 +118,8 @@ function getXrefsData() {
     //     '[[xref: test-2, Abac]]'
     // ]
 
+    // The following steps create an array of objects with the keys “externalSpec” and “term” for each xref by splitting the xref string on the comma and removing the “[[xref:” and “]]” parts
+
     // remove “[[xref:” from the beginning of every value in allMatches
     allXrefs.xrefs = allXrefs.xrefs.map(xref => {
         return xref.replace(/\[\[xref:/, '');
