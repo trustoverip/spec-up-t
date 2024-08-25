@@ -87,7 +87,7 @@ function getXrefsData() {
     }
 
     // Go through all directories that contain files with a term and definition
-    console.log('All “spec_directory” found in specs.json: ', specTermsDirectories);
+    console.log("All “spec_directory”'s found in specs.json: ", specTermsDirectories);
     specTermsDirectories.forEach(specDirectory => {
         console.log(`Current spec_directory: `, specDirectory);
         // read directory
