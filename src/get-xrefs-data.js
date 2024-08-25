@@ -86,6 +86,12 @@ function getXrefsData() {
         }
     }
 
+    async function fetchLatestCommitHashes() {
+        for (const xref of allXrefs.xrefs) {
+            xref.commitHash = await fetchLatestCommitHash(xref);
+        }
+    }
+
     // Go through all directories that contain files with a term and definition
     console.log("All “spec_directory”'s found in specs.json: ", specTermsDirectories);
     specTermsDirectories.forEach(specDirectory => {
@@ -221,11 +227,6 @@ function getXrefsData() {
             ]
         }
     */
-    async function fetchLatestCommitHashes() {
-        for (const xref of allXrefs.xrefs) {
-            xref.commitHash = await fetchLatestCommitHash(xref);
-        }
-    }
 
     // Call the function and wait for it to complete before writing to the file
     fetchLatestCommitHashes().then(() => {
