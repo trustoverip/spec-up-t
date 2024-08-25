@@ -158,8 +158,8 @@ function getXrefsData() {
                 // Example external_specs_repos:
                 // "external_specs_repos": [
                 //     {
-                //         "external_spec": "PE",
-                //         "url": "https://github.com/decentralized-identity/presentation-exchange",
+                //         "external_spec": "test-1",
+                //         "url": "https://github.com/blockchainbird/spec-up-xref-test-1",
                 //         "terms_dir": "spec"
                 //     },
                 // …
