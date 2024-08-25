@@ -7,7 +7,9 @@
 
 const fs = require('fs-extra');
 const config = fs.readJsonSync('specs.json');
-const specDirectories = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
+
+// Collect all directories that contain files with a term and definition
+const specTermsDirectories = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
 
 // Create directory named “output” in the project root if it does not yet exist
 if (!fs.existsSync('output')) {
@@ -85,8 +87,8 @@ function getXrefsData() {
     }
 
     // Go through all directories that contain files with a term and definition
-    console.log('All “spec_directory” found in specs.json: ', specDirectories);
-    specDirectories.forEach(specDirectory => {
+    console.log('All “spec_directory” found in specs.json: ', specTermsDirectories);
+    specTermsDirectories.forEach(specDirectory => {
         console.log(`Current spec_directory: `, specDirectory);
         // read directory
         fs.readdirSync(specDirectory).forEach(file => {
