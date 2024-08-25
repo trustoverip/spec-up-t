@@ -5,8 +5,6 @@
  * @since 2024-06-09
  */
 
-// Get the current working directory
-
 const fs = require('fs-extra');
 const config = fs.readJsonSync('specs.json');
 const specDirectories = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
