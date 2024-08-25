@@ -150,7 +150,7 @@ function getXrefsData() {
     //     { externalSpec: 'test-2', term: 'Abac' }
     // ]
 
-
+    // Step 5: add the url and the dir where the terms are, to the xref object
     allXrefs.xrefs.forEach(xref => {
         config.specs.forEach(spec => {
             spec.external_specs_repos.forEach(repo => {
@@ -172,6 +172,7 @@ function getXrefsData() {
         });
     });
 
+    // Step 6: add the owner and repo to the xref object
     allXrefs.xrefs.forEach(xref => {
         if (xref.repoUrl === undefined) {
             console.log('match.repoUrl is undefined');
@@ -183,15 +184,16 @@ function getXrefsData() {
         xref.repo = urlParts[2];
     });
 
+    // Step 7: add the site to the xref object
     allXrefs.xrefs.forEach(xref => {
         // loop through array of specs in config
         config.specs.forEach(spec => {
             if (spec.external_specs) {
                 // Example external_specs:
                 // "external_specs": [
-                //     {
-                //         "PE": "https://identity.foundation/presentation-exchange"
-                //     },
+                //      {
+                //          "test-1": "https://blockchainbird.github.io/spec-up-xref-test-1/"
+                //      }
                 // …
                 // ]
                 spec.external_specs.forEach(externalSpec => {
