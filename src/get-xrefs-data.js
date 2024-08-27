@@ -32,6 +32,22 @@ function getXrefsData() {
 
     // Function to fetch the latest commit hash of the file
     async function fetchLatestCommitHash(match) {
+        /* Example
+            console.log('match: ', match); ->
+            
+            match:  {
+                externalSpec: 'test-1',
+                term: 'Aal',
+                repoUrl: 'https://github.com/blockchainbird/spec-up-xref-test-1',
+                terms_dir: 'spec/term-definitions',
+                owner: 'blockchainbird',
+                repo: 'spec-up-xref-test-1',
+                site: 'https://blockchainbird.github.io/spec-up-xref-test-1/'
+            }
+        */
+
+        
+        
         try {
 
             if (match.repoUrl === undefined) {
@@ -61,7 +77,7 @@ function getXrefsData() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            console.log(`Github API request for the term “${match.term}” was successful`);
+            console.log(`Github API request for the term “${match.term}”, repo “${match.repo}”, owner “${match.owner}”, externalSpec “${match.externalSpec}” was successful`);
 
             // Extract JSON data from the response, see https://blockchainbird.github.io/spec-up-t-website/docs/various-roles/developers-guide/#example-of-api-response for example response
             const data = await response.json();
