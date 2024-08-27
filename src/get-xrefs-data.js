@@ -94,6 +94,20 @@ function getXrefsData() {
             const commitHash = commits.map(commit => commit.sha);
             
             console.log(`Commit hash found for the term “${match.term}”: `, commitHash);
+
+            // Test if the commitHash is in outputPathJSON
+            let xrefsData = fs.readJsonSync(outputPathJSON);
+            xrefsData.xrefs.forEach(xref => {
+                if (xref.term === match.term) {
+                    console.log(`${xref.term} found in outputPathJSON`);
+                    console.log('xref.term: ', xref.term);
+                    console.log('match.term: ', match.term);
+                    console.log('xref.commitHash: ', xref.commitHash);
+                    console.log('commitHash: ', commitHash);
+                }
+            });
+
+
             return commitHash;
 
             // return;
