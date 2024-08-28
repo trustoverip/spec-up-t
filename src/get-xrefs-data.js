@@ -77,7 +77,7 @@ function getXrefsData() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            console.log(`Github API request for the term “${match.term}”, repo “${match.repo}”, owner “${match.owner}”, externalSpec “${match.externalSpec}” was successful`);
+            console.log(`\nGithub API request for:\n  Term ${match.term},\n  Name: ${match.externalSpec}\n  Owner ${match.owner}\n  Repo ${match.repo}\nwas successful`);
 
             // Extract JSON data from the response, see https://blockchainbird.github.io/spec-up-t-website/docs/various-roles/developers-guide/#example-of-api-response for example response
             const data = await response.json();
@@ -91,26 +91,33 @@ function getXrefsData() {
 
             // Process the last ten commits
             const commits = data.slice(0, 1); // Get only the last commit
-            const commitHash = commits.map(commit => commit.sha);
             
-            console.log(`Commit hash found for the term “${match.term}”: `, commitHash);
+            // Assign the fetched commit hash to the variable commitHash
+            let commitHash = commits.map(commit => commit.sha);
+            
+            console.log(`\nCommit hash found for the term “${match.term}”: `, commitHash);
 
-            // Test if the commitHash is in outputPathJSON
-            let xrefsData = fs.readJsonSync(outputPathJSON);
-            xrefsData.xrefs.forEach(xref => {
-                if (xref.term === match.term) {
-                    console.log(`${xref.term} found in outputPathJSON`);
-                    console.log('xref.term: ', xref.term);
-                    console.log('match.term: ', match.term);
-                    console.log('xref.commitHash: ', xref.commitHash);
-                    console.log('commitHash: ', commitHash);
-                }
-            });
+            // Check if the file exists
+            if (fs.existsSync(outputPathJSON)) {
+                // Read the JSON file
+                let currentXrefs = fs.readJsonSync(outputPathJSON);
+                // Check if the term is in the JSON file
+                currentXrefs.xrefs.forEach(xref => {
+                    // Check if the term is in the JSON file
+                    if (xref.term === match.term) {
+                        // If the term is in the JSON file, get the commit hash from the file and assign it to the variable commitHash. This is done to prevent the commit hash from being overwritten by the fetched commit hash. We want to keep the commit hash that was fetched at the time that the author looked it up.
+                        console.log(`\nThis external reference:\n Term: ${match.term}\n Name: ${match.externalSpec}\n Owner: ${match.owner}\n Repo: ${match.repo}\nis already referenced.
+                        `)
 
+                        // Give the commitHash from the JSON file to the commitHash variable
+                        commitHash = xref.commitHash;
+                    }
+                });
+            } else {
+                console.error(`File not found: ${outputPathJSON}`);
+            }
 
             return commitHash;
-
-            // return;
         } catch (error) {
             console.error(`Failed to fetch commit hash for the term “${match.term}”:`, error);
         }
