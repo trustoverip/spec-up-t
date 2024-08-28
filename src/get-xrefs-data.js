@@ -96,6 +96,9 @@ function getXrefsData() {
             
             console.log(`\nCommit hash found for the term “${match.term}”: `, commitHash);
 
+
+            //TODO: Check if a term is in the JSON file and not in the markdown file. If so, remove the term from the JSON file.
+
             // Check if the file exists
             if (fs.existsSync(outputPathJSON)) {
                 // Read the JSON file
