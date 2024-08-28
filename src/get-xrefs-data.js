@@ -282,6 +282,30 @@ function getXrefsData() {
     });
 }
 
+// Write function that removes an entry from xrefs-data.json and xrefs-data.js based on the term and externalSpec
+function removeXref(term, externalSpec) {
+    // Read the JSON file
+    let currentXrefs = fs.readJsonSync(outputPathJSON);
+
+    // Remove the entry from the JSON file
+    currentXrefs.xrefs = currentXrefs.xrefs.filter(xref => {
+        return !(xref.term === term && xref.externalSpec === externalSpec);
+    });
+
+    // Convert the JSON object back to a JSON string
+    const currentXrefsStr = JSON.stringify(currentXrefs, null, 2);
+
+    // Write the JSON code to a .json file
+    fs.writeFileSync(outputPathJSON, currentXrefsStr, 'utf8');
+
+    // Create the JS code for the assignment
+    const stringReadyForFileWrite = `const allXrefs = ${currentXrefsStr};`;
+
+    // Write the JS code to a .js file
+    fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
+}
+
 module.exports = {
-    getXrefsData
+    getXrefsData,
+    removeXref
 }
