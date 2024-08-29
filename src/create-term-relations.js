@@ -20,6 +20,10 @@ const specDirectories = config.specs.map(spec => spec.spec_directory + '/' + spe
 const outputPathJSON = path.join('output', 'term-relations-data.json');
 const outputPathJS = path.join('output', 'term-relations-data.js');
 
+// Create directory named “output” in the project root if it does not yet exist
+if (!fs.existsSync('output')) {
+    fs.mkdirSync('output');
+}
 
 // Create directory named “output” in the project root if it does not yet exist
 if (!fs.existsSync(config.specs[0].output_path)) {
