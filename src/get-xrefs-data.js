@@ -92,7 +92,7 @@ function getXrefsData() {
             // Get only the last commit
             const commits = data.slice(0, 1);
             // Assign the fetched commit hash to the variable commitHash
-            const commitHash = commits.map(commit => commit.sha);
+            let commitHash = commits.map(commit => commit.sha);
             
             console.log(`\nCommit hash found for the term “${match.term}”: `, commitHash);
 
