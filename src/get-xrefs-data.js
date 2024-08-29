@@ -116,7 +116,7 @@ function getXrefsData() {
                     }
                 });
             } else {
-                console.error(`File not found: ${outputPathJSON}`);
+                console.log(`File not found at this point: ${outputPathJSON}. Don't worry, it will be created later.`);
             }
 
             return commitHash;
