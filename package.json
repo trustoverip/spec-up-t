@@ -7,6 +7,11 @@
     "type": "git",
     "url": "git+https://github.com/blockchainbird/spec-up-t.git"
   },
+  "scripts": {
+    "edit": "node -e \"require('./index')()\"",
+    "render": "node -e \"require('./index')({ nowatch: true })\"",
+    "dev": "node -e \"require('./index')({ dev: true })\""
+  },
   "keywords": [
     "spec",
     "specs",
