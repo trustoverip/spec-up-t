@@ -1,0 +1,12 @@
+/*
+  Author: Kor Dwarshuis, kor@dwarshuis.com
+  Created: 2024-06-19
+  Description: -
+*/
+    dl dd.hidden {
+      display: none;
+    }
+  
+    dl dd.visible {
+      display: block;
+    }
