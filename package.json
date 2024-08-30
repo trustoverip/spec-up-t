@@ -51,6 +51,7 @@
     "merge-stream": "2.0.0",
     "pkg-dir": "4.2.0",
     "prismjs": ">=1.24.0",
+    "puppeteer": "^23.2.1",
     "readline-sync": "^1.4.10",
     "yargs": "16.2.0"
   }
