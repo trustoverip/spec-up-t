@@ -16,7 +16,7 @@ const path = require('path');
 
         // Remove or hide the search bar or any other element
         await page.evaluate(() => {
-            const displayNoneInPdf = document.querySelectorAll('#header span, #container-search-h7vc6omi2hr2880'); // Adjust the selector as needed
+            const displayNoneInPdf = document.querySelectorAll('#header span, #container-search-h7vc6omi2hr2880, .collapse-all-defs-button-sup'); // Adjust the selector as needed
             if (displayNoneInPdf) {
                 displayNoneInPdf.forEach((element) => {
                     element.remove();
