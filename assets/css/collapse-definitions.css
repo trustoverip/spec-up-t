@@ -3,10 +3,10 @@
   Created: 2024-06-19
   Description: -
 */
-    dl dd.hidden {
-      display: none;
-    }
-  
-    dl dd.visible {
-      display: block;
-    }
+#content dl dd.hidden {
+  display: none;
+}
+
+#content dl dd.visible {
+  display: block;
+}
