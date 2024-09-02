@@ -35,7 +35,6 @@ function createTermRelations() {
     allDefs.defs = new Set();
 
     // Go through all directories that contain files with a term and definition
-    console.log('All “spec_directory” found in specs.json: ', specDirectories);
     specDirectories.forEach(specDirectory => {
         // read directory
         fs.readdirSync(specDirectory).forEach(file => {
