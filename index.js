@@ -5,7 +5,7 @@ module.exports = function(options = {}) {
     fetchExternalSpecs,
     validateReferences,
     findExternalSpecByKey
-  } = require('./references.js');
+  } = require('./src/references.js');
 
   const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
   runJsonKeyValidatorSync();
