@@ -7,7 +7,8 @@
 
 const fs = require('fs-extra');
 const config = fs.readJsonSync('specs.json');
-const specDirectories = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
+
+const specTermDirectoryName = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
 
 
 // Create a path for the output file in the project root
@@ -35,7 +36,7 @@ function createTermRelations() {
     allDefs.defs = new Set();
 
     // Go through all directories that contain files with a term and definition
-    specDirectories.forEach(specDirectory => {
+    specTermDirectoryName.forEach(specDirectory => {
         // read directory
         fs.readdirSync(specDirectory).forEach(file => {
             // read file
