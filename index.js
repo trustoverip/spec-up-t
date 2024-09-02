@@ -16,12 +16,15 @@ module.exports = function(options = {}) {
   const { createTermRelations } = require('./src/create-term-relations.js');
   createTermRelations();
 
+  const { insertTermIndex } = require('./src/insert-term-index.js');
+  insertTermIndex();
+
   const gulp = require('gulp');
   const fs = require('fs-extra');
   const path = require('path');
   const findPkgDir = require('find-pkg-dir');
   const modulePath = findPkgDir(__dirname);
-  let config = fs.readJsonSync('./specs.json');
+  let config = fs.readJsonSync('./output/specs-generated.json');
   let assets = fs.readJsonSync(modulePath + '/src/asset-map.json');
   let externalReferences;
   let references = [];
