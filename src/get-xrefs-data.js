@@ -77,7 +77,7 @@ function getXrefsData() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            console.log(`\n   SPEC-UP-T: Github API request for:\n  Term ${match.term},\n  Name: ${match.externalSpec}\n  Owner ${match.owner}\n  Repo ${match.repo}\nwas successful` + "\n");
+            console.log(`\n   SPEC-UP-T: Github API request for:\n   Term ${match.term},\n   Name: ${match.externalSpec}\n   Owner ${match.owner}\n   Repo ${match.repo}\n   was successful` + "\n");
 
             // Extract JSON data from the response, see https://blockchainbird.github.io/spec-up-t-website/docs/various-roles/developers-guide/#example-of-api-response for example response
             const data = await response.json();
