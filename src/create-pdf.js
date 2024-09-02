@@ -38,8 +38,8 @@ const path = require('path');
         // Close the browser instance
         await browser.close();
 
-        console.log('\n   SPEC-UP-T: PDF generated successfully! Find the PDF in the same directory as the index.html file.');
+        console.log('\n   SPEC-UP-T: PDF generated successfully! Find the PDF in the same directory as the index.html file.' + "\n");
     } catch (error) {
-        console.error('SPEC-UP-T – Error generating PDF:', error);
+        console.error('SPEC-UP-T – Error generating PDF:', error + "\n");
     }
 })();

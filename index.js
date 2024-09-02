@@ -52,7 +52,7 @@ module.exports = function(options = {}) {
       xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
     }
   } catch (error) {
-    console.error("\n   SPEC-UP-T: " + error);
+    console.error("\n   SPEC-UP-T: " + error + "\n");
   }
 
   function applyReplacers(doc) {
@@ -328,7 +328,7 @@ module.exports = function(options = {}) {
         });
       }
       catch(e) {
-        console.error("\n   SPEC-UP-T: " + e);
+        console.error("\n   SPEC-UP-T: " + e + "\n");
       }
     }
 
@@ -400,7 +400,7 @@ module.exports = function(options = {}) {
 
   }
   catch(e) {
-    console.error("\n   SPEC-UP-T: " + e);
+    console.error("\n   SPEC-UP-T: " + e + "\n");
   }
 
 }

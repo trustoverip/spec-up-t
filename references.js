@@ -16,7 +16,7 @@ function validateReferences(references, definitions, render) {
     }
   );
   if (unresolvedRefs.length > 0 ) {
-    console.log('\n   SPEC-UP-T: Unresolved References: ', unresolvedRefs)
+    console.log('\n   SPEC-UP-T: Unresolved References: ', unresolvedRefs + "\n")
   }
   
   const danglingDefs = [];
@@ -27,7 +27,7 @@ function validateReferences(references, definitions, render) {
     }
   })
   if(danglingDefs.length > 0) {
-    console.log('\n   SPEC-UP-T: Dangling Definitions: ', danglingDefs)
+    console.log('\n   SPEC-UP-T: Dangling Definitions: ', danglingDefs + "\n")
   }
 }
 
@@ -55,7 +55,7 @@ async function fetchExternalSpecs(spec){
     results = results.map((r, index) => (r.status === 200 ? { [Object.keys(spec.external_specs[index])[0]]: r.data } : null)).filter(r_1 => r_1);
     return results.map(r_2 => createNewDLWithTerms(Object.keys(r_2)[0], Object.values(r_2)[0]));
   } catch (e) {
-    return console.log("\n   SPEC-UP-T: " + e);
+    return console.log("\n   SPEC-UP-T: " + e + "\n");
   }
 }
 

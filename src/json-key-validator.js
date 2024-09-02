@@ -20,7 +20,7 @@ function checkKeysSync(object, expectedKeys, parentKey = '') {
             }
         } else if (typeof object === 'object') {
             if (!(key in object)) {
-                console.error(`   Error: Missing key '${key}' in ${parentKey}\n   We cannot guarantee that Spec-Up-T will work properly.\n   Here is an example specs.json file:\n   https://github.com/blockchainbird/spec-up-t-starter-pack/blob/main/spec-up-t-starterpack/specs.json`);
+                console.error(`\n   SPEC-UP-T: Error: Missing key '${key}' in ${parentKey}\n   We cannot guarantee that Spec-Up-T will work properly.\n   Here is an example specs.json file:\n   https://github.com/blockchainbird/spec-up-t-starter-pack/blob/main/spec-up-t-starterpack/specs.json` + "\n");
                 errorFound = true;
                 pauseForEnterSync(); // Pause synchronously
             }
@@ -67,7 +67,7 @@ function runJsonKeyValidatorSync() {
     };
 
     for (let [index, spec] of data.specs.entries()) {
-        console.log(`   Checking spec #${index + 1}`);
+        console.log(`\n   SPEC-UP-T: Checking spec #${index + 1}` + "\n");
         checkKeysSync(spec, expectedKeys.specs, `specs[${index}]`);
 
         if (spec.source) {
@@ -84,7 +84,7 @@ function runJsonKeyValidatorSync() {
     }
 
     if (!errorFound) {
-        console.log('   All keys are present. No errors found. Continue…');
+        console.log('\n   SPEC-UP-T: All keys are present. No errors found. Continuing…' + "\n");
     }
 }
 
