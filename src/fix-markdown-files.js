@@ -15,7 +15,7 @@ function processMarkdownFiles(directory) {
         // Read the contents of the directory
         fs.readdir(directory, { withFileTypes: true }, (err, items) => {
             if (err) {
-                console.error(`Error reading directory: ${err}`);
+                console.error(`\n   SPEC-UP-T: Error reading directory: ${err}`);
                 return;
             }
 
@@ -29,7 +29,7 @@ function processMarkdownFiles(directory) {
                     // If the item is a markdown file, process it
                     fs.readFile(itemPath, 'utf8', (err, data) => {
                         if (err) {
-                            console.error(`Error reading file ${item.name}: ${err}`);
+                            console.error(`\n   SPEC-UP-T: Error reading file ${item.name}: ${err}`);
                             return;
                         }
 
@@ -40,9 +40,9 @@ function processMarkdownFiles(directory) {
                             // Write the modified content back to the file
                             fs.writeFile(itemPath, data, 'utf8', err => {
                                 if (err) {
-                                    console.error(`Error writing file ${item.name}: ${err}`);
+                                    console.error(`\n   SPEC-UP-T: Error writing file ${item.name}: ${err}`);
                                 } else {
-                                    console.log(`Added blank line to ${item.name}`);
+                                    console.log(`\n   SPEC-UP-T: Added blank line to ${item.name}`);
                                 }
                             });
                         }
