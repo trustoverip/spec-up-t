@@ -51,7 +51,7 @@ function getXrefsData() {
         try {
 
             if (match.repoUrl === undefined) {
-                console.log('match.repoUrl is undefined');
+                console.log('\n   SPEC-UP-T: match.repoUrl is undefined');
                 return;
             }
 
@@ -68,7 +68,7 @@ function getXrefsData() {
             // Check for rate limit before proceeding
             if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
                 const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
-                console.error(`Github API rate limit exceeded. Try again after ${resetTime}`);
+                console.error(`\n   SPEC-UP-T: Github API rate limit exceeded. Try again after ${resetTime}`);
                 return;
             }
 
@@ -77,14 +77,14 @@ function getXrefsData() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            console.log(`\nGithub API request for:\n  Term ${match.term},\n  Name: ${match.externalSpec}\n  Owner ${match.owner}\n  Repo ${match.repo}\nwas successful`);
+            console.log(`\n   SPEC-UP-T: Github API request for:\n  Term ${match.term},\n  Name: ${match.externalSpec}\n  Owner ${match.owner}\n  Repo ${match.repo}\nwas successful`);
 
             // Extract JSON data from the response, see https://blockchainbird.github.io/spec-up-t-website/docs/various-roles/developers-guide/#example-of-api-response for example response
             const data = await response.json();
 
             // Check if there are any commits
             if (data.length === 0) {
-                console.log(`No commit hash found for the term “${match.term}”`);
+                console.log(`\n   SPEC-UP-T: No commit hash found for the term “${match.term}”`);
 
                 return;
             }
@@ -94,7 +94,7 @@ function getXrefsData() {
             // Assign the fetched commit hash to the variable commitHash
             let commitHash = commits.map(commit => commit.sha);
             
-            console.log(`\nCommit hash found for the term “${match.term}”: `, commitHash);
+            console.log(`\n   SPEC-UP-T: Commit hash found for the term “${match.term}”: `, commitHash);
 
 
             //TODO: Check if a term is in the JSON file and not in the markdown file. If so, remove the term from the JSON file.
@@ -108,7 +108,7 @@ function getXrefsData() {
                     // Check if the term is in the JSON file
                     if (xref.term === match.term) {
                         // If the term is in the JSON file, get the commit hash from the file and assign it to the variable commitHash. This is done to prevent the commit hash from being overwritten by the fetched commit hash. We want to keep the commit hash that was fetched at the time that the author looked it up.
-                        console.log(`\nThis external reference:\n Term: ${match.term}\n Name: ${match.externalSpec}\n Owner: ${match.owner}\n Repo: ${match.repo}\nis already referenced.
+                        console.log(`\n   SPEC-UP-T: This external reference:\n Term: ${match.term}\n Name: ${match.externalSpec}\n Owner: ${match.owner}\n Repo: ${match.repo}\nis already referenced.
                         `)
 
                         // Give the commitHash from the JSON file to the commitHash variable
@@ -116,12 +116,12 @@ function getXrefsData() {
                     }
                 });
             } else {
-                console.log(`File not found at this point: ${outputPathJSON}. Don't worry, it will be created later.`);
+                console.log(`\n   SPEC-UP-T: File not found at this point: ${outputPathJSON}. Don't worry, it will be created later.`);
             }
 
             return commitHash;
         } catch (error) {
-            console.error(`Failed to fetch commit hash for the term “${match.term}”:`, error);
+            console.error(`\n   SPEC-UP-T: Failed to fetch commit hash for the term “${match.term}”:`, error);
         }
     }
 
@@ -133,19 +133,19 @@ function getXrefsData() {
 
     // Go through all directories that contain files with a term and definition
     specTermsDirectories.forEach(specDirectory => {
-        console.log(`Current spec_directory: `, specDirectory);
+        console.log(`\n   SPEC-UP-T: Current spec_directory: `, specDirectory);
         // read directory
         fs.readdirSync(specDirectory).forEach(file => {
             // read file
             if (file.endsWith('.md')) {
-                console.log(`Markdown file referenced in spec_directory: `, file);
+                console.log(`\n   SPEC-UP-T: Markdown file referenced in spec_directory: `, file);
                 const markdown = fs.readFileSync(`${specDirectory}/${file}`, 'utf8');
                 // create regex that finds “[[xref:.*]]”
                 const regex = /\[\[xref:.*?\]\]/g;
                 if (regex.test(markdown)) {
                     const xrefs = markdown.match(regex);
                     xrefs.forEach(xref => {
-                        console.log(`Xref found in ${file}: `, xref);
+                        console.log(`\n   SPEC-UP-T: Xref found in ${file}: `, xref);
                         // example of xref: [xref: test-1, Aal]
                         allXrefs.xrefs.add(xref);
                     });
@@ -219,7 +219,7 @@ function getXrefsData() {
     // Step 6: add the owner and repo to the xref object
     allXrefs.xrefs.forEach(xref => {
         if (xref.repoUrl === undefined) {
-            console.log('match.repoUrl is undefined');
+            console.log('\n   SPEC-UP-T: match.repoUrl is undefined');
             return;
         }
 
