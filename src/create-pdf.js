@@ -40,6 +40,6 @@ const path = require('path');
 
         console.log('\n   SPEC-UP-T: PDF generated successfully! Find the PDF in the same directory as the index.html file.' + "\n");
     } catch (error) {
-        console.error('SPEC-UP-T – Error generating PDF:', error + "\n");
+        console.error('SPEC-UP-T: Error generating PDF:', error + "\n");
     }
 })();

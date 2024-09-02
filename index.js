@@ -231,7 +231,7 @@ module.exports = function(options = {}) {
       try {
         noticeTitles = {};
         specGroups = {};
-        console.log('\n   SPEC-UP-T – Rendering: ' + spec.title);
+        console.log('\n   SPEC-UP-T: Rendering: ' + spec.title + "\n");
         return new Promise(async (resolve, reject) => {
           Promise.all((spec.markdown_paths || ['spec.md']).map(_path => {
             return fs.readFile(spec.spec_directory + _path, 'utf8').catch(e => reject(e))
