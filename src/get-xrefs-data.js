@@ -285,6 +285,8 @@ function getXrefsData() {
 
 // Write function that removes an entry from xrefs-data.json and xrefs-data.js based on the term and externalSpec
 function removeXref(term, externalSpec) {
+    let messages = [];
+    
     // Read the JSON file
     let currentXrefs = fs.readJsonSync(outputPathJSON);
 
@@ -292,8 +294,8 @@ function removeXref(term, externalSpec) {
     const entryExists = currentXrefs.xrefs.some(xref => xref.term === term && xref.externalSpec === externalSpec);
 
     if (!entryExists) {
-        console.log(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" not found.\n`);
-        return;
+        messages.push(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" not found.\n`);
+        return messages;
     }
 
     // Remove the entry from the JSON file
@@ -313,7 +315,8 @@ function removeXref(term, externalSpec) {
     // Write the JS code to a .js file
     fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
 
-    console.log(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" removed.\n`);
+    messages.push(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" removed.\n`);
+    return messages;
 }
 
 module.exports = {
