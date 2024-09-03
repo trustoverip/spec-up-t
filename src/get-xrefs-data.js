@@ -292,7 +292,7 @@ function removeXref(term, externalSpec) {
     const entryExists = currentXrefs.xrefs.some(xref => xref.term === term && xref.externalSpec === externalSpec);
 
     if (!entryExists) {
-        console.log(`Entry with term "${term}" and externalSpec "${externalSpec}" not found.`);
+        console.log(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" not found.\n`);
         return;
     }
 
