@@ -312,6 +312,8 @@ function removeXref(term, externalSpec) {
 
     // Write the JS code to a .js file
     fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
+
+    console.log(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" removed.\n`);
 }
 
 module.exports = {
