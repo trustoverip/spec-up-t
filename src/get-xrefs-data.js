@@ -286,38 +286,45 @@ function getXrefsData() {
 // Write function that removes an entry from xrefs-data.json and xrefs-data.js based on the term and externalSpec
 function removeXref(term, externalSpec) {
     let messages = [];
-    
-    // Read the JSON file
-    let currentXrefs = fs.readJsonSync(outputPathJSON);
 
-    // Check if the term and externalSpec exist
-    const entryExists = currentXrefs.xrefs.some(xref => xref.term === term && xref.externalSpec === externalSpec);
+    try {
+        // Read the JSON file
+        let currentXrefs = fs.readJsonSync(outputPathJSON);
 
-    if (!entryExists) {
-        messages.push(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" not found.\n`);
-        return messages;
+        // Check if the term and externalSpec exist
+        const entryExists = currentXrefs.xrefs.some(xref => xref.term === term && xref.externalSpec === externalSpec);
+
+        if (!entryExists) {
+            messages.push(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" not found.\n`);
+            return messages;
+        }
+
+        // Remove the entry from the JSON file
+        currentXrefs.xrefs = currentXrefs.xrefs.filter(xref => {
+            return !(xref.term === term && xref.externalSpec === externalSpec);
+        });
+
+        // Convert the JSON object back to a JSON string
+        const currentXrefsStr = JSON.stringify(currentXrefs, null, 2);
+
+        // Write the JSON code to a .json file
+        fs.writeFileSync(outputPathJSON, currentXrefsStr, 'utf8');
+
+        // Create the JS code for the assignment
+        const stringReadyForFileWrite = `const allXrefs = ${currentXrefsStr};`;
+
+        // Write the JS code to a .js file
+        fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
+
+        messages.push(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" removed.\n`);
+    } catch (error) {
+        messages.push(`\n   SPEC-UP-T: An error occurred - ${error.message}\n`);
     }
 
-    // Remove the entry from the JSON file
-    currentXrefs.xrefs = currentXrefs.xrefs.filter(xref => {
-        return !(xref.term === term && xref.externalSpec === externalSpec);
-    });
-
-    // Convert the JSON object back to a JSON string
-    const currentXrefsStr = JSON.stringify(currentXrefs, null, 2);
-
-    // Write the JSON code to a .json file
-    fs.writeFileSync(outputPathJSON, currentXrefsStr, 'utf8');
-
-    // Create the JS code for the assignment
-    const stringReadyForFileWrite = `const allXrefs = ${currentXrefsStr};`;
-
-    // Write the JS code to a .js file
-    fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
-
-    messages.push(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" removed.\n`);
+    // TODO: messages are not used at the moment, since they apparently are not returned to the calling script. Fix this.
     return messages;
 }
+
 
 module.exports = {
     getXrefsData,
