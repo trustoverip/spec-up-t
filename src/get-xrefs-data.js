@@ -288,6 +288,14 @@ function removeXref(term, externalSpec) {
     // Read the JSON file
     let currentXrefs = fs.readJsonSync(outputPathJSON);
 
+    // Check if the term and externalSpec exist
+    const entryExists = currentXrefs.xrefs.some(xref => xref.term === term && xref.externalSpec === externalSpec);
+
+    if (!entryExists) {
+        console.log(`Entry with term "${term}" and externalSpec "${externalSpec}" not found.`);
+        return;
+    }
+
     // Remove the entry from the JSON file
     currentXrefs.xrefs = currentXrefs.xrefs.filter(xref => {
         return !(xref.term === term && xref.externalSpec === externalSpec);
