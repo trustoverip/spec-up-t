@@ -8,10 +8,6 @@
             "markdown_paths": [
                 "intro.md",
                 "terms-and-definitions-intro.md",
-                "terms-definitions/term-1.md",
-                "terms-definitions/term-2.md",
-                "terms-definitions/term-3.md",
-                "terms-definitions/term-4.md",
                 "example-markup-in-markdown.md",
                 "outro.md"
             ],
