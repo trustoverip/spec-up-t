@@ -25,12 +25,7 @@ function collapseDefinitions() {
         button.classList.add('collapse-all-defs-button', 'btn');
         button.innerHTML = '▲';
         button.setAttribute('id', 'toggleButton');
-
-        const sup = document.createElement('sup');
-        sup.classList.add('collapse-all-defs-button-sup');
-        sup.appendChild(button);
-
-        dt.appendChild(sup);
+        dt.appendChild(button);
     });
 
     // Via event delegation add event listener to every .collapse-all-defs-button element
