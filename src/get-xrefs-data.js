@@ -283,7 +283,6 @@ function getXrefsData() {
     });
 }
 
-// Write function that removes an entry from xrefs-data.json and xrefs-data.js based on the term and externalSpec
 function removeXref(term, externalSpec) {
     let messages = [];
 
