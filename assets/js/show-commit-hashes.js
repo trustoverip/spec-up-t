@@ -55,7 +55,7 @@ function fetchCommitHashes() {
             diff.rel = 'noopener noreferrer';
             diff.classList.add('diff', 'xref-info-links', 'btn');
             // diff.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
-            diff.innerHTML = 'Diff';
+            diff.innerHTML = 'Difference';
             diff.title = 'A Diff between the current commit hash of the definition and the commit hash referenced when the link was created.';
             element.parentNode.insertBefore(diff, element.nextSibling);
 
@@ -67,7 +67,7 @@ function fetchCommitHashes() {
             latestVersion.rel = 'noopener noreferrer';
             latestVersion.classList.add('latest-version', 'xref-info-links', 'btn');
             // latestVersion.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
-            latestVersion.innerHTML = 'Repo: Current';
+            latestVersion.innerHTML = 'Current';
             latestVersion.title = "Go to the repo page of the definition's current version.";
             diff.parentNode.insertBefore(latestVersion, element.nextSibling);
 
@@ -82,7 +82,7 @@ function fetchCommitHashes() {
             exactCommitHash.classList.add('exact-commit-hash', 'xref-info-links', 'btn');
             // exactCommitHash.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
             // exactCommitHash.innerHTML = commitHashShort;
-            exactCommitHash.innerHTML = "Repo: Referenced";
+            exactCommitHash.innerHTML = "Referenced";
             exactCommitHash.title = "Go to the repo page of the definition's version referenced when the link was created.";
             latestVersion.parentNode.insertBefore(exactCommitHash, element.nextSibling);
          }
