@@ -19,6 +19,9 @@
   /* background-color: #1d6daeb2; */
   background-color: transparent;
   border-color: #1D6DAE;
+
+  /* Added by Kor Dwarshuis */
+  text-decoration: none;
 }
 
 .btn:hover,
