@@ -56,6 +56,7 @@ function getXrefsData() {
             }
 
             // prerequisite: filename should be the term in the match object with spaces replaced by dashes and all lowercase
+            //TODO: Loop through all markdown files to find the term and get the filename, instead of assuming that the filename is the term with spaces replaced by dashes and all lowercase
             const url = `https://api.github.com/repos/${match.owner}/${match.repo}/commits?path=${match.terms_dir}/${match.term.replace(/ /g, '-').toLowerCase()}.md`;
 
             // Fetch the list of commits for the specified file
