@@ -26,7 +26,18 @@ const outputPathJSON = 'output/xrefs-data.json';
 const outputPathJS = 'output/xrefs-data.js';
 const outputPathJSTimeStamped = 'output/xrefs-history/xrefs-data-' + Date.now() + '.js';
 
-function getXrefsData() {
+function getXrefsData(GITHUB_API_TOKEN) {
+    console.log('GITHUB_API_TOKEN: ', GITHUB_API_TOKEN);
+    const fetchHeaders = {
+        'Accept': 'application/vnd.github.v3+json'
+    };
+
+    if (GITHUB_API_TOKEN) {
+        fetchHeaders['Authorization'] = `token ${GITHUB_API_TOKEN}`;
+    } else {
+        console.log('\n   SPEC-UP-T: There is no GitHub token set up. Therefore, you are more likely to be at your limit of GitHub API requests. If you run into the limit, create a token and search the documentation on this topic.\n');
+    }
+
     let allXrefs = {};
     allXrefs.xrefs = new Set();
 
@@ -46,8 +57,6 @@ function getXrefsData() {
             }
         */
 
-        
-        
         try {
 
             if (match.repoUrl === undefined) {
@@ -60,11 +69,7 @@ function getXrefsData() {
             const url = `https://api.github.com/repos/${match.owner}/${match.repo}/commits?path=${match.terms_dir}/${match.term.replace(/ /g, '-').toLowerCase()}.md`;
 
             // Fetch the list of commits for the specified file
-            const response = await fetch(url, {
-                headers: {
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
+            const response = await fetch(url, { fetchHeaders });
 
             // Check for rate limit before proceeding
             if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
@@ -94,9 +99,8 @@ function getXrefsData() {
             const commits = data.slice(0, 1);
             // Assign the fetched commit hash to the variable commitHash
             let commitHash = commits.map(commit => commit.sha);
-            
-            console.log(`\n   SPEC-UP-T: Commit hash found for the term “${match.term}”: `, commitHash + "\n");
 
+            console.log(`\n   SPEC-UP-T: Commit hash found for the term “${match.term}”: `, commitHash + "\n");
 
             //TODO: Check if a term is in the JSON file and not in the markdown file. If so, remove the term from the JSON file.
 
