@@ -13,3 +13,8 @@
     /* fade in and out */
     transition: all 0.3s ease-in-out;
 }
+
+.no-xref-found-message {
+    background: #edab54 !important;
+    color: #03365f!important;
+}
