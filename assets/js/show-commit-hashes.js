@@ -33,7 +33,7 @@ function fetchCommitHashes() {
    /*********************/
 
    // get all elements with data-attribute “data-local-href”
-   const elements = document.querySelectorAll('[data-local-href]');
+   const elements = document.querySelectorAll('.term-reference[data-local-href]');
 
    // for each element, get the value of the data-attribute “data-local-href”
    elements.forEach((element) => {
@@ -45,12 +45,25 @@ function fetchCommitHashes() {
 
       // allXrefs is an object that is available in the global scope
       allXrefs.xrefs.forEach((match) => {
+
+         //TODO: remove toLowerCase() or not?
          if (match.externalSpec === splitHref[1] && match.term.toLowerCase() === splitHref[2].toLowerCase()) {
-            const commitHashShort = match.commitHash && match.commitHash[0] ? match.commitHash[0].substring(0, 7) : 'No hash';
+            
+            // If no commit hash is found, display a message and return
+            if (!match.commitHash) {
+               const noXrefFoundMessage = document.createElement('span');
+               noXrefFoundMessage.classList.add('no-xref-found-message','btn');
+               noXrefFoundMessage.innerHTML = 'No xref found.';
+               element.parentNode.insertBefore(noXrefFoundMessage, element.nextSibling);
+
+               return
+            };
+
+            const commitHashShort = match.commitHash && match.commitHash ? match.commitHash.substring(0, 7) : 'No hash';
 
             // Diff of the latest commit hash of a term-file and the referenced commit hash
             const diff = document.createElement('a');
-            diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash[0] + '../main';
+            diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash + '../main';
             diff.target = '_blank';
             diff.rel = 'noopener noreferrer';
             diff.classList.add('diff', 'xref-info-links', 'btn');
