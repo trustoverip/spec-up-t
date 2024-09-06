@@ -57,169 +57,168 @@ function getXrefsData(GITHUB_API_TOKEN) {
         return false;
     }
 
-    // Function to fetch the latest commit hash of the file
-    async function fetchTermInfoFromGithub(match) {
-        // console.log('match: ', match);
-        /* Example
-            match:  {
-                externalSpec: 'test-1',
-                term: 'Aal',
-                repoUrl: 'https://github.com/blockchainbird/spec-up-xref-test-1',
-                terms_dir: 'spec/term-definitions',
-                owner: 'blockchainbird',
-                repo: 'spec-up-xref-test-1',
-                site: 'https://blockchainbird.github.io/spec-up-xref-test-1/'
+    async function fetchAllTermsInfoFromGithub() {
+        // Function to fetch the latest commit hash of the file
+        async function fetchTermInfoFromGithub(match) {
+            // console.log('match: ', match);
+            /* Example
+                match:  {
+                    externalSpec: 'test-1',
+                    term: 'Aal',
+                    repoUrl: 'https://github.com/blockchainbird/spec-up-xref-test-1',
+                    terms_dir: 'spec/term-definitions',
+                    owner: 'blockchainbird',
+                    repo: 'spec-up-xref-test-1',
+                    site: 'https://blockchainbird.github.io/spec-up-xref-test-1/'
+                }
+            */
+
+            let commitHash;
+            let fileContent;
+            let gitHubData = {};
+
+            // Function to fetch the content of a file from a commit
+            async function fetchFileContentFromCommit(owner, repo, commitHash, filePath) {
+                try {
+                    // Step 1: Get the tree of the commit
+                    const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${commitHash}?recursive=1`;
+                    const treeResponse = await fetch(treeUrl, {
+                        headers: fetchHeaders
+                    });
+
+                    // Check for rate limit before proceeding
+                    if (checkRateLimit(treeResponse)) {
+                        return;
+                    }
+
+                    if (!treeResponse.ok) {
+                        throw new Error(`Failed to fetch tree: ${treeResponse.statusText}`);
+                    }
+                    const treeData = await treeResponse.json();
+
+                    // Step 2: Find the file in the tree
+                    if (!treeData.tree) {
+                        throw new Error('Tree data does not contain a tree property');
+                    }
+                    const file = treeData.tree.find(item => item.path === filePath);
+                    if (!file) {
+                        throw new Error(`File ${filePath} not found in commit ${commitHash}`);
+                    }
+
+                    // Step 3: Fetch the content of the file
+                    const fileContentUrl = file.url;
+                    const fileContentResponse = await fetch(fileContentUrl);
+                    // if (!fileContentResponse.ok) {
+                    //     throw new Error(`Failed to fetch file content: ${fileContentResponse.statusText}`);
+                    // }
+                    const fileContentData = await fileContentResponse.json();
+
+                    // Decode the base64 content
+                    return Buffer.from(fileContentData.content, 'base64').toString('utf-8');
+                } catch (error) {
+                    console.error(error);
+                    return;
+                }
             }
-        */
 
-        let commitHash;
-        let fileContent;
-        let gitHubData = {};
-
-        // Function to fetch the content of a file from a commit
-        async function fetchFileContentFromCommit(owner, repo, commitHash, filePath) {
             try {
-                // Step 1: Get the tree of the commit
-                const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${commitHash}?recursive=1`;
-                const treeResponse = await fetch(treeUrl, {
+                // Look if the term is already locally stored in the JSON file, in that case stop here, no need to fetch the commit hash from GitHub
+
+                // // If even the JSON file that holds the terms does not exist, stop here, and go to GitHub to fetch the commit hash
+                // if (!fs.existsSync(outputPathJSON)) {
+                //     console.log(`\n   SPEC-UP-T: There are no external references stored.\n`);
+                //     return;
+                // }
+
+                // console.log("pomtiedom");
+
+
+                let found = false;
+                // Check if the term is already in the JSON file, if so, stop and do not fetch the commit hash
+                if (fs.existsSync(outputPathJSON)) {
+                    // If the JSON file is found, read it
+                    let currentXrefs = fs.readJsonSync(outputPathJSON);
+                    // console.log('currentXrefs djdjdjdjdj: ', currentXrefs);
+                    found = currentXrefs.xrefs.some(xref => {
+                        if (xref.term === match.term) {
+                            console.log(`\n   SPEC-UP-T: This external reference:\n Term: ${match.term}\n Name: ${match.externalSpec}\n Owner: ${match.owner}\n Repo: ${match.repo}\nis already referenced.\n`);
+                            return true; // Term found in the JSON file, exit the loop
+                        }
+                        return false;
+                    });
+                }
+
+                // console.log('found: ', found);
+                if (found) {
+                    return;
+                }
+                // console.log("kedenk");
+                // Nothing found in the JSON file, continue to fetch the commit hash from GitHub
+
+                // prerequisite: filename should be the term in the match object with spaces replaced by dashes and all lowercase
+                //TODO: Loop through all markdown files to find the term and get the filename, instead of assuming that the filename is the term with spaces replaced by dashes and all lowercase
+                // const url = `https://api.github.com/repos/${match.owner}/${match.repo}/commits?path=${match.terms_dir}/${match.term.replace(/ /g, '-').toLowerCase()}.md`;
+
+                const url = `https://api.github.com/repos/${match.owner}/${match.repo}/commits?path=${match.terms_dir}/${match.term.replace(/ /g, '-').toLowerCase()}.md&per_page=1`;
+                // console.log('url: ', url);
+
+                const response = await fetch(url, {
                     headers: fetchHeaders
                 });
 
                 // Check for rate limit before proceeding
-                if (checkRateLimit(treeResponse)) {
+                if (checkRateLimit(response)) {
                     return;
                 }
 
-                if (!treeResponse.ok) {
-                    throw new Error(`Failed to fetch tree: ${treeResponse.statusText}`);
-                }
-                const treeData = await treeResponse.json();
-
-                // Step 2: Find the file in the tree
-                if (!treeData.tree) {
-                    throw new Error('Tree data does not contain a tree property');
-                }
-                const file = treeData.tree.find(item => item.path === filePath);
-                if (!file) {
-                    throw new Error(`File ${filePath} not found in commit ${commitHash}`);
+                // Check if the request was successful
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                // Step 3: Fetch the content of the file
-                const fileContentUrl = file.url;
-                const fileContentResponse = await fetch(fileContentUrl);
-                // if (!fileContentResponse.ok) {
-                //     throw new Error(`Failed to fetch file content: ${fileContentResponse.statusText}`);
-                // }
-                const fileContentData = await fileContentResponse.json();
+                console.log(`\n   SPEC-UP-T: Github API request for:\n   Term ${match.term},\n   Name: ${match.externalSpec}\n   Owner ${match.owner}\n   Repo ${match.repo}\n   was successful` + "\n");
 
-                // Decode the base64 content
-                return Buffer.from(fileContentData.content, 'base64').toString('utf-8');
+                // Extract JSON data from the response, see https://blockchainbird.github.io/spec-up-t-website/docs/various-roles/developers-guide/#example-of-api-response for example response
+                const data = await response.json();
+
+                // Check if there are any commits
+                if (data.length === 0) {
+                    console.log(`\n   SPEC-UP-T: No commit hash found for the term “${match.term}”` + "\n");
+
+                    return;
+                }
+
+                // Get only the last commit, this is not strictly necessary since we use &per_page=1 in the url
+                const commits = data.slice(0, 1);
+                // Assign the fetched commit hash to the variable commitHash
+                gitHubData.commitHash = commits.map(commit => commit.sha);
+
+                console.log(`\n   SPEC-UP-T: Commit hash found for the term “${match.term}”: `, gitHubData.commitHash + "\n");
+
+                // Based on the commit hash, fetch the content of the file
+                async function processGitHubData(match, gitHubData) {
+                    const filePath = `${match.terms_dir}/${match.term.replace(/ /g, '-').toLowerCase()}.md`;
+                    gitHubData.content = await fetchFileContentFromCommit(match.owner, match.repo, gitHubData.commitHash, filePath) || '';
+                    return gitHubData; // Return the populated gitHubData object
+                }
+
+                const fetchedData = (async () => {
+                    const fetchedData = await processGitHubData(match, gitHubData);
+                    return fetchedData;
+                })();
+
+                // console.log('fetchedData: ', fetchedData);
+                return fetchedData
             } catch (error) {
-                console.error(error);
-                return;
+                console.error(`\n   SPEC-UP-T: Failed to fetch commit hash for the term “${match.term}”:`, error + "\n");
             }
         }
 
-        try {
-            // Look if the term is already locally stored in the JSON file, in that case stop here, no need to fetch the commit hash from GitHub
-
-            // // If even the JSON file that holds the terms does not exist, stop here, and go to GitHub to fetch the commit hash
-            // if (!fs.existsSync(outputPathJSON)) {
-            //     console.log(`\n   SPEC-UP-T: There are no external references stored.\n`);
-            //     return;
-            // }
-
-            // console.log("pomtiedom");
-
-            
-            let found = false;
-            // Check if the term is already in the JSON file, if so, stop and do not fetch the commit hash
-            if (fs.existsSync(outputPathJSON)) {
-                // If the JSON file is found, read it
-                let currentXrefs = fs.readJsonSync(outputPathJSON);
-                // console.log('currentXrefs djdjdjdjdj: ', currentXrefs);
-                found = currentXrefs.xrefs.some(xref => {
-                    if (xref.term === match.term) {
-                        console.log(`\n   SPEC-UP-T: This external reference:\n Term: ${match.term}\n Name: ${match.externalSpec}\n Owner: ${match.owner}\n Repo: ${match.repo}\nis already referenced.\n`);
-                        return true; // Term found in the JSON file, exit the loop
-                    }
-                    return false;
-                });
-            }
-
-            // console.log('found: ', found);
-            if (found) {
-                return;
-            }
-            // console.log("kedenk");
-            // Nothing found in the JSON file, continue to fetch the commit hash from GitHub
-
-            // prerequisite: filename should be the term in the match object with spaces replaced by dashes and all lowercase
-            //TODO: Loop through all markdown files to find the term and get the filename, instead of assuming that the filename is the term with spaces replaced by dashes and all lowercase
-            // const url = `https://api.github.com/repos/${match.owner}/${match.repo}/commits?path=${match.terms_dir}/${match.term.replace(/ /g, '-').toLowerCase()}.md`;
-
-            const url = `https://api.github.com/repos/${match.owner}/${match.repo}/commits?path=${match.terms_dir}/${match.term.replace(/ /g, '-').toLowerCase()}.md&per_page=1`;
-            // console.log('url: ', url);
-
-            const response = await fetch(url, {
-                headers: fetchHeaders
-            });
-
-            // Check for rate limit before proceeding
-            if (checkRateLimit(response)) {
-                return;
-            }
-
-            // Check if the request was successful
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            console.log(`\n   SPEC-UP-T: Github API request for:\n   Term ${match.term},\n   Name: ${match.externalSpec}\n   Owner ${match.owner}\n   Repo ${match.repo}\n   was successful` + "\n");
-
-            // Extract JSON data from the response, see https://blockchainbird.github.io/spec-up-t-website/docs/various-roles/developers-guide/#example-of-api-response for example response
-            const data = await response.json();
-
-            // Check if there are any commits
-            if (data.length === 0) {
-                console.log(`\n   SPEC-UP-T: No commit hash found for the term “${match.term}”` + "\n");
-
-                return;
-            }
-
-            // Get only the last commit, this is not strictly necessary since we use &per_page=1 in the url
-            const commits = data.slice(0, 1);
-            // Assign the fetched commit hash to the variable commitHash
-            gitHubData.commitHash = commits.map(commit => commit.sha);
-
-            console.log(`\n   SPEC-UP-T: Commit hash found for the term “${match.term}”: `, gitHubData.commitHash + "\n");
-
-            // Based on the commit hash, fetch the content of the file
-            async function processGitHubData(match, gitHubData) {
-                const filePath = `${match.terms_dir}/${match.term.replace(/ /g, '-').toLowerCase()}.md`;
-                gitHubData.content = await fetchFileContentFromCommit(match.owner, match.repo, gitHubData.commitHash, filePath) || '';
-                return gitHubData; // Return the populated gitHubData object
-            }
-
-            const fetchedData = (async () => {
-                const fetchedData = await processGitHubData(match, gitHubData);
-                return fetchedData;
-            })();
-
-            // console.log('fetchedData: ', fetchedData);
-            return fetchedData
-        } catch (error) {
-            console.error(`\n   SPEC-UP-T: Failed to fetch commit hash for the term “${match.term}”:`, error + "\n");
-        }
-    }
-
-    async function fetchAllTermsInfoFromGithub() {
         for (const xref of allXrefs.xrefs) {
-
             const output = await fetchTermInfoFromGithub(xref);
             // console.log('xref: ', xref);
             // console.log('output: ', output);
-            
+
             if (output !== undefined) {
                 xref.commitHash = output.commitHash;
                 xref.content = output.content;
