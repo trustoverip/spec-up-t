@@ -60,8 +60,7 @@ function getXrefsData(GITHUB_API_TOKEN) {
     async function fetchAllTermsInfoFromGithub() {
         // Function to fetch the latest commit hash of the file
         async function fetchTermInfoFromGithub(match) {
-            // console.log('match: ', match);
-            /* Example
+            /* Example:
                 match:  {
                     externalSpec: 'test-1',
                     term: 'Aal',
@@ -73,8 +72,6 @@ function getXrefsData(GITHUB_API_TOKEN) {
                 }
             */
 
-            let commitHash;
-            let fileContent;
             let gitHubData = {};
 
             // Function to fetch the content of a file from a commit
@@ -122,16 +119,7 @@ function getXrefsData(GITHUB_API_TOKEN) {
             }
 
             try {
-                // Look if the term is already locally stored in the JSON file, in that case stop here, no need to fetch the commit hash from GitHub
-
-                // // If even the JSON file that holds the terms does not exist, stop here, and go to GitHub to fetch the commit hash
-                // if (!fs.existsSync(outputPathJSON)) {
-                //     console.log(`\n   SPEC-UP-T: There are no external references stored.\n`);
-                //     return;
-                // }
-
-                // console.log("pomtiedom");
-
+                // Look if the term is already locally stored in the JSON file; in that case, stop here since we want to keep the reference to the commit hash intact, so do not fetch the (potentially changed) commit hash from GitHub.
 
                 let found = false;
                 // Check if the term is already in the JSON file, if so, stop and do not fetch the commit hash
@@ -234,11 +222,13 @@ function getXrefsData(GITHUB_API_TOKEN) {
             // read file
             if (file.endsWith('.md')) {
                 console.log(`\n   SPEC-UP-T: Markdown file referenced in spec_directory: `, file + "\n");
+                // read markdown
                 const markdown = fs.readFileSync(`${specDirectory}/${file}`, 'utf8');
                 // create regex that finds “[[xref:.*]]”
                 const regex = /\[\[xref:.*?\]\]/g;
                 if (regex.test(markdown)) {
                     const xrefs = markdown.match(regex);
+                    // xrefs is an array, containing strings, example: [ '[[xref: test-1, Aal]]' ]
                     xrefs.forEach(xref => {
                         console.log(`\n   SPEC-UP-T: Xref found in ${file}: `, xref + "\n");
                         // example of xref: [xref: test-1, Aal]
@@ -249,6 +239,7 @@ function getXrefsData(GITHUB_API_TOKEN) {
             }
         });
     })
+    console.log('allXrefs.xrefs: ', allXrefs.xrefs);
     // Convert the Set back to an Array if needed
     allXrefs.xrefs = Array.from(allXrefs.xrefs);
 
@@ -258,10 +249,11 @@ function getXrefsData(GITHUB_API_TOKEN) {
     //     '[[xref: test-2, Abac]]'
     // ]
 
-    // The following steps create an array of objects with the keys “externalSpec” and “term” for each xref by splitting the xref string on the comma and removing the “[[xref:” and “]]” parts
+    // The following steps (1 to 4) create an array of objects with the keys “externalSpec” and “term” for each xref by splitting the xref string on the comma and removing the “[[xref:” and “]]” parts
 
     // Step 1: remove “[[xref:” from the beginning of every value in allMatches
     allXrefs.xrefs = allXrefs.xrefs.map(xref => {
+        // console.log('xref step 1: ', xref);
         return xref.replace(/\[\[xref:/, '');
     });
 
@@ -291,7 +283,9 @@ function getXrefsData(GITHUB_API_TOKEN) {
     // ]
 
     // Step 5: add the url and the dir where the terms are, to the xref object
+    console.log("Step 5: add the url and the dir where the terms are, to the xref object");
     allXrefs.xrefs.forEach(xref => {
+        // console.log('xref: ', xref);
         config.specs.forEach(spec => {
             spec.external_specs_repos.forEach(repo => {
                 // if the externalSpec is in the config, add the url and the dir where the terms are, to the xref object
@@ -326,7 +320,9 @@ function getXrefsData(GITHUB_API_TOKEN) {
     });
 
     // Step 7: add the site to the xref object
+    console.log('Step 7: add the site to the xref object');
     allXrefs.xrefs.forEach(xref => {
+        // console.log('xref: ', xref);
         // loop through array of specs in config
         config.specs.forEach(spec => {
             if (spec.external_specs) {
