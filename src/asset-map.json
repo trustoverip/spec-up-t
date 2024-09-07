@@ -29,6 +29,7 @@
       "assets/js/font-awesome.js",
       "assets/js/popper.js",
       "assets/js/tippy.js",
+      "assets/js/diff.min.js",
       "assets/js/edit-term-buttons.js",
       "assets/js/search.js",
       "assets/js/highlightMenuItems.js",
