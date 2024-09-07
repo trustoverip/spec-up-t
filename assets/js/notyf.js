@@ -13,6 +13,15 @@ var notyf = new Notyf({
         {
             type: 'success',
             background: '#1D6DAE',
-        }
+            duration: 3000
+        },
+        {
+            type: 'error',
+            background: 'orange',
+            duration: 10000000,
+            dismissible: true
+        },
     ]
 });
+
+// var notyf = new Notyf();
