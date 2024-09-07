@@ -39,6 +39,7 @@
       "assets/js/notyf.js",
       "assets/js/collapse-definitions.js",
       "assets/js/modal.js",
+      "assets/js/token-input.js",
       "assets/js/index.js"
     ]
   }
