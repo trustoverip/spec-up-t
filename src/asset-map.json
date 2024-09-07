@@ -11,6 +11,7 @@
       "assets/css/backToTop.css",
       "assets/css/notyf.css",
       "assets/css/collapse-definitions.css",
+      "assets/css/modal.css",
       "assets/css/index.css",
       "assets/css/bootstrap-parts.css"
     ],
@@ -37,6 +38,7 @@
       "assets/js/copyAnchorToCliboard.js",
       "assets/js/notyf.js",
       "assets/js/collapse-definitions.js",
+      "assets/js/modal.js",
       "assets/js/index.js"
     ]
   }
