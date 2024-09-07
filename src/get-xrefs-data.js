@@ -75,10 +75,11 @@ function getXrefsData(GITHUB_API_TOKEN) {
                     return { commitHash, content };
                 }
             } else {
-                console.error(`Failed to fetch commit hash for ${xref.term}: ${response.statusText}`);
+                console.error(`\n   SPEC-UP-T: Failed to fetch commit hash for ${xref.term}: ${response.statusText}\n`);
+                return { commitHash: null, content: null };
             }
         } catch (error) {
-            console.error(`Error fetching data for term ${xref.term}: ${error.message}`);
+            console.error(`\n   SPEC-UP-T: Error fetching data for term ${xref.term}: ${error.message}\n`);
         }
         return null;
     }
@@ -87,6 +88,12 @@ function getXrefsData(GITHUB_API_TOKEN) {
     function extendXrefs(config, xrefs) {
         xrefs.forEach(xref => {
             config.specs.forEach(spec => {
+                // Loop through "external_specs_repos" to find the repository URL for each xref
+                xref.repoUrl = null;
+                xref.terms_dir = null;
+                xref.owner = null;
+                xref.repo = null;
+
                 spec.external_specs_repos.forEach(repo => {
                     if (repo.external_spec === xref.externalSpec) {
                         xref.repoUrl = repo.url;
@@ -97,6 +104,9 @@ function getXrefsData(GITHUB_API_TOKEN) {
                     }
                 });
 
+                // Loop through "external_specs" to find the site URL for each xref
+                
+                xref.site = null;
                 if (spec.external_specs) {
                     spec.external_specs.forEach(externalSpec => {
                         const key = Object.keys(externalSpec)[0];
@@ -125,7 +135,7 @@ function getXrefsData(GITHUB_API_TOKEN) {
                 }
             }
         } catch (error) {
-            console.error(`Error fetching file content: ${error.message}`);
+            console.error(`\n   SPEC-UP-T: Error fetching file content: ${error.message}\n`);
         }
         return null;
     }
