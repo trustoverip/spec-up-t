@@ -99,6 +99,47 @@ function fetchCommitHashes() {
             exactCommitHash.title = "Go to the repo page of the definition's version referenced when the link was created.";
             latestVersion.parentNode.insertBefore(exactCommitHash, element.nextSibling);
          }
+
+
+
+         const token = '';
+         console.log('token.length: ', token.length);
+
+         const headers = {};
+         if (token && token.length > 0) {
+            headers['Authorization'] = `token ${token}`;
+         }
+
+         fetch('https://api.github.com/repos/' + match.owner + '/' + match.repo + '/contents/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md?ref=' + match.commitHash, { headers: headers })
+            .then(response => {
+               // Log rate limit information
+               const rateLimit = response.headers.get('X-RateLimit-Limit');
+               const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+               const rateLimitReset = response.headers.get('X-RateLimit-Reset');
+               console.log(`Rate Limit: ${rateLimit}, Remaining: ${rateLimitRemaining}, Reset: ${new Date(rateLimitReset * 1000).toLocaleString()}`);
+               
+               return response.json();
+            })
+         .then(data => {
+            console.log(data);
+         
+            // Decode base64 encoded content
+            const decodedContent = atob(data.content);
+            console.log(decodedContent);
+         
+            // Create a new element and insert the content
+            const contentElement = document.createElement('div');
+            contentElement.innerHTML = decodedContent;
+            element.parentNode.insertBefore(contentElement, element.nextSibling);
+         })
+         .catch(error => {
+               console.error('Error fetching content:', error);
+         });
+
+
+
+
+
       });
    });
 }
