@@ -25,12 +25,24 @@
  */
 
 function fetchCommitHashes() {
-   /*****************/
-   /* CONFIGURATION */
+   let resetTime;
 
+   // Load token from local storage if it exists
+   const savedToken = localStorage.getItem('githubToken');
+   
+   // Debounce function to delay execution, so the error message is not displayed too often
+   function debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+         clearTimeout(timeout);
+         timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+   }
 
-   /* END CONFIGURATION */
-   /*********************/
+   // Debounced “GitHub rate limit exceeded” error message
+   const debouncedError = debounce(() => {
+      notyf.error('GitHub rate limit exceeded. See <a target="_blank" rel="noopener" href="https://blockchainbird.github.io/spec-up-t-website/docs/github-token/">documentation</a> for more info.');
+   }, 3000); // Delay in milliseconds
 
    // get all elements with data-attribute “data-local-href”
    const elements = document.querySelectorAll('.term-reference[data-local-href]');
@@ -106,22 +118,23 @@ function fetchCommitHashes() {
          }
 
 
-
-         const token = '';
-         console.log('token.length: ', token.length);
-
          const headers = {};
-         if (token && token.length > 0) {
-            headers['Authorization'] = `token ${token}`;
+         if (savedToken && savedToken.length > 0) {
+            headers['Authorization'] = `token ${savedToken}`;
          }
 
          fetch('https://api.github.com/repos/' + match.owner + '/' + match.repo + '/contents/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md?ref=' + match.commitHash, { headers: headers })
             .then(response => {
-               // Log rate limit information
-               const rateLimit = response.headers.get('X-RateLimit-Limit');
-               const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-               const rateLimitReset = response.headers.get('X-RateLimit-Reset');
-               console.log(`Rate Limit: ${rateLimit}, Remaining: ${rateLimitRemaining}, Reset: ${new Date(rateLimitReset * 1000).toLocaleString()}`);
+               if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
+                  resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
+                  console.error(`\n   SPEC-UP-T: Github API rate limit exceeded. Try again after ${resetTime}. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+
+                  // Call the debounced error function
+                  debouncedError();
+                  return true;
+               } else {
+                  console.log(`\n   SPEC-UP-T: Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+               }
                
                return response.json();
             })
@@ -140,11 +153,6 @@ function fetchCommitHashes() {
          .catch(error => {
                console.error('Error fetching content:', error);
          });
-
-
-
-
-
       });
    });
 }
