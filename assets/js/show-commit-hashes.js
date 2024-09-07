@@ -57,6 +57,11 @@ function fetchCommitHashes() {
             // diff.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
             diff.innerHTML = 'Difference';
             diff.title = 'A Diff between the current commit hash of the definition and the commit hash referenced when the link was created.';
+            // // Example usage of showModal:
+            // diff.addEventListener('click', function (event) {
+            //    event.preventDefault();
+            //    showModal('<h2>This is a Modal</h2><p>You can put any content here.</p>');
+            // });
             element.parentNode.insertBefore(diff, element.nextSibling);
 
 
