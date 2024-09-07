@@ -28,6 +28,7 @@
   "dependencies": {
     "@traptitech/markdown-it-katex": "3.3.0",
     "axios": "0.21.2",
+    "diff": "^7.0.0",
     "find-pkg-dir": "2.0.0",
     "fs-extra": "8.1.0",
     "gulp": "4.0.2",
