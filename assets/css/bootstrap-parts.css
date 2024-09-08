@@ -1,26 +1,31 @@
 /* Basic Bootstrap Button Styles, edited by Kor Dwarshuis */
 .btn {
   display: inline-block;
-  font-weight: 400;
+  font-weight: bold;
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  border: 1px solid transparent;
+  /* user-select: none;
+  border: 1px solid #1D6DAE; */
+  /* Ensure border is applied */
   padding: 0.2rem 0.4rem;
   font-size: 1rem;
+  /* Font size consistency */
   line-height: 1.5;
   border-radius: 0.25rem;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   color: #111;
-  /* background-color: #1d6daeb2; */
   background-color: transparent;
-  border-color: #1D6DAE;
+  /* Ensure background color consistency */
+  text-decoration: none;
+  cursor: pointer;
+  /* Ensure pointer cursor */
+}
 
-  /* Added by Kor Dwarshuis */
+/* Normalize button and a element */
+.btn,
+.btn:link,
+.btn:visited {
   text-decoration: none;
 }
 
@@ -34,12 +39,18 @@
   box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
 }
 
-.btn.disabled {
+.btn.disabled,
+.btn:disabled {
   opacity: 0.65;
   pointer-events: none;
   color: #fff;
   background-color: #1D6DAE;
   border-color: #1D6DAE;
+}
+
+/* Focus state for accessibility */
+.btn:focus {
+  outline: none;
 }
 
 .btn:not(:disabled):not(.disabled):active,
@@ -54,6 +65,28 @@
 .btn:not(:disabled):not(.disabled).active:focus,
 .show>.btn.dropdown-toggle:focus {
   box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
+}
+
+/* Remove default button and anchor styles */
+a.btn {
+  display: inline-block;
+}
+
+button.btn {
+  border: 1px solid #1D6DAE;
+  /* Reapply the border */
+  padding: 0.2rem 0.4rem;
+  /* Ensure padding matches */
+  background-color: transparent;
+  /* Match default background */
+  color: inherit;
+  /* Match font color */
+  font-size: 1rem;
+  /* Ensure font size consistency */
+  line-height: 1.5;
+  /* Ensure visual height consistency */
+  cursor: pointer;
+  /* Ensure pointer cursor */
 }
 
 /* End Basic Bootstrap Button Styles */
