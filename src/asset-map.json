@@ -29,6 +29,7 @@
       "assets/js/font-awesome.js",
       "assets/js/popper.js",
       "assets/js/tippy.js",
+      "assets/js/diff.min.js",
       "assets/js/edit-term-buttons.js",
       "assets/js/search.js",
       "assets/js/highlightMenuItems.js",
@@ -39,6 +40,7 @@
       "assets/js/notyf.js",
       "assets/js/collapse-definitions.js",
       "assets/js/modal.js",
+      "assets/js/token-input.js",
       "assets/js/index.js"
     ]
   }

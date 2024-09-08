@@ -12,7 +12,8 @@
             "repo": "spec-up-xref-test-1",
             "site": "https://blockchainbird.github.io/spec-up-xref-test-1/",
             "commitHash": [
-            "f66951f1d378490289caab9c51141b44a0438365"
+            "f66951f1d378490289caab9c51141b44a0438365",
+            "content": "[[def: AAL]]:\n\n~ See: [[ref: authenticator assurance level]].\n\n~ This is an addition, for testing purposes.\n"
             ]
          },
          {…}
@@ -25,15 +26,89 @@
  */
 
 function fetchCommitHashes() {
-   /*****************/
-   /* CONFIGURATION */
+   // Load GitHub API token from local storage if it exists
+   const savedToken = localStorage.getItem('githubToken');
+   
+   // // Markdown parser
+   // const md = markdownit();
 
+   // A: Debounce function to delay execution, so the error message is not displayed too often, since we do not know of often and how many times the error will be triggered.
+   function debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+         clearTimeout(timeout);
+         timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+   }
 
-   /* END CONFIGURATION */
-   /*********************/
+   // B: Debounced “GitHub rate limit exceeded” error message
+   const debouncedError = debounce(() => {
+      notyf.error('GitHub rate limit exceeded. See <a target="_blank" rel="noopener" href="https://blockchainbird.github.io/spec-up-t-website/docs/github-token/">documentation</a> for more info.');
+   }, 3000); // Delay in milliseconds
+
+   // Fetch the content of a term-file from GitHub
+   function fetchGitHubContent(savedToken, match) {
+      // Create a headers object with the Authorization header if a GitHub API token is set
+      const headers = {};
+      if (savedToken && savedToken.length > 0) {
+         headers['Authorization'] = `token ${savedToken}`;
+      }
+
+      fetch('https://api.github.com/repos/' + match.owner + '/' + match.repo + '/contents/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md', { headers: headers })
+         .then(response => {
+            if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
+               const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
+               console.error(`\n   SPEC-UP-T: Github API rate limit exceeded. Try again after ${resetTime}. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+
+               // Call the debounced error function
+               debouncedError();
+               return true;
+            } else {
+               console.log(`\n   SPEC-UP-T: Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+            }
+
+            return response.json();
+         })
+         .then(data => {
+            // Decode base64 encoded content
+            const decodedContent = atob(data.content);
+
+            // Diff the content of the current term-file with the content of stored version
+            // See https://www.npmjs.com/package/diff , examples
+            const diff = Diff.diffChars(match.content, decodedContent),
+               fragment = document.createDocumentFragment();
+
+            diff.forEach((part) => {
+               // green for additions, red for deletions
+               // grey for common parts
+               const color = part.added ? 'green' :
+                  part.removed ? 'red' : 'grey';
+
+               const backgroundColor = part.added ? '#ddd' :
+                  part.removed ? '#ddd' : 'white';
+               
+               span = document.createElement('span');
+               span.style.color = color;
+               span.style.backgroundColor = backgroundColor;
+
+               span.appendChild(document
+                  .createTextNode(part.value));
+               fragment.appendChild(span);
+               });
+            // Create a temporary container to hold the fragment
+            const tempContainer = document.createElement('div');
+            tempContainer.appendChild(fragment);
+            // Replace newlines with <br> tags
+            tempContainer.innerHTML = tempContainer.innerHTML.replace(/\n/g, '<br>');
+            showModal(tempContainer.innerHTML);
+         })
+         .catch(error => {
+            console.error('Error fetching content:', error);
+         });
+   }
 
    // get all elements with data-attribute “data-local-href”
-   const elements = document.querySelectorAll('[data-local-href]');
+   const elements = document.querySelectorAll('.term-reference[data-local-href]');
 
    // for each element, get the value of the data-attribute “data-local-href”
    elements.forEach((element) => {
@@ -45,25 +120,32 @@ function fetchCommitHashes() {
 
       // allXrefs is an object that is available in the global scope
       allXrefs.xrefs.forEach((match) => {
-         if (match.externalSpec === splitHref[1] && match.term.toLowerCase() === splitHref[2].toLowerCase()) {
-            const commitHashShort = match.commitHash && match.commitHash[0] ? match.commitHash[0].substring(0, 7) : 'No hash';
 
-            // Diff of the latest commit hash of a term-file and the referenced commit hash
+         //TODO: remove toLowerCase() or not?
+         if (match.externalSpec === splitHref[1] && match.term.toLowerCase() === splitHref[2].toLowerCase()) {
+            
+            // If no commit hash is found, display a message and return
+            if (!match.commitHash) {
+               const noXrefFoundMessage = document.createElement('span');
+               noXrefFoundMessage.classList.add('no-xref-found-message','btn');
+               noXrefFoundMessage.innerHTML = 'No xref found.';
+               element.parentNode.insertBefore(noXrefFoundMessage, element.nextSibling);
+
+               return
+            };
+
+            // To be used in the future
+            const commitHashShort = match.commitHash && match.commitHash ? match.commitHash.substring(0, 7) : 'No hash';
+
+            // Diff of the latest commit hash of a term file and the referenced commit hash
             const diff = document.createElement('a');
-            diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash[0] + '../main';
+            diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash + '../main';
             diff.target = '_blank';
             diff.rel = 'noopener noreferrer';
             diff.classList.add('diff', 'xref-info-links', 'btn');
-            // diff.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
-            diff.innerHTML = 'Difference';
+            diff.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> &lt; &gt;';
             diff.title = 'A Diff between the current commit hash of the definition and the commit hash referenced when the link was created.';
-            // // Example usage of showModal:
-            // diff.addEventListener('click', function (event) {
-            //    event.preventDefault();
-            //    showModal('<h2>This is a Modal</h2><p>You can put any content here.</p>');
-            // });
             element.parentNode.insertBefore(diff, element.nextSibling);
-
 
             // Latest version of a term-file
             const latestVersion = document.createElement('a');
@@ -71,25 +153,30 @@ function fetchCommitHashes() {
             latestVersion.target = '_blank';
             latestVersion.rel = 'noopener noreferrer';
             latestVersion.classList.add('latest-version', 'xref-info-links', 'btn');
-            // latestVersion.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
-            latestVersion.innerHTML = 'Current';
-            latestVersion.title = "Go to the repo page of the definition's current version.";
+            latestVersion.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> NOW';
+            latestVersion.title = 'Go to the repo page of the definition‘s current version.';
             diff.parentNode.insertBefore(latestVersion, element.nextSibling);
 
-
-            // The structure of the URL to a specific version of a file in a GitHub repository is as follows:
-            // https://github.com/<username>/<repository>/blob/<commit-hash>/<file-path>
             // Exact commit hash at the time of referencing the file
             const exactCommitHash = document.createElement('a');
             exactCommitHash.href = 'https://github.com/' + match.owner + '/' + match.repo + '/blob/' + match.commitHash + '/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md';
             exactCommitHash.target = '_blank';
             exactCommitHash.rel = 'noopener noreferrer';
             exactCommitHash.classList.add('exact-commit-hash', 'xref-info-links', 'btn');
-            // exactCommitHash.style.cssText = 'display: inline-block; margin-left: 5px; margin-right: 5px; ';
-            // exactCommitHash.innerHTML = commitHashShort;
-            exactCommitHash.innerHTML = "Referenced";
-            exactCommitHash.title = "Go to the repo page of the definition's version referenced when the link was created.";
+            exactCommitHash.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> XREF';
+            exactCommitHash.title = 'Go to the repo page of the definition‘s version referenced when the link was created.';
             latestVersion.parentNode.insertBefore(exactCommitHash, element.nextSibling);
+
+            // Diff of the latest version and the referenced version in a modal
+            const showDiffModal = document.createElement('button');
+            showDiffModal.classList.add('show-diff-modal', 'xref-info-links', 'btn');
+            showDiffModal.innerHTML = '&lt; &gt;';
+            showDiffModal.title = 'Show diff between the latest version and the referenced version';
+            latestVersion.parentNode.insertBefore(showDiffModal, element.nextSibling);
+            showDiffModal.addEventListener('click', function (event) {
+               event.preventDefault();
+               fetchGitHubContent(savedToken, match);
+            });
          }
       });
    });

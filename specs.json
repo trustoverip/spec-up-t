@@ -20,9 +20,6 @@
             },
             "external_specs": [
                 {
-                    "PE": "https://identity.foundation/presentation-exchange"
-                },
-                {
                     "test-1": "https://blockchainbird.github.io/spec-up-xref-test-1/"
                 },
                 {
@@ -30,11 +27,6 @@
                 }
             ],
             "external_specs_repos": [
-                {
-                    "external_spec": "PE",
-                    "url": "https://github.com/decentralized-identity/presentation-exchange",
-                    "terms_dir": "spec"
-                },
                 {
                     "external_spec": "test-1",
                     "url": "https://github.com/blockchainbird/spec-up-xref-test-1",
