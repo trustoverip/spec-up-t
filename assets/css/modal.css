@@ -14,7 +14,7 @@
 
 .modal {
     background-color: white;
-    padding: 20px;
+    padding: 2rem 20px 20px;
     border-radius: 8px;
     max-width: 80%;
     max-height: 80%;
@@ -25,10 +25,11 @@
 
 .modal-close {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 0;
+    right: 5px;
     background-color: transparent;
     border: none;
     font-size: 2rem;
+    line-height: 1;
     cursor: pointer;
 }
