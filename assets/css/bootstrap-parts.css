@@ -5,8 +5,8 @@
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
-  /* user-select: none;
-  border: 1px solid #1D6DAE; */
+  /* user-select: none; */
+  border: 1px solid #1D6DAE;
   /* Ensure border is applied */
   padding: 0.2rem 0.4rem;
   font-size: 1rem;
