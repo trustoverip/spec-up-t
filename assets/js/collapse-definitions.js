@@ -1,26 +1,21 @@
 function collapseDefinitions() {
+    const dds = document.querySelectorAll('#content dl dd');
+    const buttons = document.querySelectorAll('.collapse-all-defs-button');
+
     function toggleVisibility() {
-        const dds = document.querySelectorAll('#content dl dd');
+        const isHidden = dds[0].classList.contains('hidden');
         dds.forEach(dd => {
-            if (dd.classList.contains('hidden')) {
-                dd.classList.remove('hidden');
-                dd.classList.add('visible');
-                document.querySelectorAll('.collapse-all-defs-button').forEach(button => {
-                    button.innerHTML = '▲';
-                    button.title = 'Collapse all definitions';
-                });
-            } else {
-                dd.classList.add('hidden');
-                dd.classList.remove('visible');
-                document.querySelectorAll('.collapse-all-defs-button').forEach(button => {
-                    button.innerHTML = '▼';
-                    button.title = 'Expand all definitions';
-                });
-            }
+            dd.classList.toggle('hidden', !isHidden);
+            dd.classList.toggle('visible', isHidden);
+        });
+        buttons.forEach(button => {
+            button.innerHTML = isHidden ? '▲' : '▼';
+            button.title = isHidden ? 'Collapse all definitions' : 'Expand all definitions';
         });
     }
+
     // Add button as last child of every <dl>
-    document.querySelectorAll('dt > span > span > span').forEach(dt => {
+    document.querySelectorAll('dt').forEach(dt => {
         const button = document.createElement('button');
         button.classList.add('collapse-all-defs-button', 'btn');
         button.innerHTML = '▲';
