@@ -930,3 +930,17 @@ article a[href^="https://"]:not(.btn)::after {
 /**
 * End External Links
 */
+
+.btn, .no-xref-found-message {
+  font-variant: small-caps;
+  text-transform: uppercase;
+}
+
+.no-xref-found-message {
+  background: #f8c481 !important;
+  color: #03365f !important;
+  margin: 0 0.5em;
+  padding: 0 0.8em;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+}
