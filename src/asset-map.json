@@ -1,6 +1,7 @@
 {
   "head": {
     "css": [
+      "assets/css/bootstrap-parts.css",
       "assets/css/custom-elements.css",
       "assets/css/prism.css",
       "assets/css/chart.css",
@@ -12,8 +13,7 @@
       "assets/css/notyf.css",
       "assets/css/collapse-definitions.css",
       "assets/css/modal.css",
-      "assets/css/index.css",
-      "assets/css/bootstrap-parts.css"
+      "assets/css/index.css"
     ],
     "js": [
       "assets/js/utils.js",
