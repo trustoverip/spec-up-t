@@ -127,7 +127,7 @@ function fetchCommitHashes() {
             // If no commit hash is found, display a message and return
             if (!match.commitHash) {
                const noXrefFoundMessage = document.createElement('span');
-               noXrefFoundMessage.classList.add('no-xref-found-message','btn');
+               noXrefFoundMessage.classList.add('no-xref-found-message');
                noXrefFoundMessage.innerHTML = 'No xref found.';
                element.parentNode.insertBefore(noXrefFoundMessage, element.nextSibling);
 
@@ -143,7 +143,7 @@ function fetchCommitHashes() {
             diff.target = '_blank';
             diff.rel = 'noopener noreferrer';
             diff.classList.add('diff', 'xref-info-links', 'btn');
-            diff.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> &lt; &gt;';
+            diff.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> Xref &lt; &gt; Now';
             diff.title = 'A Diff between the current commit hash of the definition and the commit hash referenced when the link was created.';
             element.parentNode.insertBefore(diff, element.nextSibling);
 
@@ -153,7 +153,7 @@ function fetchCommitHashes() {
             latestVersion.target = '_blank';
             latestVersion.rel = 'noopener noreferrer';
             latestVersion.classList.add('latest-version', 'xref-info-links', 'btn');
-            latestVersion.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> NOW';
+            latestVersion.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> Now';
             latestVersion.title = 'Go to the repo page of the definition‘s current version.';
             diff.parentNode.insertBefore(latestVersion, element.nextSibling);
 
@@ -163,14 +163,14 @@ function fetchCommitHashes() {
             exactCommitHash.target = '_blank';
             exactCommitHash.rel = 'noopener noreferrer';
             exactCommitHash.classList.add('exact-commit-hash', 'xref-info-links', 'btn');
-            exactCommitHash.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> XREF';
+            exactCommitHash.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> Xref';
             exactCommitHash.title = 'Go to the repo page of the definition‘s version referenced when the link was created.';
             latestVersion.parentNode.insertBefore(exactCommitHash, element.nextSibling);
 
             // Diff of the latest version and the referenced version in a modal
             const showDiffModal = document.createElement('button');
             showDiffModal.classList.add('show-diff-modal', 'xref-info-links', 'btn');
-            showDiffModal.innerHTML = '&lt; &gt;';
+            showDiffModal.innerHTML = 'Xref &lt; &gt; Now';
             showDiffModal.title = 'Show diff between the latest version and the referenced version';
             latestVersion.parentNode.insertBefore(showDiffModal, element.nextSibling);
             showDiffModal.addEventListener('click', function (event) {
