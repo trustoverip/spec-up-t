@@ -45,9 +45,7 @@ function runJsonKeyValidatorSync() {
             "source",
             "external_specs",
             "external_specs_repos",
-            "assets",
-            "katex",
-            "searchHighlightStyle"
+            "assets"
         ],
         source: [
             "host",
