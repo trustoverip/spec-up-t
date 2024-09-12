@@ -107,3 +107,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Default output dir for index.html
+docs
