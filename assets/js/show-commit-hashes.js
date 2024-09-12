@@ -170,7 +170,7 @@ function fetchCommitHashes() {
             // Diff of the latest version and the referenced version in a modal
             const showDiffModal = document.createElement('button');
             showDiffModal.classList.add('show-diff-modal', 'xref-info-links', 'btn');
-            showDiffModal.innerHTML = 'Xref &lt; &gt; Now';
+            showDiffModal.innerHTML = 'Xref &lt; &gt; <svg icon><use xlink:href="#svg-github"></use></svg> Now';
             showDiffModal.title = 'Show diff between the latest version and the referenced version';
             latestVersion.parentNode.insertBefore(showDiffModal, element.nextSibling);
             showDiffModal.addEventListener('click', function (event) {
