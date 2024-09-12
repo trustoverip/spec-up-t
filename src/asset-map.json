@@ -40,6 +40,7 @@
       "assets/js/collapse-definitions.js",
       "assets/js/modal.js",
       "assets/js/token-input.js",
+      "assets/js/help-buttons.js",
       "assets/js/index.js"
     ]
   }
