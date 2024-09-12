@@ -1,3 +1,4 @@
+const fs = require('fs-extra');
 const puppeteer = require('puppeteer');
 const path = require('path');
 
@@ -7,8 +8,15 @@ const path = require('path');
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
 
+        // Read and parse the specs.json file
+        const config = fs.readJsonSync('specs.json');
+
+        // Extract the output_path from the specs.json file
+        const outputPath = config.specs[0].output_path;
+
         // Define the path to the HTML file based on the directory where the script is called from
-        const filePath = path.resolve(process.cwd(), 'docs/index.html');
+        //TODO: replace `docs/index.html` with the path in specs.json
+        const filePath = path.resolve(process.cwd(), outputPath, 'index.html');
         const fileUrl = `file://${filePath}`;
 
         // Navigate to the HTML file
