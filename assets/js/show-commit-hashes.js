@@ -143,7 +143,7 @@ function fetchCommitHashes() {
             diff.target = '_blank';
             diff.rel = 'noopener noreferrer';
             diff.classList.add('diff', 'xref-info-links', 'btn');
-            diff.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> Xref &lt; &gt; Now';
+            diff.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> Xref &lt; &gt; <svg icon><use xlink:href="#svg-github"></use></svg> Now';
             diff.title = 'A Diff between the current commit hash of the definition and the commit hash referenced when the link was created.';
             element.parentNode.insertBefore(diff, element.nextSibling);
 
