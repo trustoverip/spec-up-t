@@ -7,6 +7,9 @@ module.exports = function(options = {}) {
     findExternalSpecByKey
   } = require('./src/references.js');
 
+  const createVersionsIndex = require('./src/create-versions-index.js');
+  createVersionsIndex();
+
   const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
   runJsonKeyValidatorSync();
 
@@ -303,6 +306,7 @@ module.exports = function(options = {}) {
                       <div id="toc_list">
                         ${toc}
                       </div>
+                      <div class="snapshots"><a href="versions">Snapshots</a></div>
                     </slide-panel>
                     
                   </slide-panels>
