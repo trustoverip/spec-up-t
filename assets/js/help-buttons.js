@@ -21,7 +21,7 @@ function helpButtons() {
    newElement.title = 'Click to see the explanation of the buttons at the documentation website, in a new tab.';
    newElement.target = '_blank';
    newElement.rel = 'noopener noreferrer';
-   newElement.href = 'https://blockchainbird.github.io/spec-up-t-website/docs/cheat-sheet#explanation-buttons';
+   newElement.href = 'https://blockchainbird.github.io/spec-up-t-website/docs/general/specification#explanation-buttons';
 
    function addElementAfterLastChild(newElement) {
       const elements = document.querySelectorAll('#content .collapse-all-defs-button');
