@@ -944,3 +944,17 @@ article a[href^="https://"]:not(.btn)::after {
   border-radius: 0.25rem;
   font-size: 0.8rem;
 }
+
+.snapshots {
+  padding: 1em 0.8em;
+}
+.snapshots a {
+  display: block;
+  margin: 0.5em 0;
+  padding: 0.5em 0.8em;
+  border-radius: 0.25rem;
+  background: #A9DDE0;
+  color: #03365f;
+  text-decoration: none;
+  font-size: 1rem;
+}
