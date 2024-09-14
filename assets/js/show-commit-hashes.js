@@ -72,7 +72,7 @@ function fetchCommitHashes() {
          .then(data => {
             // Decode base64 encoded content
             const decodedContent = atob(data.content);
-
+            
             // Diff the content of the current term-file with the content of stored version
             // See https://www.npmjs.com/package/diff , examples
             const diff = Diff.diffChars(match.content, decodedContent),
@@ -187,7 +187,7 @@ function fetchCommitHashes() {
             showDiffModal.parentNode.insertBefore(localStoredTerm, element.nextSibling);
             localStoredTerm.addEventListener('click', function (event) {
                event.preventDefault();
-               match.content = match.content.replace(/\n/g, '<br>');
+               const content = match.content.replace(/\n/g, '<br>');
                showModal(`
                     <h1>Term definition (local snapshot)</h1>
                     <table>
@@ -197,7 +197,7 @@ function fetchCommitHashes() {
                       </tr>
                       <tr>
                         <th>Content</th>
-                        <td>${match.content}</td>
+                        <td>${content}</td>
                       </tr>
                     </table>
                   `);
