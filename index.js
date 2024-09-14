@@ -134,7 +134,7 @@ module.exports = function(options = {}) {
             else if (type === 'xref') {
               const url = findExternalSpecByKey(config, token.info.args[0]);
               const term = token.info.args[1].replace(spaceRegex, '-').toLowerCase();
-              return `<a class="term-reference" data-local-href="#term:${token.info.args[0]}:${term}"
+              return `<a class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}"
                 href="${url}#term:${term}">${token.info.args[1]}</a>`;
             }
             else {
