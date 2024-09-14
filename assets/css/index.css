@@ -247,7 +247,7 @@ main {
   box-shadow: 0px 0px 5px -1px rgba(0,0,0,0.3);
 }
 
-main table {
+table {
   display: block;
   width: -webkit-fill-available;
   width: fit-content;
@@ -261,25 +261,25 @@ main table {
   hyphens: manual;
 }
 
-main thead tr th {
+thead tr th {
   color: var(--themed-element-text);
   background: var(--themed-element-bk);
   border: var(--themed-element-border);
   text-shadow: 0px 1px 1px rgba(0,0,0,0.5);
 }
 
-main tr {
+tr {
   border-top: 1px solid #cccccc;
   background-color: white;
   margin: 0;
   padding: 0;
 }
 
-main tr:nth-child(2n) {
+tr:nth-child(2n) {
   background-color: #f0f0f0;
 }
 
-main tr th {
+tr th {
   font-weight: normal;
   border: 1px solid #cccccc;
   text-align: left;
@@ -287,26 +287,26 @@ main tr th {
   padding: 6px 13px;
 }
 
-main td,
-main th {
+td,
+th {
   padding: 9px 13px;
   border: 1px solid #d8d8d8;
 }
 
-main tr td {
+tr td {
   border: 1px solid #ccc;
   text-align: left;
   margin: 0;
   padding: 0.55em 0.75em 0.55em;
 }
 
-main tr th :first-child,
-main tr td :first-child {
+tr th :first-child,
+tr td :first-child {
   margin-top: 0;
 }
 
-main tr th :last-child,
-main tr td :last-child {
+tr th :last-child,
+tr td :last-child {
   margin-bottom: 0;
 }
 
