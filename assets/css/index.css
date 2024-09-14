@@ -947,6 +947,7 @@ article a[href^="https://"]:not(.btn)::after {
 
 .snapshots {
   padding: 1em 0.8em;
+  flex:none;
 }
 .snapshots a {
   display: block;
