@@ -108,7 +108,7 @@ function fetchCommitHashes() {
    }
 
    // get all elements with data-attribute “data-local-href”
-   const elements = document.querySelectorAll('.term-reference[data-local-href]');
+   const elements = document.querySelectorAll('.x-term-reference');
 
    // for each element, get the value of the data-attribute “data-local-href”
    elements.forEach((element) => {
