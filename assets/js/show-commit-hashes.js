@@ -97,6 +97,7 @@ function fetchCommitHashes() {
                });
             // Create a temporary container to hold the fragment
             const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = '<h1>Diff xref (local snapshot) and latest version</h1>';
             tempContainer.appendChild(fragment);
             // Replace newlines with <br> tags
             tempContainer.innerHTML = tempContainer.innerHTML.replace(/\n/g, '<br>');
@@ -176,6 +177,30 @@ function fetchCommitHashes() {
             showDiffModal.addEventListener('click', function (event) {
                event.preventDefault();
                fetchGitHubContent(savedToken, match);
+            });
+
+            // The stored version of the term-file
+            const localStoredTerm = document.createElement('button');
+            localStoredTerm.classList.add('show-diff-modal', 'xref-info-links', 'btn');
+            localStoredTerm.innerHTML = 'Xref';
+            localStoredTerm.title = 'Show the stored version of the term-file';
+            showDiffModal.parentNode.insertBefore(localStoredTerm, element.nextSibling);
+            localStoredTerm.addEventListener('click', function (event) {
+               event.preventDefault();
+               match.content = match.content.replace(/\n/g, '<br>');
+               showModal(`
+                    <h1>Term definition (local snapshot)</h1>
+                    <table>
+                      <tr>
+                        <th>Commit hash</th>
+                        <td>${match.commitHash}</td>
+                      </tr>
+                      <tr>
+                        <th>Content</th>
+                        <td>${match.content}</td>
+                      </tr>
+                    </table>
+                  `);
             });
          }
       });
