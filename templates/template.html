@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>${title}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400&display=swap" rel="stylesheet">
+
+    ${assetsHead}
+    ${xrefsData}
+</head>
+
+<body features="${features}">
+
+    ${assetsSvg}
+
+    <main>
+
+        <header id="header" class="panel-header">
+            <span id="toc_toggle" panel-toggle="toc">
+                <svg icon>
+                    <use xlink:href="#svg-nested-list"></use>
+                </svg>
+            </span>
+            <a id="logo" href="${spec.LogoLink ? specLogoLink : '#_'}">
+                <img src="${specLogo}" />
+            </a>
+            <span issue-count animate panel-toggle="repo_issues">
+                <svg icon>
+                    <use xlink:href="#svg-github"></use>
+                </svg>
+            </span>
+        </header>
+
+        <article id="content">
+            ${render}
+        </article>
+
+    </main>
+
+    <slide-panels id="slidepanels">
+        <slide-panel id="repo_issues" options="right">
+            <header class="panel-header">
+                <span>
+                    <svg icon>
+                        <use xlink:href="#svg-github"></use>
+                    </svg>
+                    <span issue-count></span>
+                </span>
+                <span class="repo-issue-toggle" panel-toggle="repo_issues">✕</span>
+            </header>
+            <ul id="repo_issue_list"></ul>
+        </slide-panel>
+
+        <slide-panel id="toc">
+            <header class="panel-header">
+                <span>Table of Contents</span>
+                <span panel-toggle="toc">✕</span>
+            </header>
+            <div id="toc_list">
+                ${toc}
+            </div>
+            <div class="snapshots"><a href="versions">Snapshots</a></div>
+        </slide-panel>
+
+    </slide-panels>
+    <div style="display: none;">
+        ${externalReferences}
+    </div>
+</body>
+<script>window.specConfig = ${ spec }</script>
+${assetsBody}
+
+</html>

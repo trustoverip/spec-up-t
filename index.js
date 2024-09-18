@@ -28,6 +28,7 @@ module.exports = function(options = {}) {
   const findPkgDir = require('find-pkg-dir');
   const modulePath = findPkgDir(__dirname);
   let config = fs.readJsonSync('./output/specs-generated.json');
+  let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
   let assets = fs.readJsonSync(modulePath + '/src/asset-map.json');
   let externalReferences;
   let references = [];
@@ -235,6 +236,11 @@ module.exports = function(options = {}) {
         noticeTitles = {};
         specGroups = {};
         console.log('\n   SPEC-UP-T: Rendering: ' + spec.title + "\n");
+        
+        function interpolate(template, variables) {
+          return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
+        }
+        
         return new Promise(async (resolve, reject) => {
           Promise.all((spec.markdown_paths || ['spec.md']).map(_path => {
             return fs.readFile(spec.spec_directory + _path, 'utf8').catch(e => reject(e))
@@ -247,77 +253,26 @@ module.exports = function(options = {}) {
             doc = applyReplacers(doc);
             md[spec.katex ? "enable" : "disable"](katexRules);
             const render = md.render(doc);
-            fs.writeFile(path.join(spec.destination, 'index.html'), `
-              <!DOCTYPE html>
-              <html lang="en">
-                <head>
-                  <meta charset="utf-8">
-                  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      
-                  <title>${spec.title}</title>
 
-                  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400&display=swap" rel="stylesheet">
+            const templateInterpolated = interpolate(template, {
+              title: spec.title,
+              toc: toc,
+              render: render,
+              assetsHead: assets.head,
+              assetsBody: assets.body,
+              assetsSvg: assets.svg,
+              features: Object.keys(features).join(' '),
+              externalReferences: JSON.stringify(externalReferences),
+              xrefsData: xrefsData,
+              specLogo: spec.logo,
+              specLogoLink: spec.logo_link,
+              spec: JSON.stringify(spec)
+            });
+            
+            fs.writeFile(path.join(spec.destination, 'index.html'),
+              templateInterpolated, 'utf8'
 
-                  ${assets.head}
-                  ${xrefsData}
-                </head>
-                <body features="${Object.keys(features).join(' ')}">
-                  
-                  ${assets.svg}
-      
-                  <main>
-      
-                    <header id="header" class="panel-header">
-                      <span id="toc_toggle" panel-toggle="toc">
-                        <svg icon><use xlink:href="#svg-nested-list"></use></svg>
-                      </span>
-                      <a id="logo" href="${spec.logo_link ? spec.logo_link : '#_'}">
-                        <img src="${spec.logo}" />
-                      </a>
-                      <span issue-count animate panel-toggle="repo_issues">
-                        <svg icon><use xlink:href="#svg-github"></use></svg>
-                      </span>
-                    </header>
-      
-                    <article id="content">
-                      ${render}
-                    </article>    
-      
-                  </main>
-      
-                  <slide-panels id="slidepanels">
-                    <slide-panel id="repo_issues" options="right">
-                      <header class="panel-header">
-                        <span>
-                          <svg icon><use xlink:href="#svg-github"></use></svg>
-                          <span issue-count></span>
-                        </span>
-                        <span class="repo-issue-toggle" panel-toggle="repo_issues">✕</span>
-                      </header>
-                      <ul id="repo_issue_list"></ul>
-                    </slide-panel>
-      
-                    <slide-panel id="toc">
-                      <header class="panel-header">
-                        <span>Table of Contents</span>
-                        <span panel-toggle="toc">✕</span>
-                      </header>
-                      <div id="toc_list">
-                        ${toc}
-                      </div>
-                      <div class="snapshots"><a href="versions">Snapshots</a></div>
-                    </slide-panel>
-                    
-                  </slide-panels>
-                  <div style="display: none;">
-                    ${externalReferences}
-                  </div>
-                </body>
-                <script>window.specConfig = ${JSON.stringify(spec)}</script>
-                ${assets.body}
-              </html>
-            `, function(err, data){
+            , function (err, data) {
               if (err) {
                 reject(err);
               }
