@@ -1,6 +1,6 @@
 /**
  * @file create-versions-index.js
- * @description This script reads the configuration from specs.json, checks for the existence of a versions directory, creates it if it doesn't exist, and generates an index.html file listing all HTML files in the directory.
+ * @description This script reads the configuration from specs.json, checks for the existence of a versions directory, creates it if it doesn't exist, and generates an index.html file listing all version directories in the directory.
  * 
  * @requires fs-extra - File system operations with extra methods.
  * @requires path - Utilities for working with file and directory paths.
@@ -30,18 +30,12 @@ function createVersionsIndex() {
         fs.mkdirSync(versionsDir, { recursive: true });
         console.log('Directory created:', versionsDir);
     }
+    
+    // Get all directories in the destination directory
+    const dirs = fs.readdirSync(versionsDir).filter(file => fs.statSync(path.join(versionsDir, file)).isDirectory());
 
-    // Read the contents of the directory
-    fs.readdir(versionsDir, (err, files) => {
-        if (err) {
-            return console.error('Unable to scan directory:', err);
-        }
-
-        // Filter to include only .html files
-        const htmlFiles = files.filter(file => file.endsWith('.html'));
-
-        // Generate HTML content
-        let htmlContent = `
+    // Generate HTML content
+    let htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,28 +59,29 @@ function createVersionsIndex() {
     <li class="list-group-item"><a href="../index.html">Current version</a></li>
 `;
 
-        if (htmlFiles.length === 0) {
-            htmlContent += `    <li class="list-group-item">No versions available</li>\n`;
-        } else {
-            htmlFiles
-                .filter(file => file !== 'index.html') // Exclude index.html
-                .forEach(file => {
-                    htmlContent += `    <li class="list-group-item"><a href="${file}">${file}</a></li>\n`;
-                });
-        }
+    if (dirs.length === 0) {
+        htmlContent += `    <li class="list-group-item">No versions available</li>\n`;
+    } else {
+        dirs.forEach(dir => {
+            htmlContent += `    <li class="list-group-item"><a href="${dir}/index.html">Version ${dir}</a></li>\n`;
+        });
+    }
 
-        htmlContent += `
+    htmlContent += `
   </ul>
 </body>
 </html>
 `;
-        const outputPath = path.join(versionsDir, 'index.html');
-        fs.writeFile(outputPath, htmlContent, err => {
-            if (err) {
-                return console.error('Error writing file:', err);
-            }
-            console.log('index.html has been created successfully.');
-        });    });
+
+    // Write the HTML content to the index file asynchronously
+    const indexPath = path.join(versionsDir, 'index.html');
+    fs.writeFile(indexPath, htmlContent, (err) => {
+        if (err) {
+            console.error(`\n   SPEC-UP-T: Error writing index file: ${err}\n`);
+        } else {
+            console.log(`\n   SPEC-UP-T: Index file created at ${indexPath}\n`);
+        }
+    });
 }
 
 // Export the function
