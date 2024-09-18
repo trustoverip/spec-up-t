@@ -155,7 +155,7 @@ function fetchCommitHashes() {
             latestVersion.rel = 'noopener noreferrer';
             latestVersion.classList.add('latest-version', 'xref-info-links', 'btn');
             latestVersion.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> Now';
-            latestVersion.title = 'Go to the repo page of the definition‘s current version.';
+            latestVersion.title = 'Go to the repo page of the definition‘s latest version.';
             diff.parentNode.insertBefore(latestVersion, element.nextSibling);
 
             // Exact commit hash at the time of referencing the file

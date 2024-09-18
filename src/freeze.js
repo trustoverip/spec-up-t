@@ -62,7 +62,7 @@ dirs.forEach(dir => {
     if (match) {
         // Extract the version number from the directory name
         const version = parseInt(match[1], 10);
-        // Update the highest version number if the current version is higher
+        // Update the highest version number if the latest version is higher
         if (version > highestVersion) {
             highestVersion = version;
         }
