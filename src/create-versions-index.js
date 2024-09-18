@@ -63,7 +63,7 @@ function createVersionsIndex() {
         htmlContent += `    <li class="list-group-item">No versions available</li>\n`;
     } else {
         dirs.forEach(dir => {
-            htmlContent += `    <li class="list-group-item"><a href="${dir}/index.html">Version ${dir}</a></li>\n`;
+            htmlContent += `    <li class="list-group-item"><a href="${dir}/">Version ${dir}</a></li>\n`;
         });
     }
 
