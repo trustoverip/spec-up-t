@@ -227,13 +227,48 @@ ol, ul {
   padding: 0 0 0 1.2em;
 }
 
+dl {
+  margin: 0;
+  padding: 0;
+}
+
 dt {
   font-weight: bold;
-  margin: 1em 0 0;
+  margin: 0;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px 5px 0 0;
 }
 
 dd {
-  margin-left: 1.5em;
+  margin: 0;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-top: none;
+  padding: 0.5em 2em;
+  /* margin-left: 20px; */
+  border-bottom: none;
+  /* Remove bottom borders for all dd's by default */
+}
+
+dd p {
+  margin: 0;
+}
+
+/* Remove borders between consecutive <dd> elements */
+dd+dd {
+  border-bottom: none;
+}
+
+/* Add a margin between the last <dd> and the next <dt> */
+dd+dt {
+  margin-top: 2em;
+}
+
+dd.last-dd {
+  border-radius: 0 0 5px 5px;
+  border-bottom: 1px solid #ccc;
 }
 
 main {
