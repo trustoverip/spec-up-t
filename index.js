@@ -12,9 +12,6 @@ module.exports = function(options = {}) {
 
   const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
   runJsonKeyValidatorSync();
-
-  const { processMarkdownFiles } = require('./src/fix-markdown-files.js');
-  processMarkdownFiles('./spec');
   
   const { createTermRelations } = require('./src/create-term-relations.js');
   createTermRelations();
@@ -46,6 +43,9 @@ module.exports = function(options = {}) {
       }
     }
   ];
+
+  const { processMarkdownFiles } = require('./src/fix-markdown-files.js');
+  processMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
   // Test if xrefs-data.js exists, else make it an empty string
   const inputPath = 'output/xrefs-data.js';
