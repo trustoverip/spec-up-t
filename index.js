@@ -217,14 +217,52 @@ module.exports = function(options = {}) {
       })
       .use(require('@traptitech/markdown-it-katex'))
     
-    // Custom plugin to add class to <dl>
+    // Custom plugin to add class to <dl> and the last <dd> in each series after a <dt>
     function addClassToDefinitionList(md) {
       const originalRender = md.renderer.rules.dl_open || function (tokens, idx, options, env, self) {
         return self.renderToken(tokens, idx, options);
       };
 
       md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
+        // Add class to <dl>
         tokens[idx].attrPush(['class', 'terms-and-definitions-list']);
+
+        let lastDdIndex = -1;
+
+        for (let i = idx + 1; i < tokens.length; i++) {
+          if (tokens[i].type === 'dl_close') {
+            // Add class to the last <dd> before closing <dl>
+            if (lastDdIndex !== -1) {
+              const ddToken = tokens[lastDdIndex];
+              const classIndex = ddToken.attrIndex('class');
+              if (classIndex < 0) {
+                ddToken.attrPush(['class', 'last-dd']);
+              } else {
+                ddToken.attrs[classIndex][1] += ' last-dd';
+              }
+            }
+            break;
+          }
+
+          if (tokens[i].type === 'dt_open') {
+            // Add class to the last <dd> before a new <dt>
+            if (lastDdIndex !== -1) {
+              const ddToken = tokens[lastDdIndex];
+              const classIndex = ddToken.attrIndex('class');
+              if (classIndex < 0) {
+                ddToken.attrPush(['class', 'last-dd']);
+              } else {
+                ddToken.attrs[classIndex][1] += ' last-dd';
+              }
+              lastDdIndex = -1; // Reset for the next series
+            }
+          }
+
+          if (tokens[i].type === 'dd_open') {
+            lastDdIndex = i;
+          }
+        }
+
         return originalRender(tokens, idx, options, env, self);
       };
     }
