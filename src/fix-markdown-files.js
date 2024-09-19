@@ -56,9 +56,6 @@ function processMarkdownFiles(directory) {
     processDirectory(directory);
 }
 
-const directoryPath = './spec';
-processMarkdownFiles(directoryPath);
-
 module.exports = {
     processMarkdownFiles
 }
