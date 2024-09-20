@@ -21,7 +21,7 @@ function addAnchorsToTerms() {
         const a = document.createElement('a');
         a.setAttribute('href', `#${id}`);
         a.setAttribute('class', 'toc-anchor');
-        a.innerHTML = '§ ';
+        a.innerHTML = '# '; // was '§';
         dt.parentNode.insertBefore(a, dt);
     });
 }

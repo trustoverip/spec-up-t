@@ -214,7 +214,7 @@ module.exports = function(options = {}) {
         tocFirstLevel: 2,
         tocLastLevel: 4,
         tocCallback: (_md, _tokens, html) => toc = html,
-        anchorLinkSymbol: '§',
+        anchorLinkSymbol: '#', // was: §
         anchorClassName: 'toc-anchor'
       })
       .use(require('@traptitech/markdown-it-katex'))
