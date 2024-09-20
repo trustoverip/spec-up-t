@@ -15,7 +15,6 @@ function createAlphabetIndex() {
         if (span && span.id) {
             const termId = span.id;
             const firstChar = termId.charAt(termId.indexOf("term:") + 5).toUpperCase();
-            console.log('firstChar: ', firstChar);
             if (!alphabetIndex[firstChar]) {
                 alphabetIndex[firstChar] = span.id;
             }
