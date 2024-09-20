@@ -24,6 +24,16 @@ function createAlphabetIndex() {
     const indexContainer = document.createElement("div");
     indexContainer.className = "alphabet-index";
 
+    // Create notification element
+    const notificationElement = document.createElement("p");
+    notificationElement.className = "number-of-terms";
+    notificationElement.textContent = `– There are ${dtElements.length} terms –`;
+
+    // Insert notification and index container as immediate siblings of introElement
+    const parentElement = introElement.parentNode;
+    parentElement.insertBefore(notificationElement, introElement.nextSibling);
+    parentElement.insertBefore(indexContainer, notificationElement.nextSibling);
+
     Object.keys(alphabetIndex).sort().forEach(char => {
         const link = document.createElement("a");
         link.href = `#${alphabetIndex[char]}`;
