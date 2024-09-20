@@ -21,3 +21,7 @@
   text-decoration: none;
   width: 33.33px; /* Reduced from 50px to 33.33px */
 }
+
+.number-of-terms {
+  text-align: center;
+}
