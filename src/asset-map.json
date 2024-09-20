@@ -12,6 +12,7 @@
       "assets/css/notyf.css",
       "assets/css/collapse-definitions.css",
       "assets/css/modal.css",
+      "assets/css/create-alphabet-index.css",
       "assets/css/index.css"
     ],
     "js": [
@@ -41,6 +42,7 @@
       "assets/js/modal.js",
       "assets/js/token-input.js",
       "assets/js/help-buttons.js",
+      "assets/js/create-alphabet-index.js",
       "assets/js/index.js"
     ]
   }
