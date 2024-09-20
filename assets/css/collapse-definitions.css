@@ -10,3 +10,7 @@
 #content dl dd.visible {
   display: block;
 }
+
+.collapse-all-defs-button {
+  float: right;
+}
