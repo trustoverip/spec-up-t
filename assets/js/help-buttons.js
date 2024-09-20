@@ -24,11 +24,10 @@ function helpButtons() {
    newElement.href = 'https://blockchainbird.github.io/spec-up-t-website/docs/general/specification#explanation-buttons';
 
    function addElementAfterLastChild(newElement) {
-      const elements = document.querySelectorAll('#content .collapse-all-defs-button');
+      const elements = document.querySelectorAll('#content dl dt');
 
       elements.forEach((element) => {
-         const parent = element.parentElement;
-         parent.insertBefore(newElement.cloneNode(true), element.nextSibling);
+         element.appendChild(newElement.cloneNode(true));
       });
    }
 
