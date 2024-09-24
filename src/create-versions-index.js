@@ -56,7 +56,7 @@ function createVersionsIndex() {
   <h1 class="mb-4">Spec-Up-T Snapshot Index</h1>
   <p>This page lists all available snapshots of this Spec-Up-T specification.</p>
   <ul class="list-group">
-    <li class="list-group-item"><a href="../index.html">Latest version</a></li>
+    <li class="list-group-item"><a href="../">Latest version</a></li>
 `;
 
     if (dirs.length === 0) {
