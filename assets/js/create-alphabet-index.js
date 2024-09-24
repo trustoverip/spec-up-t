@@ -5,7 +5,7 @@
  * @since 2024-09-19
  */
 function createAlphabetIndex() {
-    const introElement = document.getElementById("terms-and-definitions-intro");
+    const introElement = document.getElementById("alphabet-index-h7vc6omi2hr2880");
     const termsListElement = document.querySelector(".terms-and-definitions-list");
     const dtElements = termsListElement.querySelectorAll("dt");
     const alphabetIndex = {};
