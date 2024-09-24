@@ -40,8 +40,6 @@ function createAlphabetIndex() {
         link.textContent = char;
         indexContainer.appendChild(link);
     });
-
-    introElement.appendChild(indexContainer);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
