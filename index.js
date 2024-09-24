@@ -293,9 +293,6 @@ module.exports = function(options = {}) {
             doc = applyReplacers(doc);
             md[spec.katex ? "enable" : "disable"](katexRules);
             const render = md.render(doc);
-            
-            // If the first character of the output_path is a dot, remove it
-            const outputPathMadeRelative = spec.output_path.startsWith('.') ? spec.output_path.slice(1) : spec.output_path;
 
             const templateInterpolated = interpolate(template, {
               title: spec.title,
@@ -309,8 +306,7 @@ module.exports = function(options = {}) {
               xrefsData: xrefsData,
               specLogo: spec.logo,
               specLogoLink: spec.logo_link,
-              spec: JSON.stringify(spec),
-              pathToVersions: outputPathMadeRelative + '/versions/',
+              spec: JSON.stringify(spec)
             });
             
             fs.writeFile(path.join(spec.destination, 'index.html'),
