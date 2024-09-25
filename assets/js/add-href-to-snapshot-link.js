@@ -7,28 +7,28 @@
  */
 
 function addHrefToSnapshotLink() {
-   // Find the snapshot link and add the href attribute
    const snapshotLink = document.querySelector('.snapshots a');
 
    // Get the current URL of the page
    const currentUrl = window.location.href;
 
-   // Use a regular expression to match the base URL up to the 'versions' directory
-   // The regex matches 'http(s)://', followed by any characters that are not '/', followed by '/'
-   // followed by any characters that are not '/', followed by '/', followed by 'versions/'
-   const baseUrlMatch = currentUrl.match(/^(https?:\/\/[^\/]+\/[^\/]+\/)versions\//);
+   // Regex to match up to and including the 'versions/' directory (if it exists)
+   const versionsMatch = currentUrl.match(/^(https?:\/\/[^\/]+(?:\/[^\/]+)*)\/versions\/(?:[^\/]+\/)?/);
 
-   // If the match is found, use the matched string as the base URL, otherwise use an empty string
-   const baseUrl = baseUrlMatch ? baseUrlMatch[1] : '';
-
-   // Construct the snapshot link href by appending 'versions/' to the base URL
-   const snapshotLinkHref = `${baseUrl}versions/`;
+   // If we are already in the 'versions' directory or deeper, strip down to 'versions/'
+   // Otherwise, append '/versions/' to the current directory
+   let snapshotLinkHref;
+   if (versionsMatch) {
+      snapshotLinkHref = `${versionsMatch[1]}/versions/`;
+   } else {
+      // Append '/versions/' to the current directory
+      snapshotLinkHref = currentUrl.replace(/\/$/, '') + '/versions/';
+   }
 
    // Set the 'href' attribute of the snapshot link element to the constructed URL
    if (snapshotLink) {
       snapshotLink.setAttribute('href', snapshotLinkHref);
    }
-
 }
 
 document.addEventListener("DOMContentLoaded", function () {
