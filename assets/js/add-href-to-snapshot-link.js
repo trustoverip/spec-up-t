@@ -1,5 +1,5 @@
 /**
- * @file This file
+ * @file This file adds an href attribute to the snapshot link on the page via client side JS DOM manipulation.
  * @author Kor Dwarshuis
  * @version 0.0.1
  * @license MIT
@@ -9,7 +9,6 @@
 function addHrefToSnapshotLink() {
    // Find the snapshot link and add the href attribute
    const snapshotLink = document.querySelector('.snapshots a');
-   console.log('snapshotLink: ', snapshotLink);
 
    // Get the current URL of the page
    const currentUrl = window.location.href;
