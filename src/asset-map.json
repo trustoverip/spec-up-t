@@ -43,6 +43,7 @@
       "assets/js/help-buttons.js",
       "assets/js/create-alphabet-index.js",
       "assets/js/collapse-definitions.js",
+      "assets/js/add-href-to-snapshot-link.js",
       "assets/js/index.js"
     ]
   }
