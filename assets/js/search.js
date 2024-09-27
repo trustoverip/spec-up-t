@@ -87,12 +87,13 @@ function inPageSearch() {
    totalMatchesSpan.innerHTML = `0 ${matches}`;
    // backAndForthButtonsContainer.after(totalMatchesSpan);
    searchContainer.appendChild(totalMatchesSpan);
+   
+   /* END Add DOM elements */
 
    // Add an event listener to the input element
    searchInput.addEventListener("input", function () {
       debouncedSearchAndHighlight(searchInput.value);
    });
-   /* END Add DOM elements */
 
 
    const matchesClassName = "highlight-matches-" + antiNameCollisions;
