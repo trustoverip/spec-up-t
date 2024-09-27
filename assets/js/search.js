@@ -95,6 +95,12 @@ function inPageSearch() {
       debouncedSearchAndHighlight(searchInput.value);
    });
 
+   // The search will run when the user clicks the collapse button, so the search results are updated when the terms are collapsed or expanded. If the definitions are collapsed, the search results in the definitions will be removed.
+   document.addEventListener('click', event => {
+      if (event.target.classList.contains('collapse-all-defs-button')) {
+         debouncedSearchAndHighlight(searchInput.value);
+      }
+   });
 
    const matchesClassName = "highlight-matches-" + antiNameCollisions;
    const matchesStyleSelectorClassName = matchesStyleSelector[matchesStyle.toLowerCase()];
@@ -271,7 +277,6 @@ function inPageSearch() {
          function hasHiddenAncestor(node) {
             while (node) {
                if (node.classList && node.classList.contains('hidden')) {
-                  console.log('node.nodeName: ', node.nodeName);
                   return true;
                }
                node = node.parentNode;
