@@ -264,7 +264,20 @@ function inPageSearch() {
 
       // Recursive function that searches all nodes in the DOM tree and highlights the text that matches the search string (case-insensitive) with a span element
       function searchNodes(node) {
-         if (node.nodeType === 3) { // Node.TEXT_NODE
+         /* 
+            Helper function to check if any ancestor has the 'hidden' class. Why the 'hidden' class? Because we don't want to highlight text that is hidden, and 'hidden' is the class that is used in the JS that collapses and expands the terms and definitions in the specs. The class is applied to the <dd>'s 
+         */
+         function hasHiddenAncestor(node) {
+            while (node) {
+               if (node.classList && node.classList.contains('hidden')) {
+                  console.log('node.nodeName: ', node.nodeName);
+                  return true;
+               }
+               node = node.parentNode;
+            }
+            return false;
+         }
+         if (node.nodeType === 3 && !hasHiddenAncestor(node)) { // Node.TEXT_NODE
             const fragments = markAndCountMatches(node);
             if (fragments.childNodes.length > 1) {
                // Replace the text node with the fragments if there were matches
