@@ -22,7 +22,9 @@ function addHrefToSnapshotLink() {
       snapshotLinkHref = `${versionsMatch[1]}/versions/`;
    } else {
       // Append '/versions/' to the current directory
-      snapshotLinkHref = currentUrl.replace(/\/$/, '') + '/versions/';
+      const urlWithoutAnchor = currentUrl.split('#')[0];
+      const urlWithoutIndex = urlWithoutAnchor.replace(/\/index\.html$/, '');
+      snapshotLinkHref = urlWithoutIndex.replace(/\/$/, '') + '/versions/';
    }
 
    // Set the 'href' attribute of the snapshot link element to the constructed URL
