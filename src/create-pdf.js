@@ -24,14 +24,21 @@ const path = require('path');
 
         // Remove or hide the search bar or any other element
         await page.evaluate(() => {
+            // Remove or hide the search bar or any other element
             const displayNoneInPdf = document.querySelectorAll('#header span, #container-search-h7vc6omi2hr2880, .collapse-all-defs-button'); // Adjust the selector as needed
             if (displayNoneInPdf) {
-                displayNoneInPdf.forEach((element) => {
-                    element.remove();
-                    // or
-                    // element.style.display = 'none';
-                });
+            displayNoneInPdf.forEach((element) => {
+                element.remove();
+                // or
+                // element.style.display = 'none';
+            });
             }
+
+            // Set terms and defs backgrounds to white to save ink when printing
+            const termsAndDefs = document.querySelectorAll('dt,dd');
+            termsAndDefs.forEach((element) => {
+            element.style.backgroundColor = 'white';
+            });
         });
 
         // Generate the PDF
