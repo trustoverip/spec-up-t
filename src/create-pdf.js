@@ -15,29 +15,43 @@ const path = require('path');
         const outputPath = config.specs[0].output_path;
 
         // Define the path to the HTML file based on the directory where the script is called from
-        //TODO: replace `docs/index.html` with the path in specs.json
         const filePath = path.resolve(process.cwd(), outputPath, 'index.html');
         const fileUrl = `file://${filePath}`;
 
         // Navigate to the HTML file
         await page.goto(fileUrl, { waitUntil: 'networkidle2' });
 
+        // Inject CSS to set padding
+        await page.evaluate(() => {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @page {
+                    margin-top: 15mm;
+                    margin-bottom: 15mm;
+                    margin-left: 15mm;
+                    margin-right: 15mm;
+                    border: none;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
         // Remove or hide the search bar or any other element
         await page.evaluate(() => {
-            // Remove or hide the search bar or any other element
-            const displayNoneInPdf = document.querySelectorAll('#header span, #container-search-h7vc6omi2hr2880, .collapse-all-defs-button'); // Adjust the selector as needed
+            const displayNoneInPdf = document.querySelectorAll('#header span, #container-search-h7vc6omi2hr2880, .btn'); // Adjust the selector as needed
             if (displayNoneInPdf) {
-            displayNoneInPdf.forEach((element) => {
-                element.remove();
-                // or
-                // element.style.display = 'none';
-            });
+                displayNoneInPdf.forEach((element) => {
+                    element.remove();
+                    // or
+                    // element.style.display = 'none';
+                });
             }
 
             // Set terms and defs backgrounds to white to save ink when printing
             const termsAndDefs = document.querySelectorAll('dt,dd');
             termsAndDefs.forEach((element) => {
-            element.style.backgroundColor = 'white';
+                element.style.backgroundColor = 'white';
+                element.style.border = 'none';
             });
         });
 
