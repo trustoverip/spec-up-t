@@ -980,13 +980,24 @@ article a[href^="https://"]:not(.btn)::after {
   font-size: 0.8rem;
 }
 
-.snapshots {
-  padding: 1em 0.8em;
+.snapshots, .powered-by {
+  /* padding: 1em 0.8em 0.5em; */
+  margin: 0;
+  padding: 0;
   flex:none;
 }
+
+.powered-by {
+  /* margin: 0;
+  padding: 0; */
+  text-align: center;
+  font-size: 0.7em;
+}
+
+
 .snapshots a {
   display: block;
-  margin: 0.5em 0;
+  margin: 0.5em;
   padding: 0.5em 0.8em;
   border-radius: 0.25rem;
   background: #A9DDE0;
