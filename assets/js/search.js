@@ -283,12 +283,8 @@ function inPageSearch() {
             }
             return false;
          }
-         
-         // A:
-         if (node.nodeType === 3) { // Node.TEXT_NODE
 
-         // B: ”&& !hasHiddenAncestor(node)” makes search only in terms when definitions are collapsed
-         // if (node.nodeType === 3 && !hasHiddenAncestor(node)) { // Node.TEXT_NODE
+         if (node.nodeType === 3 && !hasHiddenAncestor(node)) { // Node.TEXT_NODE
             
             const fragments = markAndCountMatches(node);
             if (fragments.childNodes.length > 1) {
