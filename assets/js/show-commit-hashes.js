@@ -1,5 +1,5 @@
 /**
- * @file This file fetches and displays commit hashes by matching elements with `data-local-href` attributes against the `allXrefs` global object.
+ * @file This file fetches and displays commit hashes by matching elements with `x-term-reference` class against the `allXrefs` global object.
  * Example:
  * const allXrefs = {
       "xrefs": [
@@ -108,10 +108,9 @@ function fetchCommitHashes() {
          });
    }
 
-   // get all elements with data-attribute “data-local-href”
+   // get all elements with class “x-term-reference”
    const elements = document.querySelectorAll('.x-term-reference');
 
-   // for each element, get the value of the data-attribute “data-local-href”
    elements.forEach((element) => {
       // Get the value of the data-local-href attribute
       const href = element.getAttribute('data-local-href');
