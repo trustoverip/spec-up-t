@@ -26,6 +26,13 @@
  */
 
 function fetchCommitHashes() {
+
+   // Check if allXrefs is undefined or does not exist
+   if (typeof allXrefs === 'undefined' || allXrefs === null) {
+      console.log('allXrefs is not defined or does not exist. We will continue without it.');
+      return;
+   }
+   
    // Load GitHub API token from local storage if it exists
    const savedToken = localStorage.getItem('githubToken');
    
