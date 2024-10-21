@@ -19,7 +19,7 @@ function pdfDownload() {
             buttonPdfDownload.innerHTML = "PDF";
             document.querySelector('#container-search-h7vc6omi2hr2880').appendChild(buttonPdfDownload);
          } else {
-            console.error('PDF file does not exist.');
+            console.log('PDF file does not exist. No PDF download button will be added.');
          }
       })
       .catch(error => {
