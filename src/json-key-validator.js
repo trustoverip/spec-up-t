@@ -56,11 +56,6 @@ function runJsonKeyValidatorSync() {
             "external_spec",
             "url",
             "terms_dir"
-        ],
-        assets: [
-            "path",
-            "inject",
-            "module"
         ]
     };
 
