@@ -53,12 +53,8 @@ module.exports = function(options = {}) {
   const inputPath = 'output/xrefs-data.js';
   let xrefsData = "";
 
-  try {
-    if (fs.existsSync(inputPath)) {
-      xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
-    }
-  } catch (error) {
-    console.error("\n   SPEC-UP-T: " + error + "\n");
+  if (fs.existsSync(inputPath)) {
+    xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
   }
 
   function applyReplacers(doc) {
