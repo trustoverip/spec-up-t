@@ -52,7 +52,6 @@ module.exports = function(options = {}) {
   // Test if xrefs-data.js exists, else make it an empty string
   const inputPath = 'output/xrefs-data.js';
   let xrefsData = "";
-
   if (fs.existsSync(inputPath)) {
     xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
   }
