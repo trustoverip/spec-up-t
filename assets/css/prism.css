@@ -1,6 +1,8 @@
-
  /* PrismJS 1.29.0
-https://prismjs.com/download.html#themes=prism-tomorrow&languages=markup+css+clike+javascript+abnf+diff+git+http+js-extras+json+json5+js-templates+regex+yaml&plugins=line-numbers+highlight-keywords */
+    To update this file, download PrismJS from https://prismjs.com/download.html and use this url, that includes only the languages and plugins you need:
+
+    https://prismjs.com/download.html#themes=prism-tomorrow&languages=markup+css+clike+javascript+abnf+diff+git+http+js-extras+json+json5+js-templates+regex+yaml&plugins=line-numbers+highlight-keywords
+*/
 
 code[class*=language-],
 pre[class*=language-] {
