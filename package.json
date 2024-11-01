@@ -61,5 +61,8 @@
     "puppeteer": "^23.2.1",
     "readline-sync": "^1.4.10",
     "yargs": "16.2.0"
+  },
+  "overrides": {
+    "braces": ">=3.0.3"
   }
 }
