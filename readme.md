@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="./specup_logo.png">
+<img src="./static/specup_logo.png">
 
 <h2 style="display: block; margin: 0 auto; text-align: center;">Markdown » Spec-Up</h2>
 </div>

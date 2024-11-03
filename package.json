@@ -1,42 +1,39 @@
 {
   "name": "spec-up-t",
-  "version": "1.0.41",
+  "version": "1.0.54",
   "description": "Technical specification drafting tool that generates rich specification documents from markdown. Forked from https://github.com/decentralized-identity/spec-up by Daniel Buchner (https://github.com/csuwildcat)",
   "main": "./index",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blockchainbird/spec-up-t.git"
-  },
-  "scripts": {
-    "edit": "node -e \"require('./index')()\"",
-    "render": "node -e \"require('./index')({ nowatch: true })\"",
-    "dev": "node -e \"require('./index')({ dev: true })\""
+    "url": "git+https://github.com/trustoverip/spec-up-t.git"
   },
   "keywords": [
     "spec",
     "specs",
     "markdown",
     "editor",
-    "standards"
+    "standards",
+    "Technical specification",
+    "glossary"
   ],
-  "author": "Blockchain Bird",
-  "license": "Apache 2.0",
+  "author": "Trust over IP",
+  "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/blockchainbird/spec-up-t/issues"
+    "url": "https://github.com/trustoverip/spec-up-t/issues"
   },
-  "homepage": "https://github.com/blockchainbird/spec-up-t#readme",
+  "homepage": "https://github.com/trustoverip/spec-up-t#readme",
   "dependencies": {
-    "@traptitech/markdown-it-katex": "3.3.0",
-    "axios": "0.21.2",
+    "@traptitech/markdown-it-katex": "^3.3.0",
+    "axios": "^0.28.0",
     "diff": "^7.0.0",
     "find-pkg-dir": "2.0.0",
     "fs-extra": "8.1.0",
-    "gulp": "4.0.2",
+    "gulp": "^5.0.0",
     "gulp-clean-css": "4.3.0",
     "gulp-concat": "2.6.1",
     "gulp-terser": "1.2.0",
-    "jsdom": "^24.0.0",
-    "markdown-it": "13.0.1",
+    "jsdom": "^25.0.0",
+    "markdown-it": "^13.0.1",
     "markdown-it-anchor": "5.2.5",
     "markdown-it-attrs": "4.1.4",
     "markdown-it-chart": "^0.2.0",
@@ -61,5 +58,8 @@
     "puppeteer": "^23.2.1",
     "readline-sync": "^1.4.10",
     "yargs": "16.2.0"
+  },
+  "overrides": {
+    "braces": ">=3.0.3"
   }
 }
