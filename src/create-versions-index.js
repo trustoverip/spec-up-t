@@ -15,13 +15,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-function createVersionsIndex() {
-    // Read and parse the specs.json file
-    const config = fs.readJsonSync('specs.json');
-
-    // Extract the output_path from the specs.json file
-    const outputPath = config.specs[0].output_path;
-
+function createVersionsIndex(outputPath) {
     // Directory containing the version files
     const versionsDir = path.join(outputPath, 'versions');
 
