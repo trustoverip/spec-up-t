@@ -12,7 +12,9 @@
     "specs",
     "markdown",
     "editor",
-    "standards"
+    "standards",
+    "Technical specification",
+    "glossary"
   ],
   "author": "Trust over IP",
   "license": "Apache-2.0",
