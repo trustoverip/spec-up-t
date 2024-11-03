@@ -1,5 +1,7 @@
 
 module.exports = function(options = {}) {
+  const fs = require('fs-extra');
+  const path = require('path');
 
   const {
     fetchExternalSpecs,
@@ -7,24 +9,23 @@ module.exports = function(options = {}) {
     findExternalSpecByKey
   } = require('./src/references.js');
 
-  const createVersionsIndex = require('./src/create-versions-index.js');
-  createVersionsIndex();
-
   const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
   runJsonKeyValidatorSync();
   
   const { createTermRelations } = require('./src/create-term-relations.js');
   createTermRelations();
-
+  
   const { insertTermIndex } = require('./src/insert-term-index.js');
   insertTermIndex();
-
+  
   const gulp = require('gulp');
-  const fs = require('fs-extra');
-  const path = require('path');
   const findPkgDir = require('find-pkg-dir');
   const modulePath = findPkgDir(__dirname);
   let config = fs.readJsonSync('./output/specs-generated.json');
+  
+  const createVersionsIndex = require('./src/create-versions-index.js');
+  createVersionsIndex(config.specs[0].output_path);
+
   let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
   let assets = fs.readJsonSync(modulePath + '/src/asset-map.json');
   let externalReferences;
