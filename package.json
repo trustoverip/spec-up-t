@@ -5,7 +5,7 @@
   "main": "./index",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blockchainbird/spec-up-t.git"
+    "url": "git+https://github.com/trustoverip/spec-up-t.git"
   },
   "keywords": [
     "spec",
@@ -14,12 +14,12 @@
     "editor",
     "standards"
   ],
-  "author": "Blockchain Bird",
+  "author": "Trust over IP",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/blockchainbird/spec-up-t/issues"
+    "url": "https://github.com/trustoverip/spec-up-t/issues"
   },
-  "homepage": "https://github.com/blockchainbird/spec-up-t#readme",
+  "homepage": "https://github.com/trustoverip/spec-up-t#readme",
   "dependencies": {
     "@traptitech/markdown-it-katex": "^3.3.0",
     "axios": "^0.28.0",
