@@ -1,5 +1,5 @@
 
-module.exports = function(options = {}) {
+module.exports = function (options = {}) {
   const fs = require('fs-extra');
   const path = require('path');
 
@@ -11,18 +11,18 @@ module.exports = function(options = {}) {
 
   const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
   runJsonKeyValidatorSync();
-  
+
   const { createTermRelations } = require('./src/create-term-relations.js');
   createTermRelations();
-  
+
   const { insertTermIndex } = require('./src/insert-term-index.js');
   insertTermIndex();
-  
+
   const gulp = require('gulp');
   const findPkgDir = require('find-pkg-dir');
   const modulePath = findPkgDir(__dirname);
   let config = fs.readJsonSync('./output/specs-generated.json');
-  
+
   const createVersionsIndex = require('./src/create-versions-index.js');
   createVersionsIndex(config.specs[0].output_path);
 
@@ -38,7 +38,7 @@ module.exports = function(options = {}) {
   const replacers = [
     {
       test: 'insert',
-      transform: function(path){
+      transform: function (path) {
         if (!path) return '';
         return fs.readFileSync(path, 'utf8');
       }
@@ -46,7 +46,7 @@ module.exports = function(options = {}) {
   ];
 
   const { processMarkdownFiles } = require('./src/fix-markdown-files.js');
-  
+
   // Synchonously process markdown files
   processMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
@@ -64,11 +64,11 @@ module.exports = function(options = {}) {
     });
   }
 
-  function normalizePath(path){
+  function normalizePath(path) {
     return path.trim().replace(/\/$/g, '') + '/';
   }
 
-  function renderRefGroup(type){
+  function renderRefGroup(type) {
     let group = specGroups[type];
     if (!group) return '';
     let html = Object.keys(group).sort().reduce((html, name) => {
@@ -84,14 +84,14 @@ module.exports = function(options = {}) {
     return `\n${html}\n</dl>\n`;
   }
 
-  function findKatexDist(){
+  function findKatexDist() {
     const relpath = "node_modules/katex/dist";
     const paths = [
       path.join(process.cwd(), relpath),
       path.join(__dirname, relpath),
     ];
-    for(const abspath of paths) {
-      if(fs.existsSync(abspath)) {
+    for (const abspath of paths) {
+      if (fs.existsSync(abspath)) {
         return abspath
       }
     }
@@ -115,16 +115,16 @@ module.exports = function(options = {}) {
     const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
     const containers = require('markdown-it-container');
     const md = require('markdown-it')({
-        html: true,
-        linkify: true,
-        typographer: true
-      })
+      html: true,
+      linkify: true,
+      typographer: true
+    })
       .use(require('./src/markdown-it-extensions.js'), [
         {
           filter: type => type.match(terminologyRegex),
-          parse(token, type, primary){
+          parse(token, type, primary) {
             if (!primary) return;
-            if (type === 'def'){
+            if (type === 'def') {
               definitions.push(token.info.args);
               return token.info.args.reduce((acc, syn) => {
                 return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}">${acc}</span>`;
@@ -144,13 +144,13 @@ module.exports = function(options = {}) {
         },
         {
           filter: type => type.match(specNameRegex),
-          parse(token, type, name){
+          parse(token, type, name) {
             if (name) {
               let _name = name.replace(spaceRegex, '-').toUpperCase();
               let spec = specCorpus[_name] ||
-                         specCorpus[_name.toLowerCase()] || 
-                         specCorpus[name.toLowerCase()] || 
-                         specCorpus[name];
+                specCorpus[_name.toLowerCase()] ||
+                specCorpus[name.toLowerCase()] ||
+                specCorpus[name];
               if (spec) {
                 spec._name = _name;
                 let group = specGroups[type] = specGroups[type] || {};
@@ -158,8 +158,8 @@ module.exports = function(options = {}) {
               }
             }
           },
-          render(token, type, name){
-            if (name){
+          render(token, type, name) {
+            if (name) {
               let spec = token.info.spec;
               if (spec) return `[<a class="spec-reference" href="#ref:${spec._name}">${spec._name}</a>]`;
             }
@@ -179,12 +179,12 @@ module.exports = function(options = {}) {
       .use(require('markdown-it-sup'))
       .use(require('markdown-it-task-lists'))
       .use(require('markdown-it-multimd-table'), {
-        multiline:  true,
-        rowspan:    true,
+        multiline: true,
+        rowspan: true,
         headerless: true
       })
       .use(containers, 'notice', {
-        validate: function(params) {
+        validate: function (params) {
           let matches = params.match(/(\w+)\s?(.*)?/);
           return matches && noticeTypes[matches[1]];
         },
@@ -194,7 +194,7 @@ module.exports = function(options = {}) {
             let id;
             let type = matches[1];
             if (matches[2]) {
-              id = matches[2].trim().replace(/\s+/g , '-').toLowerCase();
+              id = matches[2].trim().replace(/\s+/g, '-').toLowerCase();
               if (noticeTitles[id]) id += '-' + noticeTitles[id]++;
               else noticeTitles[id] = 1;
             }
@@ -214,7 +214,7 @@ module.exports = function(options = {}) {
         anchorClassName: 'toc-anchor'
       })
       .use(require('@traptitech/markdown-it-katex'))
-    
+
     // Custom plugin to add class to <dl> and the last <dd> in each series after a <dt>
     function addClassToDefinitionList(md) {
       const originalRender = md.renderer.rules.dl_open || function (tokens, idx, options, env, self) {
@@ -272,11 +272,11 @@ module.exports = function(options = {}) {
         noticeTitles = {};
         specGroups = {};
         console.log('\n   SPEC-UP-T: Rendering: ' + spec.title + "\n");
-        
+
         function interpolate(template, variables) {
           return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
         }
-        
+
         return new Promise(async (resolve, reject) => {
           Promise.all((spec.markdown_paths || ['spec.md']).map(_path => {
             return fs.readFile(spec.spec_directory + _path, 'utf8').catch(e => reject(e))
@@ -304,31 +304,31 @@ module.exports = function(options = {}) {
               specLogoLink: spec.logo_link,
               spec: JSON.stringify(spec)
             });
-            
+
             fs.writeFile(path.join(spec.destination, 'index.html'),
               templateInterpolated, 'utf8'
 
-            , function (err, data) {
-              if (err) {
-                reject(err);
-              }
-              else {
-                resolve();
-              }
-            });
+              , function (err, data) {
+                if (err) {
+                  reject(err);
+                }
+                else {
+                  resolve();
+                }
+              });
             validateReferences(references, definitions, render);
             references = [];
             definitions = [];
           });
         });
       }
-      catch(e) {
+      catch (e) {
         console.error("\n   SPEC-UP-T: " + e + "\n");
       }
     }
 
     config.specs.forEach(spec => {
-      spec.spec_directory = normalizePath(spec.spec_directory);    
+      spec.spec_directory = normalizePath(spec.spec_directory);
       spec.destination = normalizePath(spec.output_path || spec.spec_directory);
 
       fs.ensureDirSync(spec.destination);
@@ -343,40 +343,40 @@ module.exports = function(options = {}) {
           assets.css += `<link href="${asset.path}" rel="stylesheet"/>`;
         }
         if (ext === 'js') {
-          assets.js[asset.inject || 'body'] += `<script src="${asset.path}" ${ asset.module ? 'type="module"' : '' } ></script>`;
+          assets.js[asset.inject || 'body'] += `<script src="${asset.path}" ${asset.module ? 'type="module"' : ''} ></script>`;
         }
         return assets;
       }, {
         css: '',
         js: { head: '', body: '' }
-      });  
+      });
 
       if (options.dev) {
-        assetTags.head = assets.head.css.map(_path => `<link href="${_path}" rel="stylesheet"/>`).join('') + 
-                         customAssets.css +
-                         assets.head.js.map(_path =>  `<script src="${_path}"></script>`).join('') +
-                         customAssets.js.head;
-        assetTags.body = assets.body.js.map(_path => `<script src="${_path}" data-manual></script>`).join('') + 
-                         customAssets.js.body;
+        assetTags.head = assets.head.css.map(_path => `<link href="${_path}" rel="stylesheet"/>`).join('') +
+          customAssets.css +
+          assets.head.js.map(_path => `<script src="${_path}"></script>`).join('') +
+          customAssets.js.head;
+        assetTags.body = assets.body.js.map(_path => `<script src="${_path}" data-manual></script>`).join('') +
+          customAssets.js.body;
       }
       else {
         assetTags.head = `
           <style>${fs.readFileSync(modulePath + '/assets/compiled/head.css', 'utf8')}</style>
-          ${ customAssets.css }
+          ${customAssets.css}
           <script>${fs.readFileSync(modulePath + '/assets/compiled/head.js', 'utf8')}</script>
-          ${ customAssets.js.head }
+          ${customAssets.js.head}
         `;
         assetTags.body = `<script>${fs.readFileSync(modulePath + '/assets/compiled/body.js', 'utf8')}</script>
-                          ${ customAssets.js.body }`;
+          ${customAssets.js.body}`;
       }
 
       if (spec.katex) {
         const katexDist = findKatexDist();
         assetTags.body += `<script>/* katex */${fs.readFileSync(path.join(katexDist, 'katex.min.js'),
-                          'utf8')}</script>`;
+          'utf8')}</script>`;
         assetTags.body += `<style>/* katex */${fs.readFileSync(path.join(katexDist, 'katex.min.css'),
-                          'utf8')}</style>`;
-        
+          'utf8')}</style>`;
+
         fs.copySync(path.join(katexDist, 'fonts'), path.join(spec.destination, 'fonts'));
       }
 
@@ -394,7 +394,7 @@ module.exports = function(options = {}) {
     });
 
   }
-  catch(e) {
+  catch (e) {
     console.error("\n   SPEC-UP-T: " + e + "\n");
   }
 
