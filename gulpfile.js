@@ -1,4 +1,3 @@
-
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv;
@@ -15,7 +14,7 @@ const assets = fs.readJsonSync('./src/asset-map.json');
 
 let compileLocation = 'assets/compiled';
 
-async function fetchSpecRefs(){
+async function fetchSpecRefs() {
   return Promise.all([
     axios.get('https://raw.githubusercontent.com/tobie/specref/master/refs/ietf.json'),
     axios.get('https://raw.githubusercontent.com/tobie/specref/master/refs/w3c.json'),
@@ -26,7 +25,7 @@ async function fetchSpecRefs(){
   }).catch(e => console.log(e));
 }
 
-async function compileAssets(){
+async function compileAssets() {
   await fs.ensureDir(compileLocation);
   return new Promise(resolve => {
     mergeStreams(
@@ -42,37 +41,32 @@ async function compileAssets(){
         .pipe(terser())
         .pipe(concat('body.js'))
         .pipe(gulp.dest(compileLocation))
-    ).on('finish', function() {
+    ).on('finish', function () {
       resolve();
     })
   });
 }
 
-function runCommand(cmd){
+function runCommand(cmd) {
   return new Promise((resolve, reject) => {
     exec(cmd, {}, error => error ? reject() : resolve());
   });
 }
 
-async function bumpVersion(){
-  return runCommand(`npm version --no-git-tag-version ${ argv.v || 'patch' }`);
+async function bumpVersion() {
+  return runCommand(`npm version --no-git-tag-version ${argv.v || 'patch'}`);
 }
 
-async function renderSpecs(){
+async function renderSpecs() {
   return runCommand('npm run render');
 }
 
-gulp.task('render', renderSpecs);
-
-gulp.task('refs', fetchSpecRefs);
-
-gulp.task('compile', compileAssets);
-
-gulp.task('bump', bumpVersion);
-
-gulp.task('publish', gulp.series(gulp.parallel(compileAssets, bumpVersion), renderSpecs));
-
-gulp.task('watch', () => gulp.watch([
+exports.render = renderSpecs;
+exports.refs = fetchSpecRefs;
+exports.compile = compileAssets;
+exports.bump = bumpVersion;
+exports.publish = gulp.series(gulp.parallel(compileAssets, bumpVersion), renderSpecs);
+exports.watch = () => gulp.watch([
   'assets/**/*',
   '!assets/compiled/*'
-], gulp.parallel('compile')));
+], gulp.parallel(compileAssets));
