@@ -1,3 +1,4 @@
+
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv;
@@ -61,12 +62,17 @@ async function renderSpecs() {
   return runCommand('npm run render');
 }
 
-exports.render = renderSpecs;
-exports.refs = fetchSpecRefs;
-exports.compile = compileAssets;
-exports.bump = bumpVersion;
-exports.publish = gulp.series(gulp.parallel(compileAssets, bumpVersion), renderSpecs);
-exports.watch = () => gulp.watch([
+gulp.task('render', renderSpecs);
+
+gulp.task('refs', fetchSpecRefs);
+
+gulp.task('compile', compileAssets);
+
+gulp.task('bump', bumpVersion);
+
+gulp.task('publish', gulp.series(gulp.parallel(compileAssets, bumpVersion), renderSpecs));
+
+gulp.task('watch', () => gulp.watch([
   'assets/**/*',
   '!assets/compiled/*'
-], gulp.parallel(compileAssets));
+], gulp.parallel('compile')));
