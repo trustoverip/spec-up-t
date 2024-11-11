@@ -1005,3 +1005,9 @@ article a[href^="https://"]:not(.btn)::after {
   text-decoration: none;
   font-size: 1rem;
 }
+
+.fetched-xref-term {
+  background: #fbe4ff;
+  padding: 0.5em 0.8em;
+  margin-bottom: 1em;
+}

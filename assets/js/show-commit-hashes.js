@@ -25,6 +25,8 @@
  * @since 2024-06-09
  */
 
+var md = window.markdownit();
+
 function fetchCommitHashes() {
 
    // Check if allXrefs is undefined or does not exist
@@ -32,10 +34,10 @@ function fetchCommitHashes() {
       console.log('allXrefs is not defined or does not exist. We will continue without it.');
       return;
    }
-   
+
    // Load GitHub API token from local storage if it exists
    const savedToken = localStorage.getItem('githubToken');
-   
+
    // // Markdown parser
    // const md = markdownit();
 
@@ -79,7 +81,7 @@ function fetchCommitHashes() {
          .then(data => {
             // Decode base64 encoded content
             const decodedContent = atob(data.content);
-            
+
             // Diff the content of the current term-file with the content of stored version
             // See https://www.npmjs.com/package/diff , examples
             const diff = Diff.diffChars(match.content, decodedContent),
@@ -93,7 +95,7 @@ function fetchCommitHashes() {
 
                const backgroundColor = part.added ? '#ddd' :
                   part.removed ? '#ddd' : 'white';
-               
+
                span = document.createElement('span');
                span.style.color = color;
                span.style.backgroundColor = backgroundColor;
@@ -101,7 +103,7 @@ function fetchCommitHashes() {
                span.appendChild(document
                   .createTextNode(part.value));
                fragment.appendChild(span);
-               });
+            });
             // Create a temporary container to hold the fragment
             const tempContainer = document.createElement('div');
             tempContainer.innerHTML = '<h1>Diff xref (local snapshot) and latest version</h1>';
@@ -113,6 +115,47 @@ function fetchCommitHashes() {
          .catch(error => {
             console.error('Error fetching content:', error);
          });
+   }
+
+   async function fetchGitHubTerm(savedToken, match) {
+      function processSpecUpMarkdown(markdown) {
+
+         // Replace all occurrences of [[def: ]] with ''
+         const defRegex = /\[\[def: ([^\]]+)\]\]/g;
+         markdown = markdown.replace(defRegex, '');
+
+         // // Replace all occurrences of [[ref: ]] with <a href="#"></a>
+         // const refRegex = /\[\[ref: ([^\]]+)\]\]/g;
+         // markdown = markdown.replace(refRegex, '<a class="x-term-reference" data-local-href="ref:$1">$1</a>');
+
+         return markdown;
+      }
+
+      const headers = {};
+      if (savedToken && savedToken.length > 0) {
+         headers['Authorization'] = `token ${savedToken}`;
+      }
+
+      try {
+         const response = await fetch('https://api.github.com/repos/' + match.owner + '/' + match.repo + '/contents/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md', { headers: headers });
+
+         if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
+            const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
+            console.error(`\n   SPEC-UP-T: Github API rate limit exceeded. Try again after ${resetTime}. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+
+            debouncedError();
+            return true;
+         } else {
+            console.log(`\n   SPEC-UP-T: Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+         }
+
+         const data = await response.json();
+         const decodedContent = atob(data.content);
+         const processedContent = processSpecUpMarkdown(decodedContent);
+         return processedContent;
+      } catch (error) {
+         console.error('Error fetching content:', error);
+      }
    }
 
    // get all elements with class “x-term-reference”
@@ -130,7 +173,7 @@ function fetchCommitHashes() {
 
          //TODO: remove toLowerCase() or not?
          if (match.externalSpec === splitHref[1] && match.term.toLowerCase() === splitHref[2].toLowerCase()) {
-            
+
             // If no commit hash is found, display a message and return
             if (!match.commitHash) {
                const noXrefFoundMessage = document.createElement('span');
@@ -208,6 +251,17 @@ function fetchCommitHashes() {
                     </table>
                   `);
             });
+
+            async function insertGitHubTerm() {
+               const term = await fetchGitHubTerm(savedToken, match);
+               const div = document.createElement('div');
+               div.classList.add('fetched-xref-term');
+               // const html = md.render(term);
+               const html = term;
+               div.innerHTML = html;
+               element.parentNode.insertBefore(div, element.nextSibling);
+            }
+            insertGitHubTerm();
          }
       });
    });
