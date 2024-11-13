@@ -6,7 +6,12 @@ const pdfLib = require('pdf-lib');
 (async () => {
     try {
         // Launch a new browser instance
+        // Production
         const browser = await puppeteer.launch();
+        
+        // Test
+        // const browser = await puppeteer.launch({ headless: false, devtools: true }); // Open DevTools automatically
+        
         const page = await browser.newPage();
 
         // Read and parse the specs.json file
@@ -21,6 +26,29 @@ const pdfLib = require('pdf-lib');
 
         // Navigate to the HTML file
         await page.goto(fileUrl, { waitUntil: 'networkidle2' });
+
+        // this class will hold the text that we want to wait for (xref term fetched from another domain)
+        const targetClass = '.fetched-xref-term';
+
+        // Check if there are any elements with the target class
+        const hasTargetElements = await page.evaluate((targetClass) => {
+            return document.querySelectorAll(targetClass).length > 0;
+        }, targetClass);
+
+        // Fetch the initial innerText of the element
+        const targetElement = await page.$(targetClass);
+        const targetText = await page.evaluate(el => el.innerText, targetElement);
+        if (hasTargetElements) {
+            await page.waitForFunction(
+                (targetClass, targetText) => {
+                    const element = document.querySelector(targetClass);
+                    return element && element.innerText !== targetText;
+                },
+                {}, // You can specify additional options here if needed
+                targetClass,
+                targetText
+            );
+        }
 
         // Inject CSS to set padding and enforce system fonts
         await page.evaluate(() => {
