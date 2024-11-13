@@ -34,7 +34,7 @@
     "gulp-terser": "1.2.0",
     "jsdom": "^25.0.0",
     "markdown-it": "^13.0.1",
-    "markdown-it-anchor": "^5.2.5",
+    "markdown-it-anchor": "^9.2.0",
     "markdown-it-attrs": "^4.1.4",
     "markdown-it-chart": "^0.2.0",
     "markdown-it-container": "^2.0.0",
