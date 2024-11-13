@@ -47,7 +47,7 @@ function processMarkdownFiles(directory) {
 
                         // Prepend `~ ` to lines that do not start with `[[def:` and are not blank lines, and do not already start with `~ `
                         for (let i = 0; i < lines.length; i++) {
-                            if (!lines[i].startsWith('[[def:') && lines[i].trim() !== '' && !lines[i].startsWith('~ ')) {
+                            if (!lines[i].startsWith('[[def:') && !lines[i].startsWith('[[tref:') && lines[i].trim() !== '' && !lines[i].startsWith('~ ')) {
                                 lines[i] = `~ ${lines[i]}`;
                                 modified = true;
                             }
