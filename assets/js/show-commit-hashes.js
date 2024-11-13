@@ -253,13 +253,24 @@ function fetchCommitHashes() {
             });
 
             async function insertGitHubTerm() {
-               const term = await fetchGitHubTerm(savedToken, match);
                const div = document.createElement('div');
                div.classList.add('fetched-xref-term');
-               // const html = md.render(term);
-               const html = term;
-               div.innerHTML = html;
+               div.innerHTML = "<p class='loadertext'>Loading external reference</p><div class='loader'></div>";
                element.parentNode.insertBefore(div, element.nextSibling);
+
+               // Promise.all waits for both termPromise and delayPromise to complete if termPromise finishes within 2000 ms.If termPromise takes longer than 2000 ms, the delay is effectively bypassed because Promise.all only cares about both promises finishing, regardless of the time taken by each.
+
+               // Start fetching the GitHub term asynchronously
+               const termPromise = fetchGitHubTerm(savedToken, match);
+
+               // Create a delay of 2000 ms
+               const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
+
+               // Wait for whichever completes last between termPromise and delayPromise
+               const [term] = await Promise.all([termPromise, delayPromise]);
+
+               // Now that either both are complete or the term has taken longer than 2000 ms, continue with your code
+               div.innerHTML = term;
             }
             insertGitHubTerm();
          }
