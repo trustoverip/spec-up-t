@@ -15,6 +15,9 @@ module.exports = function (options = {}) {
   const { createTermRelations } = require('./src/create-term-relations.js');
   createTermRelations();
 
+  const { createTermIndex } = require('./src/create-term-index.js');
+  createTermIndex();
+  
   const { insertTermIndex } = require('./src/insert-term-index.js');
   insertTermIndex();
 
