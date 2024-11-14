@@ -1,7 +1,4 @@
 /**
- * Creates a term index by reading specifications from a JSON file and generating a list of file paths.
- * The list of file paths is then written to a JSON file in the project root directory.
- *
  * Steps:
  * 1. Reads the configuration from 'specs.json'.
  * 2. Extracts the directories containing the specifications and terms.
@@ -25,7 +22,8 @@ function createTermIndex() {
     const specDirectories = config.specs.map(spec => spec.spec_directory);
     const specTermDirectoryName = config.specs.map(spec => spec.spec_terms_directory);
     const outputPathJSON = './term-index.json';
-    const files = fs.readdirSync(path.join(specDirectories[0], specTermDirectoryName[0]));
+    const files = fs.readdirSync(path.join(specDirectories[0], specTermDirectoryName[0]))
+        .filter(file => !file.startsWith('_'));
 
     const filePaths = files.map(file => specTermDirectoryName[0] + '/' + file);
 
