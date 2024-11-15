@@ -35,8 +35,8 @@ function findExternalSpecByKey(config, key) {
   for (const spec of config.specs) {
     if (spec.external_specs) {
       for (const externalSpec of spec.external_specs) {
-        if (externalSpec[key]) {
-          return externalSpec[key];
+        if (externalSpec.external_spec === key) {
+          return externalSpec;
         }
       }
     }
@@ -44,20 +44,32 @@ function findExternalSpecByKey(config, key) {
   return null;
 }
 
-async function fetchExternalSpecs(spec){
+async function fetchExternalSpecs(spec) {
   try {
     let results = await Promise.all(
       spec.external_specs.map(s => {
-        const url = Object.values(s)[0];
+        const url = s["gh-page"]; // Access the "gh-page" URL directly
         return axios.get(url);
       })
     );
-    results = results.map((r, index) => (r.status === 200 ? { [Object.keys(spec.external_specs[index])[0]]: r.data } : null)).filter(r_1 => r_1);
-    return results.map(r_2 => createNewDLWithTerms(Object.keys(r_2)[0], Object.values(r_2)[0]));
+
+    results = results
+      .map((r, index) =>
+        r.status === 200
+          ? { [spec.external_specs[index].external_spec]: r.data }
+          : null
+      )
+      .filter(r => r); // Remove null values
+
+    return results.map(r =>
+      createNewDLWithTerms(Object.keys(r)[0], Object.values(r)[0])
+    );
   } catch (e) {
-    return console.log("\n   SPEC-UP-T: " + e + "\n");
+    console.log("\n   SPEC-UP-T: " + e + "\n");
+    return []; // Return an empty array in case of errors
   }
 }
+
 
 function createNewDLWithTerms(title, html) {
   const dom = new JSDOM(html);
