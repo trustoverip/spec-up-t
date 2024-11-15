@@ -304,6 +304,7 @@ module.exports = function (options = {}) {
               externalReferences: JSON.stringify(externalReferences),
               xrefsData: xrefsData,
               specLogo: spec.logo,
+              specFavicon: spec.favicon,
               specLogoLink: spec.logo_link,
               spec: JSON.stringify(spec)
             });
