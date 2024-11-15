@@ -61,8 +61,7 @@ function runJsonKeyValidatorSync() {
             "logo",
             "logo_link",
             "source",
-            "external_specs",
-            "external_specs_repos",
+            "external_specs"
             // "assets"  // Commented out: We no longer check for 'assets' in the specs object
         ],
         source: [
@@ -70,7 +69,8 @@ function runJsonKeyValidatorSync() {
             "account",
             "repo"
         ],
-        external_specs_repos: [
+        external_specs: [
+            "gh-page",
             "external_spec",
             "url",
             "terms_dir"
@@ -95,9 +95,9 @@ function runJsonKeyValidatorSync() {
             checkKeysSync(spec.source, expectedKeys.source, `specs[${index}].source`);
         }
 
-        // Check for keys inside the 'external_specs_repos' array, if present
-        if (spec.external_specs_repos) {
-            checkKeysSync(spec.external_specs_repos, expectedKeys.external_specs_repos, `specs[${index}].external_specs_repos`);
+        // Check for keys inside the 'external_specs' array, if present
+        if (spec.external_specs) {
+            checkKeysSync(spec.external_specs, expectedKeys.external_specs, `specs[${index}].external_specs`);
         }
 
         // The assets check is no longer necessary and has been commented out
