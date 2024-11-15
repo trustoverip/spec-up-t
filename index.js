@@ -295,6 +295,7 @@ module.exports = function (options = {}) {
 
             const templateInterpolated = interpolate(template, {
               title: spec.title,
+              description: spec.description,
               toc: toc,
               render: render,
               assetsHead: assets.head,
