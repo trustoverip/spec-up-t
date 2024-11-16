@@ -15,6 +15,9 @@ module.exports = function (options = {}) {
   const { createTermRelations } = require('./src/create-term-relations.js');
   createTermRelations();
 
+  const { createTermIndex } = require('./src/create-term-index.js');
+  createTermIndex();
+  
   const { insertTermIndex } = require('./src/insert-term-index.js');
   insertTermIndex();
 
@@ -298,6 +301,8 @@ module.exports = function (options = {}) {
 
             const templateInterpolated = interpolate(template, {
               title: spec.title,
+              description: spec.description,
+              author: spec.author,
               toc: toc,
               render: render,
               assetsHead: assets.head,
@@ -307,6 +312,7 @@ module.exports = function (options = {}) {
               externalReferences: JSON.stringify(externalReferences),
               xrefsData: xrefsData,
               specLogo: spec.logo,
+              specFavicon: spec.favicon,
               specLogoLink: spec.logo_link,
               spec: JSON.stringify(spec)
             });

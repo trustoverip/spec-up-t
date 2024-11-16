@@ -86,15 +86,20 @@ function getXrefsData(GITHUB_API_TOKEN) {
 
     // Function to extend xref objects with additional information, such as repository URL and directory information.
     function extendXrefs(config, xrefs) {
+        if (config.specs[0].external_specs_repos) {
+            console.log("\n   SPEC-UP-T: PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-starterpack/specs.json or e-mail kor@dwarshuis.com for help. \n");
+            return;
+        }
+
         xrefs.forEach(xref => {
             config.specs.forEach(spec => {
-                // Loop through "external_specs_repos" to find the repository URL for each xref
+                // Loop through "external_specs" to find the repository URL for each xref
                 xref.repoUrl = null;
                 xref.terms_dir = null;
                 xref.owner = null;
                 xref.repo = null;
 
-                spec.external_specs_repos.forEach(repo => {
+                spec.external_specs.forEach(repo => {
                     if (repo.external_spec === xref.externalSpec) {
                         xref.repoUrl = repo.url;
                         xref.terms_dir = repo.terms_dir;
