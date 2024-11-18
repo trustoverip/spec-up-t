@@ -205,6 +205,7 @@ function getXrefsData(GITHUB_API_TOKEN) {
         fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
         fs.writeFileSync(outputPathJSTimeStamped, stringReadyForFileWrite, 'utf8');
     });
+    require('../index.js')({ nowatch: true });
 }
 
 // Function to remove a specific xref from the JSON file, based on term and externalSpec.
@@ -245,7 +246,10 @@ function removeXref(term, externalSpec) {
         messages.push(`\n   SPEC-UP-T: An error occurred - ${error.message}\n`);
     }
 
+    require('../index.js')({ nowatch: true });
+
     // TODO: messages are not used at the moment, since they apparently are not returned to the calling script. Fix this.
+    
     return messages;
 }
 
