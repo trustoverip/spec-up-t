@@ -24,45 +24,52 @@ function processMarkdownFiles(directory) {
                         let lines = data.split('\n');
                         let modified = false;
 
-                        // Iterate through the lines
+                        // Handle specific functionality for `[[def:` lines
                         for (let i = 0; i < lines.length; i++) {
-                            // Check if the line starts with [[def:
                             if (lines[i].startsWith('[[def:')) {
-                                // Check if the next line is not a blank line
+                                // Ensure a blank line immediately follows `[[def:` lines
                                 if (i + 1 < lines.length && lines[i + 1].trim() !== '') {
-                                    // Insert a blank line
-                                    lines.splice(i + 1, 0, '');
+                                    lines.splice(i + 1, 0, ''); // Insert blank line
                                     modified = true;
                                 }
                             }
                         }
 
-                        // Ensure there is an empty line between paragraphs
-                        for (let i = 0; i < lines.length - 1; i++) {
-                            if (lines[i].trim() !== '' && lines[i + 1].trim() !== '') {
-                                lines.splice(i + 1, 0, '');
+                        // Ensure there is exactly one blank line between paragraphs
+                        let newLines = [];
+                        let previousLineWasEmpty = false;
+
+                        for (let i = 0; i < lines.length; i++) {
+                            const isCurrentLineEmpty = lines[i].trim() === '';
+
+                            if (!isCurrentLineEmpty) {
+                                newLines.push(lines[i]); // Add non-empty lines
+                                previousLineWasEmpty = false;
+                            } else if (!previousLineWasEmpty) {
+                                newLines.push(''); // Add exactly one blank line
+                                previousLineWasEmpty = true;
+                            } else {
+                                modified = true; // Skip additional blank lines
+                            }
+                        }
+
+                        // Prepend `~ ` to lines that do not start with `[[def:` and are not blank, and do not already start with `~ `
+                        for (let i = 0; i < newLines.length; i++) {
+                            if (!newLines[i].startsWith('[[def:') && newLines[i].trim() !== '' && !newLines[i].startsWith('~ ')) {
+                                newLines[i] = `~ ${newLines[i]}`;
                                 modified = true;
                             }
                         }
 
-                        // Prepend `~ ` to lines that do not start with `[[def:` and are not blank lines, and do not already start with `~ `
-                        for (let i = 0; i < lines.length; i++) {
-                            if (!lines[i].startsWith('[[def:') && !lines[i].startsWith('[[tref:') && lines[i].trim() !== '' && !lines[i].startsWith('~ ')) {
-                                lines[i] = `~ ${lines[i]}`;
-                                modified = true;
-                            }
+                        // Ensure there is exactly one blank line at the end of the file
+                        if (newLines[newLines.length - 1] !== '') {
+                            newLines.push('');
+                            modified = true;
                         }
 
                         // Join the lines back into a single string
                         if (modified) {
-                            data = lines.join('\n');
-                        }
-
-                        // Ensure there is exactly one blank line at the end of the file
-                        let trimmedData = data.trimEnd() + '\n';
-                        if (data !== trimmedData) {
-                            data = trimmedData;
-                            modified = true;
+                            data = newLines.join('\n');
                         }
 
                         // Write the modified content back to the file synchronously if there were any changes
