@@ -36,6 +36,7 @@ function getXrefsData(GITHUB_API_TOKEN) {
         'Accept': 'application/vnd.github.v3+json'
     };
 
+    // If GITHUB_API_TOKEN is present, it adds an Authorization header to the fetchHeaders object with the value set to token ${GITHUB_API_TOKEN}. This header is used to authenticate requests to the GitHub API, allowing the user to make authenticated requests which have higher rate limits compared to unauthenticated requests.
     if (GITHUB_API_TOKEN) {
         fetchHeaders['Authorization'] = `token ${GITHUB_API_TOKEN}`;
     } else {
