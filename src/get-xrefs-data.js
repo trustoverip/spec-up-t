@@ -111,7 +111,7 @@ function getXrefsData(GITHUB_API_TOKEN) {
                 });
 
                 // Loop through "external_specs" to find the site URL for each xref
-                
+
                 xref.site = null;
                 if (spec.external_specs) {
                     spec.external_specs.forEach(externalSpec => {
@@ -253,7 +253,7 @@ function removeXref(term, externalSpec) {
     require('../index.js')({ nowatch: true });
 
     // TODO: messages are not used at the moment, since they apparently are not returned to the calling script. Fix this.
-    
+
     return messages;
 }
 
