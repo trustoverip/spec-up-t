@@ -205,10 +205,12 @@ function getXrefsData(GITHUB_API_TOKEN) {
         const stringReadyForFileWrite = `const allXrefs = ${allXrefsStr};`;
         fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
         fs.writeFileSync(outputPathJSTimeStamped, stringReadyForFileWrite, 'utf8');
-    });
 
-    // Run the render function to update the HTML file
-    require('../index.js')({ nowatch: true });
+        // Run the render function to update the HTML file
+        require('../index.js')({ nowatch: true });
+    }).catch(err => {
+        console.error('Error:', err);
+    });
 }
 
 // Function to remove a specific xref from the JSON file, based on term and externalSpec.
@@ -245,12 +247,13 @@ function removeXref(term, externalSpec) {
         fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
 
         messages.push(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" removed.\n`);
+
+        // Run the render function to update the HTML file
+        require('../index.js')({ nowatch: true });
+
     } catch (error) {
         messages.push(`\n   SPEC-UP-T: An error occurred - ${error.message}\n`);
     }
-
-    // Run the render function to update the HTML file
-    require('../index.js')({ nowatch: true });
 
     // TODO: messages are not used at the moment, since they apparently are not returned to the calling script. Fix this.
 
