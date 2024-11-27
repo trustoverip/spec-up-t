@@ -29,62 +29,84 @@ const outputPathJSON = 'output/xrefs-data.json';
 const outputPathJS = 'output/xrefs-data.js';
 const outputPathJSTimeStamped = 'output/xrefs-history/xrefs-data-' + Date.now() + '.js';
 
-
-function addAllXrefs(GITHUB_API_TOKEN) {
-    // Set headers for GitHub API requests. Include an authorization token if provided.
+function setupFetchHeaders(GITHUB_API_TOKEN) {
     const fetchHeaders = {
         'Accept': 'application/vnd.github.v3+json'
     };
 
-    // If GITHUB_API_TOKEN is present, it adds an Authorization header to the fetchHeaders object with the value set to token ${GITHUB_API_TOKEN}. This header is used to authenticate requests to the GitHub API, allowing the user to make authenticated requests which have higher rate limits compared to unauthenticated requests.
     if (GITHUB_API_TOKEN) {
         fetchHeaders['Authorization'] = `token ${GITHUB_API_TOKEN}`;
     } else {
         console.log('\n   SPEC-UP-T: There is no GitHub token set up. Therefore, you are more likely to be at your limit of GitHub API requests. If you run into the limit, create a token and search the documentation on this topic.\n');
     }
 
-    // Function to check the rate limit of the GitHub API
-    function checkRateLimit(response) {
-        if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
-            const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
-            console.error(`\n   SPEC-UP-T: Github API rate limit exceeded. Try again after ${resetTime}. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
-            return true;
+    return fetchHeaders;
+}
+
+// Function to check the rate limit of the GitHub API
+function checkRateLimit(response) {
+    if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
+        const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
+        console.error(`\n   SPEC-UP-T: Github API rate limit exceeded. Try again after ${resetTime}. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+        return true;
+    } else {
+        console.log(`\n   SPEC-UP-T: Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+    }
+    return false;
+}
+
+// Function to fetch term information from GitHub, including commit hash and content.
+async function fetchTermInfoFromGithub(GITHUB_API_TOKEN, xref) {
+    try {
+        // prerequisite: filename should be the term in the match object with spaces replaced by dashes and all lowercase
+        //TODO: Loop through all markdown files to find the term and get the filename, instead of assuming that the filename is the term with spaces replaced by dashes and all lowercase
+        const url = `https://api.github.com/repos/${xref.owner}/${xref.repo}/commits?path=${xref.terms_dir}/${xref.term.replace(/ /g, '-').toLowerCase()}.md&per_page=1`;
+        const response = await fetch(url, { headers: setupFetchHeaders(GITHUB_API_TOKEN) });
+
+        // Check for rate limit before proceeding
+        if (checkRateLimit(response)) {
+            return;
+        }
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.length > 0) {
+                const commitHash = data[0].sha;
+                const content = await fetchFileContentFromCommit(GITHUB_API_TOKEN, xref.owner, xref.repo, commitHash, `${xref.terms_dir}/${xref.term.replace(/ /g, '-').toLowerCase()}.md`);
+                return { commitHash, content };
+            }
         } else {
-            console.log(`\n   SPEC-UP-T: Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+            console.error(`\n   SPEC-UP-T: Failed to fetch commit hash for ${xref.term}: ${response.statusText}\n`);
+            return { commitHash: null, content: null };
         }
-        return false;
+    } catch (error) {
+        console.error(`\n   SPEC-UP-T: Error fetching data for term ${xref.term}: ${error.message}\n`);
     }
+    return null;
+}
 
-    // Function to fetch term information from GitHub, including commit hash and content.
-    async function fetchTermInfoFromGithub(xref) {
-        try {
-            // prerequisite: filename should be the term in the match object with spaces replaced by dashes and all lowercase
-            //TODO: Loop through all markdown files to find the term and get the filename, instead of assuming that the filename is the term with spaces replaced by dashes and all lowercase
-            const url = `https://api.github.com/repos/${xref.owner}/${xref.repo}/commits?path=${xref.terms_dir}/${xref.term.replace(/ /g, '-').toLowerCase()}.md&per_page=1`;
-            const response = await fetch(url, { headers: fetchHeaders });
+// Function to fetch the content of a file from a specific commit in a GitHub repository.
+async function fetchFileContentFromCommit(GITHUB_API_TOKEN, owner, repo, commitHash, filePath) {
+    try {
+        const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${commitHash}?recursive=1`;
+        const treeResponse = await fetch(treeUrl, { headers: setupFetchHeaders(GITHUB_API_TOKEN) });
 
-            // Check for rate limit before proceeding
-            if (checkRateLimit(response)) {
-                return;
+        if (treeResponse.ok) {
+            const treeData = await treeResponse.json();
+            const file = treeData.tree.find(item => item.path === filePath);
+            if (file) {
+                const fileContentResponse = await fetch(file.url);
+                const fileContentData = await fileContentResponse.json();
+                return Buffer.from(fileContentData.content, 'base64').toString('utf-8');
             }
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.length > 0) {
-                    const commitHash = data[0].sha;
-                    const content = await fetchFileContentFromCommit(xref.owner, xref.repo, commitHash, `${xref.terms_dir}/${xref.term.replace(/ /g, '-').toLowerCase()}.md`);
-                    return { commitHash, content };
-                }
-            } else {
-                console.error(`\n   SPEC-UP-T: Failed to fetch commit hash for ${xref.term}: ${response.statusText}\n`);
-                return { commitHash: null, content: null };
-            }
-        } catch (error) {
-            console.error(`\n   SPEC-UP-T: Error fetching data for term ${xref.term}: ${error.message}\n`);
         }
-        return null;
+    } catch (error) {
+        console.error(`\n   SPEC-UP-T: Error fetching file content: ${error.message}\n`);
     }
+    return null;
+}
 
+function addAllXrefs(GITHUB_API_TOKEN) {
     // Function to extend xref objects with additional information, such as repository URL and directory information.
     function extendXrefs(config, xrefs) {
         if (config.specs[0].external_specs_repos) {
@@ -123,27 +145,6 @@ function addAllXrefs(GITHUB_API_TOKEN) {
                 }
             });
         });
-    }
-
-    // Function to fetch the content of a file from a specific commit in a GitHub repository.
-    async function fetchFileContentFromCommit(owner, repo, commitHash, filePath) {
-        try {
-            const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${commitHash}?recursive=1`;
-            const treeResponse = await fetch(treeUrl, { headers: fetchHeaders });
-
-            if (treeResponse.ok) {
-                const treeData = await treeResponse.json();
-                const file = treeData.tree.find(item => item.path === filePath);
-                if (file) {
-                    const fileContentResponse = await fetch(file.url);
-                    const fileContentData = await fileContentResponse.json();
-                    return Buffer.from(fileContentData.content, 'base64').toString('utf-8');
-                }
-            }
-        } catch (error) {
-            console.error(`\n   SPEC-UP-T: Error fetching file content: ${error.message}\n`);
-        }
-        return null;
     }
 
     // Initialize an object to store all xrefs. If the output JSON file exists, load its data.
@@ -189,7 +190,7 @@ function addAllXrefs(GITHUB_API_TOKEN) {
     async function fetchAllTermsInfoFromGithub() {
         for (let xref of allXrefs.xrefs) {
             if (!xref.commitHash || !xref.content) {
-                const fetchedData = await fetchTermInfoFromGithub(xref);
+                const fetchedData = await fetchTermInfoFromGithub(GITHUB_API_TOKEN, xref);
                 if (fetchedData) {
                     xref.commitHash = fetchedData.commitHash;
                     xref.content = fetchedData.content;
@@ -259,6 +260,8 @@ function removeXref(term, externalSpec) {
 
     return messages;
 }
+
+
 
 // Export the addAllXrefs and removeXref functions for use in other modules.
 module.exports = {
