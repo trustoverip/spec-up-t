@@ -30,7 +30,7 @@ const outputPathJS = 'output/xrefs-data.js';
 const outputPathJSTimeStamped = 'output/xrefs-history/xrefs-data-' + Date.now() + '.js';
 
 
-function getXrefsData(GITHUB_API_TOKEN) {
+function addAllXrefs(GITHUB_API_TOKEN) {
     // Set headers for GitHub API requests. Include an authorization token if provided.
     const fetchHeaders = {
         'Accept': 'application/vnd.github.v3+json'
@@ -260,8 +260,8 @@ function removeXref(term, externalSpec) {
     return messages;
 }
 
-// Export the getXrefsData and removeXref functions for use in other modules.
+// Export the addAllXrefs and removeXref functions for use in other modules.
 module.exports = {
-    getXrefsData,
+    addAllXrefs,
     removeXref
 }
