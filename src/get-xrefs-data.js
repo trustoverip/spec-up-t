@@ -147,9 +147,10 @@ function addAllXrefs(GITHUB_API_TOKEN) {
         });
     }
 
-    // Initialize an object to store all xrefs. If the output JSON file exists, load its data.
+    // Initialize an object to store all xrefs.
     let allXrefs = { xrefs: [] };
 
+    // If the output JSON file exists, load its data.
     if (fs.existsSync(outputPathJSON)) {
         const existingXrefs = fs.readJsonSync(outputPathJSON);
         allXrefs = existingXrefs && existingXrefs.xrefs ? existingXrefs : { xrefs: [] };
@@ -261,10 +262,49 @@ function removeXref(term, externalSpec) {
     return messages;
 }
 
+function addXref(term, externalSpec) {
+    let messages = [];
 
+    try {
+        // Read the JSON file
+        let currentXrefs = fs.readJsonSync(outputPathJSON);
+
+        // Check if the term and externalSpec exist
+        const entryExists = currentXrefs.xrefs.some(xref => xref.term === term && xref.externalSpec === externalSpec);
+
+        if (entryExists) {
+            messages.push(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" already exists.\n`);
+            return messages;
+        }
+
+        // Add the entry to the JSON file
+        currentXrefs.xrefs.push({ term, externalSpec });
+
+        // Convert the JSON object back to a JSON string
+        const currentXrefsStr = JSON.stringify(currentXrefs, null, 2);
+
+        // Write the JSON code to a .json file
+        fs.writeFileSync(outputPathJSON, currentXrefsStr, 'utf8');
+
+        // Create the JS code for the assignment
+        const stringReadyForFileWrite = `const allXrefs = ${currentXrefsStr};`;
+
+        // Write the JS code to a .js file
+        fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
+
+        messages.push(`\n   SPEC-UP-T: Entry with term "${term}" and externalSpec "${externalSpec}" added.\n`);
+
+        // Run the render function to update the HTML file
+        require('../index.js')({ nowatch: true });
+
+    } catch (error) {
+        messages.push(`\n   SPEC-UP-T: An error occurred - ${error.message}\n`);
+    }
+}
 
 // Export the addAllXrefs and removeXref functions for use in other modules.
 module.exports = {
     addAllXrefs,
-    removeXref
+    removeXref,
+    addXref
 }
