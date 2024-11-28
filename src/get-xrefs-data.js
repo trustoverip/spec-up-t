@@ -157,17 +157,28 @@ function addAllXrefs(GITHUB_API_TOKEN) {
     }
 
     // Loop through each directory and file, extracting xrefs from markdown files.
+    // Iterate over each directory in specTermsDirectories
     specTermsDirectories.forEach(specDirectory => {
+        // Read all files in the current directory synchronously
         fs.readdirSync(specDirectory).forEach(file => {
+            // Check if the file has a .md extension (Markdown file)
             if (file.endsWith('.md')) {
+                // Read the content of the Markdown file as a UTF-8 string
                 const markdown = fs.readFileSync(`${specDirectory}/${file}`, 'utf8');
+                // Define a regular expression to match xref patterns
                 const regex = /\[\[xref:.*?\]\]/g;
+                // Test if the Markdown content contains any xref patterns
                 if (regex.test(markdown)) {
+                    // Find all xref matches in the Markdown content
                     const xrefs = markdown.match(regex);
+                    // Iterate over each xref match
                     xrefs.forEach(xref => {
+                        // Process the xref to create a new xref object
                         const newXrefObj = processXref(xref);
+                        // Check if the new xref object is not already in allXrefs.xrefs
                         if (!allXrefs.xrefs.some(existingXref =>
                             existingXref.term === newXrefObj.term && existingXref.externalSpec === newXrefObj.externalSpec)) {
+                            // Add the new xref object to allXrefs.xrefs if it doesn't exist
                             allXrefs.xrefs.push(newXrefObj);
                         }
                     });
@@ -176,7 +187,7 @@ function addAllXrefs(GITHUB_API_TOKEN) {
         });
     });
 
-    // Function to process and clean up xref strings, returning an object with `externalSpec` and `term` properties.
+    // Function to process and clean up xref strings found in the markdown file, returning an object with `externalSpec` and `term` properties.
     function processXref(xref) {
         let [externalSpec, term] = xref.replace(/\[\[xref:/, '').replace(/\]\]/, '').trim().split(/,/, 2);
         return {
