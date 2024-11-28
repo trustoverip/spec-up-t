@@ -159,51 +159,39 @@ function addAllXrefs(GITHUB_API_TOKEN) {
     // Function to check if an xref is in the markdown content
     function isXrefInMarkdown(xref, markdownContent) {
         const regex = new RegExp(`\\[\\[xref:${xref.term}\\]\\]`, 'g');
-        return regex.test(markdownContent);
+        const result = regex.test(markdownContent);
+        return result;
     }
 
-    // Loop through each directory and file, extracting xrefs from markdown files.
-    // Iterate over each directory in specTermsDirectories
+    // Collect all markdown content
+    let allMarkdownContent = '';
+
     specTermsDirectories.forEach(specDirectory => {
-        // Read all files in the current directory synchronously
         fs.readdirSync(specDirectory).forEach(file => {
-            // Check if the file has a .md extension (Markdown file)
             if (file.endsWith('.md')) {
-                // Read the content of the Markdown file as a UTF-8 string
                 const markdown = fs.readFileSync(`${specDirectory}/${file}`, 'utf8');
-
-
-                // REMOVE EXISTING ENTRY IF NOT IN MARKDOWN
-                // Iterate over each xref in allXrefs.xrefs array and filter out the xrefs that are not found in the markdown content of the current file. The filter method creates a new array containing only the xrefs for which isXrefInMarkdown returned true. This new array is then assigned back to allXrefs.xrefs, effectively removing any xrefs that are not present in the markdown content.
-                allXrefs.xrefs = allXrefs.xrefs.filter(existingXref => {
-                    // Check if the xref is in the markdown content
-                    return isXrefInMarkdown(existingXref, markdown);
-                });
-
-                // ADD NEW ENTRY IF IN MARKDOWN
-                // Identifie xref patterns in the markdown content, process them into xref objects, and add them to allXrefs.xrefs if they are not already present.
-                
-                // Define a regular expression to match xref patterns
-                const regex = /\[\[xref:.*?\]\]/g;
-                // Test if the Markdown content contains any xref patterns
-                if (regex.test(markdown)) {
-                    // Find all xref matches in the Markdown content
-                    const xrefs = markdown.match(regex);
-                    // Iterate over each xref match
-                    xrefs.forEach(xref => {
-                        // Process the xref to create a new xref object
-                        const newXrefObj = processXref(xref);
-                        // Check if the new xref object is not already in allXrefs.xrefs
-                        if (!allXrefs.xrefs.some(existingXref =>
-                            existingXref.term === newXrefObj.term && existingXref.externalSpec === newXrefObj.externalSpec)) {
-                            // Add the new xref object to allXrefs.xrefs if it doesn't exist
-                            allXrefs.xrefs.push(newXrefObj);
-                        }
-                    });
-                }
+                allMarkdownContent += markdown;
             }
         });
     });
+
+    // Remove existing entries if not in the combined markdown content
+    allXrefs.xrefs = allXrefs.xrefs.filter(existingXref => {
+        return isXrefInMarkdown(existingXref, allMarkdownContent);
+    });
+
+    // Add new entries if they are in the markdown
+    const regex = /\[\[xref:.*?\]\]/g;
+    if (regex.test(allMarkdownContent)) {
+        const xrefs = allMarkdownContent.match(regex);
+        xrefs.forEach(xref => {
+            const newXrefObj = processXref(xref);
+            if (!allXrefs.xrefs.some(existingXref =>
+                existingXref.term === newXrefObj.term && existingXref.externalSpec === newXrefObj.externalSpec)) {
+                allXrefs.xrefs.push(newXrefObj);
+            }
+        });
+    };
 
     // Function to process and clean up xref strings found in the markdown file, returning an object with `externalSpec` and `term` properties.
     function processXref(xref) {
