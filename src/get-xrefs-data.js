@@ -188,6 +188,12 @@ function addAllXrefs(GITHUB_API_TOKEN) {
     // Extend each xref with additional data and fetch commit information from GitHub.
     extendXrefs(config, allXrefs.xrefs);
 
+
+    /* 
+        Function to fetch all term information from GitHub. The function will not fetch the commit hash again if an entry already contains a commit hash.
+
+        It checks if the xref object already has a commitHash and content.If both are present, it skips fetching the term information from GitHub. This ensures that existing commit hashes are not overwritten.
+    */
     async function fetchAllTermsInfoFromGithub() {
         for (let xref of allXrefs.xrefs) {
             if (!xref.commitHash || !xref.content) {
