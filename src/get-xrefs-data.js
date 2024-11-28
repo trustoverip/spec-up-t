@@ -106,7 +106,7 @@ async function fetchFileContentFromCommit(GITHUB_API_TOKEN, owner, repo, commitH
     return null;
 }
 
-function addAllXrefs(GITHUB_API_TOKEN) {
+function updateXrefs(GITHUB_API_TOKEN) {
     // Function to extend xref objects with additional information, such as repository URL and directory information.
     function extendXrefs(config, xrefs) {
         if (config.specs[0].external_specs_repos) {
@@ -325,9 +325,9 @@ function addXref(term, externalSpec) {
     }
 }
 
-// Export the addAllXrefs and removeXref functions for use in other modules.
+// Export the updateXrefs and removeXref functions for use in other modules.
 module.exports = {
-    addAllXrefs,
+    updateXrefs,
     removeXref,
     addXref
 }
