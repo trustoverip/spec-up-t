@@ -156,6 +156,12 @@ function addAllXrefs(GITHUB_API_TOKEN) {
         allXrefs = existingXrefs && existingXrefs.xrefs ? existingXrefs : { xrefs: [] };
     }
 
+    // Function to check if an xref is in the markdown content
+    function isXrefInMarkdown(xref, markdownContent) {
+        const regex = new RegExp(`\\[\\[xref:${xref.term}\\]\\]`, 'g');
+        return regex.test(markdownContent);
+    }
+
     // Loop through each directory and file, extracting xrefs from markdown files.
     // Iterate over each directory in specTermsDirectories
     specTermsDirectories.forEach(specDirectory => {
@@ -165,6 +171,18 @@ function addAllXrefs(GITHUB_API_TOKEN) {
             if (file.endsWith('.md')) {
                 // Read the content of the Markdown file as a UTF-8 string
                 const markdown = fs.readFileSync(`${specDirectory}/${file}`, 'utf8');
+
+
+                // REMOVE EXISTING ENTRY IF NOT IN MARKDOWN
+                // Iterate over each xref in allXrefs.xrefs array and filter out the xrefs that are not found in the markdown content of the current file. The filter method creates a new array containing only the xrefs for which isXrefInMarkdown returned true. This new array is then assigned back to allXrefs.xrefs, effectively removing any xrefs that are not present in the markdown content.
+                allXrefs.xrefs = allXrefs.xrefs.filter(existingXref => {
+                    // Check if the xref is in the markdown content
+                    return isXrefInMarkdown(existingXref, markdown);
+                });
+
+                // ADD NEW ENTRY IF IN MARKDOWN
+                // Identifie xref patterns in the markdown content, process them into xref objects, and add them to allXrefs.xrefs if they are not already present.
+                
                 // Define a regular expression to match xref patterns
                 const regex = /\[\[xref:.*?\]\]/g;
                 // Test if the Markdown content contains any xref patterns
