@@ -31,7 +31,7 @@ function fetchCommitHashes() {
 
    async function insertGitHubTermRealTime(match, element) {
       const div = document.createElement('div');
-      div.classList.add('fetched-xref-term');
+      div.classList.add('fetched-xref-term transcluded-xref-term');
       div.innerHTML = "<p class='loadertext'>Loading external reference</p><div class='loader'></div>";
       element.parentNode.insertBefore(div, element.nextSibling);
 
@@ -267,9 +267,9 @@ function fetchCommitHashes() {
             localStoredTerm.innerHTML = 'Xref';
             localStoredTerm.title = 'Show the stored version of the term-file';
             showDiffModal.parentNode.insertBefore(localStoredTerm, element.nextSibling);
+            const content = match.content.replace(/\n/g, '<br>');
             localStoredTerm.addEventListener('click', function (event) {
                event.preventDefault();
-               const content = match.content.replace(/\n/g, '<br>');
                showModal(`
                     <h1>Term definition (local snapshot)</h1>
                     <table>
@@ -284,6 +284,12 @@ function fetchCommitHashes() {
                     </table>
                   `);
             });
+
+            const div = document.createElement('div');
+            div.classList.add('local-snapshot-xref-term transcluded-xref-term');
+            div.innerHTML = `Local snapshot: ${content}`;
+            element.parentNode.insertBefore(div, element.nextSibling);
+
 
             insertGitHubTermRealTime(match, element);
          }
