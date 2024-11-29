@@ -6,6 +6,7 @@
  */
 
 const fs = require('fs-extra');
+const path = require('path');
 const config = fs.readJsonSync('specs.json');
 
 const specTermDirectoryName = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);

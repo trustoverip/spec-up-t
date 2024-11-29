@@ -70,7 +70,7 @@ function runJsonKeyValidatorSync() {
             "repo"
         ],
         external_specs: [
-            "gh-page",
+            "gh_page",
             "external_spec",
             "url",
             "terms_dir"

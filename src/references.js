@@ -48,7 +48,7 @@ async function fetchExternalSpecs(spec) {
   try {
     let results = await Promise.all(
       spec.external_specs.map(s => {
-        const url = s["gh-page"]; // Access the "gh-page" URL directly
+        const url = s["gh_page"]; // Access the "gh_page" URL directly
         return axios.get(url);
       })
     );
