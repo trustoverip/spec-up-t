@@ -269,8 +269,21 @@ function fetchCommitHashes() {
                // Wait for whichever completes last between termPromise and delayPromise
                const [term] = await Promise.all([termPromise, delayPromise]);
 
+               const timestamp = Date.now();
+               const date = new Date(timestamp);
+               const options = {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit'
+               };
+               const humanReadableDate = date.toLocaleDateString('en-US', options);
+
+
                // Now that either both are complete or the term has taken longer than 2000 ms, continue with your code
-               div.innerHTML = term;
+               div.innerHTML = "Definition as is on " + humanReadableDate + ": " + term;
             }
             insertGitHubTerm();
          }
