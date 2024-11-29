@@ -31,7 +31,8 @@ function fetchCommitHashes() {
 
    async function insertGitHubTermRealTime(match, element) {
       const div = document.createElement('div');
-      div.classList.add('fetched-xref-term transcluded-xref-term');
+      div.classList.add('fetched-xref-term');
+      div.classList.add('transcluded-xref-term');
       div.innerHTML = "<p class='loadertext'>Loading external reference</p><div class='loader'></div>";
       element.parentNode.insertBefore(div, element.nextSibling);
 
@@ -286,7 +287,8 @@ function fetchCommitHashes() {
             });
 
             const div = document.createElement('div');
-            div.classList.add('local-snapshot-xref-term transcluded-xref-term');
+            div.classList.add('local-snapshot-xref-term');
+            div.classList.add('transcluded-xref-term');
             div.innerHTML = `Local snapshot: ${content}`;
             element.parentNode.insertBefore(div, element.nextSibling);
 
