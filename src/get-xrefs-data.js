@@ -106,7 +106,7 @@ async function fetchFileContentFromCommit(GITHUB_API_TOKEN, owner, repo, commitH
     return null;
 }
 
-function updateXrefs(GITHUB_API_TOKEN) {
+function updateXrefs(GITHUB_API_TOKEN, skipExisting) {
     // Function to extend xref objects with additional information, such as repository URL and directory information.
     function extendXrefs(config, xrefs) {
         if (config.specs[0].external_specs_repos) {
@@ -211,20 +211,19 @@ function updateXrefs(GITHUB_API_TOKEN) {
 
         It checks if the xref object already has a commitHash and content.If both are present, it skips fetching the term information from GitHub. This ensures that existing commit hashes are not overwritten.
     */
-    async function fetchAllTermsInfoFromGithub() {
+    async function fetchAllTermsInfoFromGithub(skipExisting) {
         for (let xref of allXrefs.xrefs) {
-            if (!xref.commitHash || !xref.content) {
+            if (!skipExisting || (!xref.commitHash || !xref.content)) {
                 const fetchedData = await fetchTermInfoFromGithub(GITHUB_API_TOKEN, xref);
                 if (fetchedData) {
                     xref.commitHash = fetchedData.commitHash;
                     xref.content = fetchedData.content;
                 }
-            }
-        }
+            }        }
     }
 
     // Fetch all term information, then write the results to JSON and JS files.
-    fetchAllTermsInfoFromGithub().then(() => {
+    fetchAllTermsInfoFromGithub(skipExisting).then(() => {
         const allXrefsStr = JSON.stringify(allXrefs, null, 2);
         fs.writeFileSync(outputPathJSON, allXrefsStr, 'utf8');
         const stringReadyForFileWrite = `const allXrefs = ${allXrefsStr};`;
