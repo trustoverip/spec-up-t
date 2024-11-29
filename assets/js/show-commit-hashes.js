@@ -29,6 +29,39 @@ var md = window.markdownit();
 
 function fetchCommitHashes() {
 
+   async function insertGitHubTerm(match, element) {
+      const div = document.createElement('div');
+      div.classList.add('fetched-xref-term');
+      div.innerHTML = "<p class='loadertext'>Loading external reference</p><div class='loader'></div>";
+      element.parentNode.insertBefore(div, element.nextSibling);
+
+      // Promise.all waits for both termPromise and delayPromise to complete if termPromise finishes within 2000 ms.If termPromise takes longer than 2000 ms, the delay is effectively bypassed because Promise.all only cares about both promises finishing, regardless of the time taken by each.
+
+      // Start fetching the GitHub term asynchronously
+      const termPromise = fetchGitHubTerm(savedToken, match);
+
+      // Create a delay of 2000 ms
+      const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Wait for whichever completes last between termPromise and delayPromise
+      const [term] = await Promise.all([termPromise, delayPromise]);
+
+      const timestamp = Date.now();
+      const date = new Date(timestamp);
+      const options = {
+         year: 'numeric',
+         month: 'long',
+         day: 'numeric',
+         hour: '2-digit',
+         minute: '2-digit',
+         second: '2-digit'
+      };
+      const humanReadableDate = date.toLocaleDateString('en-US', options);
+
+
+      // Now that either both are complete or the term has taken longer than 2000 ms, continue with your code
+      div.innerHTML = "Definition as is on " + humanReadableDate + ": " + term;
+   }
    // Check if allXrefs is undefined or does not exist
    if (typeof allXrefs === 'undefined' || allXrefs === null) {
       console.log('allXrefs is not defined or does not exist. We will continue without it.');
@@ -252,40 +285,7 @@ function fetchCommitHashes() {
                   `);
             });
 
-            async function insertGitHubTerm() {
-               const div = document.createElement('div');
-               div.classList.add('fetched-xref-term');
-               div.innerHTML = "<p class='loadertext'>Loading external reference</p><div class='loader'></div>";
-               element.parentNode.insertBefore(div, element.nextSibling);
-
-               // Promise.all waits for both termPromise and delayPromise to complete if termPromise finishes within 2000 ms.If termPromise takes longer than 2000 ms, the delay is effectively bypassed because Promise.all only cares about both promises finishing, regardless of the time taken by each.
-
-               // Start fetching the GitHub term asynchronously
-               const termPromise = fetchGitHubTerm(savedToken, match);
-
-               // Create a delay of 2000 ms
-               const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
-
-               // Wait for whichever completes last between termPromise and delayPromise
-               const [term] = await Promise.all([termPromise, delayPromise]);
-
-               const timestamp = Date.now();
-               const date = new Date(timestamp);
-               const options = {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit'
-               };
-               const humanReadableDate = date.toLocaleDateString('en-US', options);
-
-
-               // Now that either both are complete or the term has taken longer than 2000 ms, continue with your code
-               div.innerHTML = "Definition as is on " + humanReadableDate + ": " + term;
-            }
-            insertGitHubTerm();
+            insertGitHubTerm(match, element);
          }
       });
    });
