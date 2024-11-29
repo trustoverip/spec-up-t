@@ -29,7 +29,7 @@ var md = window.markdownit();
 
 function fetchCommitHashes() {
 
-   async function insertGitHubTerm(match, element) {
+   async function insertGitHubTermRealTime(match, element) {
       const div = document.createElement('div');
       div.classList.add('fetched-xref-term');
       div.innerHTML = "<p class='loadertext'>Loading external reference</p><div class='loader'></div>";
@@ -285,7 +285,7 @@ function fetchCommitHashes() {
                   `);
             });
 
-            insertGitHubTerm(match, element);
+            insertGitHubTermRealTime(match, element);
          }
       });
    });
