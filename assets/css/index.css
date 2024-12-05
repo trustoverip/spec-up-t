@@ -227,11 +227,7 @@ ol, ul {
   padding: 0 0 0 1.2em;
 }
 
-
-
-
-
-
+/* START: Definition list for terms */
 dl.terms-and-definitions-list {
   margin: 0;
   padding: 0;
@@ -275,10 +271,7 @@ dl.terms-and-definitions-list dd.last-dd {
   border-radius: 0 0 5px 5px;
   border-bottom: 1px solid #ccc;
 }
-
-
-
-
+/* END: Definition list for terms */
 
 
 main {
