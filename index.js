@@ -53,7 +53,7 @@ module.exports = function (options = {}) {
   // Synchronously process markdown files
   fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
   
-  function processFilesAndLoadXrefs() {
+  function createScriptElementWithXrefDataForEmbeddingInHtml() {
     // Test if xrefs-data.js exists, else make it an empty string
     const inputPath = 'output/xrefs-data.js';
     let xrefsData = "";
@@ -64,8 +64,7 @@ module.exports = function (options = {}) {
     return xrefsData;
   }
 
-  // Call the function
-  const xrefsData = processFilesAndLoadXrefs();
+  const xrefsData = createScriptElementWithXrefDataForEmbeddingInHtml();
 
   function applyReplacers(doc) {
     return doc.replace(replacerRegex, function (match, type, args) {
