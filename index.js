@@ -296,6 +296,14 @@ module.exports = function (options = {}) {
             if (spec.external_specs && !externalReferences) {
               externalReferences = await fetchExternalSpecs(spec);
             }
+
+            // Find the index of the terms-and-definitions-intro.md file
+            const termsIndex = (spec.markdown_paths || ['spec.md']).indexOf('terms-and-definitions-intro.md');
+            if (termsIndex !== -1) {
+              // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to insert an alphabet index. The newlines are essential for the correct rendering of the markdown.
+              docs[termsIndex] += '\n\n<div id="alphabet-index-h7vc6omi2hr2880"></div><hr>\n\n';
+            }
+
             let doc = docs.join("\n");
             doc = applyReplacers(doc);
             md[spec.katex ? "enable" : "disable"](katexRules);
