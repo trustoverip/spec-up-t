@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Function to process markdown files in a directory recursively
-function processMarkdownFiles(directory) {
+function fixMarkdownFiles(directory) {
     // Helper function to process a directory
     function processDirectory(directory) {
         try {
@@ -92,5 +92,5 @@ function processMarkdownFiles(directory) {
 }
 
 module.exports = {
-    processMarkdownFiles
+    fixMarkdownFiles
 };
