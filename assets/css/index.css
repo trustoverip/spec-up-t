@@ -227,12 +227,17 @@ ol, ul {
   padding: 0 0 0 1.2em;
 }
 
-dl {
+
+
+
+
+
+dl.terms-and-definitions-list {
   margin: 0;
   padding: 0;
 }
 
-dt {
+dl.terms-and-definitions-list dt {
   font-weight: bold;
   margin: 0;
   background-color: #f0f0f0;
@@ -241,7 +246,7 @@ dt {
   border-radius: 5px 5px 0 0;
 }
 
-dd {
+dl.terms-and-definitions-list dd {
   margin: 0;
   background-color: #f9f9f9;
   border: 1px solid #ccc;
@@ -252,24 +257,29 @@ dd {
   /* Remove bottom borders for all dd's by default */
 }
 
-dd p {
+dl.terms-and-definitions-list dd p {
   margin: 0;
 }
 
 /* Remove borders between consecutive <dd> elements */
-dd+dd {
+dl.terms-and-definitions-list dd+dd {
   border-bottom: none;
 }
 
 /* Add a margin between the last <dd> and the next <dt> */
-dd+dt {
+dl.terms-and-definitions-list dd+dt {
   margin-top: 2em;
 }
 
-dd.last-dd {
+dl.terms-and-definitions-list dd.last-dd {
   border-radius: 0 0 5px 5px;
   border-bottom: 1px solid #ccc;
 }
+
+
+
+
+
 
 main {
   box-sizing: border-box;
