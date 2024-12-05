@@ -2,6 +2,7 @@
 module.exports = function (options = {}) {
   const fs = require('fs-extra');
   const path = require('path');
+  const gulp = require('gulp');
 
   const {
     fetchExternalSpecs,
@@ -21,7 +22,6 @@ module.exports = function (options = {}) {
   const { insertTermIndex } = require('./src/insert-term-index.js');
   insertTermIndex();
 
-  const gulp = require('gulp');
   const findPkgDir = require('find-pkg-dir');
   const modulePath = findPkgDir(__dirname);
   let config = fs.readJsonSync('./output/specs-generated.json');
