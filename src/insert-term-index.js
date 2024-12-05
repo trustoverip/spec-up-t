@@ -1,8 +1,10 @@
 /**
- * Inserts term index into the specification.
+  * Inserts term index into the specification.
  *
- * This function inserts the entries in term-index.json 
- * term directories, and updates the specification with the term index.
+ * This function reads the entries from term-index.json,
+ * processes the term directories, and updates the specification with the term index.
+ * It modifies the markdown paths in the specification and saves the updated specification
+ * to a JSON file in the output directory.
  *
  * @function
  * @name insertTermIndex
