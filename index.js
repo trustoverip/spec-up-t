@@ -29,6 +29,8 @@ module.exports = function (options = {}) {
   const createVersionsIndex = require('./src/create-versions-index.js');
   createVersionsIndex(config.specs[0].output_path);
 
+  const { processMarkdownFiles } = require('./src/fix-markdown-files.js');
+
   let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
   let assets = fs.readJsonSync(modulePath + '/src/asset-map.json');
   let externalReferences;
@@ -46,19 +48,24 @@ module.exports = function (options = {}) {
         return fs.readFileSync(path, 'utf8');
       }
     }
-  ];
+  ];  
 
-  const { processMarkdownFiles } = require('./src/fix-markdown-files.js');
-
-  // Synchonously process markdown files
+  // Synchronously process markdown files
   processMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
+  
+  function processFilesAndLoadXrefs() {
+    // Test if xrefs-data.js exists, else make it an empty string
+    const inputPath = 'output/xrefs-data.js';
+    let xrefsData = "";
+    if (fs.existsSync(inputPath)) {
+      xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
+    }
 
-  // Test if xrefs-data.js exists, else make it an empty string
-  const inputPath = 'output/xrefs-data.js';
-  let xrefsData = "";
-  if (fs.existsSync(inputPath)) {
-    xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
+    return xrefsData;
   }
+
+  // Call the function
+  const xrefsData = processFilesAndLoadXrefs();
 
   function applyReplacers(doc) {
     return doc.replace(replacerRegex, function (match, type, args) {
