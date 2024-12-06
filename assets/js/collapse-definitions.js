@@ -1,5 +1,6 @@
 function collapseDefinitions() {
-    const dds = document.querySelectorAll('#content dl dd');
+    const dds = document.querySelectorAll('#content dl.terms-and-definitions-list dd');
+    const dts = document.querySelectorAll('#content dl.terms-and-definitions-list dt');
     const buttons = document.querySelectorAll('.collapse-all-defs-button');
 
     function toggleVisibility() {
@@ -15,7 +16,7 @@ function collapseDefinitions() {
     }
 
     // Add button as last child of every <dl>
-    document.querySelectorAll('dt').forEach(dt => {
+    dts.forEach(dt => {
         const button = document.createElement('button');
         button.classList.add('collapse-all-defs-button', 'btn');
         button.innerHTML = '▲';
