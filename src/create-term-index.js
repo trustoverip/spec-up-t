@@ -21,7 +21,7 @@ function createTermIndex() {
     const config = fs.readJsonSync('specs.json');
     const specDirectories = config.specs.map(spec => spec.spec_directory);
     const specTermDirectoryName = config.specs.map(spec => spec.spec_terms_directory);
-    const outputPathJSON = './term-index.json';
+    const outputPathJSON = path.join('output', 'term-index.json');
     const files = fs.readdirSync(path.join(specDirectories[0], specTermDirectoryName[0]))
         .filter(file => !file.startsWith('_'));
 
