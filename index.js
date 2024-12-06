@@ -113,9 +113,27 @@ module.exports = function (options = {}) {
       return self.renderToken(tokens, idx, options);
     };
 
+    // Variable to keep track of whether the class has been added to the first <dl> after the target HTML
+    let classAdded = false;
+
     md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
-      // Add class to <dl>
-      tokens[idx].attrPush(['class', 'terms-and-definitions-list']);
+      
+      const targetHtml = 'terminology-section-start-h7vc6omi2hr2880';
+      let targetIndex = -1;
+
+      // Find the index of the target HTML
+      for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i].content && tokens[i].content.includes(targetHtml)) {
+          targetIndex = i;
+          break;
+        }
+      }
+
+      // Add class to the first <dl> only if it comes after the target HTML
+      if (targetIndex !== -1 && idx > targetIndex && !classAdded) {
+        tokens[idx].attrPush(['class', 'terms-and-definitions-list']);
+        classAdded = true;
+      }
 
       let lastDdIndex = -1;
 
