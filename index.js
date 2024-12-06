@@ -2,6 +2,7 @@
 module.exports = function (options = {}) {
   const fs = require('fs-extra');
   const path = require('path');
+  const gulp = require('gulp');
 
   const {
     fetchExternalSpecs,
@@ -21,13 +22,14 @@ module.exports = function (options = {}) {
   const { insertTermIndex } = require('./src/insert-term-index.js');
   insertTermIndex();
 
-  const gulp = require('gulp');
   const findPkgDir = require('find-pkg-dir');
   const modulePath = findPkgDir(__dirname);
   let config = fs.readJsonSync('./output/specs-generated.json');
 
   const createVersionsIndex = require('./src/create-versions-index.js');
   createVersionsIndex(config.specs[0].output_path);
+
+  const { fixMarkdownFiles } = require('./src/fix-markdown-files.js');
 
   let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
   let assets = fs.readJsonSync(modulePath + '/src/asset-map.json');
@@ -46,19 +48,23 @@ module.exports = function (options = {}) {
         return fs.readFileSync(path, 'utf8');
       }
     }
-  ];
+  ];  
 
-  const { processMarkdownFiles } = require('./src/fix-markdown-files.js');
+  // Synchronously process markdown files
+  fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
+  
+  function createScriptElementWithXrefDataForEmbeddingInHtml() {
+    // Test if xrefs-data.js exists, else make it an empty string
+    const inputPath = 'output/xrefs-data.js';
+    let xrefsData = "";
+    if (fs.existsSync(inputPath)) {
+      xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
+    }
 
-  // Synchonously process markdown files
-  processMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
-
-  // Test if xrefs-data.js exists, else make it an empty string
-  const inputPath = 'output/xrefs-data.js';
-  let xrefsData = "";
-  if (fs.existsSync(inputPath)) {
-    xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
+    return xrefsData;
   }
+
+  const xrefsData = createScriptElementWithXrefDataForEmbeddingInHtml();
 
   function applyReplacers(doc) {
     return doc.replace(replacerRegex, function (match, type, args) {
@@ -99,6 +105,74 @@ module.exports = function (options = {}) {
       }
     }
     throw Error("katex distribution could not be located");
+  }
+
+  // Custom plugin to add class to <dl> and the last <dd> in each series after a <dt>
+  function addClassToDefinitionList(md) {
+    const originalRender = md.renderer.rules.dl_open || function (tokens, idx, options, env, self) {
+      return self.renderToken(tokens, idx, options);
+    };
+
+    // Variable to keep track of whether the class has been added to the first <dl> after the target HTML
+    let classAdded = false;
+
+    md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
+      
+      const targetHtml = 'terminology-section-start-h7vc6omi2hr2880';
+      let targetIndex = -1;
+
+      // Find the index of the target HTML
+      for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i].content && tokens[i].content.includes(targetHtml)) {
+          targetIndex = i;
+          break;
+        }
+      }
+
+      // Add class to the first <dl> only if it comes after the target HTML
+      if (targetIndex !== -1 && idx > targetIndex && !classAdded) {
+        tokens[idx].attrPush(['class', 'terms-and-definitions-list']);
+        classAdded = true;
+      }
+
+      let lastDdIndex = -1;
+
+      for (let i = idx + 1; i < tokens.length; i++) {
+        if (tokens[i].type === 'dl_close') {
+          // Add class to the last <dd> before closing <dl>
+          if (lastDdIndex !== -1) {
+            const ddToken = tokens[lastDdIndex];
+            const classIndex = ddToken.attrIndex('class');
+            if (classIndex < 0) {
+              ddToken.attrPush(['class', 'last-dd']);
+            } else {
+              ddToken.attrs[classIndex][1] += ' last-dd';
+            }
+          }
+          break;
+        }
+
+        if (tokens[i].type === 'dt_open') {
+          // Add class to the last <dd> before a new <dt>
+          if (lastDdIndex !== -1) {
+            const ddToken = tokens[lastDdIndex];
+            const classIndex = ddToken.attrIndex('class');
+            if (classIndex < 0) {
+              ddToken.attrPush(['class', 'last-dd']);
+            } else {
+              ddToken.attrs[classIndex][1] += ' last-dd';
+            }
+            lastDdIndex = -1; // Reset for the next series
+          }
+        }
+
+        if (tokens[i].type === 'dd_open') {
+          lastDdIndex = i;
+        }
+      }
+
+      return originalRender(tokens, idx, options, env, self);
+    };
   }
 
   try {
@@ -224,55 +298,7 @@ module.exports = function (options = {}) {
       })
       .use(require('@traptitech/markdown-it-katex'))
 
-    // Custom plugin to add class to <dl> and the last <dd> in each series after a <dt>
-    function addClassToDefinitionList(md) {
-      const originalRender = md.renderer.rules.dl_open || function (tokens, idx, options, env, self) {
-        return self.renderToken(tokens, idx, options);
-      };
 
-      md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
-        // Add class to <dl>
-        tokens[idx].attrPush(['class', 'terms-and-definitions-list']);
-
-        let lastDdIndex = -1;
-
-        for (let i = idx + 1; i < tokens.length; i++) {
-          if (tokens[i].type === 'dl_close') {
-            // Add class to the last <dd> before closing <dl>
-            if (lastDdIndex !== -1) {
-              const ddToken = tokens[lastDdIndex];
-              const classIndex = ddToken.attrIndex('class');
-              if (classIndex < 0) {
-                ddToken.attrPush(['class', 'last-dd']);
-              } else {
-                ddToken.attrs[classIndex][1] += ' last-dd';
-              }
-            }
-            break;
-          }
-
-          if (tokens[i].type === 'dt_open') {
-            // Add class to the last <dd> before a new <dt>
-            if (lastDdIndex !== -1) {
-              const ddToken = tokens[lastDdIndex];
-              const classIndex = ddToken.attrIndex('class');
-              if (classIndex < 0) {
-                ddToken.attrPush(['class', 'last-dd']);
-              } else {
-                ddToken.attrs[classIndex][1] += ' last-dd';
-              }
-              lastDdIndex = -1; // Reset for the next series
-            }
-          }
-
-          if (tokens[i].type === 'dd_open') {
-            lastDdIndex = i;
-          }
-        }
-
-        return originalRender(tokens, idx, options, env, self);
-      };
-    }
 
     md.use(addClassToDefinitionList);
 
@@ -294,6 +320,14 @@ module.exports = function (options = {}) {
             if (spec.external_specs && !externalReferences) {
               externalReferences = await fetchExternalSpecs(spec);
             }
+
+            // Find the index of the terms-and-definitions-intro.md file
+            const termsIndex = (spec.markdown_paths || ['spec.md']).indexOf('terms-and-definitions-intro.md');
+            if (termsIndex !== -1) {
+              // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to create a div that is used to insert an alphabet index, and a div that is used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
+              docs[termsIndex] += '\n\n<div id="alphabet-index-h7vc6omi2hr2880"></div>\n\n<div id="terminology-section-start-h7vc6omi2hr2880"></div>\n\n<hr>\n\n';
+            }
+
             let doc = docs.join("\n");
             doc = applyReplacers(doc);
             md[spec.katex ? "enable" : "disable"](katexRules);
