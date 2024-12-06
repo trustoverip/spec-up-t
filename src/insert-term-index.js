@@ -18,8 +18,8 @@
 function insertTermIndex() {
     const fs = require('fs-extra');
     const path = require('path');
-    const config = fs.readJsonSync('./specs.json');
-    const terms = fs.readJsonSync('./term-index.json');
+    const config = fs.readJsonSync(path.join('specs.json'));
+    const terms = fs.readJsonSync(path.join('output', 'term-index.json'));
     const outputPathJSON = path.join('output', 'specs-generated.json');
     let specGenerated = config;
     let markdownPaths = specGenerated.specs[0].markdown_paths;
