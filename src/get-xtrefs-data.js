@@ -133,9 +133,9 @@ async function fetchFileContentFromCommit(GITHUB_API_TOKEN, owner, repo, commitH
     return null;
 }
 
-function updateXrefs(GITHUB_API_TOKEN, skipExisting) {
+function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
     // Function to extend xref objects with additional information, such as repository URL and directory information.
-    function extendXrefs(config, xrefs) {
+    function extendXTrefs(config, xrefs) {
         if (config.specs[0].external_specs_repos) {
             console.log("\n   SPEC-UP-T: PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-starterpack/specs.json or e-mail kor@dwarshuis.com for help. \n");
             return;
@@ -175,16 +175,16 @@ function updateXrefs(GITHUB_API_TOKEN, skipExisting) {
     }
 
     // Initialize an object to store all xrefs.
-    let allXrefs = { xrefs: [] };
+    let allXTrefs = { xtrefs: [] };
 
     // If the output JSON file exists, load its data.
     if (fs.existsSync(outputPathJSON)) {
         const existingXrefs = fs.readJsonSync(outputPathJSON);
-        allXrefs = existingXrefs && existingXrefs.xrefs ? existingXrefs : { xrefs: [] };
+        allXTrefs = existingXrefs && existingXrefs.xrefs ? existingXrefs : { xtrefs: [] };
     }
 
     // Function to check if an xref is in the markdown content
-    function isXrefInMarkdown(xref, markdownContent) {
+    function isXTrefInMarkdown(xref, markdownContent) {
         const regex = new RegExp(`\\[\\[xref:${xref.term}\\]\\]`, 'g');
         const result = regex.test(markdownContent);
         return result;
@@ -203,26 +203,26 @@ function updateXrefs(GITHUB_API_TOKEN, skipExisting) {
     });
 
     // Remove existing entries if not in the combined markdown content
-    allXrefs.xrefs = allXrefs.xrefs.filter(existingXref => {
-        return isXrefInMarkdown(existingXref, allMarkdownContent);
+    allXTrefs.xtrefs = allXTrefs.xtrefs.filter(existingXTref => {
+        return isXTrefInMarkdown(existingXTref, allMarkdownContent);
     });
 
     // Add new entries if they are in the markdown
-    const regex = /\[\[xref:.*?\]\]/g;
+    const regex = /\[\[(?:xref|tref):.*?\]\]/g;
     if (regex.test(allMarkdownContent)) {
-        const xrefs = allMarkdownContent.match(regex);
-        xrefs.forEach(xref => {
-            const newXrefObj = processXref(xref);
-            if (!allXrefs.xrefs.some(existingXref =>
-                existingXref.term === newXrefObj.term && existingXref.externalSpec === newXrefObj.externalSpec)) {
-                allXrefs.xrefs.push(newXrefObj);
+        const xtrefs = allMarkdownContent.match(regex);
+        xtrefs.forEach(xtref => {
+            const newXTrefObj = processXTref(xtref);
+            if (!allXTrefs.xtrefs.some(existingXTref =>
+                existingXTref.term === newXTrefObj.term && existingXTref.externalSpec === newXTrefObj.externalSpec)) {
+                allXTrefs.xtrefs.push(newXTrefObj);
             }
         });
     };
 
-    // Function to process and clean up xref strings found in the markdown file, returning an object with `externalSpec` and `term` properties.
-    function processXref(xref) {
-        let [externalSpec, term] = xref.replace(/\[\[xref:/, '').replace(/\]\]/, '').trim().split(/,/, 2);
+    // Function to process and clean up xref / tref strings found in the markdown file, returning an object with `externalSpec` and `term` properties.
+    function processXTref(xtref) {
+        let [externalSpec, term] = xtref.replace(/\[\[(?:xref|tref):/, '').replace(/\]\]/, '').trim().split(/,/, 2);
         return {
             externalSpec: externalSpec.trim(),
             term: term.trim()
@@ -230,7 +230,7 @@ function updateXrefs(GITHUB_API_TOKEN, skipExisting) {
     }
 
     // Extend each xref with additional data and fetch commit information from GitHub.
-    extendXrefs(config, allXrefs.xrefs);
+    extendXTrefs(config, allXTrefs.xtrefs);
 
 
     /* 
@@ -239,21 +239,21 @@ function updateXrefs(GITHUB_API_TOKEN, skipExisting) {
         It checks if the xref object already has a commitHash and content.If both are present, it skips fetching the term information from GitHub. This ensures that existing commit hashes are not overwritten.
     */
     async function fetchAllTermsInfoFromGithub(skipExisting) {
-        for (let xref of allXrefs.xrefs) {
-            if (!skipExisting || (!xref.commitHash || !xref.content)) {
-                const fetchedData = await fetchTermInfoFromGithub(GITHUB_API_TOKEN, xref);
+        for (let xtref of allXTrefs.xtrefs) {
+            if (!skipExisting || (!xtref.commitHash || !xtref.content)) {
+                const fetchedData = await fetchTermInfoFromGithub(GITHUB_API_TOKEN, xtref);
                 if (fetchedData) {
-                    xref.commitHash = fetchedData.commitHash;
-                    xref.content = fetchedData.content;
+                    xtref.commitHash = fetchedData.commitHash;
+                    xtref.content = fetchedData.content;
                 }
             }        }
     }
 
     // Fetch all term information, then write the results to JSON and JS files.
     fetchAllTermsInfoFromGithub(skipExisting).then(() => {
-        const allXrefsStr = JSON.stringify(allXrefs, null, 2);
-        fs.writeFileSync(outputPathJSON, allXrefsStr, 'utf8');
-        const stringReadyForFileWrite = `const allXrefs = ${allXrefsStr};`;
+        const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
+        fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
+        const stringReadyForFileWrite = `const allTXrefs = ${allXTrefsStr};`;
         fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
         fs.writeFileSync(outputPathJSTimeStamped, stringReadyForFileWrite, 'utf8');
 
@@ -264,7 +264,6 @@ function updateXrefs(GITHUB_API_TOKEN, skipExisting) {
     });
 }
 
-// Export the updateXrefs and removeXref functions for use in other modules.
 module.exports = {
-    updateXrefs
+    updateXTrefs
 }
