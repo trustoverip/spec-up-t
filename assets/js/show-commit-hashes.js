@@ -1,8 +1,8 @@
 /**
- * @file This file fetches and displays commit hashes by matching elements with `x-term-reference` class against the `allXrefs` global object.
+ * @file This file fetches and displays commit hashes by matching elements with `x-term-reference` class against the `allXTrefs` global object.
  * Example:
- * const allXrefs = {
-      "xrefs": [
+ * const allXTrefs = {
+      "xtrefs": [
          {
             "externalSpec": "test-1",
             "term": "Aal",
@@ -62,9 +62,9 @@ function fetchCommitHashes() {
       // Now that either both are complete or the term has taken longer than 2000 ms, continue with your code
       div.innerHTML = "<p class='transclusion-heading'>Realtime Definition as it is now, " + humanReadableDate + ": </p>" + term;
    }
-   // Check if allXrefs is undefined or does not exist
-   if (typeof allXrefs === 'undefined' || allXrefs === null) {
-      console.log('allXrefs is not defined or does not exist. We will continue without it.');
+   // Check if allXTrefs is undefined or does not exist
+   if (typeof allXTrefs === 'undefined' || allXTrefs === null) {
+      console.log('allXTrefs is not defined or does not exist. We will continue without it.');
       return;
    }
 
@@ -201,18 +201,18 @@ function fetchCommitHashes() {
       // split href on “:” and create array
       const splitHref = href.split(':');
 
-      // allXrefs is an object that is available in the global scope
-      allXrefs.xrefs.forEach((match) => {
+      // allXTrefs is an object that is available in the global scope
+      allXTrefs.xtrefs.forEach((match) => {
 
          //TODO: remove toLowerCase() or not?
          if (match.externalSpec === splitHref[1] && match.term.toLowerCase() === splitHref[2].toLowerCase()) {
 
             // If no commit hash is found, display a message and return
             if (!match.commitHash) {
-               const noXrefFoundMessage = document.createElement('span');
-               noXrefFoundMessage.classList.add('no-xref-found-message');
-               noXrefFoundMessage.innerHTML = 'No xref found.';
-               element.parentNode.insertBefore(noXrefFoundMessage, element.nextSibling);
+               const noXTrefFoundMessage = document.createElement('span');
+               noXTrefFoundMessage.classList.add('no-xref-found-message');
+               noXTrefFoundMessage.innerHTML = 'No xref found.';
+               element.parentNode.insertBefore(noXTrefFoundMessage, element.nextSibling);
 
                return
             };
