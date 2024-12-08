@@ -54,7 +54,6 @@ function prepareTref(directory) {
                                 */
                                 const tref = /\[\[tref:(.*?)\]\]/;
                                 const match = lines[i].match(tref);
-                                console.log('match - - - - - - : ', match);
                                 if (match) {
                                     const result = match[1].split(',').map(term => term.trim());
                                     content = getLocalXTrefContent(result[0], result[1]);
