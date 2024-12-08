@@ -18,7 +18,7 @@ module.exports = function (options = {}) {
 
   const { createTermIndex } = require('./src/create-term-index.js');
   createTermIndex();
-  
+
   const { insertTermIndex } = require('./src/insert-term-index.js');
   insertTermIndex();
 
@@ -30,6 +30,8 @@ module.exports = function (options = {}) {
   createVersionsIndex(config.specs[0].output_path);
 
   const { fixMarkdownFiles } = require('./src/fix-markdown-files.js');
+
+  const { prepareTref } = require('./src/prepare-tref.js');
 
   let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
   let assets = fs.readJsonSync(modulePath + '/src/asset-map.json');
@@ -48,24 +50,26 @@ module.exports = function (options = {}) {
         return fs.readFileSync(path, 'utf8');
       }
     }
-  ];  
+  ];
+  
+  prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
   // Synchronously process markdown files
   fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
-  
-  function createScriptElementWithXrefDataForEmbeddingInHtml() {
-    // Test if xrefs-data.js exists, else make it an empty string
-    const inputPath = path.join('output', 'xrefs-data.js');
 
-    let xrefsData = "";
+  function createScriptElementWithXTrefDataForEmbeddingInHtml() {
+    // Test if xtrefs-data.js exists, else make it an empty string
+    const inputPath = path.join('output', 'xtrefs-data.js');
+
+    let xtrefsData = "";
     if (fs.existsSync(inputPath)) {
-      xrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
+      xtrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
     }
 
-    return xrefsData;
+    return xtrefsData;
   }
 
-  const xrefsData = createScriptElementWithXrefDataForEmbeddingInHtml();
+  const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
 
   function applyReplacers(doc) {
     return doc.replace(replacerRegex, function (match, type, args) {
@@ -118,7 +122,7 @@ module.exports = function (options = {}) {
     let classAdded = false;
 
     md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
-      
+
       const targetHtml = 'terminology-section-start-h7vc6omi2hr2880';
       let targetIndex = -1;
 
@@ -215,10 +219,7 @@ module.exports = function (options = {}) {
                 href="${url}#term:${term}">${token.info.args[1]}</a>`;
             }
             else if (type === 'tref') {
-              definitions.push(token.info.args);
-              return token.info.args.reduce((acc, syn) => {
-                return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}">${acc}</span>`;
-              }, primary);
+              return `<span id="term:${token.info.args[1]}">${token.info.args[1]}</span>`;
             }
             else {
               references.push(primary);
@@ -345,7 +346,7 @@ module.exports = function (options = {}) {
               assetsSvg: assets.svg,
               features: Object.keys(features).join(' '),
               externalReferences: JSON.stringify(externalReferences),
-              xrefsData: xrefsData,
+              xtrefsData: xtrefsData,
               specLogo: spec.logo,
               specFavicon: spec.favicon,
               specLogoLink: spec.logo_link,
