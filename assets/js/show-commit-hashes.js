@@ -30,8 +30,6 @@ var md = window.markdownit();
 function fetchCommitHashes() {
 
    async function insertGitHubTermRealTime(match, element) {
-      console.log('element: ', element);
-      console.log('match: ', match);
       const div = document.createElement('div');
       div.classList.add('fetched-xref-term');
       div.classList.add('transcluded-xref-term');
@@ -48,7 +46,6 @@ function fetchCommitHashes() {
 
       // Wait for whichever completes last between termPromise and delayPromise. The square brackets are used for array destructuring. In this context, the code is awaiting the resolution of multiple promises (termPromise and delayPromise) using Promise.all. The result of Promise.all is an array, and the square brackets are used to extract the first element of that array into the variable term.
       const [term] = await Promise.all([termPromise, delayPromise]);
-      console.log('[term]: ', [term]);
 
       const timestamp = Date.now();
       const date = new Date(timestamp);
@@ -270,6 +267,13 @@ function fetchCommitHashes() {
             localStoredTerm.innerHTML = 'Xref';
             localStoredTerm.title = 'Show the stored version of the term-file';
             showDiffModal.parentNode.insertBefore(localStoredTerm, element.nextSibling);
+            
+            
+
+            // Replace all occurrences of [[def: ]] with ''
+            const defRegex = /\[\[def: ([^\]]+)\]\]/g;
+            match.content = match.content.replace(defRegex, '');
+
             const content = md.render(match.content);
             localStoredTerm.addEventListener('click', function (event) {
                event.preventDefault();
