@@ -71,8 +71,8 @@ function fetchCommitHashes() {
    // Load GitHub API token from local storage if it exists
    const savedToken = localStorage.getItem('githubToken');
 
-   // // Markdown parser
-   // const md = markdownit();
+   // Markdown parser, assuming markdown-it and markdown-it-deflist are globally available
+   const md = window.markdownit().use(window.markdownitDeflist);
 
    // A: Debounce function to delay execution, so the error message is not displayed too often, since we do not know of often and how many times the error will be triggered.
    function debounce(func, wait) {
@@ -161,7 +161,7 @@ function fetchCommitHashes() {
          // const refRegex = /\[\[ref: ([^\]]+)\]\]/g;
          // markdown = markdown.replace(refRegex, '<a class="x-term-reference" data-local-href="ref:$1">$1</a>');
 
-         return markdown;
+         return md.render(markdown);
       }
 
       const headers = {};
@@ -267,7 +267,7 @@ function fetchCommitHashes() {
             localStoredTerm.innerHTML = 'Xref';
             localStoredTerm.title = 'Show the stored version of the term-file';
             showDiffModal.parentNode.insertBefore(localStoredTerm, element.nextSibling);
-            const content = match.content.replace(/\n/g, '<br>');
+            const content = md.render(match.content);
             localStoredTerm.addEventListener('click', function (event) {
                event.preventDefault();
                showModal(`
@@ -288,7 +288,7 @@ function fetchCommitHashes() {
             const div = document.createElement('div');
             div.classList.add('local-snapshot-xref-term');
             div.classList.add('transcluded-xref-term');
-            div.innerHTML = `<p class='transclusion-heading'>Local snapshot</p> ${content}`;
+            div.innerHTML = `<p class='transclusion-heading'>Local snapshot</p><p>Commit Hash: ${match.commitHash}</p> ${content}`;
             element.parentNode.insertBefore(div, element.nextSibling);
 
 
