@@ -1,6 +1,6 @@
 function collapseDefinitions() {
-    const dds = document.querySelectorAll('#content dl.terms-and-definitions-list dd');
-    const dts = document.querySelectorAll('#content dl.terms-and-definitions-list dt');
+    const dds = document.querySelectorAll('#content dl.terms-and-definitions-list > dd');
+    const dts = document.querySelectorAll('#content dl.terms-and-definitions-list > dt');
     const buttons = document.querySelectorAll('.collapse-all-defs-button');
 
     function toggleVisibility() {
