@@ -219,7 +219,7 @@ module.exports = function (options = {}) {
                 href="${url}#term:${term}">${token.info.args[1]}</a>`;
             }
             else if (type === 'tref') {
-              return `<span id="term:${token.info.args[1]}">${token.info.args[1]}</span>`;
+              return `<span class="transcluded-xref-term" id="term:${token.info.args[1]}">${token.info.args[1]}</span>`;
             }
             else {
               references.push(primary);
