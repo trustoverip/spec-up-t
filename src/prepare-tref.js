@@ -8,7 +8,7 @@ function getLocalXTrefContent(externalSpec, term) {
 
     for (const xtref of xtrefs) {
         if (xtref.externalSpec === externalSpec && xtref.term === term) {
-            return xtref.content;
+            return {content: xtref.content, commitHash: xtref.commitHash};
         }
     }
 
@@ -36,7 +36,7 @@ function prepareTref(directory) {
 
                         // Split the content into lines
                         let lines = data.split('\n');
-                        let content = '';
+                        let localXTrefContent = '';
                         // Handle specific functionality for `[[tref:` lines
                         for (let i = 0; i < lines.length; i++) {
                             if (lines[i].startsWith('[[tref:')) {
@@ -56,7 +56,7 @@ function prepareTref(directory) {
                                 const match = lines[i].match(tref);
                                 if (match) {
                                     const result = match[1].split(',').map(term => term.trim());
-                                    content = getLocalXTrefContent(result[0], result[1]);
+                                    localXTrefContent = getLocalXTrefContent(result[0], result[1]);
 
                                     /* 
 
@@ -71,10 +71,9 @@ function prepareTref(directory) {
                                         The g flag ensures that all occurrences in the string are replaced.
                                     */
                                     const defPart = /\[\[def: .*?\]\]:/g;
-                                    content = content.replace(defPart, '');
+                                    localXTrefContent.content = localXTrefContent.content.replace(defPart, '');
 
-                                    fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- test -->' + content, 'utf8');
-                                    // fs.appendFileSync(itemPath, '\n\n' + '<!-- test -->' + content, 'utf8');
+                                    fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- test --><span class="transcluded-xref-term">transcluded xref</span>' + '\n\n~ Commit Hash: ' + localXTrefContent.commitHash + localXTrefContent.content, 'utf8');
                                 }
                             }
                         }
