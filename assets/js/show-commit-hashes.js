@@ -30,6 +30,8 @@ var md = window.markdownit();
 function fetchCommitHashes() {
 
    async function insertGitHubTermRealTime(match, element) {
+      console.log('element: ', element);
+      console.log('match: ', match);
       const div = document.createElement('div');
       div.classList.add('fetched-xref-term');
       div.classList.add('transcluded-xref-term');
@@ -44,8 +46,9 @@ function fetchCommitHashes() {
       // Create a delay of 2000 ms
       const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Wait for whichever completes last between termPromise and delayPromise
+      // Wait for whichever completes last between termPromise and delayPromise. The square brackets are used for array destructuring. In this context, the code is awaiting the resolution of multiple promises (termPromise and delayPromise) using Promise.all. The result of Promise.all is an array, and the square brackets are used to extract the first element of that array into the variable term.
       const [term] = await Promise.all([termPromise, delayPromise]);
+      console.log('[term]: ', [term]);
 
       const timestamp = Date.now();
       const date = new Date(timestamp);
