@@ -1010,7 +1010,9 @@ article a[href^="https://"]:not(.btn)::after {
 }
 
 .transcluded-xref-term {
-  background: #d1f0f7 !important;
+  background: #a9dde03b !important;
+  padding: 0.5em;
+  margin: 1em 0;
 }
 
 .transclusion-heading {
