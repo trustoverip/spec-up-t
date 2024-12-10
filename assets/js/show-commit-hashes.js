@@ -60,7 +60,7 @@ function fetchCommitHashes() {
       const humanReadableDate = date.toLocaleDateString('en-US', options);
 
       // Now that either both are complete or the term has taken longer than 2000 ms, continue with your code
-      div.innerHTML = "<p class='transclusion-heading'>Realtime Definition as it is now, " + humanReadableDate + ": </p>" + term;
+      div.innerHTML = "<p class='transclusion-heading'>Current definition</p><small>" + humanReadableDate + "</small>" + term;
    }
    // Check if allXTrefs is undefined or does not exist
    if (typeof allXTrefs === 'undefined' || allXTrefs === null) {
@@ -295,7 +295,7 @@ function fetchCommitHashes() {
             const div = document.createElement('div');
             div.classList.add('local-snapshot-xref-term');
             div.classList.add('transcluded-xref-term');
-            div.innerHTML = `<p class='transclusion-heading'>Local snapshot</p><p>Commit Hash: ${match.commitHash}</p> ${content}`;
+            div.innerHTML = `<p class='transclusion-heading'>Snapshot</p><p>Commit Hash: ${match.commitHash}</p> ${content}`;
             element.parentNode.insertBefore(div, element.nextSibling);
 
 
