@@ -233,7 +233,7 @@ dl.terms-and-definitions-list {
   padding: 0;
 }
 
-dl.terms-and-definitions-list dt {
+dl.terms-and-definitions-list > dt {
   font-weight: bold;
   margin: 0;
   background-color: #f0f0f0;
@@ -242,7 +242,7 @@ dl.terms-and-definitions-list dt {
   border-radius: 5px 5px 0 0;
 }
 
-dl.terms-and-definitions-list dd {
+dl.terms-and-definitions-list > dd {
   margin: 0;
   background-color: #f9f9f9;
   border: 1px solid #ccc;
@@ -1007,4 +1007,46 @@ article a[href^="https://"]:not(.btn)::after {
   color: #03365f;
   text-decoration: none;
   font-size: 1rem;
+}
+
+.transcluded-xref-term {
+  background: #a9dde03b !important;
+  padding: 0.5em;
+  margin: 1em 0;
+}
+
+.transclusion-heading {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin: 1em 0 0.5em;
+}
+
+
+/* Loader styling */
+.loader {
+  width: 20px;
+  height: 20px;
+  margin: auto;
+  display: block;
+  text-align: center;
+  border: 8px solid #ccc;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loadertext {
+  text-align: center;
+  margin: 0.5em 0;
+}
+
+/* Animation keyframes */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

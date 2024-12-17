@@ -24,6 +24,7 @@
   "body": {
     "js": [
       "node_modules/markdown-it/dist/markdown-it.min.js",
+      "node_modules/markdown-it-deflist/dist/markdown-it-deflist.min.js",
       "assets/js/prism.js",
       "assets/js/mermaid.js",
       "assets/js/chart.js",
@@ -46,7 +47,8 @@
       "assets/js/create-alphabet-index.js",
       "assets/js/collapse-definitions.js",
       "assets/js/add-href-to-snapshot-link.js",
-      "assets/js/index.js"
+      "assets/js/index.js",
+      "assets/js/css-helper.js"
     ]
   }
 }

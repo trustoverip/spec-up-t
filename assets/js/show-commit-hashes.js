@@ -1,8 +1,8 @@
 /**
- * @file This file fetches and displays commit hashes by matching elements with `x-term-reference` class against the `allXrefs` global object.
+ * @file This file fetches and displays commit hashes by matching elements with `x-term-reference` class against the `allXTrefs` global object.
  * Example:
- * const allXrefs = {
-      "xrefs": [
+ * const allXTrefs = {
+      "xtrefs": [
          {
             "externalSpec": "test-1",
             "term": "Aal",
@@ -25,19 +25,54 @@
  * @since 2024-06-09
  */
 
+var md = window.markdownit();
+
 function fetchCommitHashes() {
 
-   // Check if allXrefs is undefined or does not exist
-   if (typeof allXrefs === 'undefined' || allXrefs === null) {
-      console.log('allXrefs is not defined or does not exist. We will continue without it.');
+   async function insertGitHubTermRealTime(match, element) {
+      const div = document.createElement('div');
+      div.classList.add('fetched-xref-term');
+      div.classList.add('transcluded-xref-term');
+      div.innerHTML = "<p class='loadertext'>Loading external reference</p><div class='loader'></div>";
+      element.parentNode.insertBefore(div, element.nextSibling);
+
+      // Promise.all waits for both termPromise and delayPromise to complete if termPromise finishes within 2000 ms.If termPromise takes longer than 2000 ms, the delay is effectively bypassed because Promise.all only cares about both promises finishing, regardless of the time taken by each.
+
+      // Start fetching the GitHub term asynchronously
+      const termPromise = fetchGitHubTerm(savedToken, match);
+
+      // Create a delay of 2000 ms
+      const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Wait for whichever completes last between termPromise and delayPromise. The square brackets are used for array destructuring. In this context, the code is awaiting the resolution of multiple promises (termPromise and delayPromise) using Promise.all. The result of Promise.all is an array, and the square brackets are used to extract the first element of that array into the variable term.
+      const [term] = await Promise.all([termPromise, delayPromise]);
+
+      const timestamp = Date.now();
+      const date = new Date(timestamp);
+      const options = {
+         year: 'numeric',
+         month: 'long',
+         day: 'numeric',
+         hour: '2-digit',
+         minute: '2-digit',
+         second: '2-digit'
+      };
+      const humanReadableDate = date.toLocaleDateString('en-US', options);
+
+      // Now that either both are complete or the term has taken longer than 2000 ms, continue with your code
+      div.innerHTML = "<p class='transclusion-heading'>Current definition</p><small>" + humanReadableDate + "</small>" + term;
+   }
+   // Check if allXTrefs is undefined or does not exist
+   if (typeof allXTrefs === 'undefined' || allXTrefs === null) {
+      console.log('allXTrefs is not defined or does not exist. We will continue without it.');
       return;
    }
-   
+
    // Load GitHub API token from local storage if it exists
    const savedToken = localStorage.getItem('githubToken');
-   
-   // // Markdown parser
-   // const md = markdownit();
+
+   // Markdown parser, assuming markdown-it and markdown-it-deflist are globally available
+   const md = window.markdownit().use(window.markdownitDeflist);
 
    // A: Debounce function to delay execution, so the error message is not displayed too often, since we do not know of often and how many times the error will be triggered.
    function debounce(func, wait) {
@@ -79,7 +114,7 @@ function fetchCommitHashes() {
          .then(data => {
             // Decode base64 encoded content
             const decodedContent = atob(data.content);
-            
+
             // Diff the content of the current term-file with the content of stored version
             // See https://www.npmjs.com/package/diff , examples
             const diff = Diff.diffChars(match.content, decodedContent),
@@ -93,7 +128,7 @@ function fetchCommitHashes() {
 
                const backgroundColor = part.added ? '#ddd' :
                   part.removed ? '#ddd' : 'white';
-               
+
                span = document.createElement('span');
                span.style.color = color;
                span.style.backgroundColor = backgroundColor;
@@ -101,7 +136,7 @@ function fetchCommitHashes() {
                span.appendChild(document
                   .createTextNode(part.value));
                fragment.appendChild(span);
-               });
+            });
             // Create a temporary container to hold the fragment
             const tempContainer = document.createElement('div');
             tempContainer.innerHTML = '<h1>Diff xref (local snapshot) and latest version</h1>';
@@ -115,6 +150,47 @@ function fetchCommitHashes() {
          });
    }
 
+   async function fetchGitHubTerm(savedToken, match) {
+      function processSpecUpMarkdown(markdown) {
+
+         // Replace all occurrences of [[def: ]] with ''
+         const defRegex = /\[\[def: ([^\]]+)\]\]/g;
+         markdown = markdown.replace(defRegex, '');
+
+         // // Replace all occurrences of [[ref: ]] with <a href="#"></a>
+         // const refRegex = /\[\[ref: ([^\]]+)\]\]/g;
+         // markdown = markdown.replace(refRegex, '<a class="x-term-reference" data-local-href="ref:$1">$1</a>');
+
+         return md.render(markdown);
+      }
+
+      const headers = {};
+      if (savedToken && savedToken.length > 0) {
+         headers['Authorization'] = `token ${savedToken}`;
+      }
+
+      try {
+         const response = await fetch('https://api.github.com/repos/' + match.owner + '/' + match.repo + '/contents/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md', { headers: headers });
+
+         if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
+            const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
+            console.error(`\n   SPEC-UP-T: Github API rate limit exceeded. Try again after ${resetTime}. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+
+            debouncedError();
+            return true;
+         } else {
+            console.log(`\n   SPEC-UP-T: Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://blockchainbird.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
+         }
+
+         const data = await response.json();
+         const decodedContent = atob(data.content);
+         const processedContent = processSpecUpMarkdown(decodedContent);
+         return processedContent;
+      } catch (error) {
+         console.error('Error fetching content:', error);
+      }
+   }
+
    // get all elements with class “x-term-reference”
    const elements = document.querySelectorAll('.x-term-reference');
 
@@ -125,18 +201,18 @@ function fetchCommitHashes() {
       // split href on “:” and create array
       const splitHref = href.split(':');
 
-      // allXrefs is an object that is available in the global scope
-      allXrefs.xrefs.forEach((match) => {
+      // allXTrefs is an object that is available in the global scope
+      allXTrefs.xtrefs.forEach((match) => {
 
          //TODO: remove toLowerCase() or not?
          if (match.externalSpec === splitHref[1] && match.term.toLowerCase() === splitHref[2].toLowerCase()) {
-            
+
             // If no commit hash is found, display a message and return
             if (!match.commitHash) {
-               const noXrefFoundMessage = document.createElement('span');
-               noXrefFoundMessage.classList.add('no-xref-found-message');
-               noXrefFoundMessage.innerHTML = 'No xref found.';
-               element.parentNode.insertBefore(noXrefFoundMessage, element.nextSibling);
+               const noXTrefFoundMessage = document.createElement('span');
+               noXTrefFoundMessage.classList.add('no-xref-found-message');
+               noXTrefFoundMessage.innerHTML = 'No xref found.';
+               element.parentNode.insertBefore(noXTrefFoundMessage, element.nextSibling);
 
                return
             };
@@ -191,9 +267,16 @@ function fetchCommitHashes() {
             localStoredTerm.innerHTML = 'Xref';
             localStoredTerm.title = 'Show the stored version of the term-file';
             showDiffModal.parentNode.insertBefore(localStoredTerm, element.nextSibling);
+            
+            
+
+            // Replace all occurrences of [[def: ]] with ''
+            const defRegex = /\[\[def: ([^\]]+)\]\]/g;
+            match.content = match.content.replace(defRegex, '');
+
+            const content = md.render(match.content);
             localStoredTerm.addEventListener('click', function (event) {
                event.preventDefault();
-               const content = match.content.replace(/\n/g, '<br>');
                showModal(`
                     <h1>Term definition (local snapshot)</h1>
                     <table>
@@ -208,6 +291,15 @@ function fetchCommitHashes() {
                     </table>
                   `);
             });
+
+            const div = document.createElement('div');
+            div.classList.add('local-snapshot-xref-term');
+            div.classList.add('transcluded-xref-term');
+            div.innerHTML = `<p class='transclusion-heading'>Snapshot</p><p>Commit Hash: ${match.commitHash}</p> ${content}`;
+            element.parentNode.insertBefore(div, element.nextSibling);
+
+
+            insertGitHubTermRealTime(match, element);
          }
       });
    });
