@@ -34,7 +34,7 @@ function checkKeysSync(object, expectedKeys, parentKey = '') {
         } else if (typeof object === 'object') {
             // If the key is missing from the object, log an error
             if (!(key in object)) {
-                console.error(`\n   SPEC-UP-T: Error: Missing key '${key}' in ${parentKey}\n   We cannot guarantee that Spec-Up-T will work properly.\n   Here is an example specs.json file:\n   https://github.com/blockchainbird/spec-up-t-starter-pack/blob/main/spec-up-t-starterpack/specs.json` + "\n");
+                console.error(`\n   SPEC-UP-T: Error: Missing key '${key}' in ${parentKey}\n   We cannot guarantee that Spec-Up-T will work properly.\n   Here is an example specs.json file:\n   https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-starterpack/specs.json` + "\n");
                 errorFound = true;
                 pauseForEnterSync(); // Pause synchronously to allow user to acknowledge the error
             }
