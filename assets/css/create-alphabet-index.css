@@ -13,13 +13,18 @@
   border-radius: 50%;
   color: #333;
   display: block;
-  font-size: 1rem; /* Reduced from 1.5rem to 1rem */
-  height: 33.33px; /* Reduced from 50px to 33.33px */
-  line-height: 33.33px; /* Reduced from 50px to 33.33px */
-  margin: 3.33px; /* Reduced from 5px to 3.33px */
+  font-size: 1rem;
+  /* Reduced from 1.5rem to 1rem */
+  height: 33.33px;
+  /* Reduced from 50px to 33.33px */
+  line-height: 33.33px;
+  /* Reduced from 50px to 33.33px */
+  margin: 3.33px;
+  /* Reduced from 5px to 3.33px */
   text-align: center;
   text-decoration: none;
-  width: 33.33px; /* Reduced from 50px to 33.33px */
+  width: 33.33px;
+  /* Reduced from 50px to 33.33px */
 }
 
 .number-of-terms {
