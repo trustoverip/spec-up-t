@@ -7,6 +7,14 @@
   width: 100%;
 }
 
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+  .alphabet-index {
+    position: sticky;
+    top: 3em;
+  }
+}
+
 .alphabet-index a {
   background-color: #f5f5f5;
   border: 1px solid #e0e0e0;
