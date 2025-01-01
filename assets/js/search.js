@@ -53,9 +53,9 @@ function inPageSearch() {
    searchInput.setAttribute("placeholder", searchBarPlaceholder);
    searchContainer.appendChild(searchInput);
 
-   setTimeout(() => {
-      searchInput.focus();
-   }, 1000);
+   // setTimeout(() => {
+   //    searchInput.focus();
+   // }, 1000);
 
    // Add a container for the back and forth buttons
    const backAndForthButtonsContainer = document.createElement("div");
