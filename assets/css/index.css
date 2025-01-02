@@ -53,6 +53,8 @@
   --font-size: 14px;
 }
 
+/* This CSS code targets any element that is the target of a fragment identifier (i.e., an element with an ID that matches the hash in the URL). It sets the scroll-margin property to ensure that the element is scrolled into view with a margin at the top. The margin is calculated as the value of the custom property --header-height divided by 0.3,
+with no margin on the right, bottom, or left. This is useful for ensuring that the target element is not obscured by a fixed header when scrolled into view. Keyword: anchor */
 *:target {
   scroll-margin: calc(var(--header-height) / 0.3) 0 0;
 }
