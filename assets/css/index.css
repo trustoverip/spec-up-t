@@ -54,7 +54,7 @@
 }
 
 *:target {
-  scroll-margin: calc(var(--header-height) / 0.75) 0 0;
+  scroll-margin: calc(var(--header-height) / 0.3) 0 0;
 }
 
 body:not([hashscroll]) *:target {
