@@ -17,13 +17,14 @@ function inPageSearch() {
    /*****************/
    /* CONFIGURATION */
 
-   const domInjectAfter = document.querySelector('span[issue-count]');// Inject the search bar after this element
+   // const domInjectAfter = document.querySelector('span[issue-count]');// Inject the search bar after this element
+   const domInjectAfter = document.querySelector('#alphabet-index-h7vc6omi2hr2880');// Inject the search bar after this element
    const matchesStyle = specConfig.searchHighlightStyle || 'ssi';
    const antiNameCollisions = 'search-h7vc6omi2hr2880';// random string to be added to classes, id's etc, to prevent name collisions in the global space
    const debounceTime = 600;
    const matches = 'matches';// What text to display after the number of matches
    const searchBarPlaceholder = '🔍';
-   const searchableContent = document.querySelector('main article');
+   const searchableContent = document.querySelector('.terms-and-definitions-list');
 
    /* END CONFIGURATION */
    /*********************/
