@@ -1,7 +1,7 @@
 /**
  * @file prepare-tref.js
  * @description This script contains functions to process and prepare term references (trefs) from markdown files.
- * It includes functionality to read local xtref content from a JSON file and process markdown files in a directory recursively.
+ * It includes functionality to read local xtref content from a JSON file and process markdown files in a directory recursively. This script inserts the content of the local xtref (in JSON) into the markdown files. It also inserts a note that this content is temporary and can be removed.
  * 
  * @module prepareTref
  * @requires fs
