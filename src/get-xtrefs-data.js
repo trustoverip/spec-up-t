@@ -247,7 +247,8 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
                     xtref.commitHash = fetchedData.commitHash;
                     xtref.content = fetchedData.content;
                 }
-            }        }
+            }
+        }
     }
 
     // Fetch all term information, then write the results to JSON and JS files.
