@@ -19,7 +19,7 @@ function createVersionsIndex(outputPath) {
     // Directory containing the version files
     const versionsDir = path.join(outputPath, 'versions');
 
-    // Check if the directory exists, if not create it
+    // Check if the directory that holds the versions / snapshots exists, if not create it
     if (!fs.existsSync(versionsDir)) {
         fs.mkdirSync(versionsDir, { recursive: true });
         console.log('Directory created:', versionsDir);
