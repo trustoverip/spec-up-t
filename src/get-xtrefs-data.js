@@ -10,8 +10,8 @@
  * @since 2024-06-09
  */
 
-
 const fs = require('fs-extra');
+const {fetchAllTermsInfoFromGithub} = require('./get-xtrefs-data/fetchAllTermsInfoFromGithub.js');
 const config = fs.readJsonSync('specs.json');
 
 // Collect all directories that contain files with a term and definition
@@ -33,105 +33,6 @@ if (!fs.existsSync('output/xtrefs-history')) {
 const outputPathJSON = 'output/xtrefs-data.json';
 const outputPathJS = 'output/xtrefs-data.js';
 const outputPathJSTimeStamped = 'output/xtrefs-history/xtrefs-data-' + Date.now() + '.js';
-
-function setupFetchHeaders(GITHUB_API_TOKEN) {
-    const fetchHeaders = {
-        'Accept': 'application/vnd.github.v3+json'
-    };
-
-    if (GITHUB_API_TOKEN) {
-        fetchHeaders['Authorization'] = `token ${GITHUB_API_TOKEN}`;
-    } else {
-        console.log('\n   SPEC-UP-T: There is no GitHub token set up. Therefore, you are more likely to be at your limit of GitHub API requests. If you run into the limit, create a token and search the documentation on this topic.\n');
-    }
-
-    return fetchHeaders;
-}
-
-// Function to check the rate limit of the GitHub API
-function checkRateLimit(response) {
-    if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
-        const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
-        console.error(`\n   SPEC-UP-T: Github API rate limit exceeded. Try again after ${resetTime}. See https://trustoverip.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
-        return true;
-    } else {
-        console.log(`\n   SPEC-UP-T: Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://trustoverip.github.io/spec-up-t-website/docs/github-token/ for more info.` + "\n");
-    }
-    return false;
-}
-
-// Function to fetch term information from GitHub, including commit hash and content.
-async function fetchTermInfoFromGithub(GITHUB_API_TOKEN, xtref) {
-    try {
-        // prerequisite: filename should be the term in the match object with spaces replaced by dashes and all lowercase
-        //TODO: Loop through all markdown files to find the term and get the filename, instead of assuming that the filename is the term with spaces replaced by dashes and all lowercase
-        const url = `https://api.github.com/repos/${xtref.owner}/${xtref.repo}/commits?path=${xtref.terms_dir}/${xtref.term.replace(/ /g, '-').toLowerCase()}.md&per_page=1`;
-        const response = await fetch(url, { headers: setupFetchHeaders(GITHUB_API_TOKEN) });
-
-        // Check for rate limit before proceeding
-        if (checkRateLimit(response)) {
-            return;
-        }
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.length > 0) {
-                const commitHash = data[0].sha;
-                const content = await fetchFileContentFromCommit(GITHUB_API_TOKEN, xtref.owner, xtref.repo, commitHash, `${xtref.terms_dir}/${xtref.term.replace(/ /g, '-').toLowerCase()}.md`);
-                return { commitHash, content };
-            }
-        } else {
-            console.error(`\n   SPEC-UP-T: Failed to fetch commit hash for ${xtref.term}: ${response.statusText}\n`);
-            return { commitHash: null, content: null };
-        }
-    } catch (error) {
-        console.error(`\n   SPEC-UP-T: Error fetching data for term ${xtref.term}: ${error.message}\n`);
-    }
-    return null;
-}
-
-// Function to fetch the content of a file from a specific commit in a GitHub repository.
-async function fetchFileContentFromCommit(GITHUB_API_TOKEN, owner, repo, commitHash, filePath) {
-    const MAX_RETRIES = 3;
-    let retries = 0;
-
-    while (retries < MAX_RETRIES) {
-        try {
-            const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${commitHash}?recursive=1`;
-            const treeResponse = await fetch(treeUrl, { headers: setupFetchHeaders(GITHUB_API_TOKEN) });
-
-            if (treeResponse.ok) {
-                const treeData = await treeResponse.json();
-                const file = treeData.tree.find(item => item.path === filePath);
-                if (file) {
-                    const fileContentResponse = await fetch(file.url);
-                    const fileContentData = await fileContentResponse.json();
-                    if (fileContentData.content) {
-                        return Buffer.from(fileContentData.content, 'base64').toString('utf-8');
-                    } else {
-                        console.error('Error: fileContentData.content is undefined');
-                    }
-                } else {
-                    console.error(`Error: File ${filePath} not found in commit ${commitHash}`);
-                }
-            } else if (treeResponse.status === 403 && treeResponse.headers.get('X-RateLimit-Remaining') === '0') {
-                const resetTime = treeResponse.headers.get('X-RateLimit-Reset');
-                const waitTime = resetTime ? (resetTime - Math.floor(Date.now() / 1000)) * 1000 : 60000;
-                console.warn(`Rate limit exceeded. Retrying in ${waitTime / 1000} seconds...`);
-                await new Promise(resolve => setTimeout(resolve, waitTime));
-                retries++;
-            } else {
-                console.error(`Error: Failed to fetch tree from ${treeUrl}`);
-                break;
-            }
-        } catch (error) {
-            console.error(`Error fetching file content: ${error.message}`);
-            break;
-        }
-    }
-
-    return null;
-}
 
 function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
     // Function to extend xtref objects with additional information, such as repository URL and directory information.
@@ -174,6 +75,23 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
         });
     }
 
+    // Function to check if an xtref is in the markdown content
+    function isXTrefInMarkdown(xtref, markdownContent) {
+        // const regex = new RegExp(`\\[\\[xref:${xref.term}\\]\\]`, 'g');
+        const regex = new RegExp(`\\[\\[(?:x|t)ref:${xtref.term}\\]\\]`, 'g');
+        const result = regex.test(markdownContent);
+        return result;
+    }
+
+    // Function to process and clean up xref / tref strings found in the markdown file, returning an object with `externalSpec` and `term` properties.
+    function processXTref(xtref) {
+        let [externalSpec, term] = xtref.replace(/\[\[(?:xref|tref):/, '').replace(/\]\]/, '').trim().split(/,/, 2);
+        return {
+            externalSpec: externalSpec.trim(),
+            term: term.trim()
+        };
+    }
+
     // Initialize an object to store all xtrefs.
     let allXTrefs = { xtrefs: [] };
 
@@ -181,14 +99,6 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
     if (fs.existsSync(outputPathJSON)) {
         const existingXTrefs = fs.readJsonSync(outputPathJSON);
         allXTrefs = existingXTrefs && existingXTrefs.xtrefs ? existingXTrefs : { xtrefs: [] };
-    }
-
-    // Function to check if an xtref is in the markdown content
-    function isXTrefInMarkdown(xtref, markdownContent) {
-        // const regex = new RegExp(`\\[\\[xref:${xref.term}\\]\\]`, 'g');
-        const regex = new RegExp(`\\[\\[(?:x|t)ref:${xtref.term}\\]\\]`, 'g');
-        const result = regex.test(markdownContent);
-        return result;
     }
 
     // Collect all markdown content
@@ -221,37 +131,11 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
         });
     };
 
-    // Function to process and clean up xref / tref strings found in the markdown file, returning an object with `externalSpec` and `term` properties.
-    function processXTref(xtref) {
-        let [externalSpec, term] = xtref.replace(/\[\[(?:xref|tref):/, '').replace(/\]\]/, '').trim().split(/,/, 2);
-        return {
-            externalSpec: externalSpec.trim(),
-            term: term.trim()
-        };
-    }
-
     // Extend each xref with additional data and fetch commit information from GitHub.
     extendXTrefs(config, allXTrefs.xtrefs);
 
-
-    /* 
-        Function to fetch all term information from GitHub. The function will not fetch the commit hash again if an entry already contains a commit hash.
-
-        It checks if the xtref object already has a commitHash and content.If both are present, it skips fetching the term information from GitHub. This ensures that existing commit hashes are not overwritten.
-    */
-    async function fetchAllTermsInfoFromGithub(skipExisting) {
-        for (let xtref of allXTrefs.xtrefs) {
-            if (!skipExisting || (!xtref.commitHash || !xtref.content)) {
-                const fetchedData = await fetchTermInfoFromGithub(GITHUB_API_TOKEN, xtref);
-                if (fetchedData) {
-                    xtref.commitHash = fetchedData.commitHash;
-                    xtref.content = fetchedData.content;
-                }
-            }        }
-    }
-
     // Fetch all term information, then write the results to JSON and JS files.
-    fetchAllTermsInfoFromGithub(skipExisting).then(() => {
+    fetchAllTermsInfoFromGithub(GITHUB_API_TOKEN, skipExisting, allXTrefs).then(() => {
         const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
         fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
         const stringReadyForFileWrite = `const allXTrefs = ${allXTrefsStr};`;
