@@ -104,6 +104,7 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
     // Collect all markdown content
     let allMarkdownContent = '';
 
+    // Read all Markdown files from a list of directories and concatenate their content into a single string.
     specTermsDirectories.forEach(specDirectory => {
         fs.readdirSync(specDirectory).forEach(file => {
             if (file.endsWith('.md')) {
