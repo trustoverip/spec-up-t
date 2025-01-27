@@ -121,6 +121,8 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
 
     // Add new entries if they are in the markdown
     const regex = /\[\[(?:xref|tref):.*?\]\]/g;
+    
+    // `regex` is the regular expression object, and `allMarkdownContent` is the string being tested. The test method returns a boolean value: true if the pattern is found within the string, and false otherwise.
     if (regex.test(allMarkdownContent)) {
         const xtrefs = allMarkdownContent.match(regex);
         xtrefs.forEach(xtref => {
