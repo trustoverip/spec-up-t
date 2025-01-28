@@ -197,7 +197,11 @@ module.exports = function (options = {}) {
     const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
     const containers = require('markdown-it-container');
 
-    // `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
+    /* 
+    `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
+    
+    The md function (which is an instance of the markdown-it parser) takes a Markdown string as its primary argument.
+    */
     const md = require('markdown-it')({
       html: true,
       linkify: true,
