@@ -196,6 +196,8 @@ module.exports = function (options = {}) {
     const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
     const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
     const containers = require('markdown-it-container');
+
+    // `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
     const md = require('markdown-it')({
       html: true,
       linkify: true,
