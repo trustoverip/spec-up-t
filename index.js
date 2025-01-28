@@ -200,7 +200,7 @@ module.exports = function (options = {}) {
     /* 
     `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
     
-    The md function (which is an instance of the markdown-it parser) takes a Markdown string as its primary argument.
+    The md function (which is an instance of the markdown-it parser) takes a Markdown string as its primary argument. It is called elsewhere as follows: `md.render(doc)`
     */
     const md = require('markdown-it')({
       html: true,
