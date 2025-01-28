@@ -337,8 +337,13 @@ module.exports = function (options = {}) {
             }
 
             let doc = docs.join("\n");
+
+            // `doc` is markdown 
             doc = applyReplacers(doc);
+
             md[spec.katex ? "enable" : "disable"](katexRules);
+            
+            // `render` is the rendered HTML
             const render = md.render(doc);
 
             const templateInterpolated = interpolate(template, {
