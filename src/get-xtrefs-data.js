@@ -11,7 +11,7 @@
  */
 
 const fs = require('fs-extra');
-const {fetchAllTermsInfoFromGithub} = require('./get-xtrefs-data/fetchAllTermsInfoFromGithub.js');
+const { fetchAllTermsInfoFromGithub } = require('./get-xtrefs-data/fetchAllTermsInfoFromGithub.js');
 const config = fs.readJsonSync('specs.json');
 
 // Collect all directories that contain files with a term and definition
@@ -121,7 +121,7 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
 
     // Add new entries if they are in the markdown
     const regex = /\[\[(?:xref|tref):.*?\]\]/g;
-    
+
     // `regex` is the regular expression object, and `allMarkdownContent` is the string being tested. The test method returns a boolean value: true if the pattern is found within the string, and false otherwise.
     if (regex.test(allMarkdownContent)) {
         const xtrefs = allMarkdownContent.match(regex);
@@ -135,10 +135,18 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
         });
     };
 
+    console.log('KORKOR allXTrefs.xtrefs: ', allXTrefs.xtrefs);
+
     // Extend each xref with additional data and fetch commit information from GitHub.
     extendXTrefs(config, allXTrefs.xtrefs);
 
-    // Fetch all term information, then write the results to JSON and JS files.
+
+    /**
+     * Fetches information for all terms from GitHub and updates the provided xtrefs array in place.
+     * @param {string} GITHUB_API_TOKEN - The GitHub API token.
+     * @param {Object} allXTrefs - The object containing the array of xtrefs to update.
+     * @param {boolean} skipExisting - Whether to skip existing entries.
+     */
     fetchAllTermsInfoFromGithub(GITHUB_API_TOKEN, skipExisting, allXTrefs).then(() => {
         const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
         fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
