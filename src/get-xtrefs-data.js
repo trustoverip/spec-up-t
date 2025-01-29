@@ -127,6 +127,7 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
         const xtrefs = allMarkdownContent.match(regex);
         xtrefs.forEach(xtref => {
             const newXTrefObj = processXTref(xtref);
+            // Ensure that newXTrefObj is only added to the xtrefs array if there isn't already an object with the same term and externalSpec properties. This helps maintain the uniqueness of entries in the array based on these two properties.
             if (!allXTrefs.xtrefs.some(existingXTref =>
                 existingXTref.term === newXTrefObj.term && existingXTref.externalSpec === newXTrefObj.externalSpec)) {
                 allXTrefs.xtrefs.push(newXTrefObj);
