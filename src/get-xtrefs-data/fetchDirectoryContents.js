@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { setupFetchHeaders } = require('./setupFetchHeaders');
+const { addDirectory, getDirectory, getAllDirectories } = require('../config/directories');
 
 async function fetchDirectoryContents(GITHUB_API_TOKEN, owner, repo, dirPath, baseLocalDir) {
     const url = `https://api.github.com/repos/${owner}/${repo}/contents/${dirPath}`;
