@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/trustoverip/spec-up-t#readme",
   "dependencies": {
+    "@octokit/rest": "^21.1.0",
     "@traptitech/markdown-it-katex": "^3.3.0",
     "axios": "^1.7.7",
     "diff": "^7.0.0",
