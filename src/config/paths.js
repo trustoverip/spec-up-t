@@ -13,7 +13,7 @@ const paths = {};
 
 // Add paths
 paths['output-local-terms'] = path.resolve('output', 'local-terms-dir');
-paths['eentestje'] = path.resolve('output', 'local-terms-dir', 'henkvancann', 'keri-main-glossary', 'spec', 'terms-definitions', 'ACDC.md');
+paths['specsjson'] = path.resolve('specs.json');
 
 module.exports = {
     /**
@@ -36,7 +36,7 @@ module.exports = {
      * Gets all directories or files with their resolved paths.
      * @returns {Object} An object containing all directories with their resolved paths.
      */
-    getAllPahs: () => {
+    getAllPaths: () => {
         const resolvedPaths = {};
         for (const [name, dir] of Object.entries(paths)) {
             resolvedPaths[name] = path.resolve(dir);
