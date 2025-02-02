@@ -1,4 +1,10 @@
 function matchTerm(text, term) {
+    if (!text || typeof text !== 'string') {
+        // console.error('Invalid text:', text);
+        console.log('Nothing to match');
+        return false;
+    }
+
     const firstLine = text.split('\n')[0].trim();
 
     // Check if the string starts with `[[def:` and ends with `]]`
