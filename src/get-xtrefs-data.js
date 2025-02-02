@@ -11,9 +11,33 @@
  */
 
 const fs = require('fs-extra');
+const path = require('path');
+const readlineSync = require('readline-sync');
 const { searchGitHubCode } = require('./get-xtrefs-data/searchGitHubCode.js');
 const { matchTerm } = require('./get-xtrefs-data/matchTerm');
 const config = fs.readJsonSync('specs.json');
+const { doesUrlExist } = require('./utils/doesUrlExist.js');
+const { addPath, getPath, getAllPaths } = require('./config/paths');
+
+const externalSpecsRepos = config.specs[0].external_specs;
+
+// Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.
+externalSpecsRepos.forEach(repo => {
+    // Construct the URL for the terms directory of the repository
+    const termsDirUrl = `${repo.url}/blob/main/${repo.terms_dir}`;
+
+    doesUrlExist(termsDirUrl).then(exists => {
+        if (!exists) {
+            const userInput = readlineSync.question(`\n   SPEC-UP-T: This external reference is not a valid URL:\n   ${termsDirUrl}\n   Do you want to stop? (yes/no): `);
+            if (userInput.toLowerCase() === 'yes' || userInput.toLowerCase() === 'y') {
+                console.log('Stopping...');
+                process.exit(1);
+            }
+        }
+    }).catch(error => {
+        console.error('\n   SPEC-UP-T:Error checking URL existence:', error);
+    });
+});
 
 // Collect all directories that contain files with a term and definition
 // This maps over the specs in the config file and constructs paths to directories
