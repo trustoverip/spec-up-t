@@ -11,7 +11,8 @@
  */
 
 const fs = require('fs-extra');
-const { fetchAllTermsInfoFromGithub } = require('./get-xtrefs-data/fetchAllTermsInfoFromGithub.js');
+const { searchGitHubCode } = require('./get-xtrefs-data/searchGitHubCode.js');
+const { matchTerm } = require('./get-xtrefs-data/matchTerm');
 const config = fs.readJsonSync('specs.json');
 
 // Collect all directories that contain files with a term and definition
@@ -156,25 +157,37 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
     //     }
     // ]
 
+    (async () => {
+        try {
+            for (let xtref of allXTrefs.xtrefs) {
+                const fetchedData = await searchGitHubCode(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir);
 
-    /**
-     * Fetches information for all terms from GitHub and updates the provided xtrefs array in place.
-     * @param {string} GITHUB_API_TOKEN - The GitHub API token.
-     * @param {Object} allXTrefs - The object containing the array of xtrefs to update.
-     * @param {boolean} skipExisting - Whether to skip existing entries.
-     */
-    fetchAllTermsInfoFromGithub(GITHUB_API_TOKEN, skipExisting, allXTrefs).then(() => {
-        const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
-        fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
-        const stringReadyForFileWrite = `const allXTrefs = ${allXTrefsStr};`;
-        fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
-        fs.writeFileSync(outputPathJSTimeStamped, stringReadyForFileWrite, 'utf8');
+                fetchedData.data.items.forEach(item => {
+                    // If the term is found according to the matchTerm function (in the first line, line should start with “[[def:), etc) add the commit hash and content to the xtref object
+                    if (matchTerm(item.content, xtref.term)) {
+                        // console.log('KORKOR item: ', item);
+                        xtref.commitHash = item.sha;
+                        xtref.content = item.content;
+                    } else {
+                        xtref.commitHash = "not found";
+                        xtref.content = "This term was not found in the external repository.";
+                    }
+                }
+                );
+            }
 
-        // Run the render function to update the HTML file
-        require('../index.js')({ nowatch: true });
-    }).catch(err => {
-        console.error('Error:', err);
-    });
+            const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
+            fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
+            const stringReadyForFileWrite = `const allXTrefs = ${allXTrefsStr};`;
+            fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
+            fs.writeFileSync(outputPathJSTimeStamped, stringReadyForFileWrite, 'utf8');
+
+            // Run the render function to update the HTML file
+            require('../index.js')({ nowatch: true });
+        } catch (error) {
+            console.error('An error occurred:', error);
+        }
+    })();
 }
 
 module.exports = {
