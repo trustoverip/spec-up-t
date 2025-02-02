@@ -104,7 +104,7 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
     // Collect all markdown content
     let allMarkdownContent = '';
 
-    // Read all Markdown files from a list of directories and concatenate their content into a single string.
+    // Read all main repo Markdown files from a list of directories and concatenate their content into a single string.
     specTermsDirectories.forEach(specDirectory => {
         fs.readdirSync(specDirectory).forEach(file => {
             if (file.endsWith('.md')) {
@@ -135,10 +135,26 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
         });
     };
 
-    console.log('KORKOR allXTrefs.xtrefs: ', allXTrefs.xtrefs);
+    // Example at this point:
+    // allXTrefs.xtrefs: [
+    //     { externalSpec: 'kmg-1', term: 'authentic-chained-data-container' },
+    // ]
 
     // Extend each xref with additional data and fetch commit information from GitHub.
     extendXTrefs(config, allXTrefs.xtrefs);
+
+    // Example at this point:
+    // allXTrefs.xtrefs: [
+    //     {
+    //         externalSpec: 'kmg-1',
+    //         term: 'authentic-chained-data-container',
+    //         repoUrl: 'https://github.com/henkvancann/keri-main-glossary',
+    //         terms_dir: 'spec/terms-definitions',
+    //         owner: 'henkvancann',
+    //         repo: 'keri-main-glossary',
+    //         site: null
+    //     }
+    // ]
 
 
     /**
