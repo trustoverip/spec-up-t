@@ -39,7 +39,7 @@ module.exports = function (options = {}) {
   let references = [];
   let definitions = [];
 
-  const katexRules = ['math_block', 'math_inline']
+  const katexRules = ['math_block', 'math_inline'];
   const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
   const replacerArgsRegex = /\s*,+\s*/;
   const replacers = [
@@ -61,7 +61,7 @@ module.exports = function (options = {}) {
     // Test if xtrefs-data.js exists, else make it an empty string
     const inputPath = path.join('output', 'xtrefs-data.js');
 
-    let xtrefsData = "";
+    let xtrefsData = '';
     if (fs.existsSync(inputPath)) {
       xtrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
     }
@@ -94,7 +94,7 @@ module.exports = function (options = {}) {
           ${ref.authors.join('; ')}; ${ref.rawDate}. <span class="reference-status">Status: ${ref.status}</span>.
         </dd>
       `;
-    }, '<dl class="reference-list">')
+    }, '<dl class="reference-list">');
     return `\n${html}\n</dl>\n`;
   }
 
