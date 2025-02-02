@@ -45,20 +45,20 @@ module.exports = async function (options = {}) {
     let references = [];
     let definitions = [];
 
-    const katexRules = ['math_block', 'math_inline'];
-    const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
-    const replacerArgsRegex = /\s*,+\s*/;
-    const replacers = [
-      {
-        test: 'insert',
-        transform: function (path) {
-          if (!path) return '';
-          return fs.readFileSync(path, 'utf8');
-        }
+  const katexRules = ['math_block', 'math_inline'];
+  const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
+  const replacerArgsRegex = /\s*,+\s*/;
+  const replacers = [
+    {
+      test: 'insert',
+      transform: function (path) {
+        if (!path) return '';
+        return fs.readFileSync(path, 'utf8');
       }
-    ];
-
-    prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
+    }
+  ];
+  
+  prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
     // Synchronously process markdown files
     fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
@@ -67,10 +67,10 @@ module.exports = async function (options = {}) {
       // Test if xtrefs-data.js exists, else make it an empty string
       const inputPath = path.join('output', 'xtrefs-data.js');
 
-      let xtrefsData = '';
-      if (fs.existsSync(inputPath)) {
-        xtrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
-      }
+    let xtrefsData = '';
+    if (fs.existsSync(inputPath)) {
+      xtrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
+    }
 
       return xtrefsData;
     }
@@ -88,21 +88,21 @@ module.exports = async function (options = {}) {
       return path.trim().replace(/\/$/g, '') + '/';
     }
 
-    function renderRefGroup(type) {
-      let group = specGroups[type];
-      if (!group) return '';
-      let html = Object.keys(group).sort().reduce((html, name) => {
-        let ref = group[name];
-        return html += `
-                    <dt id="ref:${name}">${name}</dt>
-                    <dd>
-                        <cite><a href="${ref.href}">${ref.title}</a></cite>. 
-                        ${ref.authors.join('; ')}; ${ref.rawDate}. <span class="reference-status">Status: ${ref.status}</span>.
-                    </dd>
-                `;
-      }, '<dl class="reference-list">');
-      return `\n${html}\n</dl>\n`;
-    }
+  function renderRefGroup(type) {
+    let group = specGroups[type];
+    if (!group) return '';
+    let html = Object.keys(group).sort().reduce((html, name) => {
+      let ref = group[name];
+      return html += `
+        <dt id="ref:${name}">${name}</dt>
+        <dd>
+          <cite><a href="${ref.href}">${ref.title}</a></cite>. 
+          ${ref.authors.join('; ')}; ${ref.rawDate}. <span class="reference-status">Status: ${ref.status}</span>.
+        </dd>
+      `;
+    }, '<dl class="reference-list">');
+    return `\n${html}\n</dl>\n`;
+  }
 
     function findKatexDist() {
       const relpath = "node_modules/katex/dist";
