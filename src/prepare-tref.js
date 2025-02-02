@@ -80,7 +80,9 @@ function prepareTref(directory) {
                                         
                                         The g flag ensures that all occurrences in the string are replaced.
                                     */
-                                    const defPart = /\[\[def: .*?\]\]:/g;
+                                    // const defPart = /\[\[def: .*?\]\]:/g;
+                                    const defPart = /\[\[def: ([^,]+),.*?\]\]/g;
+
                                     localXTrefContent.content = localXTrefContent.content.replace(defPart, '');
 
                                     fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated --><span class="transcluded-xref-term">transcluded xref</span>' + '\n\n~ Commit Hash: ' + localXTrefContent.commitHash + '\n\n\n' + localXTrefContent.content, 'utf8');
@@ -88,6 +90,7 @@ function prepareTref(directory) {
                             }
                         }
                     } catch (err) {
+                        fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated --> Nothing found, so nothing to show.', 'utf8');
                         // console.error(`\n   SPEC-UP-T: Error reading or writing file ${item.name}: ${err}` + "\n");
                     }
                 }
