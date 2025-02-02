@@ -83,12 +83,12 @@ function prepareTref(directory) {
                                     const defPart = /\[\[def: .*?\]\]:/g;
                                     localXTrefContent.content = localXTrefContent.content.replace(defPart, '');
 
-                                    fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated --><span class="transcluded-xref-term">transcluded xref</span>' + '\n\n~ Commit Hash: ' + localXTrefContent.commitHash + localXTrefContent.content, 'utf8');
+                                    fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated --><span class="transcluded-xref-term">transcluded xref</span>' + '\n\n~ Commit Hash: ' + localXTrefContent.commitHash + '\n\n\n' + localXTrefContent.content, 'utf8');
                                 }
                             }
                         }
                     } catch (err) {
-                        console.error(`\n   SPEC-UP-T: Error reading or writing file ${item.name}: ${err}` + "\n");
+                        // console.error(`\n   SPEC-UP-T: Error reading or writing file ${item.name}: ${err}` + "\n");
                     }
                 }
             });
