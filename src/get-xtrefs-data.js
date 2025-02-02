@@ -192,14 +192,13 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
                         // console.log('KORKOR item: ', item);
                         xtref.commitHash = item.sha;
                         xtref.content = item.content;
-                        console.log(`\n   SPEC-UP-T: Match found for term: " + xtref.term + " in " + xtref.externalSpec + " at " + xtref.repoUrl + " with commit hash: " + xtref.commitHash);`);
+                        console.log(`\n   SPEC-UP-T: Match found for term: ${xtref.term} in ${xtref.externalSpec};`);
                     } else {
                         xtref.commitHash = "not found";
                         xtref.content = "This term was not found in the external repository.";
-                        console.log(`\n   SPEC-UP-T: No Match found for term: " + xtref.term + " in " + xtref.externalSpec + " at " + xtref.repoUrl + " with commit hash: " + xtref.commitHash);`);
+                        console.log(`\n   SPEC-UP-T: No match found for term: ${xtref.term} in ${xtref.externalSpec};`);
                     }
-                }
-                );
+                });
             }
 
             const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
