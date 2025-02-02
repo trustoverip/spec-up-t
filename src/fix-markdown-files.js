@@ -75,10 +75,9 @@ function fixMarkdownFiles(directory) {
                         // Write the modified content back to the file synchronously if there were any changes
                         if (modified) {
                             fs.writeFileSync(itemPath, data, 'utf8');
-                            console.log(`\n   SPEC-UP-T: Modified ${item.name}` + "\n");
                         }
                     } catch (err) {
-                        console.error(`\n   SPEC-UP-T: Error reading or writing file ${item.name}: ${err}` + "\n");
+                        console.error(`\n   SPEC-UP-T: Error while trying to fix the markdown in file ${item.name}: ${err}` + "\n");
                     }
                 }
             });
