@@ -24,11 +24,10 @@ const externalSpecsRepos = config.specs[0].external_specs;
 // Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.
 externalSpecsRepos.forEach(repo => {
     // Construct the URL for the terms directory of the repository
-    const termsDirUrl = `${repo.url}/blob/main/${repo.terms_dir}`;
-
-    doesUrlExist(termsDirUrl).then(exists => {
+    
+    doesUrlExist(repo.url, repo.terms_dir).then(exists => {
         if (!exists) {
-            const userInput = readlineSync.question(`\n   SPEC-UP-T: This external reference is not a valid URL:\n   ${termsDirUrl}\n   Do you want to stop? (yes/no): `);
+            const userInput = readlineSync.question(`\n   SPEC-UP-T: This external reference is not a valid URL:\n   Repository: ${repo.url},\n   Terms directory: ${repo.terms_dir}\n   Do you want to stop? (yes/no): `);
             if (userInput.toLowerCase() === 'yes' || userInput.toLowerCase() === 'y') {
                 console.log('Stopping...');
                 process.exit(1);

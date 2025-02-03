@@ -1,4 +1,5 @@
-async function doesUrlExist(url) {
+async function doesUrlExist(repo, termsDir) {
+    const url = `${repo}/blob/main/${termsDir}`;
     try {
         const response = await fetch(url, { method: 'HEAD' });
         if (response.ok) {
