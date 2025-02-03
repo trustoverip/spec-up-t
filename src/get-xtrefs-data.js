@@ -24,7 +24,7 @@ const externalSpecsRepos = config.specs[0].external_specs;
 // Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.
 externalSpecsRepos.forEach(repo => {
     // Construct the URL for the terms directory of the repository
-    
+
     doesUrlExist(repo.url, repo.terms_dir).then(exists => {
         if (!exists) {
             const userInput = readlineSync.question(`\n   SPEC-UP-T: This external reference is not a valid URL:\n   Repository: ${repo.url},\n   Terms directory: ${repo.terms_dir}\n   Do you want to stop? (yes/no): `);
@@ -184,20 +184,23 @@ function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
         try {
             for (let xtref of allXTrefs.xtrefs) {
                 const fetchedData = await searchGitHubCode(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir);
-
-                fetchedData.data.items.forEach(item => {
-                    // If the term is found according to the matchTerm function (in the first line, line should start with “[[def:), etc) add the commit hash and content to the xtref object
-                    if (matchTerm(item.content, xtref.term)) {
-                        // console.log('KORKOR item: ', item);
-                        xtref.commitHash = item.sha;
-                        xtref.content = item.content;
-                        console.log(`\n   SPEC-UP-T: Match found for term: ${xtref.term} in ${xtref.externalSpec};`);
-                    } else {
-                        xtref.commitHash = "not found";
-                        xtref.content = "This term was not found in the external repository.";
-                        console.log(`\n   SPEC-UP-T: No match found for term: ${xtref.term} in ${xtref.externalSpec};`);
-                    }
-                });
+                if (fetchedData.data.items.length === 0) {
+                    xtref.commitHash = "not found";
+                    xtref.content = "This term was not found in the external repository.";
+                } else {
+                    fetchedData.data.items.forEach(item => {
+                        // If the term is found according to the matchTerm function (in the first line, line should start with “[[def:), etc) add the commit hash and content to the xtref object
+                        if (matchTerm(item.content, xtref.term)) {
+                            xtref.commitHash = item.sha;
+                            xtref.content = item.content;
+                            console.log(`\n   SPEC-UP-T: Match found for term: ${xtref.term} in ${xtref.externalSpec};`);
+                        } else {
+                            xtref.commitHash = "not found";
+                            xtref.content = "This term was not found in the external repository.";
+                            console.log(`\n   SPEC-UP-T: No match found for term: ${xtref.term} in ${xtref.externalSpec};`);
+                        }
+                    });
+                }
             }
 
             const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
