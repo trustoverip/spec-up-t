@@ -83,9 +83,9 @@ function fetchCommitHashes() {
       };
    }
 
-   // B: Debounced “GitHub rate limit exceeded” error message
+   // B: Debounced “GitHub API rate limit exceeded” error message
    const debouncedError = debounce(() => {
-      notyf.error('GitHub rate limit exceeded. See <a target="_blank" rel="noopener" href="https://trustoverip.github.io/spec-up-t-website/docs/github-token/">documentation</a> for more info.');
+      notyf.error('GitHub API rate limit exceeded. See <a target="_blank" rel="noopener" href="https://trustoverip.github.io/spec-up-t-website/docs/github-token/">documentation</a> for more info.');
    }, 3000); // Delay in milliseconds
 
    // Fetch the content of a term-file from GitHub
