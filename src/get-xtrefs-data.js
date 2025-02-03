@@ -22,6 +22,15 @@ const { addPath, getPath, getAllPaths } = require('./config/paths');
 const externalSpecsRepos = config.specs[0].external_specs;
 
 // Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.
+if (externalSpecsRepos.length === 0) {
+    console.log('No external reference found.');
+    const userInput = readlineSync.question('Do you want to stop? (yes/no): ');
+    if (userInput.toLowerCase() === 'yes' || userInput.toLowerCase() === 'y') {
+        console.log('Stopping...');
+        process.exit(1);
+    }
+}
+
 externalSpecsRepos.forEach(repo => {
     // Construct the URL for the terms directory of the repository
 
