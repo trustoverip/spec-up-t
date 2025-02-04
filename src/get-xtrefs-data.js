@@ -83,7 +83,7 @@ Please add external references to the specs.json file that you will find at the 
    
    Terms directory: ${repo.terms_dir}
 
-   Please fix the external references to the specs.json file that you will find at the root of your project.
+   Please fix the external references in the specs.json file that you will find at the root of your project.
 
    Do you want to stop? (yes/no): `);
                     if (userInput.toLowerCase() === 'yes' || userInput.toLowerCase() === 'y') {
