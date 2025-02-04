@@ -1,3 +1,5 @@
+const isLineWithDefinition = require('../utils/isLineWithDefinition').isLineWithDefinition;
+
 function matchTerm(text, term) {
     if (!text || typeof text !== 'string') {
         // console.error('Invalid text:', text);
@@ -7,11 +9,10 @@ function matchTerm(text, term) {
 
     const firstLine = text.split('\n')[0].trim();
 
-    // Check if the string starts with `[[def:` and ends with `]]`
-    if (!firstLine.startsWith('[[def:') || !firstLine.endsWith(']]')) {
+    if (isLineWithDefinition(firstLine) === false) { 
         console.log('String does not start with `[[def:` or end with `]]`');
         return false;
-    }
+    };
 
     // Remove `[[def:` from the beginning and `]]` from the end
     let relevantPart = firstLine.slice(7, -2);
