@@ -37,20 +37,119 @@ async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, ow
         });
 
         // Log the search results
-        console.log("Total results:", searchResponse.data.total_count);
+        console.log(`Total matches for ${searchString} :`, searchResponse.data.total_count);
 
-        // Fetch the content of each file
+        /*
+        
+        Each item is a file that contains the search string one or more times. So if a search string is found in 'attribute-based-access-control.md' and 'abac.md', both files will be returned as separate items. Each item contains “text_matches”.
+
+        - text_matches can contain multiple objects if there are multiple matches in the file.
+        - fragment is a snippet of the file content around the matched search string, not the entire file content.
+
+        In example below:
+
+        - The total_count is 2, indicating there are two files that contain the search string.
+        - Each item in the items array represents a file.
+        - The text_matches array within each item contains objects representing different matches of the search string within the file.
+        - Each fragment is a snippet of the file content around the matched search string, not the entire file content.
+
+        {
+        "total_count": 2,
+        "items": [
+            {
+            "name": "example-file1.md",
+            "path": "docs/example-file1.md",
+            "sha": "abc123",
+            "url": "https://api.github.com/repositories/123456789/contents/docs/example-file1.md",
+            "git_url": "https://api.github.com/repositories/123456789/git/blobs/abc123",
+            "html_url": "https://github.com/owner/repo/blob/main/docs/example-file1.md",
+            "repository": {
+                "id": 123456789,
+                "name": "repo",
+                "full_name": "owner/repo",
+                "owner": {
+                "login": "owner",
+                "id": 12345,
+                "avatar_url": "https://avatars.githubusercontent.com/u/12345?v=4",
+                "url": "https://api.github.com/users/owner"
+                }
+            },
+            "text_matches": [
+                {
+                "object_url": "https://api.github.com/repositories/123456789/contents/docs/example-file1.md",
+                "object_type": "FileContent",
+                "property": "content",
+                "fragment": "This is an example content with the search string.",
+                "matches": [
+                    {
+                    "text": "search string",
+                    "indices": [31, 44]
+                    }
+                ]
+                },
+                {
+                "object_url": "https://api.github.com/repositories/123456789/contents/docs/example-file1.md",
+                "object_type": "FileContent",
+                "property": "content",
+                "fragment": "Another occurrence of the search string in the file.",
+                "matches": [
+                    {
+                    "text": "search string",
+                    "indices": [25, 38]
+                    }
+                ]
+                }
+            ]
+            },
+            {
+            "name": "example-file2.md",
+            "path": "docs/example-file2.md",
+            "sha": "def456",
+            "url": "https://api.github.com/repositories/123456789/contents/docs/example-file2.md",
+            "git_url": "https://api.github.com/repositories/123456789/git/blobs/def456",
+            "html_url": "https://github.com/owner/repo/blob/main/docs/example-file2.md",
+            "repository": {
+                "id": 123456789,
+                "name": "repo",
+                "full_name": "owner/repo",
+                "owner": {
+                "login": "owner",
+                "id": 12345,
+                "avatar_url": "https://avatars.githubusercontent.com/u/12345?v=4",
+                "url": "https://api.github.com/users/owner"
+                }
+            },
+            "text_matches": [
+                {
+                "object_url": "https://api.github.com/repositories/123456789/contents/docs/example-file2.md",
+                "object_type": "FileContent",
+                "property": "content",
+                "fragment": "This file also contains the search string.",
+                "matches": [
+                    {
+                    "text": "search string",
+                    "indices": [25, 38]
+                    }
+                ]
+                }
+            ]
+            }
+        ]
+        }
+        */
+
         for (const item of searchResponse.data.items) {
             // Check if text_matches exists and is not empty
             if (!item.text_matches || item.text_matches.length === 0) {
-                console.log(`Skipping ${item.path}: No text matches found.`);
+                // console.log(`Skipping ${item.path}: No text matches found.`);
                 continue;
             }
 
             // Check if the match is in the first line using text_matches
             const isFirstLineMatch = item.text_matches.some(match => {
+                // Check if fragment exists, if not, skip this match
                 if (!match.fragment) {
-                    console.log(`Skipping ${item.path}: No fragment found in text match.`);
+                    // console.log(`Skipping ${item.path}: No fragment found in text match.`);
                     return false;
                 }
 
@@ -59,8 +158,8 @@ async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, ow
             });
 
             if (!isFirstLineMatch) {
-                console.log(`Skipping ${item.path}: Match not in the first line.`);
-                continue; // Skip this file
+                // console.log(`Skipping ${item.path}: Match not in the first line.`);
+                continue; // Skip the content fetching if the match is not in the first line and skip to the next item
             }
 
             // Fetch file content
