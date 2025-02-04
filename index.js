@@ -2,7 +2,6 @@ const { initialize } = require('./src/init');
 
 module.exports = async function (options = {}) {
   try {
-    // Run the initialization first
     await initialize();
 
     const fs = require('fs-extra');
