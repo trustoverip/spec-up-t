@@ -4,7 +4,6 @@ module.exports = async function (options = {}) {
   try {
     // Run the initialization first
     await initialize();
-    console.log('Initialization complete. Proceeding with the rest of the module logic...');
 
     const fs = require('fs-extra');
     const path = require('path');
