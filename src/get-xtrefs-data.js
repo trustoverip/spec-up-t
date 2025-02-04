@@ -112,7 +112,7 @@ Please add external references to the specs.json file that you will find at the 
         const outputPathJSON = 'output/xtrefs-data.json';
         const outputPathJS = 'output/xtrefs-data.js';
         const outputPathJSTimeStamped = 'output/xtrefs-history/xtrefs-data-' + Date.now() + '.js';
-        
+
         // Function to extend xtref objects with additional information, such as repository URL and directory information.
         function extendXTrefs(config, xtrefs) {
             if (config.specs[0].external_specs_repos) {
@@ -176,7 +176,9 @@ Please add external references to the specs.json file that you will find at the 
         // If the output JSON file exists, load its data.
         if (fs.existsSync(outputPathJSON)) {
             const existingXTrefs = fs.readJsonSync(outputPathJSON);
-            allXTrefs = existingXTrefs && existingXTrefs.xtrefs ? existingXTrefs : { xtrefs: [] };
+            if (existingXTrefs && existingXTrefs.xtrefs) {
+                allXTrefs = existingXTrefs;
+            }
         }
 
         // Collect all markdown content
