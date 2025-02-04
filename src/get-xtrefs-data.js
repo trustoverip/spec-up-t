@@ -67,11 +67,8 @@ Please add external references to the specs.json file that you will find at the 
     }
 
     function main() {
-        const path = require('path');
-        const { searchGitHubCode } = require('./get-xtrefs-data/searchGitHubCode.js');
-        const { matchTerm } = require('./get-xtrefs-data/matchTerm');
+        const { processXTrefsData } = require('./get-xtrefs-data/processXTrefsData.js');
         const { doesUrlExist } = require('./utils/doesUrlExist.js');
-        const { addPath, getPath, getAllPaths } = require('./config/paths');
 
         // Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.
         externalSpecsRepos.forEach(repo => {
@@ -236,41 +233,9 @@ Please add external references to the specs.json file that you will find at the 
         //     }
         // ]
 
-        (async () => {
-            try {
-                for (let xtref of allXTrefs.xtrefs) {
-                    const fetchedData = await searchGitHubCode(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir);
-                    if (fetchedData.data.items.length === 0) {
-                        xtref.commitHash = "not found";
-                        xtref.content = "This term was not found in the external repository.";
-                    } else {
-                        fetchedData.data.items.forEach(item => {
-                            // If the term is found according to the matchTerm function (in the first line, line should start with “[[def:), etc) add the commit hash and content to the xtref object
-                            if (matchTerm(item.content, xtref.term)) {
-                                xtref.commitHash = item.sha;
-                                xtref.content = item.content;
-                                console.log(`\n   SPEC-UP-T: Match found for term: ${xtref.term} in ${xtref.externalSpec};`);
-                            } else {
-                                xtref.commitHash = "not found";
-                                xtref.content = "This term was not found in the external repository.";
-                                console.log(`\n   SPEC-UP-T: No match found for term: ${xtref.term} in ${xtref.externalSpec};`);
-                            }
-                        });
-                    }
-                }
+        
+        processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped);        
 
-                const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
-                fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
-                const stringReadyForFileWrite = `const allXTrefs = ${allXTrefsStr};`;
-                fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
-                fs.writeFileSync(outputPathJSTimeStamped, stringReadyForFileWrite, 'utf8');
-
-                // Run the render function to update the HTML file
-                require('../index.js')({ nowatch: true });
-            } catch (error) {
-                console.error('An error occurred:', error);
-            }
-        })();
     }
 
 
