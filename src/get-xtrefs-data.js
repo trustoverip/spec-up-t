@@ -112,6 +112,7 @@ Please add external references to the specs.json file that you will find at the 
         const outputPathJSON = 'output/xtrefs-data.json';
         const outputPathJS = 'output/xtrefs-data.js';
         const outputPathJSTimeStamped = 'output/xtrefs-history/xtrefs-data-' + Date.now() + '.js';
+        
         // Function to extend xtref objects with additional information, such as repository URL and directory information.
         function extendXTrefs(config, xtrefs) {
             if (config.specs[0].external_specs_repos) {
