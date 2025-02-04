@@ -1,4 +1,4 @@
-async function searchGitHubCode(GITHUB_API_TOKEN, searchString, owner, repo, subdirectory) {
+async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, owner, repo, subdirectory) {
     const { Octokit } = await import("octokit");
     const { throttling } = await import("@octokit/plugin-throttling");
 
@@ -94,4 +94,4 @@ async function searchGitHubCode(GITHUB_API_TOKEN, searchString, owner, repo, sub
     }
 }
 
-exports.searchGitHubCode = searchGitHubCode;
+exports.fetchTermsFromGitHubRepository = fetchTermsFromGitHubRepository;
