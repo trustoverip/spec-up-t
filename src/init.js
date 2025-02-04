@@ -13,7 +13,6 @@ async function initialize() {
     try {
         // Check if the init script has already run
         if (await fs.pathExists(initFlagPath)) {
-            console.log('Initialization has already been completed.');
             return;
         }
 
