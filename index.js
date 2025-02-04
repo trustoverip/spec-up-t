@@ -456,7 +456,6 @@ module.exports = async function (options = {}) {
         }).catch(() => process.exit(1));
 
       });
-      console.log('Module function executed successfully.');
     } catch (error) {
       console.error(`Error during initialization or module execution: ${error.message}`);
       throw error; // Re-throw to let the caller handle the error
