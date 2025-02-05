@@ -1,4 +1,5 @@
 async function isLineWithDefinition(line) {
+    line = line.trim();
     // Check if the string starts with `[[def:` and ends with `]]`
     if (line.startsWith('[[def:') && line.endsWith(']]')) {
         // console.log('String starts with `[[def:` and ends with `]]`');
