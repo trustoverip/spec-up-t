@@ -11,7 +11,7 @@
  */
 
 
-function collectExternalReferences() {
+function collectExternalReferences(options = {}) {
     require('dotenv').config();
     const fs = require('fs-extra');
     const readlineSync = require('readline-sync');
@@ -137,6 +137,7 @@ Please add external references to the specs.json file that you will find at the 
                             const urlParts = new URL(xtref.repoUrl).pathname.split('/');
                             xtref.owner = urlParts[1];
                             xtref.repo = urlParts[2];
+                            xtref.avatarUrl = repo.avatar_url;
                         }
                     });
 
@@ -239,7 +240,7 @@ Please add external references to the specs.json file that you will find at the 
         // ]
 
         
-        processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped);        
+        processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped, options);
 
     }
 
