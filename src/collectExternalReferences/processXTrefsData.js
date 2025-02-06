@@ -1,10 +1,26 @@
 const fs = require('fs');
 const { fetchTermsFromGitHubRepository } = require('./fetchTermsFromGitHubRepository.js');
 const { matchTerm } = require('./matchTerm.js');
+const { addPath, getPath, getAllPaths } = require('../config/paths');
 
+// Directory to store cached files
+const CACHE_DIR = getPath('githubcache');
 
 async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped, options) {
     try {
+
+        // Clear the cache (remove the cache directory) if the cache option is set to false
+        if (options.cache === false) {
+            if (fs.existsSync(CACHE_DIR)) {
+                fs.rmdirSync(CACHE_DIR, { recursive: true });
+            }
+        }
+        
+        // Ensure the cache directory exists, so that we can store the fetched data
+        if (!fs.existsSync(CACHE_DIR)) {
+            fs.mkdirSync(CACHE_DIR, { recursive: true });
+        }
+
         for (let xtref of allXTrefs.xtrefs) {
             // Go and look if the term is in the external repository and if so, get the commit hash, and other meta info plus the content of the file
             const item = await fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir, options);
