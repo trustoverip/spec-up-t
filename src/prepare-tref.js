@@ -10,6 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const dedent = require('dedent');
 
 function getLocalXTrefContent(externalSpec, term) {
     const filePath = path.join('output', 'xtrefs-data.json');
@@ -18,7 +19,14 @@ function getLocalXTrefContent(externalSpec, term) {
 
     for (const xtref of xtrefs) {
         if (xtref.externalSpec === externalSpec && xtref.term === term) {
-            return {content: xtref.content, commitHash: xtref.commitHash};
+            return {
+                content: xtref.content,
+                commitHash: xtref.commitHash,
+                owner: xtref.owner,
+                repo: xtref.repo,
+                repoUrl: xtref.repoUrl,
+                avatarUrl: xtref.avatarUrl
+            };
         }
     }
 
@@ -67,7 +75,6 @@ function prepareTref(directory) {
                                 if (match) {
                                     const result = match[1].split(',').map(term => term.trim());
                                     localXTrefContent = getLocalXTrefContent(result[0], result[1]);
-
                                     /* 
 
                                         Remove the `[[def: ...]]:` lines from the content.
@@ -85,7 +92,24 @@ function prepareTref(directory) {
 
                                     localXTrefContent.content = localXTrefContent.content.replace(defPart, '');
 
-                                    fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->\n\n<span class="transcluded-xref-term">transcluded xref</span>' + '\n\n~ Commit Hash: ' + localXTrefContent.commitHash + '\n\n\n' + localXTrefContent.content, 'utf8');
+                                    const readyForWrite = dedent`
+                                        ${match[0]}
+
+                                        <!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->
+
+                                        External reference
+                                        
+                                        | Owner | Repo | Avatar |
+                                        |----------|----------|
+                                        | ${localXTrefContent.owner}    | [${localXTrefContent.repo}](${localXTrefContent.repoUrl}) | ![avatar](${localXTrefContent.avatarUrl}) |
+                                        
+
+                                        ~ Commit Hash: ${localXTrefContent.commitHash}
+
+                                        ${localXTrefContent.content}
+                                        `;
+
+                                    fs.writeFileSync(itemPath, readyForWrite, 'utf8');
                                 }
                             }
                         }
