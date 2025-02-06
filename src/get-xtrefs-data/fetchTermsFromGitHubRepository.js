@@ -1,3 +1,22 @@
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto'); // For generating cache keys
+const isLineWithDefinition = require('../utils/isLineWithDefinition').isLineWithDefinition;
+
+// Directory to store cached files
+const CACHE_DIR = path.join('output', 'github-cache');
+
+// Ensure the cache directory exists
+if (!fs.existsSync(CACHE_DIR)) {
+    fs.mkdirSync(CACHE_DIR, { recursive: true });
+}
+
+// Helper function to generate a cache key
+function generateCacheKey(...args) {
+    const hash = crypto.createHash('md5').update(args.join('-')).digest('hex');
+    return hash;
+}
+
 async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, owner, repo, subdirectory) {
     const { Octokit } = await import("octokit");
     const { throttling } = await import("@octokit/plugin-throttling");
@@ -28,13 +47,29 @@ async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, ow
     });
 
     try {
-        // Perform the search using Octokit with exact match
-        const searchResponse = await octokit.rest.search.code({
-            q: `"${searchString}" repo:${owner}/${repo} path:${subdirectory}`, // Exact match in subdirectory
-            headers: {
-                Accept: "application/vnd.github.v3.text-match+json", // Include text-match media type
-            },
-        });
+        // Generate a cache key for the search query
+        const searchCacheKey = generateCacheKey('search', searchString, owner, repo, subdirectory);
+        const searchCacheFilePath = path.join(CACHE_DIR, `${searchCacheKey}.json`);
+
+        let searchResponse;
+
+        // Check if the search response is already cached
+        if (fs.existsSync(searchCacheFilePath)) {
+            console.log(`Serving search results from cache: ${searchCacheFilePath}`);
+            searchResponse = JSON.parse(fs.readFileSync(searchCacheFilePath, 'utf-8'));
+        } else {
+            // Perform the search using Octokit with exact match
+            console.log(`Performing search and caching results: ${searchCacheFilePath}`);
+            searchResponse = await octokit.rest.search.code({
+                q: `"${searchString}" repo:${owner}/${repo} path:${subdirectory}`, // Exact match in subdirectory
+                headers: {
+                    Accept: "application/vnd.github.v3.text-match+json", // Include text-match media type
+                },
+            });
+
+            // Cache the search response
+            fs.writeFileSync(searchCacheFilePath, JSON.stringify(searchResponse), 'utf-8');
+        }
 
         // Log the search results
         console.log(`Total matches for ${searchString} :`, searchResponse.data.total_count);
@@ -141,56 +176,66 @@ async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, ow
         for (const item of searchResponse.data.items) {
             // Check if text_matches exists and is not empty
             if (!item.text_matches || item.text_matches.length === 0) {
-                // console.log(`Skipping ${item.path}: No text matches found.`);
                 continue;
             }
 
-            // Check if the match is in the first line using text_matches
-            const isFirstLineMatch = item.text_matches.some(match => {
-                // Check if fragment exists, if not, skip this match
-                if (!match.fragment) {
-                    // console.log(`Skipping ${item.path}: No fragment found in text match.`);
-                    return false;
+            // Loop through each text match. Can contain multiple fragments
+            for (const match of item.text_matches) {
+                // Split the fragment into lines, lines can be empty ('')
+                const lines = match.fragment.split("\n");
+                for (const line of lines) {
+                    if (isLineWithDefinition(line)) {
+                        // Generate a unique cache key for the file
+                        const fileCacheKey = generateCacheKey('file', owner, repo, item.path);
+                        const fileCacheFilePath = path.join(CACHE_DIR, `${fileCacheKey}.txt`);
+
+                        let fileContent;
+
+                        // Check if the file is already cached
+                        if (fs.existsSync(fileCacheFilePath)) {
+                            console.log(`Serving file from cache: ${fileCacheFilePath}`);
+                            fileContent = fs.readFileSync(fileCacheFilePath, 'utf-8');
+                        } else {
+                            // Fetch file content from GitHub
+                            console.log(`Downloading and caching file: ${fileCacheFilePath}`);
+                            try {
+                                const fileContentResponse = await octokit.rest.repos.getContent({
+                                    owner: item.repository.owner.login, // Repository owner
+                                    repo: item.repository.name, // Repository name
+                                    path: item.path, // File path
+                                });
+
+                                // Decode the file content (it's base64-encoded)
+                                if (fileContentResponse.data.content) {
+                                    fileContent = Buffer.from(fileContentResponse.data.content, "base64").toString("utf-8");
+                                    // Save the file to the cache
+                                    fs.writeFileSync(fileCacheFilePath, fileContent, 'utf-8');
+                                } else {
+                                    // If the file is larger than 1 MB, GitHub's API will return a download URL instead of the content.
+                                    console.log("File is too large. Download URL:", fileContentResponse.data.download_url);
+                                    fileContent = "";
+                                }
+                            } catch (error) {
+                                console.error(`Error fetching content for ${item.path}:`, error);
+                                fileContent = ""; // Set content to an empty string if there's an error
+                            }
+                        }
+
+                        // Attach the content to the item
+                        item.content = fileContent;
+
+                        // Return the item as soon as we find the correct line
+                        return item;
+                    }
                 }
-
-                const firstLine = match.fragment.split("\n")[0];
-                return firstLine.includes(searchString);
-            });
-
-            if (!isFirstLineMatch) {
-                // console.log(`Skipping ${item.path}: Match not in the first line.`);
-                continue; // Skip the content fetching if the match is not in the first line and skip to the next item
             }
-
-            // Fetch file content
-            let content = "";
-            try {
-                const fileContentResponse = await octokit.rest.repos.getContent({
-                    owner: item.repository.owner.login, // Repository owner
-                    repo: item.repository.name, // Repository name
-                    path: item.path, // File path
-                });
-
-                // Decode the file content (it's base64-encoded)
-                if (fileContentResponse.data.content) {
-                    content = Buffer.from(fileContentResponse.data.content, "base64").toString("utf-8");
-                } else {
-                    // If the file is larger than 1 MB, GitHub's API will return a download URL instead of the content.
-                    console.log("File is too large. Download URL:", fileContentResponse.data.download_url);
-                }
-            } catch (error) {
-                console.error(`Error fetching content for ${item.path}:`, error);
-                content = ""; // Set content to an empty string if there's an error
-            }
-
-            // Attach the content to the item
-            item.content = content;
         }
-
-        return searchResponse;
     } catch (error) {
         console.error("Error searching GitHub or fetching file content:", error);
     }
+
+    // If no item is found, return null or undefined
+    return null;
 }
 
 exports.fetchTermsFromGitHubRepository = fetchTermsFromGitHubRepository;
