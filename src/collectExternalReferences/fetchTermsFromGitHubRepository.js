@@ -7,11 +7,6 @@ const { addPath, getPath, getAllPaths } = require('../config/paths');
 // Directory to store cached files
 const CACHE_DIR = getPath('githubcache');
 
-// Ensure the cache directory exists
-if (!fs.existsSync(CACHE_DIR)) {
-    fs.mkdirSync(CACHE_DIR, { recursive: true });
-}
-
 // Helper function to generate a cache key
 function generateCacheKey(...args) {
     const hash = crypto.createHash('md5').update(args.join('-')).digest('hex');
