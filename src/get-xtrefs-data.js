@@ -11,11 +11,13 @@
  */
 
 
-function updateXTrefs(GITHUB_API_TOKEN, skipExisting) {
+function updateXTrefs() {
+    require('dotenv').config();
     const fs = require('fs-extra');
     const readlineSync = require('readline-sync');
     const config = fs.readJsonSync('specs.json');
     const externalSpecsRepos = config.specs[0].external_specs;
+    const GITHUB_API_TOKEN = process.env.GITHUB_API_TOKEN;
 
     const explanationPAT =
 `\n   SPEC-UP-T: No GitHub Personal Access Token (PAT) was found.
