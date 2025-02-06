@@ -11,7 +11,7 @@
  */
 
 
-function updateXTrefs() {
+function collectExternalReferences() {
     require('dotenv').config();
     const fs = require('fs-extra');
     const readlineSync = require('readline-sync');
@@ -69,7 +69,7 @@ Please add external references to the specs.json file that you will find at the 
     }
 
     function main() {
-        const { processXTrefsData } = require('./get-xtrefs-data/processXTrefsData.js');
+        const { processXTrefsData } = require('./collectExternalReferences/processXTrefsData.js');
         const { doesUrlExist } = require('./utils/doesUrlExist.js');
 
         // Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.
@@ -247,5 +247,5 @@ Please add external references to the specs.json file that you will find at the 
 }
 
 module.exports = {
-    updateXTrefs
+    collectExternalReferences
 }

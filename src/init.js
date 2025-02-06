@@ -5,7 +5,7 @@ const outputDir = path.join(process.cwd(), 'output');
 const initFlagPath = path.join(outputDir, 'init.flag');
 let config = fs.readJsonSync(path.join(process.cwd(), 'specs.json'));
 
-const updateXTrefs = require('./get-xtrefs-data.js').updateXTrefs;
+const collectExternalReferences = require('./collectExternalReferences.js').collectExternalReferences;
 const { prepareTref } = require('./prepare-tref');
 
 async function initialize() {
@@ -17,7 +17,7 @@ async function initialize() {
 
         // Place the init script here
         
-        updateXTrefs(process.env.GITHUB_API_TOKEN, false);
+        collectExternalReferences(process.env.GITHUB_API_TOKEN, false);
         // prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
         // End of the init script
