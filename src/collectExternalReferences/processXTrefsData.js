@@ -13,6 +13,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
             if (item !== null && matchTerm(item.content, xtref.term)) {
                 xtref.commitHash = item.sha;
                 xtref.content = item.content;
+                xtref.avatarUrl = item.repository.owner.avatar_url;
                 console.log(`\n   SPEC-UP-T: Match found for term: ${xtref.term} in ${xtref.externalSpec};`);
             } else {
                 xtref.commitHash = "not found";
