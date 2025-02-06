@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const outputDir = path.join(process.cwd(), 'output');
 const initFlagPath = path.join(outputDir, 'init.flag');
-const collectExternalReferences = require('./collectExternalReferences.js').collectExternalReferences;
+const collectExternalReferences = require('./collect-external-references.js').collectExternalReferences;
 
 async function initialize() {
     try {
