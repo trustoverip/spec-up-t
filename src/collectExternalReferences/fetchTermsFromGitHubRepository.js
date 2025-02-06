@@ -2,9 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto'); // For generating cache keys
 const isLineWithDefinition = require('../utils/isLineWithDefinition').isLineWithDefinition;
+const { addPath, getPath, getAllPaths } = require('../config/paths');
 
 // Directory to store cached files
-const CACHE_DIR = path.join('output', 'github-cache');
+const CACHE_DIR = getPath('githubcache');
 
 // Ensure the cache directory exists
 if (!fs.existsSync(CACHE_DIR)) {
