@@ -97,14 +97,7 @@ function prepareTref(directory) {
 
                                         <!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->
 
-                                        External reference
-                                        
-                                        | Owner | Repo | Avatar |
-                                        |----------|----------|
-                                        | ${localXTrefContent.owner}    | [${localXTrefContent.repo}](${localXTrefContent.repoUrl}) | ![avatar](${localXTrefContent.avatarUrl}) |
-                                        
-
-                                        ~ Commit Hash: ${localXTrefContent.commitHash}
+                                        ~ <span class="meta-info">External reference: ![avatar](${localXTrefContent.avatarUrl}) ${localXTrefContent.owner} – [${localXTrefContent.repo}](${localXTrefContent.repoUrl}) – Commit Hash: ${localXTrefContent.commitHash}</span>
 
                                         ${localXTrefContent.content}
                                         `;
