@@ -1052,3 +1052,12 @@ article a[href^="https://"]:not(.btn)::after {
     transform: rotate(360deg);
   }
 }
+/* End Loader styling */
+
+dl img {
+  max-width: 20px;
+}
+
+.meta-info {
+  font-size: 0.8em;
+}
