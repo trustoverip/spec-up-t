@@ -5,7 +5,6 @@ const path = require('path');
 function addScriptsKeys(scriptKeys) {
     // Path to the package.json of the project where this script is run
     const packageJsonPath = path.resolve(__dirname, '../../../../', 'package.json');
-    // console.log('KORKOR packageJsonPath: ', packageJsonPath);
 
     // Read the package.json file
     fs.readFile(packageJsonPath, 'utf8', (err, data) => {
