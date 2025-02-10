@@ -10,7 +10,8 @@ const configScriptsKeys = {
     "help": "cat help.txt",
     "menu": "bash ./main.sh",
     "addremovexrefsource": "node --no-warnings -e \"require('spec-up-t/src/add-remove-xref-source.js')\"",
-    "configure": "node --no-warnings -e \"require('spec-up-t/src/configure.js')\""
+    "configure": "node --no-warnings -e \"require('spec-up-t/src/configure.js')\"",
+    "custom-update": "npm update && node -e \"require('spec-up-t/src/install-from-boilerplate/custom-update.js')\""
 };
 
 module.exports = { configScriptsKeys };
