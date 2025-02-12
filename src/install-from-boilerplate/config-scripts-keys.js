@@ -7,8 +7,8 @@ const configScriptsKeys = {
     "topdf": "node -e \"require('spec-up-t/src/create-pdf.js')\"",
     "freeze": "node -e \"require('spec-up-t/src/freeze.js')\"",
     "references": "node -e \"require('spec-up-t/src/references.js')\"",
-    "help": "cat help.txt",
-    "menu": "bash ./main.sh",
+    "help": "cat ./node_modules/spec-up-t/src/install-from-boilerplate/help.txt",
+    "menu": "bash ./node_modules/spec-up-t/src/install-from-boilerplate/menu.sh",
     "addremovexrefsource": "node --no-warnings -e \"require('spec-up-t/src/add-remove-xref-source.js')\"",
     "configure": "node --no-warnings -e \"require('spec-up-t/src/configure.js')\"",
     "custom-update": "npm update && node -e \"require('spec-up-t/src/install-from-boilerplate/custom-update.js')\""
