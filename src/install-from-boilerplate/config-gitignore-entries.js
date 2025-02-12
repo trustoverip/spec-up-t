@@ -10,8 +10,7 @@ const gitIgnoreEntries = {
         '.env',
         'coverage',
         'build',
-        '.history',
-        'speciaalgeval'
+        '.history'
 ],
 };
 
