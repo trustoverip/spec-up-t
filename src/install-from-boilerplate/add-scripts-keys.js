@@ -1,10 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
-// Function to add scripts to package.json
-function addScriptsKeys(scriptKeys) {
-    // Path to the package.json of the project where this script is run
-    const packageJsonPath = path.resolve(__dirname, '../../../../', 'package.json');
+/**
+ * Adds scripts to the package.json file.
+ * 
+ * @param {Object} scriptKeys - An object containing the scripts to add.
+ * @param {Object} [overwriteKeys={}] - An object specifying which scripts to overwrite if they already exist.
+ */
+function addScriptsKeys(scriptKeys, overwriteKeys = {}) {
+    const packageJsonPath = path.resolve(process.cwd(), 'package.json');
 
     // Read the package.json file
     fs.readFile(packageJsonPath, 'utf8', (err, data) => {
@@ -22,9 +26,9 @@ function addScriptsKeys(scriptKeys) {
                 packageJson.scripts = {};
             }
 
-            // Add new scripts without overwriting existing ones
+            // Add new scripts without overwriting existing ones unless specified in overwriteKeys
             for (const [key, value] of Object.entries(scriptKeys)) {
-                if (!packageJson.scripts[key]) {
+                if (!packageJson.scripts[key] || overwriteKeys[key]) {
                     packageJson.scripts[key] = value;
                 }
             }
@@ -45,3 +49,15 @@ function addScriptsKeys(scriptKeys) {
 
 // Export the function
 module.exports = addScriptsKeys;
+
+/*
+
+// Example usage:
+const configScriptsKeys = {  ...  };
+const overwriteConfig = { "edit": true }; // Overwrite only "edit" script
+
+addScriptsKeys(configScriptsKeys); // Do not overwrite any existing scripts
+
+addScriptsKeys(configScriptsKeys, overwriteConfig);  // Overwrite specified existing scripts 
+
+*/
