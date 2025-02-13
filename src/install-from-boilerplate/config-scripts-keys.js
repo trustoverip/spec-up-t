@@ -14,4 +14,21 @@ const configScriptsKeys = {
     "custom-update": "npm update && node -e \"require('spec-up-t/src/install-from-boilerplate/custom-update.js')\""
 };
 
-module.exports = { configScriptsKeys };
+// Defines which script keys to overwrite. If a key is not present, it will not be overwritten
+const configOverwriteScriptsKeys = {
+    "edit": true,
+    "render": true,
+    "dev": true,
+    "collectExternalReferencesCache": true,
+    "collectExternalReferencesNoCache": true,
+    "topdf": true,
+    "freeze": true,
+    "references": true,
+    "help": true,
+    "menu": true,
+    "addremovexrefsource": true,
+    "configure": true,
+    "custom-update": true
+};
+
+module.exports = { configScriptsKeys, configOverwriteScriptsKeys };
