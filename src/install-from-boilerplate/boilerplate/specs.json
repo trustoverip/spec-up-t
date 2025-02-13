@@ -13,9 +13,9 @@
                 "example-markup-in-markdown.md",
                 "spec-body.md"
             ],
-            "logo": "https://raw.githubusercontent.com/trustoverip/spec-up-t-starter-pack/main/spec-up-t-boilerplate/static/logo.svg",
+            "logo": "https://raw.githubusercontent.com/trustoverip/spec-up-t/refs/heads/master/src/install-from-boilerplate/boilerplate/static/logo.svg",
             "logo_link": "https://github.com/trustoverip/spec-up-t",
-            "favicon": "https://raw.githubusercontent.com/trustoverip/spec-up-t-starter-pack/main/spec-up-t-boilerplate/static/favicon.ico",
+            "favicon": "https://raw.githubusercontent.com/trustoverip/spec-up-t/refs/heads/master/src/install-from-boilerplate/boilerplate/static/favicon.ico",
             "source": {
                 "host": "github",
                 "account": "trustoverip",
