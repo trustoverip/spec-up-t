@@ -2,7 +2,7 @@ const path = require('path');
 
 // Configuration
 const gitIgnoreEntries = {
-    gitignorePath: path.join(__dirname, '../../../../', '.gitignore'),
+    gitignorePath: path.join(process.cwd(), '.gitignore'),
     filesToAdd: ['node_modules',
         '*.log',
         'dist',
