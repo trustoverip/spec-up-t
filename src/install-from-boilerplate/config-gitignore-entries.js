@@ -1,3 +1,5 @@
+const path = require('path');
+
 // Configuration
 const gitIgnoreEntries = {
     gitignorePath: path.join(__dirname, '../../../../', '.gitignore'),
