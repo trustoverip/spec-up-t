@@ -24,7 +24,7 @@ function copySystemFiles() {
         }
     });
 
-    console.log('✅ Copied system files to current directory.');
+    console.log('✅ Copied system files to current directory');
 }
 
 module.exports = copySystemFiles;

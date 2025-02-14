@@ -42,9 +42,9 @@ async function updateGitignore(gitignorePath, filesToAdd) {
         // Write the updated content back to the .gitignore file
         await fs.writeFile(gitignorePath, updatedGitignoreContent, 'utf8');
 
-        console.log('Updated .gitignore file');
+        console.log('✅ Updated .gitignore file');
     } catch (error) {
-        console.error('Error updating .gitignore:', error.message);
+        console.error('❌ Error updating .gitignore:', error.message);
     }
 }
 

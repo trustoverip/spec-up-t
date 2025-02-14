@@ -10,4 +10,4 @@ addScriptsKeys(configScriptsKeys, configOverwriteScriptsKeys);
 copySystemFiles();
 updateGitignore(gitIgnoreEntries.gitignorePath, gitIgnoreEntries.filesToAdd);
 
-console.log("✅ custom update done");
+console.log("✅ Custom update done");

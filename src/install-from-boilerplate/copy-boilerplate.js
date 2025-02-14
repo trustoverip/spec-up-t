@@ -16,7 +16,7 @@ function copyBoilerplate() {
     const gitignoreDestPath = path.join(__dirname, '../../../../', '.gitignore');
     fs.renameSync(gitignorePath, gitignoreDestPath);
 
-    console.log('✅ Copied spec-up-t-boilerplate to current directory.');
+    console.log('✅ Copied spec-up-t-boilerplate to current directory');
 }
 
 module.exports = copyBoilerplate;
