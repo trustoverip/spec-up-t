@@ -93,14 +93,17 @@ function prepareTref(directory) {
                                     localXTrefContent.content = localXTrefContent.content.replace(defPart, '');
 
                                     const readyForWrite = dedent`
-                                        ${match[0]}
-
-                                        <!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->
-
-                                        ~ <span class="meta-info"><span>![avatar](${localXTrefContent.avatarUrl}) ${localXTrefContent.owner}</span> <span>[${localXTrefContent.repo}](${localXTrefContent.repoUrl})</span> <span class="commit-hash">Commit Hash: ${localXTrefContent.commitHash}</span></span>
-
-                                        ${localXTrefContent.content}
-                                        `;
+${match[0]}
+<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->
+<dd>
+| Property | Value |
+| -------- | ----- |
+| Owner | ![avatar](${localXTrefContent.avatarUrl}) ${localXTrefContent.owner} |
+| Repo | [${localXTrefContent.repo}](${localXTrefContent.repoUrl}) |
+| Commit hash | ${localXTrefContent.commitHash} |
+</dd>
+${localXTrefContent.content}
+`;
 
                                     fs.writeFileSync(itemPath, readyForWrite, 'utf8');
                                 }
