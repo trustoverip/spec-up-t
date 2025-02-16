@@ -74,7 +74,7 @@ Please add external references to the specs.json file that you will find at the 
 
         // Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.
         externalSpecsRepos.forEach(repo => {
-            doesUrlExist(repo.url, repo.terms_dir).then(exists => {
+            doesUrlExist(repo.url).then(exists => {
                 if (!exists) {
                     const userInput = readlineSync.question(
 `   SPEC-UP-T: This external reference is not a valid URL:
