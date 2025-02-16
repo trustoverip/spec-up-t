@@ -11,6 +11,7 @@
       "assets/css/backToTop.css",
       "assets/css/notyf.css",
       "assets/css/collapse-definitions.css",
+      "assets/css/collapse-meta-info.css",
       "assets/css/modal.css",
       "assets/css/create-alphabet-index.css",
       "assets/css/pdf-download.css",
@@ -46,6 +47,7 @@
       "assets/js/help-buttons.js",
       "assets/js/create-alphabet-index.js",
       "assets/js/collapse-definitions.js",
+      "assets/js/collapse-meta-info.js",
       "assets/js/add-href-to-snapshot-link.js",
       "assets/js/index.js",
       "assets/js/css-helper.js"
