@@ -17,8 +17,8 @@ module.exports = async function (options = {}) {
     const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
     runJsonKeyValidatorSync();
 
-  // const { createTermRelations } = require('./src/create-term-relations.js');
-  // createTermRelations();
+    // const { createTermRelations } = require('./src/create-term-relations.js');
+    // createTermRelations();
 
     const { createTermIndex } = require('./src/create-term-index.js');
     createTermIndex();
@@ -43,20 +43,20 @@ module.exports = async function (options = {}) {
     let references = [];
     let definitions = [];
 
-  const katexRules = ['math_block', 'math_inline'];
-  const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
-  const replacerArgsRegex = /\s*,+\s*/;
-  const replacers = [
-    {
-      test: 'insert',
-      transform: function (path) {
-        if (!path) return '';
-        return fs.readFileSync(path, 'utf8');
+    const katexRules = ['math_block', 'math_inline'];
+    const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
+    const replacerArgsRegex = /\s*,+\s*/;
+    const replacers = [
+      {
+        test: 'insert',
+        transform: function (path) {
+          if (!path) return '';
+          return fs.readFileSync(path, 'utf8');
+        }
       }
-    }
-  ];
-  
-  prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
+    ];
+
+    prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
     // Synchronously process markdown files
     fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
@@ -65,10 +65,10 @@ module.exports = async function (options = {}) {
       // Test if xtrefs-data.js exists, else make it an empty string
       const inputPath = path.join('output', 'xtrefs-data.js');
 
-    let xtrefsData = '';
-    if (fs.existsSync(inputPath)) {
-      xtrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
-    }
+      let xtrefsData = '';
+      if (fs.existsSync(inputPath)) {
+        xtrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
+      }
 
       return xtrefsData;
     }
@@ -86,21 +86,21 @@ module.exports = async function (options = {}) {
       return path.trim().replace(/\/$/g, '') + '/';
     }
 
-  function renderRefGroup(type) {
-    let group = specGroups[type];
-    if (!group) return '';
-    let html = Object.keys(group).sort().reduce((html, name) => {
-      let ref = group[name];
-      return html += `
+    function renderRefGroup(type) {
+      let group = specGroups[type];
+      if (!group) return '';
+      let html = Object.keys(group).sort().reduce((html, name) => {
+        let ref = group[name];
+        return html += `
         <dt id="ref:${name}">${name}</dt>
         <dd>
           <cite><a href="${ref.href}">${ref.title}</a></cite>. 
           ${ref.authors.join('; ')}; ${ref.rawDate}. <span class="reference-status">Status: ${ref.status}</span>.
         </dd>
       `;
-    }, '<dl class="reference-list">');
-    return `\n${html}\n</dl>\n`;
-  }
+      }, '<dl class="reference-list">');
+      return `\n${html}\n</dl>\n`;
+    }
 
     function findKatexDist() {
       const relpath = "node_modules/katex/dist";
@@ -114,74 +114,6 @@ module.exports = async function (options = {}) {
         }
       }
       throw Error("katex distribution could not be located");
-    }
-
-    // Custom plugin to add class to <dl> and the last <dd> in each series after a <dt>
-    function addClassToDefinitionList(md) {
-      const originalRender = md.renderer.rules.dl_open || function (tokens, idx, options, env, self) {
-        return self.renderToken(tokens, idx, options);
-      };
-
-      // Variable to keep track of whether the class has been added to the first <dl> after the target HTML
-      let classAdded = false;
-
-      md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
-
-        const targetHtml = 'terminology-section-start-h7vc6omi2hr2880';
-        let targetIndex = -1;
-
-        // Find the index of the target HTML
-        for (let i = 0; i < tokens.length; i++) {
-          if (tokens[i].content && tokens[i].content.includes(targetHtml)) {
-            targetIndex = i;
-            break;
-          }
-        }
-
-        // Add class to the first <dl> only if it comes after the target HTML
-        if (targetIndex !== -1 && idx > targetIndex && !classAdded) {
-          tokens[idx].attrPush(['class', 'terms-and-definitions-list']);
-          classAdded = true;
-        }
-
-        let lastDdIndex = -1;
-
-        for (let i = idx + 1; i < tokens.length; i++) {
-          if (tokens[i].type === 'dl_close') {
-            // Add class to the last <dd> before closing <dl>
-            if (lastDdIndex !== -1) {
-              const ddToken = tokens[lastDdIndex];
-              const classIndex = ddToken.attrIndex('class');
-              if (classIndex < 0) {
-                ddToken.attrPush(['class', 'last-dd']);
-              } else {
-                ddToken.attrs[classIndex][1] += ' last-dd';
-              }
-            }
-            break;
-          }
-
-          if (tokens[i].type === 'dt_open') {
-            // Add class to the last <dd> before a new <dt>
-            if (lastDdIndex !== -1) {
-              const ddToken = tokens[lastDdIndex];
-              const classIndex = ddToken.attrIndex('class');
-              if (classIndex < 0) {
-                ddToken.attrPush(['class', 'last-dd']);
-              } else {
-                ddToken.attrs[classIndex][1] += ' last-dd';
-              }
-              lastDdIndex = -1; // Reset for the next series
-            }
-          }
-
-          if (tokens[i].type === 'dd_open') {
-            lastDdIndex = i;
-          }
-        }
-
-        return originalRender(tokens, idx, options, env, self);
-      };
     }
 
     try {
@@ -201,11 +133,11 @@ module.exports = async function (options = {}) {
       const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
       const containers = require('markdown-it-container');
 
-    /* 
-    `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
-    
-    The md function (which is an instance of the markdown-it parser) takes a Markdown string as its primary argument. It is called elsewhere as follows: `md.render(doc)`
-    */
+      /* 
+      `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
+      
+      The md function (which is an instance of the markdown-it parser) takes a Markdown string as its primary argument. It is called elsewhere as follows: `md.render(doc)`
+      */
       const md = require('markdown-it')({
         html: true,
         linkify: true,
@@ -310,10 +242,6 @@ module.exports = async function (options = {}) {
         })
         .use(require('@traptitech/markdown-it-katex'))
 
-
-
-      md.use(addClassToDefinitionList);
-
       async function render(spec, assets) {
         try {
           noticeTitles = {};
@@ -341,14 +269,14 @@ module.exports = async function (options = {}) {
               }
 
               let doc = docs.join("\n");
-  
-            // `doc` is markdown 
-            doc = applyReplacers(doc);
-  
-            md[spec.katex ? "enable" : "disable"](katexRules);
-              
-            // `render` is the rendered HTML
-            const render = md.render(doc);
+
+              // `doc` is markdown 
+              doc = applyReplacers(doc);
+
+              md[spec.katex ? "enable" : "disable"](katexRules);
+
+              // `render` is the rendered HTML
+              const render = md.render(doc);
 
               const templateInterpolated = interpolate(template, {
                 title: spec.title,
