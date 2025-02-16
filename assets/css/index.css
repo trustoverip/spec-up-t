@@ -1046,28 +1046,20 @@ dl img {
   vertical-align: middle;
 }
 
-.meta-info {
-  font-size: 0.8em;
-}
 
-.meta-info span {
-  background: #a9dde03b;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 0.3em;
+dd table {
   margin: 0;
-  height: 1em;
-  line-height: 1em;
-  vertical-align: middle;
+  font-size: 0.9em;
 }
 
-.meta-info span.commit-hash {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
+dd table th {
+  display: none;
 }
+
+dd table td, dd table th {
+  padding: 0.2em;
+}
+
 
 /* End Transclusions */
 
