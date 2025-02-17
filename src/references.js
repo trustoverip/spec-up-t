@@ -16,7 +16,7 @@ function validateReferences(references, definitions, render) {
     }
   );
   if (unresolvedRefs.length > 0 ) {
-    console.log('ℹ️ Unresolved References: ', unresolvedRefs + "\n")
+    console.log('ℹ️ Unresolved References: ', unresolvedRefs)
   }
   
   const danglingDefs = [];
@@ -27,7 +27,7 @@ function validateReferences(references, definitions, render) {
     }
   })
   if(danglingDefs.length > 0) {
-    console.log('ℹ️ Dangling Definitions: ', danglingDefs + "\n")
+    console.log('ℹ️ Dangling Definitions: ', danglingDefs)
   }
 }
 
@@ -65,7 +65,7 @@ async function fetchExternalSpecs(spec) {
       createNewDLWithTerms(Object.keys(r)[0], Object.values(r)[0])
     );
   } catch (e) {
-    console.log("❌ " + e + "\n");
+    console.log("❌ " + e);
     return []; // Return an empty array in case of errors
   }
 }

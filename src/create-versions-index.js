@@ -71,9 +71,9 @@ function createVersionsIndex(outputPath) {
     const indexPath = path.join(versionsDir, 'index.html');
     fs.writeFile(indexPath, htmlContent, (err) => {
         if (err) {
-            console.error(`❌ Error writing index file: ${err}\n`);
+            console.error(`❌ Error writing index file: ${err}`);
         } else {
-            console.log(`✅ Index file created at ${indexPath}\n`);
+            console.log(`✅ Index file created at ${indexPath}`);
         }
     });
 }

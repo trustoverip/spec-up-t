@@ -197,8 +197,8 @@ const pdfLib = require('pdf-lib');
         const optimizedPdfBytes = await pdfDoc.save();
         fs.writeFileSync('docs/index.pdf', optimizedPdfBytes);
 
-        console.log('✅ PDF generated successfully! Find the PDF in the same directory as the index.html file.' + "\n");
+        console.log('✅ PDF generated successfully! Find the PDF in the same directory as the index.html file.');
     } catch (error) {
-        console.error('❌ Error generating PDF:', error + "\n");
+        console.error('❌ Error generating PDF:', error);
     }
 })();

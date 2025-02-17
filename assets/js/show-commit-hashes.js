@@ -100,13 +100,13 @@ function fetchCommitHashes() {
          .then(response => {
             if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
                const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
-               console.error(`\n❌ Github API rate limit exceeded. Try again after ${resetTime}. See https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token for more info.` + "\n");
+               console.error(`❌ Github API rate limit exceeded. Try again after ${resetTime}. See https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token for more info.`);
 
                // Call the debounced error function
                debouncedError();
                return true;
             } else {
-               console.log(`\nℹ️ Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token for more info.` + "\n");
+               console.log(`ℹ️ Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token for more info.`);
             }
 
             return response.json();
@@ -174,12 +174,12 @@ function fetchCommitHashes() {
 
          if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
             const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
-            console.error(`❌ Github API rate limit exceeded. Try again after ${resetTime}. See https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token for more info.` + "\n");
+            console.error(`❌ Github API rate limit exceeded. Try again after ${resetTime}. See https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token for more info.`);
 
             debouncedError();
             return true;
          } else {
-            console.log(`ℹ️ Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token for more info.` + "\n");
+            console.log(`ℹ️ Github API rate limit: ${response.headers.get('X-RateLimit-Remaining')} requests remaining. See https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token for more info.`);
          }
 
          const data = await response.json();

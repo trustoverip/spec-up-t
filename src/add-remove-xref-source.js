@@ -84,7 +84,7 @@ function askRemoveEntry() {
 // Function to show current external references
 function showReferences() {
     const data = JSON.parse(fs.readFileSync(JSON_FILE, 'utf8'));
-    console.log('\nCurrent external references (xref):\n\n');
+    console.log('Current external references (xref):');
 
     data.specs[0].external_specs.forEach(spec => {
         console.log('--- External Reference: ---');

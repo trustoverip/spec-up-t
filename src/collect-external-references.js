@@ -119,7 +119,7 @@ function collectExternalReferences(options = {}) {
         // Function to extend xtref objects with additional information, such as repository URL and directory information.
         function extendXTrefs(config, xtrefs) {
             if (config.specs[0].external_specs_repos) {
-                console.log("ℹ️ PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-boilerplate/specs.json or e-mail kor@dwarshuis.com for help. \n");
+                console.log("ℹ️ PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-boilerplate/specs.json or e-mail kor@dwarshuis.com for help.");
                 return;
             }
 

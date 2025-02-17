@@ -111,12 +111,12 @@ ${localXTrefContent.content}
                         }
                     } catch (err) {
                         fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->\n\nNothing found, so nothing to show.', 'utf8');
-                        // console.error(`❌ Error reading or writing file ${item.name}: ${err}` + "\n");
+                        // console.error(`❌ Error reading or writing file ${item.name}: ${err}`);
                     }
                 }
             });
         } catch (err) {
-            console.error(`❌ Error reading directory: ${err}` + "\n");
+            console.error(`❌ Error reading directory: ${err}`);
         }
     }
 

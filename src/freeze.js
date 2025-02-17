@@ -87,4 +87,4 @@ const destFile = path.join(newVersionDir, 'index.html');
 fs.copyFileSync(sourceFile, destFile);
 
 // Log a message indicating the file has been copied
-console.log(`✅ Created a freezed specification version in ${destFile}\n`);
+console.log(`✅ Created a freezed specification version in ${destFile}`);

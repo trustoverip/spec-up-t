@@ -77,12 +77,12 @@ function fixMarkdownFiles(directory) {
                             fs.writeFileSync(itemPath, data, 'utf8');
                         }
                     } catch (err) {
-                        console.error(`❌ Error while trying to fix the markdown in file ${item.name}: ${err}` + "\n");
+                        console.error(`❌ Error while trying to fix the markdown in file ${item.name}: ${err}`);
                     }
                 }
             });
         } catch (err) {
-            console.error(`❌ Error reading directory: ${err}` + "\n");
+            console.error(`❌ Error reading directory: ${err}`);
         }
     }
 
