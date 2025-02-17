@@ -27,7 +27,7 @@ function handle_choice() {
         echo "  Goodbye! You chose to exit."
         echo -e "  ************************************\n\n"
     fi
-    echo -e "\n\n\n   SPEC-UP-T: Type 'npm run menu' to return to the main menu.\n"
+    echo -e "\n\n\nℹ️ Type 'npm run menu' to return to the main menu.\n"
 }
 
 # Function to display the introduction text
