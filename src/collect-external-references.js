@@ -77,7 +77,8 @@ Please add external references to the specs.json file that you will find at the 
             doesUrlExist(repo.url).then(exists => {
                 if (!exists) {
                     const userInput = readlineSync.question(
-`   SPEC-UP-T: This external reference is not a valid URL:
+`❌ This external reference is not a valid URL:
+
    Repository: ${repo.url},
    
    Terms directory: ${repo.terms_dir}
