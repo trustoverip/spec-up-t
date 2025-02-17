@@ -246,7 +246,7 @@ module.exports = async function (options = {}) {
         try {
           noticeTitles = {};
           specGroups = {};
-          console.log('\n   SPEC-UP-T: Rendering: ' + spec.title + "\n");
+          console.log('\nℹ️ Rendering: ' + spec.title + "\n");
 
           function interpolate(template, variables) {
             return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
@@ -314,7 +314,7 @@ module.exports = async function (options = {}) {
           });
         }
         catch (e) {
-          console.error("\n   SPEC-UP-T: " + e + "\n");
+          console.error("\n❌ " + e + "\n");
         }
       }
 
