@@ -20,22 +20,22 @@ function collectExternalReferences(options = {}) {
     const GITHUB_API_TOKEN = process.env.GITHUB_API_TOKEN;
 
     const explanationPAT =
-`\n   SPEC-UP-T: No GitHub Personal Access Token (PAT) was found.
+`❌ No GitHub Personal Access Token (PAT) was found.
 
-GitHub requires you to set up a PAT to retrieve external references.
+   GitHub requires you to set up a PAT to retrieve external references.
 
-There is no point in continuing without a PAT, so we stop here.
+   There is no point in continuing without a PAT, so we stop here.
 
-Find instructions on how to get a PAT at https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token
+   Find instructions on how to get a PAT at https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token
 
  `;
 
     const explanationNoExternalReferences =
-`\n   SPEC-UP-T: No external references were found in the specs.json file.
+`\n❌ No external references were found in the specs.json file.
 
-There is no point in continuing without external references, so we stop here.
+   There is no point in continuing without external references, so we stop here.
 
-Please add external references to the specs.json file that you will find at the root of your project.
+   Please add external references to the specs.json file that you will find at the root of your project.
 
 `;
     
@@ -45,11 +45,11 @@ Please add external references to the specs.json file that you will find at the 
     // Do not run the script if the GitHub API token is not set
     if (!GITHUB_API_TOKEN) {
         console.log(explanationPAT);
-        const userInput = readlineSync.question('Press any key');
+        const userInput = readlineSync.question('ℹ️ Press any key');
 
         // React to user pressing any key
         if (userInput.trim() !== '') {
-            console.log('Stopping...');
+            console.log('ℹ️ Stopping...');
             return;
         }
     }
@@ -61,7 +61,7 @@ Please add external references to the specs.json file that you will find at the 
 
         // React to user pressing any key
         if (userInput.trim() !== '') {
-            console.log('Stopping...');
+            console.log('ℹ️ Stopping...');
             return;
         }
     } else {
@@ -87,12 +87,12 @@ Please add external references to the specs.json file that you will find at the 
 
    Do you want to stop? (yes/no): `);
                     if (userInput.toLowerCase() === 'yes' || userInput.toLowerCase() === 'y') {
-                        console.log('Stopping...');
+                        console.log('ℹ️ Stopping...');
                         process.exit(1);
                     }
                 }
             }).catch(error => {
-                console.error('\n   SPEC-UP-T:Error checking URL existence:', error);
+                console.error('❌ Error checking URL existence:', error);
             });
         });
 
@@ -119,7 +119,7 @@ Please add external references to the specs.json file that you will find at the 
         // Function to extend xtref objects with additional information, such as repository URL and directory information.
         function extendXTrefs(config, xtrefs) {
             if (config.specs[0].external_specs_repos) {
-                console.log("\n   SPEC-UP-T: PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-boilerplate/specs.json or e-mail kor@dwarshuis.com for help. \n");
+                console.log("ℹ️ PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-boilerplate/specs.json or e-mail kor@dwarshuis.com for help. \n");
                 return;
             }
 
