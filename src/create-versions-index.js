@@ -19,7 +19,7 @@ function createVersionsIndex(outputPath) {
     // Directory containing the version files
     const versionsDir = path.join(outputPath, 'versions');
 
-    // Check if the directory exists, if not create it
+    // Check if the directory that holds the versions / snapshots exists, if not create it
     if (!fs.existsSync(versionsDir)) {
         fs.mkdirSync(versionsDir, { recursive: true });
         console.log('Directory created:', versionsDir);
@@ -71,9 +71,9 @@ function createVersionsIndex(outputPath) {
     const indexPath = path.join(versionsDir, 'index.html');
     fs.writeFile(indexPath, htmlContent, (err) => {
         if (err) {
-            console.error(`\n   SPEC-UP-T: Error writing index file: ${err}\n`);
+            console.error(`❌ Error writing index file: ${err}`);
         } else {
-            console.log(`\n   SPEC-UP-T: Index file created at ${indexPath}\n`);
+            console.log(`✅ Index file created at ${indexPath}`);
         }
     });
 }

@@ -1,5 +1,16 @@
+/**
+ * @file prepare-tref.js
+ * @description This script contains functions to process and prepare term references (trefs) from markdown files.
+ * It includes functionality to read local xtref content from a JSON file and process markdown files in a directory recursively. This script inserts the content of the local xtref (in JSON) into the markdown files. It also inserts a note that this content is temporary and can be removed.
+ * 
+ * @module prepareTref
+ * @requires fs
+ * @requires path
+ */
+
 const fs = require('fs');
 const path = require('path');
+const dedent = require('dedent');
 
 function getLocalXTrefContent(externalSpec, term) {
     const filePath = path.join('output', 'xtrefs-data.json');
@@ -8,7 +19,14 @@ function getLocalXTrefContent(externalSpec, term) {
 
     for (const xtref of xtrefs) {
         if (xtref.externalSpec === externalSpec && xtref.term === term) {
-            return {content: xtref.content, commitHash: xtref.commitHash};
+            return {
+                content: xtref.content,
+                commitHash: xtref.commitHash,
+                owner: xtref.owner,
+                repo: xtref.repo,
+                repoUrl: xtref.repoUrl,
+                avatarUrl: xtref.avatarUrl
+            };
         }
     }
 
@@ -57,7 +75,6 @@ function prepareTref(directory) {
                                 if (match) {
                                     const result = match[1].split(',').map(term => term.trim());
                                     localXTrefContent = getLocalXTrefContent(result[0], result[1]);
-
                                     /* 
 
                                         Remove the `[[def: ...]]:` lines from the content.
@@ -70,20 +87,36 @@ function prepareTref(directory) {
                                         
                                         The g flag ensures that all occurrences in the string are replaced.
                                     */
-                                    const defPart = /\[\[def: .*?\]\]:/g;
+                                    // const defPart = /\[\[def: .*?\]\]:/g;
+                                    const defPart = /\[\[def: ([^,]+),.*?\]\]/g;
+
                                     localXTrefContent.content = localXTrefContent.content.replace(defPart, '');
 
-                                    fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated --><span class="transcluded-xref-term">transcluded xref</span>' + '\n\n~ Commit Hash: ' + localXTrefContent.commitHash + localXTrefContent.content, 'utf8');
+                                    const readyForWrite = dedent`
+${match[0]}
+<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->
+<dd>
+| Property | Value |
+| -------- | ----- |
+| Owner | ![avatar](${localXTrefContent.avatarUrl}) ${localXTrefContent.owner} |
+| Repo | [${localXTrefContent.repo}](${localXTrefContent.repoUrl}) |
+| Commit hash | ${localXTrefContent.commitHash} |
+</dd>
+${localXTrefContent.content}
+`;
+
+                                    fs.writeFileSync(itemPath, readyForWrite, 'utf8');
                                 }
                             }
                         }
                     } catch (err) {
-                        console.error(`\n   SPEC-UP-T: Error reading or writing file ${item.name}: ${err}` + "\n");
+                        fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->\n\nNothing found, so nothing to show.', 'utf8');
+                        // console.error(`❌ Error reading or writing file ${item.name}: ${err}`);
                     }
                 }
             });
         } catch (err) {
-            console.error(`\n   SPEC-UP-T: Error reading directory: ${err}` + "\n");
+            console.error(`❌ Error reading directory: ${err}`);
         }
     }
 

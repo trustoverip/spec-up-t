@@ -33,7 +33,7 @@ function createTermIndex() {
 
     fs.writeJsonSync(outputPathJSON, filePaths, { spaces: 2 });
     
-    console.log(`\n   SPEC-UP-T: The new terms were added. All done.` + "\n");
+    console.log(`✅ The new terms were added. All done.`);
 }
 
 module.exports = {
