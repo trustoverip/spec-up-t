@@ -1,40 +1,22 @@
-.alphabet-index {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 1em auto;
-  padding: 0;
+.alphabet-index-container,
+.number-of-terms {
+  font-size: 0.8em;
+  text-align: center;
   width: 100%;
 }
 
-/* Small devices (landscape phones, 576px and up) */
-@media (min-width: 576px) {
-  .alphabet-index {
-    position: sticky;
-    top: 3em;
-  }
-}
-
-.alphabet-index a {
+/* The letters of the alphabet */
+.alphabet-index-container a {
   background-color: #f5f5f5;
   border: 1px solid #e0e0e0;
   border-radius: 50%;
   color: #333;
-  display: block;
-  font-size: 1rem;
-  /* Reduced from 1.5rem to 1rem */
-  height: 33.33px;
-  /* Reduced from 50px to 33.33px */
-  line-height: 33.33px;
-  /* Reduced from 50px to 33.33px */
-  margin: 3.33px;
-  /* Reduced from 5px to 3.33px */
+  display: inline-block;
+  font-size: 0.9rem;
+  height: 20px;
+  line-height: 20px;
+  margin: 2px;
   text-align: center;
   text-decoration: none;
-  width: 33.33px;
-  /* Reduced from 50px to 33.33px */
-}
-
-.number-of-terms {
-  text-align: center;
+  width: 20px;
 }

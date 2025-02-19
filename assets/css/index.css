@@ -1096,3 +1096,22 @@ dd table td, dd table th {
 
 /* End Loader styling */
 
+/* Search and Alphabet index */
+#terminology-section-utility-container {
+  background: #ffffff84;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 1em auto;
+  padding: 0;
+  width: 100%;
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+  #terminology-section-utility-container {
+    position: sticky;
+    top: 3em;
+  }
+}
+/* End Search and Alphabet index */

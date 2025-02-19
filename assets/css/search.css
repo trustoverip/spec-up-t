@@ -2,11 +2,15 @@
  * Search bar, input, nav, nr of results
  */
 
+#container-search-h7vc6omi2hr2880 {
+  margin-top: 1em;
+}
 
 #search-h7vc6omi2hr2880 {
   margin: 0.1em 0.5em;
   padding: 0.2em;
   height: 1.5em;
+  border-radius: 5px;
 }
 
 #search-h7vc6omi2hr2880:active {
@@ -15,6 +19,7 @@
 
 #back-and-forth-buttons-container-search-h7vc6omi2hr2880 {
   padding: 0;
+  display: inline-block;
 }
 
 #back-and-forth-buttons-container-search-h7vc6omi2hr2880 button {
@@ -25,17 +30,13 @@
   font-size: 0.8em;
 }
 
-
-.panel-header#header {
+/* Keep this and use when more items are added to this header */
+/* .panel-header#header {
   flex-wrap: wrap;
   height: auto;
-}
+} */
 
-#container-search-h7vc6omi2hr2880 {
-  flex-basis: 100%;
-  padding: 0.3em;
-  background: #eceff1;
-}
+ 
 
 #logo img {
   width: 100px;
@@ -44,92 +45,16 @@
 
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) {
-  #container-search-h7vc6omi2hr2880 {
-    flex-basis: auto;
-    margin-bottom: 0;
-  }
-
-  .panel-header#header {
+  /* Keep this and use when more items are added to this header */
+  /* .panel-header#header {
     flex-wrap: nowrap;
     height: var(--header-height);
-  }
+  } */
 
   #logo {
     width: auto;
   }
 }
-
-
-/*
- * Search results, matches, and highlighting
- */
-
-/* Basic styles */
-.highlight-matches-search-h7vc6omi2hr2880 {
-  outline: 3px solid #1d6dae39;
-  outline-offset: 5px;
-
-  /* Works in tandem with the setTimeout in JS: */
-  transition: outline 0.3s ease-in-out;
-}
-
-.highlight-matches-search-h7vc6omi2hr2880.active {
-  outline: 3px solid #1d6dae;
-  /* outline-offset: 5px; */
-  /* Works in tandem with the setTimeout in JS: */
-  transition: outline 0.3s ease-in-out;
-}
-
-#search-h7vc6omi2hr2880:active {
-  font-size: 16px;
-}
-
-#back-and-forth-buttons-container-search-h7vc6omi2hr2880 {
-  padding: 0;
-}
-
-#back-and-forth-buttons-container-search-h7vc6omi2hr2880 button {
-  margin-right: 0.5em;
-}
-
-#total-matches-search-h7vc6omi2hr2880 {
-  font-size: 0.8em;
-}
-
-
-.panel-header#header {
-  flex-wrap: wrap;
-  height: auto;
-}
-
-#container-search-h7vc6omi2hr2880 {
-  flex-basis: 100%;
-  padding: 0.3em;
-  background: #eceff1;
-}
-
-#logo img {
-  width: 100px;
-  /* border: 3px solid pink; */
-}
-
-/* Small devices (landscape phones, 576px and up) */
-@media (min-width: 576px) {
-  #container-search-h7vc6omi2hr2880 {
-    flex-basis: auto;
-    margin-bottom: 0;
-  }
-
-  .panel-header#header {
-    flex-wrap: nowrap;
-    height: var(--header-height);
-  }
-
-  #logo {
-    width: auto;
-  }
-}
-
 
 /*
  * Search results, matches, and highlighting

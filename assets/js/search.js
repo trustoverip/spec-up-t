@@ -17,8 +17,8 @@ function inPageSearch() {
    /*****************/
    /* CONFIGURATION */
 
-   // const domInjectAfter = document.querySelector('span[issue-count]');// Inject the search bar after this element
-   const domInjectAfter = document.querySelector('#alphabet-index-h7vc6omi2hr2880');// Inject the search bar after this element
+   const terminologySectionUtilityContainer = document.getElementById("terminology-section-utility-container");
+
    const matchesStyle = specConfig.searchHighlightStyle || 'ssi';
    const antiNameCollisions = 'search-h7vc6omi2hr2880';// random string to be added to classes, id's etc, to prevent name collisions in the global space
    const debounceTime = 600;
@@ -45,7 +45,7 @@ function inPageSearch() {
    let searchContainer = document.createElement("div");
    searchContainer.setAttribute("id", "container-" + antiNameCollisions);
    searchContainer.setAttribute("class", "container-" + antiNameCollisions);
-   domInjectAfter.after(searchContainer);
+   terminologySectionUtilityContainer.appendChild(searchContainer);
 
    // Add an input element (for search)
    let searchInput = document.createElement("input");

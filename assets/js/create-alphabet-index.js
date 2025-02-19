@@ -5,7 +5,7 @@
  * @since 2024-09-19
  */
 function createAlphabetIndex() {
-    const introElement = document.getElementById("alphabet-index-h7vc6omi2hr2880");
+    const terminologySectionUtilityContainer = document.getElementById("terminology-section-utility-container");
     const termsListElement = document.querySelector(".terms-and-definitions-list");
     const dtElements = termsListElement.querySelectorAll("dt");
     const alphabetIndex = {};
@@ -21,25 +21,22 @@ function createAlphabetIndex() {
         }
     });
 
-    const indexContainer = document.createElement("div");
-    indexContainer.className = "alphabet-index";
+    const alphabetIndexContainer = document.createElement("div");
+    alphabetIndexContainer.className = "alphabet-index-container";
 
-    // Create notification element
-    const notificationElement = document.createElement("p");
-    notificationElement.className = "number-of-terms";
-    notificationElement.textContent = `– There are ${dtElements.length} terms –`;
+    // Create number of terms element
+    const numberOfTerms = document.createElement("p");
+    numberOfTerms.className = "number-of-terms";
+    numberOfTerms.textContent = `– There are ${dtElements.length} terms –`;
 
-    // Insert notification and index container as immediate siblings of introElement
-    const parentElement = introElement.parentNode;
-    parentElement.insertBefore(notificationElement, introElement.nextSibling);
-    parentElement.insertBefore(indexContainer, notificationElement.nextSibling);
-
+    terminologySectionUtilityContainer.appendChild(numberOfTerms);
     Object.keys(alphabetIndex).sort().forEach(char => {
         const link = document.createElement("a");
         link.href = `#${alphabetIndex[char]}`;
         link.textContent = char;
-        indexContainer.appendChild(link);
+        alphabetIndexContainer.appendChild(link);
     });
+    terminologySectionUtilityContainer.appendChild(alphabetIndexContainer);
 }
 
 document.addEventListener("DOMContentLoaded", function () {

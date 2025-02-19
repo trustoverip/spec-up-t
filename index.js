@@ -265,7 +265,7 @@ module.exports = async function (options = {}) {
               const termsIndex = (spec.markdown_paths || ['spec.md']).indexOf('terms-and-definitions-intro.md');
               if (termsIndex !== -1) {
                 // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to create a div that is used to insert an alphabet index, and a div that is used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
-                docs[termsIndex] += '\n\n<div id="alphabet-index-h7vc6omi2hr2880"></div>\n\n<div id="terminology-section-start-h7vc6omi2hr2880"></div>\n\n<hr>\n\n';
+                docs[termsIndex] += '\n\n<div id="terminology-section-utility-container"></div>\n\n<div id="terminology-section-start-h7vc6omi2hr2880"></div>\n\n<hr>\n\n';
               }
 
               let doc = docs.join("\n");
