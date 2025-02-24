@@ -17,7 +17,7 @@ function collectExternalReferences(options = {}) {
     const readlineSync = require('readline-sync');
     const config = fs.readJsonSync('specs.json');
     const externalSpecsRepos = config.specs[0].external_specs;
-    const GITHUB_API_TOKEN = process.env.GITHUB_API_TOKEN;
+    const GITHUB_API_TOKEN = options.pat || process.env.GITHUB_API_TOKEN;
 
     const explanationPAT =
 `❌ No GitHub Personal Access Token (PAT) was found.
