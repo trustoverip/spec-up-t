@@ -252,77 +252,91 @@ module.exports = async function (options = {}) {
             return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
           }
 
-          return new Promise(async (resolve, reject) => {
-            Promise.all((spec.markdown_paths || ['spec.md']).map(_path => {
-              return fs.readFile(spec.spec_directory + _path, 'utf8').catch(e => reject(e))
-            })).then(async docs => {
-              const features = (({ source, logo }) => ({ source, logo }))(spec);
-              if (spec.external_specs && !externalReferences) {
-                externalReferences = await fetchExternalSpecs(spec);
-              }
+          const docs = await Promise.all(
+            (spec.markdown_paths || ['spec.md']).map(_path =>
+              fs.readFile(spec.spec_directory + _path, 'utf8')
+            )
+          );
+
+          const features = (({ source, logo }) => ({ source, logo }))(spec);
+          if (spec.external_specs && !externalReferences) {
+            externalReferences = await fetchExternalSpecs(spec);
+          }
 
               // Find the index of the terms-and-definitions-intro.md file
-              const termsIndex = (spec.markdown_paths || ['spec.md']).indexOf('terms-and-definitions-intro.md');
-              if (termsIndex !== -1) {
+          const termsIndex = (spec.markdown_paths || ['spec.md']).indexOf('terms-and-definitions-intro.md');
+          if (termsIndex !== -1) {
                 // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to create a div that is used to insert an alphabet index, and a div that is used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
-                docs[termsIndex] += '\n\n<div id="terminology-section-utility-container"></div>\n\n<div id="terminology-section-start-h7vc6omi2hr2880"></div>\n\n<hr>\n\n';
-              }
+            docs[termsIndex] += '\n\n<div id="terminology-section-utility-container"></div>\n\n<div id="terminology-section-start-h7vc6omi2hr2880"></div>\n\n<hr>\n\n';
+          }
 
-              let doc = docs.join("\n");
+          let doc = docs.join("\n");
 
               // `doc` is markdown 
-              doc = applyReplacers(doc);
+          doc = applyReplacers(doc);
 
-              md[spec.katex ? "enable" : "disable"](katexRules);
+          md[spec.katex ? "enable" : "disable"](katexRules);
 
               // `render` is the rendered HTML
-              const render = md.render(doc);
+          const render = md.render(doc);
 
-              const templateInterpolated = interpolate(template, {
-                title: spec.title,
-                description: spec.description,
-                author: spec.author,
-                toc: toc,
-                render: render,
-                assetsHead: assets.head,
-                assetsBody: assets.body,
-                assetsSvg: assets.svg,
-                features: Object.keys(features).join(' '),
-                externalReferences: JSON.stringify(externalReferences),
-                xtrefsData: xtrefsData,
-                specLogo: spec.logo,
-                specFavicon: spec.favicon,
-                specLogoLink: spec.logo_link,
-                spec: JSON.stringify(spec)
-              });
-
-              fs.writeFile(path.join(spec.destination, 'index.html'),
-                templateInterpolated, 'utf8'
-
-                , function (err, data) {
-                  if (err) {
-                    reject(err);
-                  }
-                  else {
-                    resolve();
-                  }
-                });
-              validateReferences(references, definitions, render);
-              references = [];
-              definitions = [];
-            });
+          const templateInterpolated = interpolate(template, {
+            title: spec.title,
+            description: spec.description,
+            author: spec.author,
+            toc: toc,
+            render: render,
+            assetsHead: assets.head,
+            assetsBody: assets.body,
+            assetsSvg: assets.svg,
+            features: Object.keys(features).join(' '),
+            externalReferences: JSON.stringify(externalReferences),
+            xtrefsData: xtrefsData,
+            specLogo: spec.logo,
+            specFavicon: spec.favicon,
+            specLogoLink: spec.logo_link,
+            spec: JSON.stringify(spec)
           });
-        }
-        catch (e) {
-          console.error("❌ " + e);
+
+          const outputPath = path.join(spec.destination, 'index.html');
+          console.log('ℹ️ Attempting to write to:', outputPath);
+
+          // Use promisified version instead of callback
+          await fs.promises.writeFile(outputPath, templateInterpolated, 'utf8');
+          console.log(`✅ Successfully wrote ${outputPath}`);
+
+          validateReferences(references, definitions, render);
+          references = [];
+          definitions = [];
+        } catch (e) {
+          console.error("❌ Render error: " + e.message);
+          throw e;
         }
       }
 
       config.specs.forEach(spec => {
         spec.spec_directory = normalizePath(spec.spec_directory);
         spec.destination = normalizePath(spec.output_path || spec.spec_directory);
+      
+        if (!fs.existsSync(spec.destination)) {
+          try {
+            fs.mkdirSync(spec.destination, { recursive: true });
+            console.log(`✅ Created directory: ${spec.destination}`);
+          } catch (error) {
+            console.error(`❌ Failed to create directory ${spec.destination}: ${error.message}`);
+            throw error;
+          }
+        } else {
+          console.log(`ℹ️ Directory already exists: ${spec.destination}`);
+        }
 
-        fs.ensureDirSync(spec.destination);
+        try {
+          fs.ensureDirSync(spec.destination);
+          console.log(`✅ Ensured directory is ready: ${spec.destination}`);
+        } catch (error) {
+          console.error(`❌ Failed to ensure directory ${spec.destination}: ${error.message}`);
+          throw error;
+        }
 
         let assetTags = {
           svg: fs.readFileSync(modulePath + '/assets/icons.svg', 'utf8') || ''
@@ -371,16 +385,26 @@ module.exports = async function (options = {}) {
           fs.copySync(path.join(katexDist, 'fonts'), path.join(spec.destination, 'fonts'));
         }
 
+        // Run render and wait for it
+        render(spec, assetTags)
+          .then(() => {
+            console.log('ℹ️ Render completed for:', spec.destination);
+            if (options.nowatch) {
+              console.log('ℹ️ Exiting with nowatch');
+              process.exit(0);
+            }
+          })
+          .catch((e) => {
+            console.error('❌ Render failed:', e.message);
+            process.exit(1);
+          });
+        
         if (!options.nowatch) {
           gulp.watch(
             [spec.spec_directory + '**/*', '!' + path.join(spec.destination, 'index.html')],
             render.bind(null, spec, assetTags)
-          )
+          );
         }
-
-        render(spec, assetTags).then(() => {
-          if (options.nowatch) process.exit(0)
-        }).catch(() => process.exit(1));
 
       });
     } catch (error) {
