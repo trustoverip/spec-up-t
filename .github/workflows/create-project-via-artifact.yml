@@ -1,4 +1,4 @@
-name: Create Spec-Up-T Project
+name: Create Spec-Up-T Project via Artifact
 
 # Trigger the workflow manually with an input for the project name
 on:
@@ -7,7 +7,9 @@ on:
       project-name:
         description: 'Name of the new project directory'
         required: true
-        default: 'myproject'
+      user-pat:
+        description: 'Your GitHub PAT (optional, to push to your own repo)'
+        required: false
 
 jobs:
   create-project:
@@ -44,3 +46,22 @@ jobs:
         with:
           name: ${{ github.event.inputs.project-name }}
           path: ${{ github.event.inputs.project-name }}
+
+
+      - name: Push to new repository (if PAT provided)
+        if: github.event.inputs.user-pat != ''
+        env:
+            USER_PAT: ${{ github.event.inputs.user-pat }}
+        run: |
+            cd ${{ github.event.inputs.project-name }}
+            git init
+            git add .
+            git commit -m "Initial project's Spec-Up-T installation"
+            git remote add origin https://x-access-token:${{ env.USER_PAT }}@github.com/<username-from-user-or-dynamic>/${{ github.event.inputs.project-name }}.git
+            git push -u origin main
+      - name: Upload artifact (if no PAT)
+        if: github.event.inputs.user-pat == ''
+        uses: actions/upload-artifact@v4
+        with:
+            name: ${{ github.event.inputs.project-name }}
+            path: ${{ github.event.inputs.project-name }}
