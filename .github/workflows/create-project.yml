@@ -1,0 +1,47 @@
+name: Create Spec-Up-T Project
+
+# Trigger the workflow manually with an input for the project name
+on:
+  workflow_dispatch:
+    inputs:
+      project-name:
+        description: 'Name of the new project directory'
+        required: true
+        default: 'myproject'
+
+jobs:
+  create-project:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the spec-up-t repo
+      - name: Checkout spec-up-t repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Adjust to your required Node version
+
+      # Step 3: Install npx and the spec-up-t-starter-pack package
+      - name: Install dependencies and npx package
+        run: |
+          npm install -g npx
+          npm install -g create-spec-up-t
+
+      # Step 4: Run the npx command with the provided project name
+      - name: Create new project from boilerplate
+        run: |
+          npx create-spec-up-t ${{ github.event.inputs.project-name }}
+
+      # Step 5: List the generated project files (for verification)
+      - name: Verify generated project
+        run: |
+          ls -la ${{ github.event.inputs.project-name }}
+
+      # Step 6: Upload the generated project as an artifact
+      - name: Upload project as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.project-name }}
+          path: ${{ github.event.inputs.project-name }}
