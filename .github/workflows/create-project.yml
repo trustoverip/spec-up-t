@@ -26,7 +26,6 @@ jobs:
       # Step 3: Install npx and the spec-up-t-starter-pack package
       - name: Install dependencies and npx package
         run: |
-          npm install -g npx
           npm install -g create-spec-up-t
 
       # Step 4: Run the npx command with the provided project name
