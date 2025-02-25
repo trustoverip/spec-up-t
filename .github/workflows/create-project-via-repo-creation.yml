@@ -1,6 +1,5 @@
 name: Create Spec-Up-T Project via Repo Creation
 
-# Trigger the workflow manually with inputs for project name, username, and PAT
 on:
   workflow_dispatch:
     inputs:
@@ -19,40 +18,49 @@ jobs:
   create-project:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Check out the spec-up-t repo
       - name: Checkout spec-up-t repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js environment (includes npx)
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      # Step 3: Install the create-spec-up-t package globally
       - name: Install create-spec-up-t
         run: |
           npm install -g create-spec-up-t
 
-      # Step 4: Run the npx command with the provided project name
       - name: Create new project from boilerplate
         run: |
           npx create-spec-up-t ${{ github.event.inputs.project-name }}
 
-      # Step 5: Create a new GitHub repository via API (if PAT provided)
+      - name: Debug inputs and PAT
+        if: github.event.inputs.user-pat != ''
+        env:
+          USER_PAT: ${{ github.event.inputs.user-pat }}
+        run: |
+          echo "Username: ${{ github.event.inputs.username }}"
+          echo "Project Name: ${{ github.event.inputs.project-name }}"
+          curl -i -L -H "Authorization: token $USER_PAT" -H "Accept: application/vnd.github+json" https://api.github.com/user
+
       - name: Create new repository
         if: github.event.inputs.user-pat != ''
         env:
           USER_PAT: ${{ github.event.inputs.user-pat }}
         run: |
-          curl -L \
+          curl -i -L \
             -X POST \
             -H "Authorization: token $USER_PAT" \
             -H "Accept: application/vnd.github+json" \
-            https://api.github.com/users/${{ github.event.inputs.username }}/repos \
+            https://api.github.com/user/repos \
             -d '{"name":"${{ github.event.inputs.project-name }}","description":"Spec-Up-T project created via workflow","private":false}'
 
-      # Step 6: Push to new repository (if PAT provided)
+      - name: Configure Git identity
+        if: github.event.inputs.user-pat != ''
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
       - name: Push to new repository
         if: github.event.inputs.user-pat != ''
         env:
@@ -66,13 +74,11 @@ jobs:
           git remote add origin https://x-access-token:${{ env.USER_PAT }}@github.com/${{ github.event.inputs.username }}/${{ github.event.inputs.project-name }}.git
           git push -u origin main
 
-      # Step 7: Output the repo URL (if PAT provided)
       - name: Output repository URL
         if: github.event.inputs.user-pat != ''
         run: |
           echo "Your new Spec-Up-T project is at: https://github.com/${{ github.event.inputs.username }}/${{ github.event.inputs.project-name }}"
 
-      # Step 8: Upload the generated project as an artifact (if no PAT)
       - name: Upload artifact (if no PAT)
         if: github.event.inputs.user-pat == ''
         uses: actions/upload-artifact@v4
