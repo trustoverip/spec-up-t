@@ -97,8 +97,7 @@ jobs:
                 key_id: keyId
               })
             });
-        run: |
-          echo "PAT stored as secret 'MY_PAT' in the new repo"
+            console.log("PAT stored as secret 'MY_PAT' in the new repo");
 
       - name: Configure Git identity
         if: github.event.inputs.user-pat != ''
