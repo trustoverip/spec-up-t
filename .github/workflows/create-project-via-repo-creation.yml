@@ -1,4 +1,4 @@
-name: Create Spec-Up-T Project via Repo Creation
+name: Create Spec-Up-T Project
 
 on:
   workflow_dispatch:
