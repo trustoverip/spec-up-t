@@ -1,0 +1,110 @@
+name: Menu
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: 'Select the script to run'
+        type: choice
+        required: true
+        default: 'render'
+        options:
+          - edit
+          - render
+          - dev
+          - collectExternalReferencesCache
+          - collectExternalReferencesNoCache
+          - topdf
+          - freeze
+          - references
+          - help
+          - menu
+          - addremovexrefsource
+          - configure
+          - custom-update
+
+jobs:
+  build-and-deploy-spec:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Extract output_path from JSON
+        # TODO: .specs[0] is a hack to get the first spec. This should be fixed.
+        run: |
+          OUTPUT_PATH=$(jq -r '.specs[0].output_path' specs.json)
+          echo "OUTPUT_PATH=$OUTPUT_PATH" >> $GITHUB_ENV
+
+      - name: Install and Build 🔧
+        run: |
+          echo "start install"
+          npm install
+          echo "end install"
+          echo "Spec-Up-T version:"
+          npm list spec-up-t
+
+      - name: Run selected script
+        run: |
+          case ${{ github.event.inputs.script }} in
+            "edit")
+              node -e "require('spec-up-t')()"
+              ;;
+            "render")
+              node --no-warnings -e "require('spec-up-t/index.js')({ nowatch: true })"
+              ;;
+            "dev")
+              node -e "require('spec-up-t')({ dev: true })"
+              ;;
+            "collectExternalReferencesCache")
+              node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({cache: true})"
+              ;;
+            "collectExternalReferencesNoCache")
+              node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({cache: false})"
+              ;;
+            "topdf")
+              node -e "require('spec-up-t/src/create-pdf.js')"
+              ;;
+            "freeze")
+              node -e "require('spec-up-t/src/freeze.js')"
+              ;;
+            "references")
+              node -e "require('spec-up-t/src/references.js')"
+              ;;
+            "help")
+              cat ./node_modules/spec-up-t/src/install-from-boilerplate/help.txt
+              ;;
+            "menu")
+              bash ./node_modules/spec-up-t/src/install-from-boilerplate/menu.sh
+              ;;
+            "addremovexrefsource")
+              node --no-warnings -e "require('spec-up-t/src/add-remove-xref-source.js')"
+              ;;
+            "configure")
+              node --no-warnings -e "require('spec-up-t/src/configure.js')"
+              ;;
+            "custom-update")
+              npm update && node -e "require('spec-up-t/src/install-from-boilerplate/custom-update.js')"
+              ;;
+            *)
+              echo "Unknown script selected"
+              exit 1
+              ;;
+          esac
+
+      - name: Clean up
+        run: |
+          echo "end render"
+          rm -rf node_modules
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3.7.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.OUTPUT_PATH }}
+          allow_empty_commit: true
+          force_orphan: true
