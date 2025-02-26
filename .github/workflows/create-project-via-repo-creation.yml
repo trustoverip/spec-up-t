@@ -65,15 +65,20 @@ jobs:
           echo "PUBLIC_KEY=$(echo $RESPONSE | jq -r .key)" >> $GITHUB_OUTPUT
           echo "KEY_ID=$(echo $RESPONSE | jq -r .key_id)" >> $GITHUB_OUTPUT
 
-      # Install libsodium and encrypt the PAT
-      - name: Install libsodium and set PAT as repo secret
+      # Install libsodium-wrappers locally
+      - name: Install libsodium-wrappers
+        if: github.event.inputs.user-pat != ''
+        run: |
+          npm install libsodium-wrappers
+
+      # Encrypt and set the PAT as a secret
+      - name: Set PAT as repo secret
         if: github.event.inputs.user-pat != ''
         env:
           USER_PAT: ${{ github.event.inputs.user-pat }}
         run: |
-          npm install -g libsodium libsodium-wrappers
           node -e "
-            const sodium = require('libsodium-wrappers');
+            const sodium = require('./node_modules/libsodium-wrappers');
             (async () => {
               await sodium.ready;
               const publicKey = Buffer.from('${{ steps.get-public-key.outputs.PUBLIC_KEY }}', 'base64');
