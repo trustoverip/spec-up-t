@@ -55,7 +55,6 @@ jobs:
             https://api.github.com/user/repos \
             -d '{"name":"${{ github.event.inputs.project-name }}","description":"Spec-Up-T project created via workflow","private":false}'
 
-      # Fetch the repo's public key for secrets encryption
       - name: Get repo public key
         if: github.event.inputs.user-pat != ''
         id: get-public-key
@@ -66,38 +65,43 @@ jobs:
           echo "PUBLIC_KEY=$(echo $RESPONSE | jq -r .key)" >> $GITHUB_OUTPUT
           echo "KEY_ID=$(echo $RESPONSE | jq -r .key_id)" >> $GITHUB_OUTPUT
 
-      # Encrypt and store the PAT as a secret
-      - name: Set PAT as repo secret
+      # Install libsodium and encrypt the PAT
+      - name: Install libsodium and set PAT as repo secret
         if: github.event.inputs.user-pat != ''
-        uses: actions/github-script@v6
         env:
           USER_PAT: ${{ github.event.inputs.user-pat }}
-        with:
-          script: |
-            const sodium = require('tweetsodium');
-            const publicKey = "${{ steps.get-public-key.outputs.PUBLIC_KEY }}";
-            const keyId = "${{ steps.get-public-key.outputs.KEY_ID }}";
-            const secretValue = process.env.USER_PAT;
+        run: |
+          npm install -g libsodium libsodium-wrappers
+          node -e "
+            const sodium = require('libsodium-wrappers');
+            (async () => {
+              await sodium.ready;
+              const publicKey = Buffer.from('${{ steps.get-public-key.outputs.PUBLIC_KEY }}', 'base64');
+              const secretValue = process.env.USER_PAT;
+              const messageBytes = Buffer.from(secretValue);
+              const encryptedBytes = sodium.crypto_box_seal(messageBytes, publicKey);
+              const encrypted = Buffer.from(encryptedBytes).toString('base64');
+              const keyId = '${{ steps.get-public-key.outputs.KEY_ID }}';
 
-            // Encrypt the secret using the public key
-            const messageBytes = Buffer.from(secretValue);
-            const keyBytes = Buffer.from(publicKey, 'base64');
-            const encryptedBytes = sodium.seal(messageBytes, keyBytes);
-            const encrypted = Buffer.from(encryptedBytes).toString('base64');
-
-            // Set the encrypted secret via API
-            await fetch(`https://api.github.com/repos/${{ github.event.inputs.username }}/${{ github.event.inputs.project-name }}/actions/secrets/MY_PAT`, {
-              method: 'PUT',
-              headers: {
-                'Authorization': `token ${secretValue}`,
-                'Accept': 'application/vnd.github+json'
-              },
-              body: JSON.stringify({
-                encrypted_value: encrypted,
-                key_id: keyId
-              })
-            });
-            console.log("PAT stored as secret 'MY_PAT' in the new repo");
+              const response = await fetch('https://api.github.com/repos/${{ github.event.inputs.username }}/${{ github.event.inputs.project-name }}/actions/secrets/MY_PAT', {
+                method: 'PUT',
+                headers: {
+                  'Authorization': 'token ' + secretValue,
+                  'Accept': 'application/vnd.github+json'
+                },
+                body: JSON.stringify({
+                  encrypted_value: encrypted,
+                  key_id: keyId
+                })
+              });
+              if (response.ok) {
+                console.log('PAT stored as secret MY_PAT in the new repo');
+              } else {
+                console.error('Failed to set secret:', await response.text());
+                process.exit(1);
+              }
+            })();
+          "
 
       - name: Configure Git identity
         if: github.event.inputs.user-pat != ''
