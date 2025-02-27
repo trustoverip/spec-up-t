@@ -1,0 +1,53 @@
+name: Set GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      username:
+        description: 'Your GitHub username (optional, defaults to repository owner)'
+        required: false
+
+jobs:
+  configure-pages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read  # To check branches
+      pages: write   # To configure Pages settings
+    steps:
+      - name: Determine repository owner
+        id: get-owner
+        run: |
+          OWNER="${{ github.event.inputs.username }}"
+          if [ -z "$OWNER" ]; then
+            OWNER="${{ github.repository_owner }}"
+          fi
+          echo "OWNER=$OWNER" >> $GITHUB_ENV
+
+      - name: Check if gh-pages branch exists
+        id: check-branch
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ env.OWNER }}/${{ github.repository }}/branches/gh-pages)
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "gh-pages branch exists"
+            echo "BRANCH_EXISTS=true" >> $GITHUB_ENV
+          elif [ "$RESPONSE" -eq 404 ]; then
+            echo "Error: gh-pages branch does not exist in ${{ env.OWNER }}/${{ github.repository }}"
+            exit 1
+          else
+            echo "Unexpected response code: $RESPONSE"
+            exit 1
+          fi
+
+      - name: Set GitHub Pages to gh-pages
+        if: env.BRANCH_EXISTS == 'true'
+        run: |
+          curl -L \
+            -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ env.OWNER }}/${{ github.repository }}/pages \
+            -d '{"source":{"branch":"gh-pages","path":"/"}}'
+          echo "GitHub Pages set to gh-pages branch for ${{ env.OWNER }}/${{ github.repository }}"
