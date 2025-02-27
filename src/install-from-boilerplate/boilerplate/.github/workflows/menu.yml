@@ -18,7 +18,6 @@ on:
           - freeze
           - references
           - help
-          - menu
           - addremovexrefsource
           - configure
           - custom-update
