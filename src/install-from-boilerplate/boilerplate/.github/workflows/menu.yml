@@ -30,25 +30,35 @@ jobs:
       contents: write
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
       - name: Extract output_path from JSON
-        # TODO: .specs[0] is a hack to get the first spec. This should be fixed.
+        id: extract-output
         run: |
-          OUTPUT_PATH=$(jq -r '.specs[0].output_path' specs.json)
+          OUTPUT_PATH=$(jq -r '.specs[0].output_path // "default/output"' specs.json)
+          if [ "$OUTPUT_PATH" = "null" ] || [ -z "$OUTPUT_PATH" ]; then
+            echo "Error: Unable to extract output_path from specs.json"
+            exit 1
+          fi
           echo "OUTPUT_PATH=$OUTPUT_PATH" >> $GITHUB_ENV
 
-      - name: Install and Build 🔧
+      - name: Install dependencies 🔧
         run: |
-          echo "start install"
+          echo "Installing dependencies..."
           npm install
-          echo "end install"
           echo "Spec-Up-T version:"
-          npm list spec-up-t
+          npm list spec-up-t || echo "spec-up-t not found"
 
       - name: Run selected script
+        env:
+          MY_PAT: ${{ secrets.MY_PAT }} # Make the secret available as an env var
         run: |
           case ${{ github.event.inputs.script }} in
             "edit")
@@ -64,7 +74,7 @@ jobs:
               node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({cache: true})"
               ;;
             "collectExternalReferencesNoCache")
-              node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({cache: false})"
+              node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({cache: false, pat: process.env.MY_PAT})"
               ;;
             "topdf")
               node -e "require('spec-up-t/src/create-pdf.js')"
@@ -76,10 +86,7 @@ jobs:
               node -e "require('spec-up-t/src/references.js')"
               ;;
             "help")
-              cat ./node_modules/spec-up-t/src/install-from-boilerplate/help.txt
-              ;;
-            "menu")
-              bash ./node_modules/spec-up-t/src/install-from-boilerplate/menu.sh
+              cat ./node_modules/spec-up-t/src/install-from-boilerplate/help.txt || echo "Help file not found"
               ;;
             "addremovexrefsource")
               node --no-warnings -e "require('spec-up-t/src/add-remove-xref-source.js')"
@@ -91,20 +98,22 @@ jobs:
               npm update && node -e "require('spec-up-t/src/install-from-boilerplate/custom-update.js')"
               ;;
             *)
-              echo "Unknown script selected"
+              echo "Unknown script: ${{ github.event.inputs.script }}"
               exit 1
               ;;
           esac
 
-      - name: Clean up
-        run: |
-          echo "end render"
-          rm -rf node_modules
-
-      - name: Deploy
+      - name: Deploy to GitHub Pages
+        if: success() && github.event.inputs.script != 'help'
         uses: peaceiris/actions-gh-pages@v3.7.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ env.OUTPUT_PATH }}
           allow_empty_commit: true
           force_orphan: true
+
+      - name: Clean up
+        if: always() # Run even if previous steps fail
+        run: |
+          echo "Cleaning up..."
+          rm -rf node_modules
