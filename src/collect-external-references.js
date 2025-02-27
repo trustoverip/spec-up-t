@@ -31,7 +31,7 @@ function collectExternalReferences(options = {}) {
  `;
 
     const explanationNoExternalReferences =
-`\n❌ No external references were found in the specs.json file.
+`❌ No external references were found in the specs.json file.
 
    There is no point in continuing without external references, so we stop here.
 
