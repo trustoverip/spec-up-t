@@ -7,20 +7,20 @@ on:
         description: 'Select the script to run'
         type: choice
         required: true
-        default: 'render'
+        default: 'Render specification'  # Updated default to match new label
         options:
-          - edit
-          - render
-          - dev
-          - collectExternalReferencesCache
-          - collectExternalReferencesNoCache
-          - topdf
-          - freeze
-          - references
-          - help
-          - addremovexrefsource
-          - configure
-          - custom-update
+          # - Edit specification
+          - Render specification
+          # - Develop specification
+          - Collect external references (cached)
+          - Collect external references (no cache)
+          - Convert to PDF
+          - Freeze specification
+          - List references
+          # - Show help
+          # - Add/remove xref source
+          # - Configure specification
+          - Custom update
 
 jobs:
   build-and-deploy-spec:
@@ -59,41 +59,41 @@ jobs:
         env:
           MY_PAT: ${{ secrets.MY_PAT }} # Make the secret available as an env var
         run: |
-          case ${{ github.event.inputs.script }} in
-            "edit")
+          case "${{ github.event.inputs.script }}" in
+            "Edit specification")
               node -e "require('spec-up-t')()"
               ;;
-            "render")
+            "Render specification")
               node --no-warnings -e "require('spec-up-t/index.js')({ nowatch: true })"
               ;;
-            "dev")
+            "Develop specification")
               node -e "require('spec-up-t')({ dev: true })"
               ;;
-            "collectExternalReferencesCache")
+            "Collect external references (cached)")
               node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({cache: true})"
               ;;
-            "collectExternalReferencesNoCache")
+            "Collect external references (no cache)")
               node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({cache: false, pat: process.env.MY_PAT})"
               ;;
-            "topdf")
+            "Convert to PDF")
               node -e "require('spec-up-t/src/create-pdf.js')"
               ;;
-            "freeze")
+            "Freeze specification")
               node -e "require('spec-up-t/src/freeze.js')"
               ;;
-            "references")
+            "List references")
               node -e "require('spec-up-t/src/references.js')"
               ;;
-            "help")
+            "Show help")
               cat ./node_modules/spec-up-t/src/install-from-boilerplate/help.txt || echo "Help file not found"
               ;;
-            "addremovexrefsource")
+            "Add/remove xref source")
               node --no-warnings -e "require('spec-up-t/src/add-remove-xref-source.js')"
               ;;
-            "configure")
+            "Configure specification")
               node --no-warnings -e "require('spec-up-t/src/configure.js')"
               ;;
-            "custom-update")
+            "Custom update")
               npm update && node -e "require('spec-up-t/src/install-from-boilerplate/custom-update.js')"
               ;;
             *)
@@ -103,7 +103,7 @@ jobs:
           esac
 
       - name: Deploy to GitHub Pages
-        if: success() && github.event.inputs.script != 'help'
+        if: success() && github.event.inputs.script != 'Show help'
         uses: peaceiris/actions-gh-pages@v3.7.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
