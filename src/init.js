@@ -13,7 +13,6 @@ async function initialize() {
 
         // Place the init script here
         
-        collectExternalReferences(process.env.GITHUB_API_TOKEN, false);
         // prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
         // End of the init script

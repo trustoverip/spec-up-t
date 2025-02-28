@@ -17,7 +17,7 @@ function collectExternalReferences(options = {}) {
     const readlineSync = require('readline-sync');
     const config = fs.readJsonSync('specs.json');
     const externalSpecsRepos = config.specs[0].external_specs;
-    const GITHUB_API_TOKEN = process.env.GITHUB_API_TOKEN;
+    const GITHUB_API_TOKEN = options.pat || process.env.GITHUB_API_TOKEN;
 
     const explanationPAT =
 `❌ No GitHub Personal Access Token (PAT) was found.
@@ -31,7 +31,7 @@ function collectExternalReferences(options = {}) {
  `;
 
     const explanationNoExternalReferences =
-`\n❌ No external references were found in the specs.json file.
+`❌ No external references were found in the specs.json file.
 
    There is no point in continuing without external references, so we stop here.
 
@@ -119,7 +119,7 @@ function collectExternalReferences(options = {}) {
         // Function to extend xtref objects with additional information, such as repository URL and directory information.
         function extendXTrefs(config, xtrefs) {
             if (config.specs[0].external_specs_repos) {
-                console.log("ℹ️ PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-boilerplate/specs.json or e-mail kor@dwarshuis.com for help.");
+                console.log("ℹ️ PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t/blob/master/src/install-from-boilerplate/boilerplate/specs.json");
                 return;
             }
 

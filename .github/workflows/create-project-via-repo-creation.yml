@@ -1,0 +1,140 @@
+name: Create Spec-Up-T Project
+
+on:
+  workflow_dispatch:
+    inputs:
+      project-name:
+        description: 'Name of the new project repository'
+        required: true
+        default: 'myproject'
+      username:
+        description: 'Your GitHub username (required if PAT is provided)'
+        required: false
+      user-pat:
+        description: 'Your GitHub PAT (optional, to push to your own repo)'
+        required: false
+
+jobs:
+  create-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout spec-up-t repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install create-spec-up-t
+        run: |
+          npm install -g create-spec-up-t
+
+      - name: Create new project from boilerplate
+        run: |
+          npx create-spec-up-t ${{ github.event.inputs.project-name }}
+
+      - name: Debug inputs and PAT
+        if: github.event.inputs.user-pat != ''
+        env:
+          USER_PAT: ${{ github.event.inputs.user-pat }}
+        run: |
+          echo "Username: ${{ github.event.inputs.username }}"
+          echo "Project Name: ${{ github.event.inputs.project-name }}"
+          curl -i -L -H "Authorization: token $USER_PAT" -H "Accept: application/vnd.github+json" https://api.github.com/user
+
+      - name: Create new repository
+        if: github.event.inputs.user-pat != ''
+        env:
+          USER_PAT: ${{ github.event.inputs.user-pat }}
+        run: |
+          curl -i -L \
+            -X POST \
+            -H "Authorization: token $USER_PAT" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/user/repos \
+            -d '{"name":"${{ github.event.inputs.project-name }}","description":"Spec-Up-T project created via workflow","private":false}'
+
+      - name: Get repo public key
+        if: github.event.inputs.user-pat != ''
+        id: get-public-key
+        env:
+          USER_PAT: ${{ github.event.inputs.user-pat }}
+        run: |
+          RESPONSE=$(curl -L -H "Authorization: token $USER_PAT" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${{ github.event.inputs.username }}/${{ github.event.inputs.project-name }}/actions/secrets/public-key)
+          echo "PUBLIC_KEY=$(echo $RESPONSE | jq -r .key)" >> $GITHUB_OUTPUT
+          echo "KEY_ID=$(echo $RESPONSE | jq -r .key_id)" >> $GITHUB_OUTPUT
+
+      # Install libsodium-wrappers locally
+      - name: Install libsodium-wrappers
+        if: github.event.inputs.user-pat != ''
+        run: |
+          npm install libsodium-wrappers
+
+      # Encrypt and set the PAT as a secret
+      - name: Set PAT as repo secret
+        if: github.event.inputs.user-pat != ''
+        env:
+          USER_PAT: ${{ github.event.inputs.user-pat }}
+        run: |
+          node -e "
+            const sodium = require('./node_modules/libsodium-wrappers');
+            (async () => {
+              await sodium.ready;
+              const publicKey = Buffer.from('${{ steps.get-public-key.outputs.PUBLIC_KEY }}', 'base64');
+              const secretValue = process.env.USER_PAT;
+              const messageBytes = Buffer.from(secretValue);
+              const encryptedBytes = sodium.crypto_box_seal(messageBytes, publicKey);
+              const encrypted = Buffer.from(encryptedBytes).toString('base64');
+              const keyId = '${{ steps.get-public-key.outputs.KEY_ID }}';
+
+              const response = await fetch('https://api.github.com/repos/${{ github.event.inputs.username }}/${{ github.event.inputs.project-name }}/actions/secrets/MY_PAT', {
+                method: 'PUT',
+                headers: {
+                  'Authorization': 'token ' + secretValue,
+                  'Accept': 'application/vnd.github+json'
+                },
+                body: JSON.stringify({
+                  encrypted_value: encrypted,
+                  key_id: keyId
+                })
+              });
+              if (response.ok) {
+                console.log('PAT stored as secret MY_PAT in the new repo');
+              } else {
+                console.error('Failed to set secret:', await response.text());
+                process.exit(1);
+              }
+            })();
+          "
+
+      - name: Configure Git identity
+        if: github.event.inputs.user-pat != ''
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Push to new repository
+        if: github.event.inputs.user-pat != ''
+        env:
+          USER_PAT: ${{ github.event.inputs.user-pat }}
+        run: |
+          cd ${{ github.event.inputs.project-name }}
+          git init
+          git add .
+          git commit -m "Initial project's Spec-Up-T installation"
+          git branch -M main
+          git remote add origin https://x-access-token:${{ env.USER_PAT }}@github.com/${{ github.event.inputs.username }}/${{ github.event.inputs.project-name }}.git
+          git push -u origin main
+
+      - name: Output repository URL
+        if: github.event.inputs.user-pat != ''
+        run: |
+          echo "Your new Spec-Up-T project is at: https://github.com/${{ github.event.inputs.username }}/${{ github.event.inputs.project-name }}"
+
+      - name: Upload artifact (if no PAT)
+        if: github.event.inputs.user-pat == ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.project-name }}
+          path: ${{ github.event.inputs.project-name }}

@@ -1,6 +1,6 @@
 {
   "name": "spec-up-t",
-  "version": "1.1.14",
+  "version": "1.1.23",
   "description": "Technical specification drafting tool that generates rich specification documents from markdown. Forked from https://github.com/decentralized-identity/spec-up by Daniel Buchner (https://github.com/csuwildcat)",
   "main": "./index",
   "repository": {
@@ -30,7 +30,7 @@
     "diff": "^7.0.0",
     "dotenv": "^16.4.7",
     "find-pkg-dir": "^2.0.0",
-    "fs-extra": "^11.2.0",
+    "fs-extra": "^11.3.0",
     "gulp": "4.0.2",
     "gulp-clean-css": "4.3.0",
     "gulp-concat": "2.6.1",
