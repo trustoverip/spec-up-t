@@ -665,13 +665,25 @@ pre[class*="language-"] {
   padding: 0.5em;
 }
 
-#logo img {
-  height: 100%;
-}
-
-
 #logo+span {
   margin-left: auto;
+}
+
+#logo img {
+  width: 100px;
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+  /* Keep this and use when more items are added to this header */
+  /* .panel-header#header {
+    flex-wrap: nowrap;
+    height: var(--header-height);
+  } */
+
+  #logo {
+    width: auto;
+  }
 }
 
 #header #toc_toggle {

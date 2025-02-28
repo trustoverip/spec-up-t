@@ -36,26 +36,6 @@
   height: auto;
 } */
 
- 
-
-#logo img {
-  width: 100px;
-  /* border: 3px solid pink; */
-}
-
-/* Small devices (landscape phones, 576px and up) */
-@media (min-width: 576px) {
-  /* Keep this and use when more items are added to this header */
-  /* .panel-header#header {
-    flex-wrap: nowrap;
-    height: var(--header-height);
-  } */
-
-  #logo {
-    width: auto;
-  }
-}
-
 /*
  * Search results, matches, and highlighting
  */
