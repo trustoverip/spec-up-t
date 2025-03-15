@@ -1,0 +1,44 @@
+/* Define theme variables */
+:root {
+    --card-bg: #fff;
+    /* Light mode background */
+    --card-text: #212529;
+    /* Light mode text */
+    --card-border: rgba(0, 0, 0, 0.125);
+    /* Light mode border */
+    --card-shadow: rgba(0, 0, 0, 0.075);
+    /* Light mode shadow */
+    --card-hover-bg: #f8f9fa;
+    /* Light mode hover */
+
+    --toc-bg: #fff;
+    --toc-text: #212529;
+}
+
+/* Dark theme overrides */
+[data-bs-theme="dark"] {
+    --card-bg: #212529;
+    /* Dark mode background */
+    --card-text: #f8f9fa;
+    /* Dark mode text */
+    --card-border: rgba(255, 255, 255, 0.125);
+    /* Dark mode border */
+    --card-shadow: rgba(0, 0, 0, 0.2);
+    /* Dark mode shadow (subtle) */
+    --card-hover-bg: #343a40;
+    /* Dark mode hover */
+
+    --toc-bg: #212529;
+    --toc-text: #f8f9fa;
+}
+
+/* Optional: Respect system preference */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --card-bg: #212529;
+        --card-text: #f8f9fa;
+        --card-border: rgba(255, 255, 255, 0.125);
+        --card-shadow: rgba(0, 0, 0, 0.2);
+        --card-hover-bg: #343a40;
+    }
+}
