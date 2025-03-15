@@ -2,39 +2,6 @@
  * Search bar, input, nav, nr of results
  */
 
-#container-search-h7vc6omi2hr2880 {
-  margin-top: 1em;
-}
-
-#search-h7vc6omi2hr2880 {
-  margin: 0.1em 0.5em;
-  padding: 0.2em;
-  height: 1.5em;
-  border-radius: 5px;
-}
-
-#search-h7vc6omi2hr2880:active {
-  font-size: 16px;
-}
-
-#back-and-forth-buttons-container-search-h7vc6omi2hr2880 {
-  padding: 0;
-  display: inline-block;
-}
-
-#back-and-forth-buttons-container-search-h7vc6omi2hr2880 button {
-  margin-right: 0.5em;
-}
-
-#total-matches-search-h7vc6omi2hr2880 {
-  font-size: 0.8em;
-}
-
-/* Keep this and use when more items are added to this header */
-/* .panel-header#header {
-  flex-wrap: wrap;
-  height: auto;
-} */
 
 /*
  * Search results, matches, and highlighting
