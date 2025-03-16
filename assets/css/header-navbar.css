@@ -1,0 +1,14 @@
+#logo img {
+    width: 100px;
+}
+
+.bi {
+    display: inline-block;
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+#header, #header * {
+    background-color: var(--header-navbar-bg);
+    color: var(--header-navbar-text);
+}
