@@ -17,6 +17,11 @@
       "assets/css/pdf-download.css",
       "assets/css/terms-and-definitions.css",
       "assets/css/bootstrap.min.css",
+      "assets/css/header-navbar.css",
+      "assets/css/sidebar-toc.css",
+      "assets/css/loader.css",
+      "assets/css/external-links.css",
+      "assets/css/repo-issues.css",
       "assets/css/index.css"
     ],
     "js": [
@@ -52,6 +57,8 @@
       "assets/js/collapse-definitions.js",
       "assets/js/collapse-meta-info.js",
       "assets/js/add-href-to-snapshot-link.js",
+      "assets/js/adjust-font-size.js",
+      "assets/js/close-off-canvas-menu.js",
       "assets/js/index.js",
       "assets/js/css-helper.js",
       "assets/js/bootstrap.bundle.min.js"
