@@ -1,0 +1,102 @@
+/* #repo_issues {
+  width: calc(100% - 1.5em);
+  max-width: 450px;
+  border-left: 1px solid rgba(0, 0, 0, 0.15);
+} */
+
+#repo_issues>header {
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+}
+
+#repo_issues>header span:first-of-type {
+    font-weight: bold;
+    padding-top: 0.1em;
+}
+
+#repo_issues>header .repo-issue-toggle {
+    margin-left: auto;
+    color: inherit;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#repo_issue_list {
+    list-style: none;
+    margin: 0;
+    padding: 0 1.25em 1.25em;
+    font-size: 0.85em;
+    overflow: auto;
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+#repo_issue_list::-webkit-scrollbar {
+    display: none;
+    /* Safari and Chrome */
+}
+
+#repo_issue_list:empty:before {
+    content: "No issues found";
+    display: block;
+    text-align: center;
+    font-size: 1.1em;
+    color: #aaa;
+    margin: 1em 0 0;
+}
+
+.repo-issue detail-box {
+    display: flex;
+    flex-direction: column;
+    padding: 1em 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.repo-issue detail-box>section {
+    order: 1;
+}
+
+.repo-issue detail-box>section:empty+.repo-issue-title [detail-box-toggle] {
+    display: none;
+}
+
+.repo-issue-title {
+    display: flex;
+    align-items: center;
+}
+
+.repo-issue-link {
+    flex: 1;
+    margin: 0 0 0 0.5em;
+}
+
+.repo-issue-number {
+    height: 1em;
+    margin: 0 0.4em 0 0;
+    padding: 0.3em 0.25em 0;
+    border-radius: 3px;
+    font-weight: bold;
+    background: #eee;
+    border: 1px solid #ddd;
+    text-align: center;
+    line-height: 1em;
+}
+
+.repo-issue-number:before {
+    content: "#";
+    font-weight: normal;
+    margin: 0 0.1em 0 0;
+}
+
+.repo-issue [detail-box-toggle] {
+    margin: 0 0 0 1em;
+    opacity: 0.35;
+    transition: opacity 0.4s;
+}
+
+.repo-issue [detail-box-toggle]:hover,
+.repo-issue detail-box[open] [detail-box-toggle] {
+    opacity: 1;
+}
