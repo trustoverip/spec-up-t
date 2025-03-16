@@ -1,6 +1,11 @@
 /* Define theme variables */
 :root {
     --card-bg: #fff;
+    --card-bg-dt: #fcfcfc;
+    --toc-bg: #fff;
+    --toc-text: #212529;
+    --header-navbar-bg: #f8f9fa;
+    --header-navbar-text: #212529;
     /* Light mode background */
     --card-text: #212529;
     /* Light mode text */
@@ -11,13 +16,17 @@
     --card-hover-bg: #f8f9fa;
     /* Light mode hover */
 
-    --toc-bg: #fff;
-    --toc-text: #212529;
 }
 
 /* Dark theme overrides */
 [data-bs-theme="dark"] {
     --card-bg: #212529;
+    --card-bg-dt: #24282d;
+    --toc-bg: #212529;
+    --toc-text: #f8f9fa;
+    --header-navbar-bg: #343a40;
+    --header-navbar-text: #f8f9fa;
+
     /* Dark mode background */
     --card-text: #f8f9fa;
     /* Dark mode text */
@@ -28,11 +37,9 @@
     --card-hover-bg: #343a40;
     /* Dark mode hover */
 
-    --toc-bg: #212529;
-    --toc-text: #f8f9fa;
 }
 
-/* Optional: Respect system preference */
+/*/~ Optional: Respect system preference ~/
 @media (prefers-color-scheme: dark) {
     :root {
         --card-bg: #212529;
@@ -41,4 +48,4 @@
         --card-shadow: rgba(0, 0, 0, 0.2);
         --card-hover-bg: #343a40;
     }
-}
+}*/
