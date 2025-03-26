@@ -134,34 +134,4 @@ module.exports = function (md, templates = {}) {
 
     return originalRender(tokens, idx, options, env, self);
   };
-
-  // // Override the default `dd_open` renderer
-  // md.renderer.rules.dd_open = (tokens, idx, options, env, self) => {
-  //   // Get the next token (the content inside the <dd>)
-  //   const contentToken = tokens[idx + 1];
-    
-  //   if (contentToken.tag === 'p') {
-  //     return '<dd>';
-  //   }
-
-  //   if (contentToken.tag === 'table') {
-  //     return '<dd class="contains-table">';
-  //   }
-
-  //   // Default behavior
-  //   return '';
-  // };
-
-  // // Override the default `dd_close` renderer
-  // md.renderer.rules.dd_close = (tokens, idx, options, env, self) => {
-  //   // Get the previous token (the content inside the <dd>)
-  //   const contentToken = tokens[idx - 1];
-
-  //   if (contentToken.tag === 'p') {
-  //     return '</dd>';
-  //   }
-
-  //   // Default behavior
-  //   return '';
-  // };
 };
