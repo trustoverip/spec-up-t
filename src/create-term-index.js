@@ -23,7 +23,7 @@ function createTermIndex() {
     const specTermDirectoryName = config.specs.map(spec => spec.spec_terms_directory);
     const outputPathJSON = path.join('output', 'term-index.json');
     const files = fs.readdirSync(path.join(specDirectories[0], specTermDirectoryName[0]))
-        .filter(file => !file.startsWith('_'));
+        .filter(file => !file.startsWith('_') && file.endsWith('.md'));
 
     const filePaths = files.map(file => specTermDirectoryName[0] + '/' + file);
 
