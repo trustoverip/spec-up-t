@@ -32,6 +32,23 @@ const rl = readline.createInterface({
     output: process.stdout,
 });
 
+// Introduction text
+console.log(`
+Welcome to the Spec-Up-T Starterpack configuration tool!
+
+You will be asked a series of questions to customize your project. 
+Here’s what each field means:
+- "Title": The name of your project.
+- "Description": A brief explanation of your project.
+- "Author": The name of the person or organization creating the project.
+- "Account": The GitHub account or organization where the repository will be hosted.
+- "Repo": The name of the GitHub repository.
+
+Note: "Author" refers to the creator of the project, while "Account" refers to the GitHub account or organization.
+
+Press Enter to accept the default value shown in parentheses.
+`);
+
 // Questions for user input
 const questions = [
     { field: 'title', prompt: 'Enter title: ', default: 'Spec-Up-T Starterpack' },
