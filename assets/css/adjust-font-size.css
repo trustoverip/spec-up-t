@@ -1,0 +1,7 @@
+.adjust-font-size #decreaseBtn {
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" xmlns:xlink="http://www.w3.org/1999/xlink"><text x="50%" y="50%" font-family="Times New Roman" font-size="50" fill="black" dominant-baseline="middle" text-anchor="middle">A</text></svg>') no-repeat center;
+}
+
+.adjust-font-size #increaseBtn {
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" xmlns:xlink="http://www.w3.org/1999/xlink"><text x="50%" y="50%" font-family="Times New Roman" font-size="80" fill="black" dominant-baseline="middle" text-anchor="middle">A</text></svg>') no-repeat center;
+}
