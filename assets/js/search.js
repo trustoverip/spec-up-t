@@ -41,54 +41,62 @@ function inPageSearch() {
 
 
    /* Add DOM elements: search container with search bar, back and forth buttons, and results count */
-
-   let searchContainer = document.createElement("div");
-   searchContainer.setAttribute("id", "container-" + antiNameCollisions);
-   searchContainer.setAttribute("class", "container-" + antiNameCollisions);
+   const searchContainer = document.createElement("div");
+   searchContainer.setAttribute("id", `container-${antiNameCollisions}`);
+   searchContainer.classList.add("input-group", "mb-3", "d-flex", "align-items-center"); // Bootstrap 5.3 input group with margin bottom
+   searchContainer.setAttribute("role", "search"); // ARIA role for search container
    terminologySectionUtilityContainer.appendChild(searchContainer);
 
    // Add an input element (for search)
-   let searchInput = document.createElement("input");
+   const searchInput = document.createElement("input");
    searchInput.setAttribute("type", "text");
    searchInput.setAttribute("id", antiNameCollisions);
+   searchInput.classList.add("form-control");
    searchInput.setAttribute("placeholder", searchBarPlaceholder);
+   searchInput.setAttribute("aria-label", "Search terms"); // ARIA label for screen readers
+   searchInput.setAttribute("autocomplete", "off"); // Prevent browser autocomplete
    searchContainer.appendChild(searchInput);
 
-   // setTimeout(() => {
-   //    searchInput.focus();
-   // }, 1000);
+   // Add a container for the navigation buttons and results
+   const buttonGroup = document.createElement("div");
+   buttonGroup.classList.add("input-group-append"); // Bootstrap 5.3 button group styling
 
-   // Add a container for the back and forth buttons
-   const backAndForthButtonsContainer = document.createElement("div");
-   backAndForthButtonsContainer.setAttribute("id", "back-and-forth-buttons-container-" + antiNameCollisions);
+   // Add a back button
+   const goToPreviousMatchButton = document.createElement("button");
+   goToPreviousMatchButton.setAttribute("id", `one-match-backward-${antiNameCollisions}`);
+   goToPreviousMatchButton.classList.add("btn", "btn-outline-secondary");
+   goToPreviousMatchButton.setAttribute("type", "button"); // Specify button type
+   goToPreviousMatchButton.setAttribute("disabled", "true"); // Bootstrap 5 uses "true" instead of "disabled"
+   goToPreviousMatchButton.setAttribute("title", "Go to previous match (Left Arrow)");
+   goToPreviousMatchButton.setAttribute("aria-label", "Go to previous match");
+   goToPreviousMatchButton.innerHTML = '<span aria-hidden="true">▲</span>'; // Hide symbol from screen readers
+   buttonGroup.appendChild(goToPreviousMatchButton);
 
-   // Add a back button to the container for the back and forth buttons
-   const goToPreviousMatchButton = document.createElement('button');
-   goToPreviousMatchButton.setAttribute("id", "one-match-backward-" + antiNameCollisions);
-   goToPreviousMatchButton.setAttribute("disabled", "disabled");
-   goToPreviousMatchButton.setAttribute("title", "Go to previous match. Shortcut key: Left Arrow");
-   goToPreviousMatchButton.textContent = "▲";
-   backAndForthButtonsContainer.appendChild(goToPreviousMatchButton);
+   // Add a forward button
+   const goToNextMatchButton = document.createElement("button");
+   goToNextMatchButton.setAttribute("id", `one-match-forward-${antiNameCollisions}`);
+   goToNextMatchButton.classList.add("btn", "btn-outline-secondary");
+   goToNextMatchButton.setAttribute("type", "button");
+   goToNextMatchButton.setAttribute("disabled", "true");
+   goToNextMatchButton.setAttribute("title", "Go to next match (Right Arrow)");
+   goToNextMatchButton.setAttribute("aria-label", "Go to next match");
+   goToNextMatchButton.innerHTML = '<span aria-hidden="true">▼</span>';
+   buttonGroup.appendChild(goToNextMatchButton);
 
-   // Add a forward button to the container for the back and forth buttons
-   const goToNextMatchButton = document.createElement('button');
-   goToNextMatchButton.setAttribute("id", "one-match-forward-" + antiNameCollisions);
-   goToNextMatchButton.setAttribute("disabled", "disabled");
-   goToNextMatchButton.setAttribute("title", "Go to next match. Shortcut key: Right Arrow");
-   goToNextMatchButton.textContent = "▼";
-   backAndForthButtonsContainer.appendChild(goToNextMatchButton);
 
-   // Add the container for the back and forth buttons
-   // search.after(backAndForthButtonsContainer);
-   searchContainer.appendChild(backAndForthButtonsContainer);
-
-   // Add number of matches
+   // Add number of matches with accessibility
    const totalMatchesSpan = document.createElement("span");
-   totalMatchesSpan.setAttribute("id", "total-matches-" + antiNameCollisions);
+   totalMatchesSpan.setAttribute("id", `total-matches-${antiNameCollisions}`);
+   totalMatchesSpan.classList.add("input-group-text"); // Bootstrap 5.3 styling
    totalMatchesSpan.innerHTML = `0 ${matches}`;
-   // backAndForthButtonsContainer.after(totalMatchesSpan);
+   totalMatchesSpan.setAttribute("aria-live", "polite"); // Announce changes to screen readers
+   totalMatchesSpan.setAttribute("role", "status"); // Define as status region
    searchContainer.appendChild(totalMatchesSpan);
-   
+
+   // Add the button group to the container
+   searchContainer.appendChild(buttonGroup);
+
+
    /* END Add DOM elements */
 
    // Add an event listener to the input element

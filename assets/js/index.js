@@ -3,13 +3,6 @@
 
 var markdown = window.markdownit();
 
-/* Sidebar Interactions */
-
-delegateEvent('pointerup', '[panel-toggle]', (e, delegate) => {
-  slidepanels.toggle(delegate.getAttribute('panel-toggle'));
-}, { passive: true });
-
-window.addEventListener('hashchange', (e) => slidepanels.close());
 
 /* GitHub Issues */
 

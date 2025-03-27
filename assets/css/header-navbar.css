@@ -1,0 +1,29 @@
+#logo img {
+    width: 100px;
+}
+
+.bi {
+    display: inline-block;
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+#header, #header * {
+    background-color: var(--header-navbar-bg);
+    color: var(--header-navbar-text);
+}
+
+[issue-count]:after {
+    content: "(" attr(issue-count) ")";
+    margin: 0 0 0 0.3em;
+    padding: 0.1em 0 0;
+}
+
+[issue-count=""][animate] {
+    display: none;
+    opacity: 0;
+}
+
+[issue-count][animate]:not([issue-count=""]) {
+    animation: display-show 1s;
+}

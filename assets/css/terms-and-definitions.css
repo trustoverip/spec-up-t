@@ -1,0 +1,142 @@
+
+h2,h3,h4,h5,h6 {
+ margin-top: 1.5em !important;
+}
+
+
+/* START The “#” before every term that serves as an anchor */
+.toc-anchor {
+  font-size: 0.875em;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.35;
+  order: -1;
+  transition: opacity 0.3s ease;
+}
+
+.toc-anchor:hover {
+  opacity: 1;
+}
+/* END */
+
+
+/* Terminology Section Utility Container */
+#terminology-section-utility-container {
+  background: var(--card-bg);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 1em auto;
+  padding: 0;
+  width: 100%;
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+  #terminology-section-utility-container {
+    position: sticky;
+    top: 3.5em;
+  }
+}
+/* End Terminology Section Utility Container */
+
+
+/* Transclusions */
+.transcluded-xref-term {
+  background: #a9dde03b !important;
+  padding: 0.5em;
+  margin: 1em 0;
+}
+
+.transclusion-heading {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin: 1em 0 0.5em;
+}
+/* End Transclusions */
+
+
+/* Start No xref found */
+.btn,
+.no-xref-found-message {
+  font-variant: small-caps;
+  text-transform: uppercase;
+}
+
+.no-xref-found-message {
+  background: #f8c481 !important;
+  color: #03365f !important;
+  margin: 0 0.5em;
+  padding: 0 0.8em;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+}
+/* End No xref found */
+
+/* START: Definition list for terms styled as Bootstrap Cards */
+dl.terms-and-definitions-list {
+  margin: 0;
+  padding: 0;
+}
+
+dl.terms-and-definitions-list>dt {
+  font-weight: 700;
+  /* Bootstrap uses 700 for bold */
+  margin: 0;
+  background-color: var(--card-bg-dt);
+  border: 1px solid var(--card-border);
+  padding: 0.1rem 1.25rem;
+  /* Bootstrap card-header padding */
+  border-radius: 0.375rem 0.375rem 0 0;
+  /* Bootstrap default border-radius */
+  box-shadow: 0 0.125rem 0.25rem var(--card-shadow);
+  color: var(--card-text);
+}
+
+dl.terms-and-definitions-list>dd {
+  margin: 0;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-top: none;
+  padding: 1rem 1.25rem;
+  /* Consistent Bootstrap card-body padding */
+  box-shadow: 0 0.125rem 0.25rem var(--card-shadow);
+  color: var(--card-text);
+}
+
+/* Style paragraphs inside dd */
+dl.terms-and-definitions-list dd p {
+  margin: 0;
+  color: var(--card-text);
+}
+
+/* Remove borders between consecutive <dd> elements */
+dl.terms-and-definitions-list dt+dd {
+  border-bottom: none;
+}
+dl.terms-and-definitions-list dd+dd {
+  border-top: none;
+  border-bottom: none;
+}
+
+/* Add spacing between card groups */
+dl.terms-and-definitions-list dd+dt {
+  margin-top: 1.5rem;
+  /* Bootstrap-like spacing between cards */
+}
+
+/* Style the last dd in each group */
+dl.terms-and-definitions-list dd.last-dd {
+  border-radius: 0 0 0.375rem 0.375rem;
+  /* Rounded bottom corners */
+  border-bottom: 1px solid var(--card-border);
+}
+
+/* Optional: Add hover effect similar to Bootstrap interactive cards */
+dl.terms-and-definitions-list>dt:hover {
+  background-color: var(--card-hover-bg);
+  transition: background-color 0.2s ease-in-out;
+  /* Smooth transition */
+}
+
+/* END: Definition list for terms styled as Bootstrap Cards */

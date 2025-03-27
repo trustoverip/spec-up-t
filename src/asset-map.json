@@ -1,7 +1,7 @@
 {
   "head": {
     "css": [
-      "assets/css/bootstrap-parts.css",
+      "assets/css/theme-vars.css",
       "assets/css/custom-elements.css",
       "assets/css/prism.css",
       "assets/css/chart.css",
@@ -15,11 +15,20 @@
       "assets/css/modal.css",
       "assets/css/create-alphabet-index.css",
       "assets/css/pdf-download.css",
+      "assets/css/terms-and-definitions.css",
+      "assets/css/bootstrap.min.css",
+      "assets/css/header-navbar.css",
+      "assets/css/sidebar-toc.css",
+      "assets/css/loader.css",
+      "assets/css/external-links.css",
+      "assets/css/repo-issues.css",
+      "assets/css/adjust-font-size.css",
       "assets/css/index.css"
     ],
     "js": [
       "assets/js/utils.js",
-      "assets/js/custom-elements.js"
+      "assets/js/custom-elements.js",
+      "assets/js/color-modes.js"
     ]
   },
   "body": {
@@ -49,8 +58,11 @@
       "assets/js/collapse-definitions.js",
       "assets/js/collapse-meta-info.js",
       "assets/js/add-href-to-snapshot-link.js",
+      "assets/js/adjust-font-size.js",
+      "assets/js/close-off-canvas-menu.js",
       "assets/js/index.js",
-      "assets/js/css-helper.js"
+      "assets/js/css-helper.js",
+      "assets/js/bootstrap.bundle.min.js"
     ]
   }
 }

@@ -1,0 +1,120 @@
+/* Sticky and scrollable sidebar */
+
+/* Ensure the container has enough height */
+.container {
+    min-height: 100vh;
+    /* Full viewport height */
+}
+
+/* Sticky and scrollable sidebar on medium screens and up */
+@media (min-width: 768px) {
+    .sidebar {
+        position: sticky;
+        /* Sticks to the top while scrolling */
+        top: 0;
+        /* Aligns to the top of the parent container */
+        height: 100vh;
+        /* Full viewport height */
+        overflow-y: auto;
+        /* Scrollbar appears if content overflows */
+        z-index: 100;
+        /* Keeps sidebar above other content */
+    }
+}
+/* End sticky and scrollable sidebar */
+
+
+/* TOC Container */
+.toc {
+    padding: 0 0 1.75em;
+    /* Bottom padding for spacing below TOC */
+    font-size: 0.85em;
+    /* Slightly smaller font for compactness */
+    counter-reset: toc1;
+    /* Initialize counter for top-level items */
+}
+
+/* Reset list styling for all ul elements */
+.toc,
+.toc ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Indent nested levels for hierarchy */
+.toc ul ul {
+    padding-left: 1em;
+    /* Indentation for sub-levels */
+}
+
+/* Style links */
+.toc a {
+    display: block;
+    /* Full clickable area */
+    padding: 0.4em 0.3em 0.225em;
+    /* Consistent padding */
+    text-decoration: none;
+    color: var(--toc-text);
+    /* Use variable for text color */
+    transition: background 0.2s ease;
+    /* Smooth hover transition */
+    text-indent: -1.2em;
+    /* Negative indent for the first line */
+    padding-left: 1.2em;
+    /* Indent for the second line */
+}
+
+/* Hover effect */
+.toc a:hover {
+    background: var(--toc-bg);
+    /* Subtle background on hover */
+}
+
+/* Top-level items numbering */
+.toc>li>a:before {
+    counter-increment: toc1;
+    content: counter(toc1) ".";
+    /* e.g., "1." */
+    padding-right: 0.5em;
+    /* Space between number and text */
+}
+
+/* Reset counter for second level */
+.toc>li>ul {
+    counter-reset: toc2;
+}
+
+/* Second-level items numbering */
+.toc>li>ul>li>a:before {
+    counter-increment: toc2;
+    content: counter(toc1) "." counter(toc2) ".";
+    /* e.g., "1.1." */
+    padding-right: 0.5em;
+}
+
+/* Reset counter for third level */
+.toc>li>ul>li>ul {
+    counter-reset: toc3;
+}
+
+/* Third-level items numbering */
+.toc>li>ul>li>ul>li>a:before {
+    counter-increment: toc3;
+    content: counter(toc1) "." counter(toc2) "." counter(toc3) ".";
+    /* e.g., "1.1.1." */
+    padding-right: 0.5em;
+}
+
+
+.powered-by {
+    font-size: 0.7em;
+}
+
+/* Accessibility: Focus styles */
+.toc a:focus {
+    outline: 2px solid var(--toc-text);
+    /* Visible focus indicator */
+    outline-offset: 2px;
+    /* Space outside the element */
+}
