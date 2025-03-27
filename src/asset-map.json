@@ -22,6 +22,7 @@
       "assets/css/loader.css",
       "assets/css/external-links.css",
       "assets/css/repo-issues.css",
+      "assets/css/adjust-font-size.css",
       "assets/css/index.css"
     ],
     "js": [
