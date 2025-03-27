@@ -21,6 +21,7 @@
         /* Keeps sidebar above other content */
     }
 }
+
 /* End sticky and scrollable sidebar */
 
 
@@ -42,6 +43,16 @@
     list-style: none;
 }
 
+/* Style list items */
+.toc li a:before {
+    font-size: 0.6em;
+    border: 1px solid #22222259;
+    background: #edecec59;
+    margin-right: 0.5em;
+    border-radius: 7px;
+    padding: 3px;
+}
+
 /* Indent nested levels for hierarchy */
 .toc ul ul {
     padding-left: 1em;
@@ -59,9 +70,9 @@
     /* Use variable for text color */
     transition: background 0.2s ease;
     /* Smooth hover transition */
-    text-indent: -1.2em;
+    text-indent: -1.7em;
     /* Negative indent for the first line */
-    padding-left: 1.2em;
+    padding-left: 1.7em;
     /* Indent for the second line */
 }
 
@@ -74,7 +85,7 @@
 /* Top-level items numbering */
 .toc>li>a:before {
     counter-increment: toc1;
-    content: counter(toc1) ".";
+    content: counter(toc1);
     /* e.g., "1." */
     padding-right: 0.5em;
     /* Space between number and text */
@@ -88,7 +99,7 @@
 /* Second-level items numbering */
 .toc>li>ul>li>a:before {
     counter-increment: toc2;
-    content: counter(toc1) "." counter(toc2) ".";
+    content: counter(toc1) "." counter(toc2);
     /* e.g., "1.1." */
     padding-right: 0.5em;
 }
@@ -101,7 +112,7 @@
 /* Third-level items numbering */
 .toc>li>ul>li>ul>li>a:before {
     counter-increment: toc3;
-    content: counter(toc1) "." counter(toc2) "." counter(toc3) ".";
+    content: counter(toc1) "." counter(toc2) "." counter(toc3);
     /* e.g., "1.1.1." */
     padding-right: 0.5em;
 }
