@@ -41,17 +41,14 @@
         <!-- Right-aligned elements -->
         <div class="d-flex align-items-center">
 
-            <!-- Font size -->
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-sm btn-outline-secondary m-0 px-2 border-end-0"
-                    id="decreaseBtn">-</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary m-0 px-2" id="resetBtn">0</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary m-0 px-2 border-start-0"
-                    id="increaseBtn">+</button>
-            </div>
+            <!-- Issues side menu -->
+            <button id="repo_issues" issue-count animate class="btn btn-sm btn-outline-secondary ms-2" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#offcanvasIssues" aria-controls="offcanvasIssues">
+                Issues
+            </button>
 
             <!-- Dark / Light theme selector -->
-            <div class="dropdown bd-mode-toggle">
+            <div class="dropdown bd-mode-toggle me-2">
                 <button
                     class="btn btn-bd-primary btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center"
                     id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown"
@@ -89,11 +86,18 @@
                 </ul>
             </div>
 
-            <!-- Issues side menu -->
-            <button id="repo_issues" issue-count animate class="btn btn-sm btn-outline-secondary ms-2" type="button"
-                data-bs-toggle="offcanvas" data-bs-target="#offcanvasIssues" aria-controls="offcanvasIssues">
-                Issues
-            </button>
+            <!-- Font size -->
+            <div class="adjust-font-size btn-group me-2" role="group">
+                <button title="Decrease font size" type="button"
+                    class="btn btn-sm btn-outline-secondary m-0 p-3 border-end-0" id="decreaseBtn"><span
+                        class="visually-hidden">Decrease font size</span>
+                </button>
+                <!-- <button type="button" class="btn btn-sm btn-outline-secondary m-0 px-2" id="resetBtn">0</button> -->
+                <button title="Increase font size" type="button"
+                    class="btn btn-sm btn-outline-secondary m-0 p-3 border-start-0" id="increaseBtn">
+                    <span class="visually-hidden">Increase font size</span>
+                </button>
+            </div>
         </div>
     </header>
 
