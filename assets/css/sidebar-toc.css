@@ -24,108 +24,89 @@
 
 /* End sticky and scrollable sidebar */
 
-
 /* TOC Container */
-.toc {
-    padding: 0 0 1.75em;
-    /* Bottom padding for spacing below TOC */
+ul.toc {
+    padding: 1em 0 1.75em;
+    /* Add padding to top */
     font-size: 0.85em;
-    /* Slightly smaller font for compactness */
-    counter-reset: toc1;
-    /* Initialize counter for top-level items */
+    /* Light right border */
 }
 
 /* Reset list styling for all ul elements */
-.toc,
-.toc ul {
+ul.toc,
+ul.toc ul {
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
 /* Style list items */
-.toc li a:before {
-    font-size: 0.6em;
-    border: 1px solid #22222219;
-    background: #edecec59;
-    margin-right: 0.5em;
-    border-radius: 7px;
-    padding: 3px;
+ul.toc li a {
+    display: block;
+    padding: 0.4em 0.8em;
+    /* Adjusted padding */
+    text-decoration: none;
+    color: var(--toc-text);
+    transition: background 0.2s ease, padding-left 0.2s ease, border-left 0.2s ease;
+    /* Smooth transitions */
+    padding-left: 0.8em;
+    /* Initial padding */
+    border-left: 3px solid transparent;
+    /* Add transparent border for hover */
 }
 
 /* Indent nested levels for hierarchy */
-.toc ul ul {
-    padding-left: 1em;
-    /* Indentation for sub-levels */
-}
-
-/* Style links */
-.toc a {
-    display: block;
-    /* Full clickable area */
-    padding: 0.4em 0.3em 0.225em;
-    /* Consistent padding */
-    text-decoration: none;
-    color: var(--toc-text);
-    /* Use variable for text color */
-    transition: background 0.2s ease;
-    /* Smooth hover transition */
-    text-indent: -1.7em;
-    /* Negative indent for the first line */
-    padding-left: 1.7em;
-    /* Indent for the second line */
+ul.toc ul {
+    margin-left: 1.2em !important;
+    margin-top: 0.3em;
 }
 
 /* Hover effect */
-.toc a:hover {
-    background: var(--toc-bg);
-    /* Subtle background on hover */
-}
-
-/* Top-level items numbering */
-.toc>li>a:before {
-    counter-increment: toc1;
-    content: counter(toc1);
-    /* e.g., "1." */
-    padding-right: 0.5em;
-    /* Space between number and text */
-}
-
-/* Reset counter for second level */
-.toc>li>ul {
-    counter-reset: toc2;
+ul.toc a:hover {
+    background: #f9f9f9;
+    /* Lighter background on hover */
+    padding-left: 1em;
+    /* Slight padding increase on hover */
+    border-left: 3px solid #007bff;
+    /* Highlight border on hover */
 }
 
 /* Second-level items numbering */
-.toc>li>ul>li>a:before {
-    counter-increment: toc2;
-    content: counter(toc1) "." counter(toc2);
-    /* e.g., "1.1." */
-    padding-right: 0.5em;
-}
-
-/* Reset counter for third level */
-.toc>li>ul>li>ul {
-    counter-reset: toc3;
+ul.toc>li>ul>li>a {
+    padding-left: 1.5em;
 }
 
 /* Third-level items numbering */
-.toc>li>ul>li>ul>li>a:before {
-    counter-increment: toc3;
-    content: counter(toc1) "." counter(toc2) "." counter(toc3);
-    /* e.g., "1.1.1." */
-    padding-right: 0.5em;
+ul.toc>li>ul>li>ul>li>a {
+    padding-left: 2.0em;
 }
 
+/* Accessibility: Focus styles */
+ul.toc a:focus {
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+}
 
 .powered-by {
     font-size: 0.7em;
 }
 
-/* Accessibility: Focus styles */
-.toc a:focus {
-    outline: 2px solid var(--toc-text);
-    /* Visible focus indicator */
-    outline-offset: 2px;
-    /* Space outside the element */
+/* Add a subtle visual cue for active/selected item */
+ul.toc li a.active,
+ul.toc li a[aria-current="page"] {
+    border-left: 3px solid #007bff;
+    /* Highlight active item */
+    font-weight: 500;
+    /* Make active item slightly bolder */
+    background: #f0f0f0;
+    /* Light background for active item */
+}
+
+/* Add a very subtle bottom border to each list item */
+ul.toc li a {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+/* Remove bottom border from last list item */
+ul.toc li:last-child a {
+    border-bottom: none;
 }
