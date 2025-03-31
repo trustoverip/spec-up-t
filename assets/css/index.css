@@ -35,13 +35,11 @@ svg[icon] {
   display: none;
 }
 
-
 main * {
-  word-break: break-all;
-  /* Breaks at any character */
-  /* OR */
-  overflow-wrap: break-word;
-  /* Breaks only at allowed break points, more browser support */
+  overflow-wrap: anywhere;
+  /* Breaks long URLs at any point without distorting column width */
+  word-break: normal;
+  /* Breaks words at logical places according to the language */
 }
 
 dd td img {
