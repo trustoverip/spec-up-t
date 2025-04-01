@@ -9,16 +9,16 @@
 function createToggleButton(element) {
     const toggleButton = document.createElement('button');
     toggleButton.classList.add('meta-info-toggle-button', 'btn');
-    toggleButton.textContent = '🔍';
+    toggleButton.textContent = 'ℹ️';
     toggleButton.title = 'Meta info';
 
     // Add event listener to the button
     toggleButton.addEventListener('click', function () {
         element.classList.toggle('collapsed');
         if (element.classList.contains('collapsed')) {
-            this.textContent = '🔍';
+            this.textContent = 'ℹ️';
         } else {
-            this.textContent = '🔍';
+            this.textContent = 'ℹ️';
         }
     });
 
