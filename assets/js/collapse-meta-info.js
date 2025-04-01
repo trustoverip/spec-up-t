@@ -37,7 +37,7 @@ function createToggleButton(element) {
 
 // Find all elements with class 'collapsible' and make them collapsible
 document.addEventListener('DOMContentLoaded', function () {
-    const collapsibles = document.querySelectorAll('.contains-table');
+    const collapsibles = document.querySelectorAll('dl > dd:has(table)');
 
     collapsibles.forEach(function (element) {
         // Wrap content (excluding button) in a div for easy toggling
