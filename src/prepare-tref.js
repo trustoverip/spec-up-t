@@ -1,13 +1,3 @@
-/**
- * @file prepare-tref.js
- * @description This script contains functions to process and prepare term references (trefs) from markdown files.
- * It includes functionality to read local xtref content from a JSON file and process markdown files in a directory recursively. This script inserts the content of the local xtref (in JSON) into the markdown files. It also inserts a note that this content is temporary and can be removed.
- * 
- * @module prepareTref
- * @requires fs
- * @requires path
- */
-
 const fs = require('fs');
 const path = require('path');
 const dedent = require('dedent');
@@ -54,8 +44,7 @@ function prepareTref(directory) {
 
                         // Split the content into lines
                         let lines = data.split('\n');
-                        let localXTrefContent = '';
-                        // Handle specific functionality for `[[tref:` lines
+
                         for (let i = 0; i < lines.length; i++) {
                             if (lines[i].startsWith('[[tref:')) {
 
@@ -74,34 +63,19 @@ function prepareTref(directory) {
                                 const match = lines[i].match(tref);
                                 if (match) {
                                     const result = match[1].split(',').map(term => term.trim());
-                                    localXTrefContent = getLocalXTrefContent(result[0], result[1]);
-                                    /* 
+                                    const localXTrefContent = getLocalXTrefContent(result[0], result[1]);
 
-                                        Remove the `[[def: ...]]:` lines from the content.
-
-                                        \[\[def: matches the literal [[def:
-                                        
-                                        .*? lazily matches any character(including commas) until the next part of the regex.
-                                        
-                                        \]\]: matches the literal ]]:.
-                                        
-                                        The g flag ensures that all occurrences in the string are replaced.
-                                    */
-                                    // const defPart = /\[\[def: .*?\]\]:/g;
                                     const defPart = /\[\[def: ([^,]+),.*?\]\]/g;
-
                                     localXTrefContent.content = localXTrefContent.content.replace(defPart, '');
 
                                     const readyForWrite = dedent`
 ${match[0]}
-<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->
-<dd>
 | Property | Value |
 | -------- | ----- |
 | Owner | ![avatar](${localXTrefContent.avatarUrl}) ${localXTrefContent.owner} |
 | Repo | [${localXTrefContent.repo}](${localXTrefContent.repoUrl}) |
 | Commit hash | ${localXTrefContent.commitHash} |
-</dd>
+
 ${localXTrefContent.content}
 `;
 
@@ -110,8 +84,7 @@ ${localXTrefContent.content}
                             }
                         }
                     } catch (err) {
-                        fs.writeFileSync(itemPath, match[0] + '\n\n' + '<!-- This is a copy of the saved remote text. Remove it if you like. It is automatically (re)generated -->\n\nNothing found, so nothing to show.', 'utf8');
-                        // console.error(`❌ Error reading or writing file ${item.name}: ${err}`);
+                        fs.writeFileSync(itemPath, match[0] + '\n\n' + '\n\nNothing found, so nothing to show.', 'utf8');
                     }
                 }
             });
@@ -120,7 +93,6 @@ ${localXTrefContent.content}
         }
     }
 
-    // Start processing from the given directory
     processDirectory(directory);
 }
 
