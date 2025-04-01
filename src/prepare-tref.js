@@ -1,3 +1,24 @@
+/**
+ * @file prepare-tref.js
+ * @description This module provides functionality to process markdown files in a directory recursively, 
+ * searching for specific `[[tref:]]` references, and replacing them with detailed information 
+ * fetched from a local JSON file (`xtrefs-data.json`). The information includes metadata such as 
+ * owner, repository, commit hash, and content. If no matching reference is found, a placeholder 
+ * message is written to the file.
+ * 
+ * The module includes:
+ * - A helper function `getLocalXTrefContent` to retrieve reference data from the JSON file.
+ * - A main function `prepareTref` to process directories and markdown files, replacing tref references.
+ * 
+ * This is useful for dynamically enriching markdown documentation with external reference details.
+ * 
+ * @requires fs - Node.js file system module for reading and writing files.
+ * @requires path - Node.js path module for handling file paths.
+ * @requires dedent - A utility for removing indentation from multi-line strings.
+ * 
+ * @module prepareTref
+ */
+
 const fs = require('fs');
 const path = require('path');
 const dedent = require('dedent');
