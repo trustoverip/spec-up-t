@@ -53,9 +53,15 @@ function fixMarkdownFiles(directory) {
                             }
                         }
 
-                        // Prepend `~ ` to lines that do not start with `[[def:` and are not blank, and do not already start with `~ `
+                        // Prepend `~ ` to lines that do not start with `[[def:`, `[[tref:`, are not blank, do not already start with `~ `, and are not HTML comments
                         for (let i = 0; i < newLines.length; i++) {
-                            if (!newLines[i].startsWith('[[def:') && !newLines[i].startsWith('[[tref:') && newLines[i].trim() !== '' && !newLines[i].startsWith('~ ')) {
+                            if (
+                                !newLines[i].startsWith('[[def:') &&
+                                !newLines[i].startsWith('[[tref:') &&
+                                newLines[i].trim() !== '' &&
+                                !newLines[i].startsWith('~ ') &&
+                                !newLines[i].trim().startsWith('<!--')
+                            ) {
                                 newLines[i] = `~ ${newLines[i]}`;
                                 modified = true;
                             }
