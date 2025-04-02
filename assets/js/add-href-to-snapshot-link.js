@@ -7,7 +7,7 @@
  */
 
 function addHrefToSnapshotLink() {
-   const snapshotLink = document.querySelector('.snapshots a');
+   const snapshotLink = document.querySelector('#snapshotLink');
 
    // Get the current URL of the page
    const currentUrl = window.location.href;
