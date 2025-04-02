@@ -22,7 +22,6 @@ h2,h3,h4,h5,h6 {
 
 /* Terminology Section Utility Container */
 #terminology-section-utility-container {
-  background: var(--card-bg);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
