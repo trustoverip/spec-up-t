@@ -26,7 +26,7 @@ function collectExternalReferences(options = {}) {
 
    There is no point in continuing without a PAT, so we stop here.
 
-   Find instructions on how to get a PAT at https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token
+   Find instructions on how to get a PAT at https://blockchainbird.github.io/spec-up-t-website/docs/getting-started/github-token
 
  `;
 

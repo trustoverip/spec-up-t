@@ -7,4 +7,4 @@
 <h2 style="display: block; margin: 0 auto; text-align: center;">Markdown » Spec-Up</h2>
 </div>
 
-There is a [special website that documents everything regarding Spec-Up-T](https://trustoverip.github.io/spec-up-t-website/).
+There is a [special website that documents everything regarding Spec-Up-T](https://blockchainbird.github.io/spec-up-t-website/).

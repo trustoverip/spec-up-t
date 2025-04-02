@@ -21,7 +21,7 @@ function helpButtons() {
    newElement.title = 'Click to see the explanation of the buttons at the documentation website, in a new tab.';
    newElement.target = '_blank';
    newElement.rel = 'noopener noreferrer';
-   newElement.href = 'https://trustoverip.github.io/spec-up-t-website/docs/user-interface-overview/specification#explanation-of-the-buttons-in-the-specification';
+   newElement.href = 'https://blockchainbird.github.io/spec-up-t-website/docs/user-interface-overview/specification#explanation-of-the-buttons-in-the-specification';
 
    function addElementAfterLastChild(newElement) {
       const elements = document.querySelectorAll('#content dl dt');
