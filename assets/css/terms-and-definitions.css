@@ -9,8 +9,8 @@ h2,h3,h4,h5,h6 {
   font-size: 0.875em;
   color: inherit;
   text-decoration: none;
-  opacity: 0.35;
-  order: -1;
+  /* opacity: 0.35; */
+  color: #73c2df;
   transition: opacity 0.3s ease;
 }
 
