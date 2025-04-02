@@ -121,3 +121,93 @@ dd td img {
 }
 
 /* End Notices */
+
+
+/* Custom styles for Bootstrap alerts */
+
+/* Override default alert colors */
+.alert-primary {
+  background-color: #e0f7fa;
+  /* Light cyan */
+  border-color: #b2ebf2;
+  color: #00838f;
+}
+
+.alert-secondary {
+  background-color: #f5f5f5;
+  /* Light gray */
+  border-color: #e0e0e0;
+  color: #616161;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  /* Light green */
+  border-color: #c8e6c9;
+  color: #388e3c;
+}
+
+.alert-danger {
+  background-color: #ffebee;
+  /* Light red */
+  border-color: #ef9a9a;
+  color: #d32f2f;
+}
+
+.alert-warning {
+  background-color: #fffde7;
+  /* Light yellow */
+  border-color: #fff9c4;
+  color: #f9a825;
+}
+
+.alert-info {
+  background-color: #e1f5fe;
+  /* Light blue */
+  border-color: #b3e5fc;
+  color: #0288d1;
+}
+
+.alert-light {
+  background-color: #f9f9f9;
+  border-color: #eeeeee;
+  color: #424242;
+}
+
+.alert-dark {
+  background-color: #e0e0e0;
+  border-color: #bdbdbd;
+  color: #212121;
+}
+
+/* Optional: Override link colors within alerts */
+.alert a {
+  color: inherit;
+  /* Inherit the alert's text color */
+  font-weight: bold;
+}
+
+.alert-primary a {
+  color: #006064;
+}
+
+.alert-success a {
+  color: #2e7d32;
+}
+
+.alert-danger a {
+  color: #b71c1c;
+}
+
+.alert-warning a {
+  color: #f57f17;
+}
+
+.alert-info a {
+  color: #01579b;
+}
+
+.alert-dark a {
+  color: #000000;
+}
+/* End Custom styles for Bootstrap alerts */
