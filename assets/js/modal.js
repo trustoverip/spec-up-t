@@ -14,7 +14,7 @@ function showModal(content) {
 
    // Create the close button
    const closeButton = document.createElement('button');
-   closeButton.className = 'btn btn-outline-secondary spec-up-modal-close';
+   closeButton.className = 'spec-up-t-modal-close';
    closeButton.innerHTML = '&times;';
    closeButton.onclick = closeModal;
 
