@@ -6,15 +6,15 @@
 function showModal(content) {
    // Create the modal overlay
    const overlay = document.createElement('div');
-   overlay.className = 'modal-overlay';
+   overlay.className = 'spec-up-t-modal-overlay';
 
    // Create the modal container
    const modal = document.createElement('div');
-   modal.className = 'modal';
+   modal.className = 'spec-up-t-modal';
 
    // Create the close button
    const closeButton = document.createElement('button');
-   closeButton.className = 'modal-close';
+   closeButton.className = 'btn btn-outline-secondary spec-up-modal-close';
    closeButton.innerHTML = '&times;';
    closeButton.onclick = closeModal;
 
