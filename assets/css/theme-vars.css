@@ -1,6 +1,10 @@
 /* 
 Example of how to use these variables in your CSS:
-“background-color: var(--header-navbar-bg);”
+
+#offcanvasSettings .btn-menu-item {
+    background-color: var(--card-bg);
+    color: var(--card-text);
+}
 */
 
 /* Define theme variables */
