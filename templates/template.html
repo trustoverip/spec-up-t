@@ -127,10 +127,13 @@
         <!-- Right-aligned elements -->
         <div class="d-flex align-items-center">
 
-            <!-- Issues side menu -->
-            <button id="repo_issues" issue-count animate class="btn btn-sm btn-outline-secondary ms-2" type="button"
-                data-bs-toggle="offcanvas" data-bs-target="#offcanvasIssues" aria-controls="offcanvasIssues">
-                Issues
+            <!-- Settings side menu -->
+            <button id="repo_settings" animate class="btn btn-sm btn-outline-secondary ms-2" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings" aria-controls="offcanvasSettings">
+                <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                    <use href="#gear-wide-connected"></use>
+                </svg>
+                <span class="visually-hidden">Settings</span>
             </button>
 
             <!-- Dark / Light theme selector -->
@@ -199,8 +202,6 @@
                     </div>
                     <div id="toc" class="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto">
                         ${toc}
-                        <!-- href added via JS -->
-                        <a id="snapshotLink" class="btn btn-outline-secondary mt-5" href="#">Snapshots</a>
                         <a class="powered-by mx-auto p-2" href="https://github.com/trustoverip/spec-up-t"
                             target="_blank" rel="noopener">Powered By Spec-Up-T</a>
                     </div>
@@ -228,6 +229,28 @@
             </div>
         </div>
     </div>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettingsLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasSettings">Settings</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <a target="_blank" rel="noopener" class="btn btn-menu-item m-0 mb-1"
+                href="https://blockchainbird.github.io/spec-up-t-website/docs/user-interface-overview/specification/#explanation-of-the-buttons-in-the-specification">Help</a>
+            <button class="button-token-input btn btn-menu-item m-0 mb-1" type="button" aria-label="Enter GitHub Token">
+                Enter GitHub Token
+            </button>
+            <button id="repo_issues" issue-count animate class="btn btn-menu-item m-0 mb-1" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#offcanvasIssues" aria-controls="offcanvasIssues">
+                Issues
+            </button>
+            <!-- href added via JS -->
+            <a id="snapshotLink" class="btn btn-menu-item m-0 mb-1" href="#">Snapshots</a>
+
+        </div>
+    </div>
+
     <div style="display: none;">
         ${externalReferences}
     </div>
