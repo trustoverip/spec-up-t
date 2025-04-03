@@ -6,12 +6,7 @@
  */
 
 function tokenInput() {
-   let buttonTokenInput = document.createElement("button");
-   buttonTokenInput.classList.add("button-token-input");
-   buttonTokenInput.classList.add("btn", "btn-sm", "btn-outline-secondary","me-1");
-   buttonTokenInput.innerHTML = "&#128273;";
-   document.querySelector('#repo_issues').insertAdjacentElement('afterend', buttonTokenInput);
-   buttonTokenInput.addEventListener('click', () => {
+   document.querySelector('.button-token-input').addEventListener('click', () => {
       const token = prompt('Please enter your GitHub token:');
 
       if (!token) {
