@@ -234,14 +234,24 @@ function inPageSearch() {
    function search(searchString) {
       // Start clean
       removeAllSpans();
-
       totalMatches = 0;
       activeMatchIndex = -1;
+
+      // Remove outer quotes if present
+      if (searchString.length >= 2) {
+         if (
+            (searchString[0] === '"' && searchString[searchString.length - 1] === '"') ||
+            (searchString[0] === "'" && searchString[searchString.length - 1] === "'")
+         ) {
+            searchString = searchString.substring(1, searchString.length - 1);
+         }
+      }
+
       // If the search string is empty, return
       if (searchString === '') {
          setTotalMatches();
-         return
-      };
+         return;
+      }
 
       let uniqueId = 0;
 
@@ -294,7 +304,6 @@ function inPageSearch() {
          }
 
          if (node.nodeType === 3 && !hasHiddenAncestor(node)) { // Node.TEXT_NODE
-            
             const fragments = markAndCountMatches(node);
             if (fragments.childNodes.length > 1) {
                // Replace the text node with the fragments if there were matches
