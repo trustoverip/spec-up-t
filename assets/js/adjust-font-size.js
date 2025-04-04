@@ -31,7 +31,7 @@ function adjustFontSize() {
    // Add event listeners to buttons
    document.getElementById('decreaseBtn').addEventListener('click', () => adjust(-2));
    document.getElementById('increaseBtn').addEventListener('click', () => adjust(2));
-   document.getElementById('resetBtn').addEventListener('click', reset);
+   // document.getElementById('resetBtn').addEventListener('click', reset);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
