@@ -66,20 +66,16 @@ function prepareTref(directory) {
                         // Split the content into lines
                         let lines = data.split('\n');
 
+                        // Variable to store content after the span
+                        let contentAfterSpan = '';
+                        const spanMarker = '<span style="display: none;">End of included external content. Add your optional custom content below.</span>';
+                        const spanIndex = data.indexOf(spanMarker);
+                        if (spanIndex !== -1) {
+                            contentAfterSpan = data.substring(spanIndex + spanMarker.length);
+                        }
+
                         for (let i = 0; i < lines.length; i++) {
                             if (lines[i].startsWith('[[tref:')) {
-
-                                /*
-                                    \[\[tref: matches the literal [[tref:.
-
-                                    (.*?) captures everything lazily until the next part of the regex.
-
-                                    \]\] matches the literal ]].
-
-                                    match[1] contains the captured group, which is then split by , to form an array.
-
-                                    The map function trims spaces from each entry in the resulting array.
-                                */
                                 const tref = /\[\[tref:(.*?)\]\]/;
                                 const match = lines[i].match(tref);
                                 if (match) {
@@ -98,6 +94,7 @@ ${match[0]}
 | Commit hash | ${localXTrefContent.commitHash} |
 
 ${localXTrefContent.content}
+${spanMarker}${contentAfterSpan}
 `;
 
                                     fs.writeFileSync(itemPath, readyForWrite, 'utf8');
