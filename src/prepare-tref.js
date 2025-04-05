@@ -66,12 +66,26 @@ function prepareTref(directory) {
                         // Split the content into lines
                         let lines = data.split('\n');
 
-                        // Variable to store content after the span
+                        // Variable to store content after the span or tref line
                         let contentAfterSpan = '';
                         const spanMarker = '<span style="display: none;">End of included external content. Add your optional custom content below.</span>';
                         const spanIndex = data.indexOf(spanMarker);
+
                         if (spanIndex !== -1) {
+                            // If span marker exists, take content after it
                             contentAfterSpan = data.substring(spanIndex + spanMarker.length);
+                        } else {
+                            // If span marker doesn't exist, find the tref line and keep everything after it
+                            let trefLineIndex = -1;
+                            for (let i = 0; i < lines.length; i++) {
+                                if (lines[i].startsWith('[[tref:')) {
+                                    trefLineIndex = i;
+                                    break;
+                                }
+                            }
+                            if (trefLineIndex !== -1 && trefLineIndex < lines.length - 1) {
+                                contentAfterSpan = lines.slice(trefLineIndex + 1).join('\n');
+                            }
                         }
 
                         for (let i = 0; i < lines.length; i++) {
@@ -94,7 +108,10 @@ ${match[0]}
 | Commit hash | ${localXTrefContent.commitHash} |
 
 ${localXTrefContent.content}
-${spanMarker}${contentAfterSpan}
+${spanMarker}
+
+${contentAfterSpan}
+
 `;
 
                                     fs.writeFileSync(itemPath, readyForWrite, 'utf8');
