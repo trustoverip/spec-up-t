@@ -4,17 +4,18 @@
   Description: Make the meta-info tables collapsible
 */
 
-dl>dd:has(table)>.meta-info-content-wrapper {
-  max-height: 100px;
+dl>dd:has(table).meta-info-content-wrapper {
+  max-height: 10em;
   transition: max-height 0.3s ease-out;
   /* This should be higher than the tallest content */
 }
 
-dl>dd:has(table).collapsed>.meta-info-content-wrapper {
+dl>dd:has(table).collapsed.meta-info-content-wrapper {
   padding-top: 0;
   padding-bottom: 0;
 
   overflow: hidden;
   transition: max-height 0.3s ease-out;
   max-height: 0;
+  line-height: 0;
 }
