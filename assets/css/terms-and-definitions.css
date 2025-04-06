@@ -118,8 +118,6 @@ dl.terms-and-definitions-list>dd {
   border: 1px solid var(--card-border);
   border-top: none;
   padding: 1rem 1.25rem;
-  /* Consistent Bootstrap card-body padding */
-  box-shadow: 0 0.125rem 0.25rem var(--card-shadow);
   color: var(--card-text);
   overflow: scroll;
   width: 100%;
