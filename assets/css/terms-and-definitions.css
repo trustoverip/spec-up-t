@@ -52,6 +52,26 @@ h2,h3,h4,h5,h6 {
   font-weight: bold;
   margin: 1em 0 0.5em;
 }
+
+dl.terms-and-definitions-list>dd.transcluded-xref-term-embedded {
+  background-image: linear-gradient(45deg,
+      hsl(190deg 60% 95%) 0%,
+      hsl(189deg 60% 93%) 8%,
+      hsl(189deg 60% 91%) 17%,
+      hsl(188deg 60% 89%) 25%,
+      hsl(188deg 60% 87%) 33%,
+      hsl(187deg 60% 85%) 42%,
+      hsl(186deg 60% 83%) 50%,
+      hsl(190deg 60% 83%) 58%,
+      hsl(193deg 60% 83%) 67%,
+      hsl(197deg 60% 83%) 75%,
+      hsl(202deg 60% 83%) 83%,
+      hsl(207deg 60% 83%) 92%,
+      hsl(212deg 60% 83%) 100%) !important;
+
+}
+
+
 /* End Transclusions */
 
 
