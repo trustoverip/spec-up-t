@@ -54,6 +54,7 @@
       "assets/js/modal.js",
       "assets/js/token-input.js",
       "assets/js/pdf-download.js",
+      "assets/js/insert-trefs.js",
       "assets/js/collapse-definitions.js",
       "assets/js/collapse-meta-info.js",
       "assets/js/add-href-to-snapshot-link.js",
