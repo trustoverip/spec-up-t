@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function () {
     collapsibles.forEach(function (element) {
         // Wrap content (excluding button) in a div for easy toggling
         const wrapper = document.createElement('div');
-        wrapper.classList.add('meta-info-content-wrapper');
 
         // Move all children except potential existing buttons into wrapper
         while (element.firstChild && element.firstChild !== element.querySelector('.meta-info-toggle-button')) {
