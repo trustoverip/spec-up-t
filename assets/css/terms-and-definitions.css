@@ -71,6 +71,9 @@ dl.terms-and-definitions-list>dd.transcluded-xref-term-embedded {
 
 }
 
+.placeholder-tref {
+  display: none;
+}
 
 /* End Transclusions */
 
