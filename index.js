@@ -49,9 +49,15 @@ module.exports = async function (options = {}) {
     const replacers = [
       {
         test: 'insert',
-        transform: function (path) {
+        transform: function (originalMatch, type, path) {
           if (!path) return '';
           return fs.readFileSync(path, 'utf8');
+        }
+      },
+      {
+        test: 'tref',
+        transform: function (originalMatch, type, spec, term) {
+          return `${originalMatch}\n: <span class="placeholder-tref">No custom content found for ${spec}:${term}</span> { .placeholder-dd }\n`;
         }
       }
     ];
@@ -78,10 +84,13 @@ module.exports = async function (options = {}) {
     function applyReplacers(doc) {
       return doc.replace(replacerRegex, function (match, type, args) {
         let replacer = replacers.find(r => type.trim().match(r.test));
-        return replacer ? replacer.transform(...args.trim().split(replacerArgsRegex)) : match;
+        if (replacer) {
+          let argsArray = args ? args.trim().split(replacerArgsRegex) : [];
+          return replacer.transform(match, type, ...argsArray);
+        }
+        return match;
       });
     }
-
     function normalizePath(path) {
       return path.trim().replace(/\/$/g, '') + '/';
     }
