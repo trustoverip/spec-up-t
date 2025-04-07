@@ -35,7 +35,7 @@ module.exports = async function (options = {}) {
 
     const { fixMarkdownFiles } = require('./src/fix-markdown-files.js');
 
-    const { prepareTref } = require('./src/prepare-tref.js');
+    // const { prepareTref } = require('./src/prepare-tref.js');
 
     let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
     let assets = fs.readJsonSync(modulePath + '/src/asset-map.json');
@@ -56,7 +56,7 @@ module.exports = async function (options = {}) {
       }
     ];
 
-    prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
+    // prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
     // Synchronously process markdown files
     fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
