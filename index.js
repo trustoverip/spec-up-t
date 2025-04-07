@@ -164,7 +164,10 @@ module.exports = async function (options = {}) {
                 }, primary);
               }
               else if (type === 'xref') {
-                const url = findExternalSpecByKey(config, token.info.args[0]);
+                // Get the URL for the external specification reference, or default to '#' if not found
+                const externalSpec = findExternalSpecByKey(config, token.info.args[0]);
+                const url = externalSpec?.gh_page || '#';
+
                 const term = token.info.args[1].replace(spaceRegex, '-').toLowerCase();
                 return `<a class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}"
                 href="${url}#term:${term}">${token.info.args[1]}</a>`;
