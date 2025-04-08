@@ -46,9 +46,10 @@ function editTermButtons() {
 
       // cut “url” on the “:” and keep the second part
       const fileName = url.split(":")[1];
+      const branch = specConfig.source.branch || "main";
 
       // add edit and history buttons to term
-      term.innerHTML += `<span class="edit-term-buttons"><a title="Link to the term file in the Github repo in a new tab" target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/blob/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="p-1 edit-term-button btn">🖊️</a><a title="Link to a GitHub page that shows a history of the edits in a new tab" target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/commits/main/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="p-1 history-term-button btn">📅</a></span>`;
+      term.innerHTML += `<span class="edit-term-buttons"><a title="Link to the term file in the Github repo in a new tab" target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/blob/${branch}/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="p-1 edit-term-button btn">🖊️</a><a title="Link to a GitHub page that shows a history of the edits in a new tab" target="_blank" rel="noopener" href="https://github.com/${specConfig.source.account}/${specConfig.source.repo}/commits/${branch}/${cleanedSpecDir}/${specConfig.spec_terms_directory}/${fileName}.md" class="p-1 history-term-button btn">📅</a></span>`;
    });
 }
 
