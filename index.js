@@ -30,6 +30,10 @@ module.exports = async function (options = {}) {
     const modulePath = findPkgDir(__dirname);
     let config = fs.readJsonSync('./output/specs-generated.json');
 
+    const createExternalSpecsList = require('./src/create-external-specs-list.js');
+
+    const externalSpecsList = createExternalSpecsList(config);
+
     const createVersionsIndex = require('./src/create-versions-index.js');
     createVersionsIndex(config.specs[0].output_path);
 
@@ -307,7 +311,8 @@ module.exports = async function (options = {}) {
             specLogo: spec.logo,
             specFavicon: spec.favicon,
             specLogoLink: spec.logo_link,
-            spec: JSON.stringify(spec)
+            spec: JSON.stringify(spec),
+            externalSpecsList: externalSpecsList,
           });
 
           const outputPath = path.join(spec.destination, 'index.html');
