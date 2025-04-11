@@ -2,20 +2,25 @@ const isLineWithDefinition = require('../utils/isLineWithDefinition').isLineWith
 
 function matchTerm(text, term) {
     if (!text || typeof text !== 'string') {
-        // console.error('Invalid text:', text);
         console.log('Nothing to match for term:', term);
         return false;
     }
 
     const firstLine = text.split('\n')[0].trim();
 
-    if (isLineWithDefinition(firstLine) === false) { 
+    if (isLineWithDefinition(firstLine) === false) {
         console.log('String does not start with `[[def:` or end with `]]`');
         return false;
     };
 
-    // Remove `[[def:` from the beginning and `]]` from the end
-    let relevantPart = firstLine.slice(7, -2);
+    // Find the closing bracket position instead of assuming it's at the end
+    const startPos = firstLine.indexOf('[[def:') + 6;
+    const endPos = firstLine.indexOf(']]');
+
+    if (startPos === -1 || endPos === -1) return false;
+
+    // Extract text between [[def: and ]]
+    let relevantPart = firstLine.substring(startPos, endPos);
 
     // Split the string on `,` and trim the array elements
     let termsArray = relevantPart.split(',').map(term => term.trim());
