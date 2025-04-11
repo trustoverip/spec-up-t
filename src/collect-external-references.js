@@ -259,8 +259,6 @@ function collectExternalReferences(options = {}) {
                 term: term.trim()
             };
 
-            // console.log('KORKOR xtrefObject: ', xtrefObject);
-
             return xtrefObject;
         }
 
