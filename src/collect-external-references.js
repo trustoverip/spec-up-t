@@ -1,10 +1,40 @@
 /**
- * @file This script is responsible for fetching the latest commit hash of term files from the GitHub API and generating both a JavaScript file and a JSON file containing the data for the cross-references (xrefs). 
+ * @file Collects and processes external reference information for cross-specification linking.
  * 
- * The generated JavaScript file is included in the HTML output of the specification, serving as a data source for the JavaScript code embedded in the HTML file. 
+ * This script fetches the latest commit hash of term files from GitHub repositories
+ * configured in specs.json, then generates both JavaScript and JSON files containing
+ * cross-reference (xref/tref) data for use in specifications.
  * 
- * Additionally, the data is written to a JSON file for further processing or usage. This ensures that the xref data is available in both JavaScript and JSON formats, providing flexibility for different use cases.
- *
+ * Example of the output:
+ * 
+ * const allXTrefs = {
+    "xtrefs": [
+        {
+        "externalSpec": "toip1",
+        "term": "SSI",
+        "repoUrl": "https://github.com/henkvancann/ctwg-main-glossary",
+        "terms_dir": "spec/terms-definitions",
+        "owner": "henkvancann",
+        "repo": "ctwg-main-glossary",
+        "site": null,
+        "commitHash": "not found",
+        "content": "This term was not found in the external repository."
+        },
+        {
+        "externalSpec": "vlei1",
+        "term": "vlei-ecosystem-governance-framework",
+        "repoUrl": "https://github.com/henkvancann/vlei-glossary",
+        "terms_dir": "spec/terms-definitions",
+        "owner": "henkvancann",
+        "repo": "vlei-glossary",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/479356?v=4",
+        "site": null,
+        "commitHash": "5e36b16e58984eeaccae22116a2bf058ab01a0e9",
+        "content": "[[def: vlei-ecosystem-governance-framework, vlei ecosystem governance framework]]\n\n~ The Verifiable LEI (vLEI) Ecosystem [[ref: governance-framework]] Information Trust Policies. It's a **document** that defines the … etc"
+        }
+    ]
+  };
+ * 
  * @author Kor Dwarshuis
  * @version 1.0.0
  * @since 2024-06-09
@@ -12,7 +42,68 @@
 
 
 const { shouldProcessFile } = require('./utils/file-filter');
+function isXTrefInMarkdown(xtref, markdownContent) {
+    const regex = new RegExp(`\\[\\[(?:x|t)ref:${xtref.externalSpec},\\s*${xtref.term}\\]\\]`, 'g');
+    return regex.test(markdownContent);
+}
 
+// Helper function to process an XTref string and return an object.
+function processXTref(xtref) {
+    let [externalSpec, term] = xtref
+        .replace(/\[\[(?:xref|tref):/, '')
+        .replace(/\]\]/, '')
+        .trim()
+        .split(/,/, 2);
+    return {
+        externalSpec: externalSpec.trim(),
+        term: term.trim()
+    };
+}
+
+
+// allMarkdownContent: (string) The content to search for XTrefs.
+// allXTrefs: (object) An object with an array property "xtrefs" to which new entries will be added.
+function addNewXTrefsFromMarkdown(allMarkdownContent, allXTrefs) {
+    const regex = /\[\[(?:xref|tref):.*?\]\]/g;
+    if (regex.test(allMarkdownContent)) {
+        const xtrefs = allMarkdownContent.match(regex);
+        xtrefs.forEach(xtref => {
+            const newXTrefObj = processXTref(xtref);
+            // Add newXTrefObj only if an object with the same term and externalSpec doesn't already exist.
+            if (!allXTrefs.xtrefs.some(existingXTref =>
+                existingXTref.term === newXTrefObj.term &&
+                existingXTref.externalSpec === newXTrefObj.externalSpec)) {
+                allXTrefs.xtrefs.push(newXTrefObj);
+            }
+        });
+    }
+    return allXTrefs;
+}
+
+/**
+ * Collects external references from markdown files and processes them into usable data files.
+ * 
+ * @function collectExternalReferences
+ * @param {Object} options - Configuration options
+ * @param {string} [options.pat] - GitHub Personal Access Token (overrides environment variable)
+ * @returns {void}
+ * 
+ * @description
+ * This function performs several key operations:
+ * 1. Validates GitHub PAT availability and external repository configurations
+ * 2. Checks validity of repository URLs
+ * 3. Extracts xref/tref patterns from markdown content
+ * 4. Extends references with repository metadata
+ * 5. Processes references to fetch commit information
+ * 6. Generates output files in both JS and JSON formats
+ * 
+ * @example
+ * // Basic usage
+ * collectExternalReferences();
+ * 
+ * // With explicit PAT
+ * collectExternalReferences({ pat: 'github_pat_xxxxxxxxxxxx' });
+ */
 function collectExternalReferences(options = {}) {
     require('dotenv').config();
     const fs = require('fs-extra');
@@ -159,21 +250,18 @@ function collectExternalReferences(options = {}) {
             });
         }
 
-        // Function to check if an xtref is in the markdown content
-        function isXTrefInMarkdown(xtref, markdownContent) {
-            // const regex = new RegExp(`\\[\\[xref:${xref.term}\\]\\]`, 'g');
-            const regex = new RegExp(`\\[\\[(?:x|t)ref:${xtref.term}\\]\\]`, 'g');
-            const result = regex.test(markdownContent);
-            return result;
-        }
-
         // Function to process and clean up xref / tref strings found in the markdown file, returning an object with `externalSpec` and `term` properties.
+        //TODO: check if this is correct
         function processXTref(xtref) {
             let [externalSpec, term] = xtref.replace(/\[\[(?:xref|tref):/, '').replace(/\]\]/, '').trim().split(/,/, 2);
-            return {
+            const xtrefObject = {
                 externalSpec: externalSpec.trim(),
                 term: term.trim()
             };
+
+            // console.log('KORKOR xtrefObject: ', xtrefObject);
+
+            return xtrefObject;
         }
 
         // Initialize an object to store all xtrefs.
@@ -205,21 +293,7 @@ function collectExternalReferences(options = {}) {
             return isXTrefInMarkdown(existingXTref, allMarkdownContent);
         });
 
-        // Add new entries if they are in the markdown
-        const regex = /\[\[(?:xref|tref):.*?\]\]/g;
-
-        // `regex` is the regular expression object, and `allMarkdownContent` is the string being tested. The test method returns a boolean value: true if the pattern is found within the string, and false otherwise.
-        if (regex.test(allMarkdownContent)) {
-            const xtrefs = allMarkdownContent.match(regex);
-            xtrefs.forEach(xtref => {
-                const newXTrefObj = processXTref(xtref);
-                // Ensure that newXTrefObj is only added to the xtrefs array if there isn't already an object with the same term and externalSpec properties. This helps maintain the uniqueness of entries in the array based on these two properties.
-                if (!allXTrefs.xtrefs.some(existingXTref =>
-                    existingXTref.term === newXTrefObj.term && existingXTref.externalSpec === newXTrefObj.externalSpec)) {
-                    allXTrefs.xtrefs.push(newXTrefObj);
-                }
-            });
-        };
+        addNewXTrefsFromMarkdown(allMarkdownContent, allXTrefs);
 
         // Example at this point:
         // allXTrefs.xtrefs: [
@@ -251,5 +325,8 @@ function collectExternalReferences(options = {}) {
 }
 
 module.exports = {
-    collectExternalReferences
-}
+    collectExternalReferences,
+    isXTrefInMarkdown,
+    addNewXTrefsFromMarkdown,
+    processXTref
+};

@@ -22,19 +22,25 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
         }
 
         for (let xtref of allXTrefs.xtrefs) {
+            // console.log('KORKORxtref: ', xtref);
             // Go and look if the term is in the external repository and if so, get the commit hash, and other meta info plus the content of the file
             const item = await fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir, options);
+            console.log('KORKORxtref.term: ', xtref.term);
+            console.log('KORKORitem: ', item);
 
             // // Check if fetchedData.data is defined
+            // console.log('KORKORitem.content: ', item.content);
             if (item !== null && matchTerm(item.content, xtref.term)) {
                 xtref.commitHash = item.sha;
                 xtref.content = item.content;
                 xtref.avatarUrl = item.repository.owner.avatar_url;
                 console.log(`✅ Match found for term: ${xtref.term} in ${xtref.externalSpec};`);
+                console.log("============================================\n\n");
             } else {
                 xtref.commitHash = "not found";
                 xtref.content = "This term was not found in the external repository.";
                 console.log(`ℹ️ No match found for term: ${xtref.term} in ${xtref.externalSpec};`);
+                console.log("============================================\n\n");
             }
         }
 
