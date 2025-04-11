@@ -3,7 +3,7 @@ const isLineWithDefinition = require('../utils/isLineWithDefinition').isLineWith
 function matchTerm(text, term) {
     if (!text || typeof text !== 'string') {
         // console.error('Invalid text:', text);
-        console.log('Nothing to match');
+        console.log('Nothing to match for term:', term);
         return false;
     }
 
