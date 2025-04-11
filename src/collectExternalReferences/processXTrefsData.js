@@ -22,14 +22,10 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
         }
 
         for (let xtref of allXTrefs.xtrefs) {
-            // console.log('KORKORxtref: ', xtref);
             // Go and look if the term is in the external repository and if so, get the commit hash, and other meta info plus the content of the file
             const item = await fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir, options);
-            console.log('KORKORxtref.term: ', xtref.term);
-            console.log('KORKORitem: ', item);
 
             // // Check if fetchedData.data is defined
-            // console.log('KORKORitem.content: ', item.content);
             if (item !== null && matchTerm(item.content, xtref.term)) {
                 xtref.commitHash = item.sha;
                 xtref.content = item.content;
