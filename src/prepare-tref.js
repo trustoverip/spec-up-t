@@ -22,6 +22,7 @@
 const fs = require('fs');
 const path = require('path');
 const dedent = require('dedent');
+const { shouldProcessFile } = require('./utils/file-filter');
 
 function getLocalXTrefContent(externalSpec, term) {
     const filePath = path.join('output', 'xtrefs-data.json');
@@ -58,7 +59,7 @@ function prepareTref(directory) {
                 if (item.isDirectory()) {
                     // If the item is a directory, call processDirectory recursively
                     processDirectory(itemPath);
-                } else if (item.isFile() && path.extname(item.name) === '.md') {
+                } else if (item.isFile() && shouldProcessFile(item.name)) {
                     try {
                         // Read the file synchronously
                         let data = fs.readFileSync(itemPath, 'utf8');
