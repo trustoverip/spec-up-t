@@ -165,11 +165,9 @@ async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, ow
 
             // Loop through each text match. Can contain multiple fragments
             for (const match of item.text_matches) {
-                // console.log('KORKORmatch: ', match);
                 // Split the fragment into lines, lines can be empty ('')
                 const lines = match.fragment.split("\n");
                 for (const line of lines) {
-                    // console.log('KORKORline: ', line);
                     if (isLineWithDefinition(line)) {
                         // Generate a unique cache key for the file
                         const fileCacheKey = generateCacheKey('file', owner, repo, item.path);
