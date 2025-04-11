@@ -15,6 +15,8 @@
  * @since 2024-09-02
  */
 
+const { shouldProcessFile } = require('./utils/file-filter');
+
 function createTermIndex() {
     const fs = require('fs-extra');
     const path = require('path');
@@ -23,7 +25,7 @@ function createTermIndex() {
     const specTermDirectoryName = config.specs.map(spec => spec.spec_terms_directory);
     const outputPathJSON = path.join('output', 'term-index.json');
     const files = fs.readdirSync(path.join(specDirectories[0], specTermDirectoryName[0]))
-        .filter(file => !file.startsWith('_') && file.endsWith('.md'));
+        .filter(shouldProcessFile);
 
     const filePaths = files.map(file => specTermDirectoryName[0] + '/' + file);
 
