@@ -183,7 +183,6 @@ async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, ow
                             // Fetch file content from GitHub
                             console.log(`Downloading and caching file: ${fileCacheFilePath}`);
                             try {
-                                // THIS LINE IS THE PROBLEM - octokit is not defined!
                                 const contentClient = await getContentClient(GITHUB_API_TOKEN);
                                 const fileContentResponse = await contentClient.getContent(
                                     item.repository.owner.login,
