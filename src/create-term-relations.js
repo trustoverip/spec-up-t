@@ -5,9 +5,11 @@
  * @since 2024-06-22
  */
 
+
 const fs = require('fs-extra');
 const path = require('path');
 const config = fs.readJsonSync('specs.json');
+const { shouldProcessFile } = require('./utils/file-filter');
 
 const specTermDirectoryName = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
 
@@ -41,7 +43,7 @@ function createTermRelations() {
         // read directory
         fs.readdirSync(specDirectory).forEach(file => {
             // read file
-            if (file.endsWith('.md')) {
+            if (shouldProcessFile(file)) {
                 const markdown = fs.readFileSync(`${specDirectory}/${file}`, 'utf8');
 
                 let regexDef = /\[\[def:.*?\]\]/g;

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { shouldProcessFile } = require('./utils/file-filter');
 
 // Function to process markdown files in a directory recursively
 function fixMarkdownFiles(directory) {
@@ -15,7 +16,7 @@ function fixMarkdownFiles(directory) {
                 if (item.isDirectory()) {
                     // If the item is a directory, call processDirectory recursively
                     processDirectory(itemPath);
-                } else if (item.isFile() && path.extname(item.name) === '.md') {
+                } else if (item.isFile() && shouldProcessFile(item.name)) {
                     try {
                         // Read the file synchronously
                         let data = fs.readFileSync(itemPath, 'utf8');

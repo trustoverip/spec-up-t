@@ -11,6 +11,8 @@
  */
 
 
+const { shouldProcessFile } = require('./utils/file-filter');
+
 function collectExternalReferences(options = {}) {
     require('dotenv').config();
     const fs = require('fs-extra');
@@ -191,7 +193,7 @@ function collectExternalReferences(options = {}) {
         // Read all main repo Markdown files from a list of directories and concatenate their content into a single string.
         specTermsDirectories.forEach(specDirectory => {
             fs.readdirSync(specDirectory).forEach(file => {
-                if (file.endsWith('.md')) {
+                if (shouldProcessFile(file)) {
                     const markdown = fs.readFileSync(`${specDirectory}/${file}`, 'utf8');
                     allMarkdownContent += markdown;
                 }
