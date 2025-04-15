@@ -3,6 +3,8 @@ const path = require('path');
 const crypto = require('crypto'); // For generating cache keys
 const isLineWithDefinition = require('../utils/isLineWithDefinition').isLineWithDefinition;
 const { addPath, getPath, getAllPaths } = require('../config/paths');
+const { getSearchClient, getContentClient } = require('./octokitClient');
+
 
 // Directory to store cached files
 const CACHE_DIR = getPath('githubcache');
@@ -13,36 +15,21 @@ function generateCacheKey(...args) {
     return hash;
 }
 
+
+
+
+
+
+
+
 async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, owner, repo, subdirectory) {
-    const { Octokit } = await import("octokit");
-    const { throttling } = await import("@octokit/plugin-throttling");
-
-    // Create a throttled Octokit instance
-    const ThrottledOctokit = Octokit.plugin(throttling);
-    const octokit = new ThrottledOctokit({
-        auth: GITHUB_API_TOKEN,
-        throttle: {
-            onRateLimit: (retryAfter, options) => {
-                console.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
-                if (options.request.retryCount <= 1) {
-                    console.log(`Retrying after ${retryAfter} seconds...`);
-                    return true;
-                }
-            },
-            onAbuseLimit: (retryAfter, options) => {
-                console.warn(`Abuse detected for request ${options.method} ${options.url}`);
-            },
-            onSecondaryRateLimit: (retryAfter, options) => {
-                console.warn(`Secondary rate limit hit for request ${options.method} ${options.url}`);
-                if (options.request.retryCount <= 1) {
-                    console.log(`Retrying after ${retryAfter} seconds...`);
-                    return true;
-                }
-            },
-        },
-    });
-
+    console.log(`Searching for '${searchString}' in ${owner}/${repo}/${subdirectory}`);
     try {
+        // Create directory if it doesn't exist
+        if (!fs.existsSync(CACHE_DIR)) {
+            fs.mkdirSync(CACHE_DIR, { recursive: true });
+        }
+
         // Generate a cache key for the search query
         const searchCacheKey = generateCacheKey('search', searchString, owner, repo, subdirectory);
         const searchCacheFilePath = path.join(CACHE_DIR, `${searchCacheKey}.json`);
@@ -54,21 +41,22 @@ async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, ow
             console.log(`Serving search results from cache: ${searchCacheFilePath}`);
             searchResponse = JSON.parse(fs.readFileSync(searchCacheFilePath, 'utf-8'));
         } else {
-            // Perform the search using Octokit with exact match
+            // Get the search client
             console.log(`Performing search and caching results: ${searchCacheFilePath}`);
-            searchResponse = await octokit.rest.search.code({
-                q: `"${searchString}" repo:${owner}/${repo} path:${subdirectory}`, // Exact match in subdirectory
-                headers: {
-                    Accept: "application/vnd.github.v3.text-match+json", // Include text-match media type
-                },
-            });
+            const searchClient = await getSearchClient(GITHUB_API_TOKEN);
+
+            // Perform the search
+            searchResponse = await searchClient.search(searchString, owner, repo, subdirectory);
 
             // Cache the search response
             fs.writeFileSync(searchCacheFilePath, JSON.stringify(searchResponse), 'utf-8');
         }
-
-        // Log the search results
-        console.log(`Total matches for ${searchString} :`, searchResponse.data.total_count);
+        // After search
+        console.log(`Search found ${searchResponse.data.total_count} results`);
+        if (searchResponse.data.total_count === 0) {
+            console.log("No matches found - check if term exists in repository");
+            return null;
+        }
 
         /*
         
@@ -195,11 +183,12 @@ async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, ow
                             // Fetch file content from GitHub
                             console.log(`Downloading and caching file: ${fileCacheFilePath}`);
                             try {
-                                const fileContentResponse = await octokit.rest.repos.getContent({
-                                    owner: item.repository.owner.login, // Repository owner
-                                    repo: item.repository.name, // Repository name
-                                    path: item.path, // File path
-                                });
+                                const contentClient = await getContentClient(GITHUB_API_TOKEN);
+                                const fileContentResponse = await contentClient.getContent(
+                                    item.repository.owner.login,
+                                    item.repository.name,
+                                    item.path
+                                );
 
                                 // Decode the file content (it's base64-encoded)
                                 if (fileContentResponse.data.content) {
@@ -227,7 +216,13 @@ async function fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, searchString, ow
             }
         }
     } catch (error) {
-        console.error("Error searching GitHub or fetching file content:", error);
+        console.error("Error details:", {
+            message: error.message,
+            status: error.status,
+            type: error.constructor.name,
+            details: error.response?.data?.message || "No additional details"
+        });
+        return null;
     }
 
     // If no item is found, return null or undefined

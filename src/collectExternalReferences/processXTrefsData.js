@@ -31,10 +31,12 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                 xtref.content = item.content;
                 xtref.avatarUrl = item.repository.owner.avatar_url;
                 console.log(`✅ Match found for term: ${xtref.term} in ${xtref.externalSpec};`);
+                console.log("============================================\n\n");
             } else {
                 xtref.commitHash = "not found";
                 xtref.content = "This term was not found in the external repository.";
                 console.log(`ℹ️ No match found for term: ${xtref.term} in ${xtref.externalSpec};`);
+                console.log("============================================\n\n");
             }
         }
 
