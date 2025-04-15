@@ -97,7 +97,7 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
 
          // Clean up markdown content
          let content = xref.content
-            .replace(/\[\[def: ([^,]+),.*?\]\]/g, '') // Remove [[def: ...]]
+            .replace(/\[\[def:[^\]]*?\]\]/g, '') // Remove [[def: ...]] patterns regardless of trailing chars
             .split('\n')
             .map(line => line.replace(/^\s*~\s*/, '')) // Remove leading ~ and spaces
             .join('\n')
