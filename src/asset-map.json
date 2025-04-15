@@ -35,6 +35,7 @@
     "js": [
       "node_modules/markdown-it/dist/markdown-it.min.js",
       "node_modules/markdown-it-deflist/dist/markdown-it-deflist.min.js",
+      "assets/js/declare-markdown-it.js",
       "assets/js/prism.js",
       "assets/js/mermaid.js",
       "assets/js/chart.js",
