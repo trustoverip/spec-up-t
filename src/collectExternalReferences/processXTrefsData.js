@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { fetchTermsFromGitHubRepository } = require('./fetchTermsFromGitHubRepository.js');
+const { fetchTermsFromIndex } = require('./fetchTermsFromIndex.js');
 const { matchTerm } = require('./matchTerm.js');
 const { addPath, getPath, getAllPaths } = require('../config/paths');
 
@@ -23,7 +23,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
 
         for (let xtref of allXTrefs.xtrefs) {
             // Go and look if the term is in the external repository and if so, get the commit hash, and other meta info plus the content of the file
-            const item = await fetchTermsFromGitHubRepository(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir, options);
+            const item = await fetchTermsFromIndex(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir, options);
 
             // // Check if fetchedData.data is defined
             if (item !== null && matchTerm(item.content, xtref.term)) {
