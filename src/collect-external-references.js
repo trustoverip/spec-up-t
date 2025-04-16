@@ -42,6 +42,8 @@
 
 
 const { shouldProcessFile } = require('./utils/file-filter');
+const path = require('path');
+
 function isXTrefInMarkdown(xtref, markdownContent) {
     const regex = new RegExp(`\\[\\[(?:x|t)ref:${xtref.externalSpec},\\s*${xtref.term}\\]\\]`, 'g');
     return regex.test(markdownContent);
@@ -192,22 +194,26 @@ function collectExternalReferences(options = {}) {
         // Collect all directories that contain files with a term and definition
         // This maps over the specs in the config file and constructs paths to directories
         // where the term definition files are located.
-        const specTermsDirectories = config.specs.map(spec => spec.spec_directory + '/' + spec.spec_terms_directory);
+        const specTermsDirectories = config.specs.map(spec => 
+            path.join(spec.spec_directory, spec.spec_terms_directory)
+        );
 
         // Ensure that the 'output' directory exists, creating it if necessary.
-        if (!fs.existsSync('output')) {
-            fs.mkdirSync('output');
+        const outputDir = 'output';
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir);
         }
 
         // Ensure that the 'output/xtrefs-history' directory exists, creating it if necessary.
-        if (!fs.existsSync('output/xtrefs-history')) {
-            fs.mkdirSync('output/xtrefs-history');
+        const xtrefsHistoryDir = path.join(outputDir, 'xtrefs-history');
+        if (!fs.existsSync(xtrefsHistoryDir)) {
+            fs.mkdirSync(xtrefsHistoryDir);
         }
 
         // Define paths for various output files, including JSON and JS files.
-        const outputPathJSON = 'output/xtrefs-data.json';
-        const outputPathJS = 'output/xtrefs-data.js';
-        const outputPathJSTimeStamped = 'output/xtrefs-history/xtrefs-data-' + Date.now() + '.js';
+        const outputPathJSON = path.join(outputDir, 'xtrefs-data.json');
+        const outputPathJS = path.join(outputDir, 'xtrefs-data.js');
+        const outputPathJSTimeStamped = path.join(xtrefsHistoryDir, `xtrefs-data-${Date.now()}.js`);
 
         // Function to extend xtref objects with additional information, such as repository URL and directory information.
         function extendXTrefs(config, xtrefs) {
@@ -280,7 +286,8 @@ function collectExternalReferences(options = {}) {
         specTermsDirectories.forEach(specDirectory => {
             fs.readdirSync(specDirectory).forEach(file => {
                 if (shouldProcessFile(file)) {
-                    const markdown = fs.readFileSync(`${specDirectory}/${file}`, 'utf8');
+                    const filePath = path.join(specDirectory, file);
+                    const markdown = fs.readFileSync(filePath, 'utf8');
                     allMarkdownContent += markdown;
                 }
             });
