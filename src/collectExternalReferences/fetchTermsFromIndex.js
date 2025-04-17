@@ -37,7 +37,7 @@ function generateCacheKey(owner, repo) {
 function getFromCache(cacheKey, options = {}) {
     const cachePath = path.join(CACHE_DIR, `${cacheKey}.json`);
     // const cacheTTL = options.cacheTTL || 24 * 60 * 60 * 1000; // Default: 24 hours
-    const cacheTTL = 0; // Default: 0 hours (no expiration)
+    const cacheTTL = 0;
 
     if (!fs.existsSync(cachePath)) {
         return null;
@@ -73,16 +73,14 @@ function saveToCache(cacheKey, data) {
 }
 
 /**
- * Fetches the HTML content from GitHub for a given repository and extracts terms
+ * Fetches all terms and definitions from a repository's index.html
  * @param {string} token - GitHub API Token
- * @param {string} term - The specific term to look for (or null to get all terms)
  * @param {string} owner - Repository owner
- * @param {string} repo - Repository name
- * @param {string} termsDir - Directory containing term definitions
+ * @param {string} repo - Repository name 
  * @param {object} options - Additional options
- * @returns {object|null} - Found term data or null if not found
+ * @returns {object|null} - Object containing all terms or null if error
  */
-async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options = {}) {
+async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
     try {
         // Generate cache key based on repo information
         const cacheKey = generateCacheKey(owner, repo);
@@ -91,24 +89,8 @@ async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options =
         // Check cache first if caching is enabled
         if (options.cache !== false) {
             cachedData = getFromCache(cacheKey, options);
-            // If we have cached data and a specific term is requested, try to find it
-            if (cachedData && term) {
-                const foundTerm = cachedData.terms.find(t => t.term.toLowerCase() === term.toLowerCase());
-                if (foundTerm) {
-                    console.log(`Found term '${term}' in cache`);
-                    return {
-                        term: foundTerm.term,
-                        content: foundTerm.definition,
-                        sha: cachedData.sha || 'unknown',
-                        repository: {
-                            owner: {
-                                login: owner,
-                                avatar_url: cachedData.avatarUrl || null
-                            },
-                            name: repo
-                        }
-                    };
-                }
+            if (cachedData) {
+                return cachedData;
             }
         }
 
@@ -215,7 +197,7 @@ async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options =
         }
         
         // Create output filename with timestamp
-        const outputFileName = `${owner}-${repo}-terms-${timestamp}.json`;
+        const outputFileName = `${timestamp}-${owner}-${repo}-terms.json`;
         const outputFilePath = path.join(outputDir, outputFileName);
         
         // Create the result object
@@ -224,7 +206,8 @@ async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options =
             repository: `${owner}/${repo}`,
             terms,
             sha: specsJsonResponse.data.sha,
-            avatarUrl: null
+            avatarUrl: null,
+            outputFileName
         };
         
         // Save all terms to file
@@ -236,33 +219,7 @@ async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options =
             saveToCache(cacheKey, result);
         }
         
-        // If a specific term was requested, find it and return
-        if (term) {
-            const foundTerm = terms.find(t => t.term.toLowerCase() === term.toLowerCase());
-            if (foundTerm) {
-                return {
-                    term: foundTerm.term,
-                    content: foundTerm.definition,
-                    sha: specsJsonResponse.data.sha,
-                    repository: {
-                        owner: {
-                            login: owner,
-                            avatar_url: null
-                        },
-                        name: repo
-                    }
-                };
-            } else {
-                console.log(`❌ Term "${term}" not found in extracted terms`);
-                return null;
-            }
-        }
-        
-        // Return filename for reference
-        return {
-            outputFileName,
-            totalTermsFound: terms.length
-        };
+        return result;
 
     } catch (error) {
         if (error.response) {
@@ -281,6 +238,49 @@ async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options =
     }
 }
 
+/**
+ * Fetches a specific term from repository's index.html
+ * This is a wrapper that uses fetchAllTermsFromIndex for efficiency
+ * @param {string} token - GitHub API Token
+ * @param {string} term - The specific term to look for
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {string} termsDir - Directory containing term definitions (not used in this implementation)
+ * @param {object} options - Additional options
+ * @returns {object|null} - Found term data or null if not found
+ */
+async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options = {}) {
+    // First get all terms from the repository (which is cached)
+    const allTermsData = await fetchAllTermsFromIndex(token, owner, repo, options);
+    
+    if (!allTermsData || !allTermsData.terms) {
+        return null;
+    }
+    
+    // Find the specific term
+    const foundTerm = allTermsData.terms.find(t => t.term.toLowerCase() === term.toLowerCase());
+    
+    if (foundTerm) {
+        console.log(`Found term '${term}' in repository ${owner}/${repo}`);
+        return {
+            term: foundTerm.term,
+            content: foundTerm.definition,
+            sha: allTermsData.sha,
+            repository: {
+                owner: {
+                    login: owner,
+                    avatar_url: allTermsData.avatarUrl
+                },
+                name: repo
+            }
+        };
+    } else {
+        console.log(`❌ Term "${term}" not found in repository ${owner}/${repo}`);
+        return null;
+    }
+}
+
 module.exports = {
-    fetchTermsFromIndex
+    fetchTermsFromIndex,
+    fetchAllTermsFromIndex  // Export the function to fetch all terms as well
 };
