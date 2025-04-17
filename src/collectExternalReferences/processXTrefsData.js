@@ -24,20 +24,22 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
         for (let xtref of allXTrefs.xtrefs) {
             // Go and look if the term is in the external repository and if so, get the commit hash, and other meta info plus the content of the file
             const item = await fetchTermsFromIndex(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir, options);
-
-            // // Check if fetchedData.data is defined
-            if (item !== null && matchTerm(item.content, xtref.term)) {
+            
+            // Add proper null check before accessing properties
+            if (item !== null) {
                 xtref.commitHash = item.sha;
                 xtref.content = item.content;
-                xtref.avatarUrl = item.repository.owner.avatar_url;
+                // Check if repository and owner exist before accessing avatar_url
+                xtref.avatarUrl = item.repository?.owner?.avatar_url || null;
                 console.log(`✅ Match found for term: ${xtref.term} in ${xtref.externalSpec};`);
-                console.log("============================================\n\n");
             } else {
+                // Set default values when item is null
                 xtref.commitHash = "not found";
                 xtref.content = "This term was not found in the external repository.";
+                xtref.avatarUrl = null;
                 console.log(`ℹ️ No match found for term: ${xtref.term} in ${xtref.externalSpec};`);
-                console.log("============================================\n\n");
             }
+            console.log("============================================\n\n");
         }
 
         const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
