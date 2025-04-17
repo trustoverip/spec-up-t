@@ -1,14 +1,14 @@
 const fs = require('fs');
-const { fetchTermsFromIndex } = require('./fetchTermsFromIndex.js');
+const { fetchTermsFromIndex, fetchAllTermsFromIndex } = require('./fetchTermsFromIndex.js');
 const { matchTerm } = require('./matchTerm.js');
 const { addPath, getPath, getAllPaths } = require('../config/paths');
+const path = require('path');
 
 // Directory to store cached files
 const CACHE_DIR = getPath('githubcache');
 
 async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped, options) {
     try {
-
         // Clear the cache (remove the cache directory) if the cache option is set to false
         if (options.cache === false) {
             if (fs.existsSync(CACHE_DIR)) {
@@ -20,25 +20,71 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
         if (!fs.existsSync(CACHE_DIR)) {
             fs.mkdirSync(CACHE_DIR, { recursive: true });
         }
-
-        for (let xtref of allXTrefs.xtrefs) {
-            // Go and look if the term is in the external repository and if so, get the commit hash, and other meta info plus the content of the file
-            const item = await fetchTermsFromIndex(GITHUB_API_TOKEN, xtref.term, xtref.owner, xtref.repo, xtref.terms_dir, options);
+        
+        // Group xtrefs by repository to avoid multiple downloads of the same index.html
+        const xrefsByRepo = allXTrefs.xtrefs.reduce((groups, xtref) => {
+            // Skip xtrefs without proper repository information
+            if (!xtref.owner || !xtref.repo) return groups;
             
-            // Add proper null check before accessing properties
-            if (item !== null) {
-                xtref.commitHash = item.sha;
-                xtref.content = item.content;
-                // Check if repository and owner exist before accessing avatar_url
-                xtref.avatarUrl = item.repository?.owner?.avatar_url || null;
-                console.log(`✅ Match found for term: ${xtref.term} in ${xtref.externalSpec};`);
-            } else {
-                // Set default values when item is null
-                xtref.commitHash = "not found";
-                xtref.content = "This term was not found in the external repository.";
-                xtref.avatarUrl = null;
-                console.log(`ℹ️ No match found for term: ${xtref.term} in ${xtref.externalSpec};`);
+            const repoKey = `${xtref.owner}/${xtref.repo}`;
+            if (!groups[repoKey]) {
+                groups[repoKey] = {
+                    owner: xtref.owner,
+                    repo: xtref.repo,
+                    xtrefs: []
+                };
             }
+            groups[repoKey].xtrefs.push(xtref);
+            return groups;
+        }, {});
+
+        console.log(`✅ Grouped ${allXTrefs.xtrefs.length} terms into ${Object.keys(xrefsByRepo).length} repositories`);
+        
+        // Process each repository once
+        for (const repoKey of Object.keys(xrefsByRepo)) {
+            const repoGroup = xrefsByRepo[repoKey];
+            console.log(`Processing repository: ${repoKey} (${repoGroup.xtrefs.length} terms)`);
+            
+            // First, fetch all terms from this repository
+            const allTermsData = await fetchAllTermsFromIndex(
+                GITHUB_API_TOKEN, 
+                repoGroup.owner, 
+                repoGroup.repo, 
+                options
+            );
+            
+            if (!allTermsData) {
+                console.log(`❌ Could not fetch terms from repository ${repoKey}`);
+                // Mark all terms from this repo as not found
+                repoGroup.xtrefs.forEach(xtref => {
+                    xtref.commitHash = "not found";
+                    xtref.content = "This term was not found in the external repository.";
+                    xtref.avatarUrl = null;
+                });
+                continue; // Skip to next repository
+            }
+            
+            // Now process each term in this repository
+            for (const xtref of repoGroup.xtrefs) {
+                // Find the term in the pre-fetched data
+                const foundTerm = allTermsData.terms.find(
+                    t => t.term.toLowerCase() === xtref.term.toLowerCase()
+                );
+                
+                if (foundTerm) {
+                    xtref.commitHash = allTermsData.sha;
+                    xtref.content = foundTerm.definition;
+                    xtref.avatarUrl = allTermsData.avatarUrl;
+                    console.log(`✅ Match found for term: ${xtref.term} in ${xtref.externalSpec}`);
+                } else {
+                    xtref.commitHash = "not found";
+                    xtref.content = "This term was not found in the external repository.";
+                    xtref.avatarUrl = null;
+                    console.log(`ℹ️ No match found for term: ${xtref.term} in ${xtref.externalSpec}`);
+                }
+            }
+            
+            console.log(`✅ Finished processing repository: ${repoKey}`);
             console.log("============================================\n\n");
         }
 
