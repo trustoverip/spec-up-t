@@ -208,7 +208,7 @@ async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options =
 
         // Store all terms in a JSON file with timestamp
         const timestamp = Date.now();
-        const outputDir = path.join(CACHE_DIR, 'output');
+        const outputDir = path.join(CACHE_DIR);
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
         }
