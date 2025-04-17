@@ -36,7 +36,8 @@ function generateCacheKey(owner, repo) {
  */
 function getFromCache(cacheKey, options = {}) {
     const cachePath = path.join(CACHE_DIR, `${cacheKey}.json`);
-    const cacheTTL = options.cacheTTL || 24 * 60 * 60 * 1000; // Default: 24 hours
+    // const cacheTTL = options.cacheTTL || 24 * 60 * 60 * 1000; // Default: 24 hours
+    const cacheTTL = 0; // Default: 0 hours (no expiration)
 
     if (!fs.existsSync(cachePath)) {
         return null;
