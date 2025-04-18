@@ -30,7 +30,14 @@ function createAlphabetIndex() {
     numberOfTerms.textContent = `– There are ${dtElements.length} terms –`;
 
     terminologySectionUtilityContainer.appendChild(numberOfTerms);
-    Object.keys(alphabetIndex).sort().forEach(char => {
+
+    /*
+        The key advantage of localeCompare over simple comparison operators (<, >) is that it:
+        - Properly handles language-specific sorting rules (via locale settings)
+        - Correctly compares strings containing special characters or accents
+        - Can be configured to be case-insensitive
+    */
+    Object.keys(alphabetIndex).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).forEach(char => {
         const link = document.createElement("a");
         link.href = `#${alphabetIndex[char]}`;
         link.textContent = char;
