@@ -102,7 +102,15 @@ module.exports = async function (options = {}) {
     function renderRefGroup(type) {
       let group = specGroups[type];
       if (!group) return '';
-      let html = Object.keys(group).sort().reduce((html, name) => {
+
+      /*
+        The key advantage of localeCompare over simple comparison operators (<, >) is that it:
+
+        - Properly handles language-specific sorting rules (via locale settings)
+        - Correctly compares strings containing special characters or accents
+        - Can be configured to be case-insensitive
+      */
+      let html = Object.keys(group).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).reduce((html, name) => {
         let ref = group[name];
         return html += `
         <dt id="ref:${name}">${name}</dt>
