@@ -137,6 +137,143 @@ module.exports = async function (options = {}) {
       throw Error("katex distribution could not be located");
     }
 
+    function sortDefinitionTermsInHtml(html) {
+      const { JSDOM } = require('jsdom');
+      const dom = new JSDOM(html);
+      const document = dom.window.document;
+      
+      // Find the terms and definitions list
+      const dlElement = document.querySelector('.terms-and-definitions-list');
+      if (!dlElement) return html; // If not found, return the original HTML
+      
+      // Collect all dt/dd pairs
+      const pairs = [];
+      let currentDt = null;
+      let currentDds = [];
+      
+      // Process each child of the dl element
+      Array.from(dlElement.children).forEach(child => {
+        if (child.tagName === 'DT') {
+          // If we already have a dt, save the current pair
+          if (currentDt) {
+            pairs.push({
+              dt: currentDt,
+              dds: [...currentDds],
+              text: currentDt.textContent.trim().toLowerCase() // Use lowercase for sorting
+            });
+            currentDds = []; // Reset dds for the next dt
+          }
+          currentDt = child;
+        } else if (child.tagName === 'DD' && currentDt) {
+          currentDds.push(child);
+        }
+      });
+      
+      // Add the last pair if exists
+      if (currentDt) {
+        pairs.push({
+          dt: currentDt,
+          dds: [...currentDds],
+          text: currentDt.textContent.trim().toLowerCase()
+        });
+      }
+      
+      // Sort pairs case-insensitively
+      pairs.sort((a, b) => a.text.localeCompare(b.text));
+      
+      // Clear the dl element
+      while (dlElement.firstChild) {
+        dlElement.removeChild(dlElement.firstChild);
+      }
+      
+      // Re-append elements in sorted order
+      pairs.forEach(pair => {
+        dlElement.appendChild(pair.dt);
+        pair.dds.forEach(dd => {
+          dlElement.appendChild(dd);
+        });
+      });
+      
+      // Return the modified HTML
+      return dom.serialize();
+    }
+
+    async function render(spec, assets) {
+      try {
+        noticeTitles = {};
+        specGroups = {};
+        console.log('ℹ️ Rendering: ' + spec.title);
+
+        function interpolate(template, variables) {
+          return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
+        }
+
+        const docs = await Promise.all(
+          (spec.markdown_paths || ['spec.md']).map(_path =>
+            fs.readFile(spec.spec_directory + _path, 'utf8')
+          )
+        );
+
+        const features = (({ source, logo }) => ({ source, logo }))(spec);
+        if (spec.external_specs && !externalReferences) {
+          externalReferences = await fetchExternalSpecs(spec);
+        }
+
+        // Find the index of the terms-and-definitions-intro.md file
+        const termsIndex = (spec.markdown_paths || ['spec.md']).indexOf('terms-and-definitions-intro.md');
+        if (termsIndex !== -1) {
+          // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to create a div that is used to insert an alphabet index, and a div that is used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
+          docs[termsIndex] += '\n\n<div id="terminology-section-start-h7vc6omi2hr2880"></div>\n\n';
+        }
+
+        let doc = docs.join("\n");
+
+        // `doc` is markdown 
+        doc = applyReplacers(doc);
+
+        md[spec.katex ? "enable" : "disable"](katexRules);
+
+        // `render` is the rendered HTML
+        let renderedHtml = md.render(doc);
+        
+        // Sort definition terms case-insensitively before final rendering
+        renderedHtml = sortDefinitionTermsInHtml(renderedHtml);
+
+        const templateInterpolated = interpolate(template, {
+          title: spec.title,
+          description: spec.description,
+          author: spec.author,
+          toc: toc,
+          render: renderedHtml,
+          assetsHead: assets.head,
+          assetsBody: assets.body,
+          assetsSvg: assets.svg,
+          features: Object.keys(features).join(' '),
+          externalReferences: JSON.stringify(externalReferences),
+          xtrefsData: xtrefsData,
+          specLogo: spec.logo,
+          specFavicon: spec.favicon,
+          specLogoLink: spec.logo_link,
+          spec: JSON.stringify(spec),
+          externalSpecsList: externalSpecsList,
+        });
+
+        const outputPath = path.join(spec.destination, 'index.html');
+        console.log('ℹ️ Attempting to write to:', outputPath);
+
+        // Use promisified version instead of callback
+        await fs.promises.writeFile(outputPath, templateInterpolated, 'utf8');
+        console.log(`✅ Successfully wrote ${outputPath}`);
+
+        validateReferences(references, definitions, renderedHtml);
+        references = [];
+        definitions = [];
+      } catch (e) {
+        console.error("❌ Render error: " + e.message);
+        throw e;
+      }
+    }
+
     try {
 
       var toc;
@@ -302,14 +439,17 @@ module.exports = async function (options = {}) {
           md[spec.katex ? "enable" : "disable"](katexRules);
 
               // `render` is the rendered HTML
-          const render = md.render(doc);
+          let renderedHtml = md.render(doc);
+          
+          // Sort definition terms case-insensitively before final rendering
+          renderedHtml = sortDefinitionTermsInHtml(renderedHtml);
 
           const templateInterpolated = interpolate(template, {
             title: spec.title,
             description: spec.description,
             author: spec.author,
             toc: toc,
-            render: render,
+            render: renderedHtml,
             assetsHead: assets.head,
             assetsBody: assets.body,
             assetsSvg: assets.svg,
@@ -330,7 +470,7 @@ module.exports = async function (options = {}) {
           await fs.promises.writeFile(outputPath, templateInterpolated, 'utf8');
           console.log(`✅ Successfully wrote ${outputPath}`);
 
-          validateReferences(references, definitions, render);
+          validateReferences(references, definitions, renderedHtml);
           references = [];
           definitions = [];
         } catch (e) {
