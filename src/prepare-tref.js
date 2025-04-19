@@ -26,23 +26,40 @@ const { shouldProcessFile } = require('./utils/file-filter');
 
 function getLocalXTrefContent(externalSpec, term) {
     const filePath = path.join('output', 'xtrefs-data.json');
-    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    const xtrefs = data.xtrefs;
+    
+    try {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        const xtrefs = data.xtrefs;
 
-    for (const xtref of xtrefs) {
-        if (xtref.externalSpec === externalSpec && xtref.term === term) {
-            return {
-                content: xtref.content,
-                commitHash: xtref.commitHash,
-                owner: xtref.owner,
-                repo: xtref.repo,
-                repoUrl: xtref.repoUrl,
-                avatarUrl: xtref.avatarUrl
-            };
+        for (const xtref of xtrefs) {
+            if (xtref.externalSpec === externalSpec && xtref.term === term) {
+                // Validate that required properties exist
+                if (!xtref.content || !xtref.owner || !xtref.repo || !xtref.repoUrl) {
+                    console.warn(`Warning: Incomplete data for ${externalSpec}, ${term}`);
+                }
+                
+                return {
+                    content: xtref.content || "No content available",
+                    commitHash: xtref.commitHash || "Not available",
+                    owner: xtref.owner || "Unknown",
+                    repo: xtref.repo || "Unknown",
+                    repoUrl: xtref.repoUrl || "#",
+                    avatarUrl: xtref.avatarUrl || ""
+                };
+            }
         }
+    } catch (err) {
+        console.error(`Error reading xtrefs-data.json: ${err}`);
     }
 
-    return null;
+    return {
+        content: `Term '${term}' not found in external specification '${externalSpec}'`,
+        commitHash: "Not available",
+        owner: "Unknown",
+        repo: "Unknown",
+        repoUrl: "#",
+        avatarUrl: ""
+    };
 }
 
 // Function to process markdown files in a directory recursively
@@ -93,18 +110,34 @@ function prepareTref(directory) {
                             if (lines[i].startsWith('[[tref:')) {
                                 const tref = /\[\[tref:(.*?)\]\]/;
                                 const match = lines[i].match(tref);
+                                let currentTref = lines[i]; // Store the current tref line for error handling
+                                
                                 if (match) {
-                                    const result = match[1].split(',').map(term => term.trim());
-                                    const localXTrefContent = getLocalXTrefContent(result[0], result[1]);
+                                    try {
+                                        const result = match[1].split(',').map(term => term.trim());
+                                        
+                                        if (result.length < 2) {
+                                            throw new Error(`Invalid tref format. Expected: [[tref:spec,term]], got: ${match[0]}`);
+                                        }
+                                        
+                                        const localXTrefContent = getLocalXTrefContent(result[0], result[1]);
+                                        
+                                        // Skip processing if essential data is missing
+                                        if (!localXTrefContent) {
+                                            console.warn(`Warning: No content found for ${result[0]}, ${result[1]}`);
+                                            continue;
+                                        }
+                                        
+                                        const defPart = /\[\[def: ([^,]+),.*?\]\]/g;
+                                        if (localXTrefContent.content) {
+                                            localXTrefContent.content = localXTrefContent.content.replace(defPart, '');
+                                        }
 
-                                    const defPart = /\[\[def: ([^,]+),.*?\]\]/g;
-                                    localXTrefContent.content = localXTrefContent.content.replace(defPart, '');
-
-                                    const readyForWrite = dedent`
+                                        const readyForWrite = dedent`
 ${match[0]}
 | Property | Value |
 | -------- | ----- |
-| Owner | ![avatar](${localXTrefContent.avatarUrl}) ${localXTrefContent.owner} |
+| Owner | ${localXTrefContent.avatarUrl ? `![avatar](${localXTrefContent.avatarUrl})` : ''} ${localXTrefContent.owner} |
 | Repo | [${localXTrefContent.repo}](${localXTrefContent.repoUrl}) |
 | Commit hash | ${localXTrefContent.commitHash} |
 
@@ -115,12 +148,16 @@ ${contentAfterSpan}
 
 `;
 
-                                    fs.writeFileSync(itemPath, readyForWrite, 'utf8');
+                                        fs.writeFileSync(itemPath, readyForWrite, 'utf8');
+                                    } catch (err) {
+                                        console.error(`Error processing tref: ${err}`);
+                                        fs.writeFileSync(itemPath, currentTref + '\n\n' + '\n\nError processing reference: ' + err.message, 'utf8');
+                                    }
                                 }
                             }
                         }
                     } catch (err) {
-                        fs.writeFileSync(itemPath, match[0] + '\n\n' + '\n\nNothing found, so nothing to show.', 'utf8');
+                        console.error(`Error processing file ${itemPath}: ${err}`);
                     }
                 }
             });
