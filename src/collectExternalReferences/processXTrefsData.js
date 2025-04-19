@@ -21,11 +21,17 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
             fs.mkdirSync(CACHE_DIR, { recursive: true });
         }
         
+        // Filter out incomplete xtrefs that don't have proper repository information
+        allXTrefs.xtrefs = allXTrefs.xtrefs.filter(xtref => {
+            if (!xtref.owner || !xtref.repo || !xtref.repoUrl) {
+                console.log(`⚠️ Removing incomplete reference: ${xtref.externalSpec}, ${xtref.term}`);
+                return false;
+            }
+            return true;
+        });
+        
         // Group xtrefs by repository to avoid multiple downloads of the same index.html
         const xrefsByRepo = allXTrefs.xtrefs.reduce((groups, xtref) => {
-            // Skip xtrefs without proper repository information
-            if (!xtref.owner || !xtref.repo) return groups;
-            
             const repoKey = `${xtref.owner}/${xtref.repo}`;
             if (!groups[repoKey]) {
                 groups[repoKey] = {
