@@ -78,55 +78,86 @@
 
 function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
    function processTerms(xtrefsData) {
-      const termElements = document.querySelectorAll('dt span.transcluded-xref-term');
-
-      termElements.forEach(termElement => {
-         // Get the text content of the element, excluding its child nodes
+      // First collect all terms to ensure consistent processing order
+      const allTerms = [];
+      document.querySelectorAll('dt span.transcluded-xref-term').forEach(termElement => {
          const textContent = Array.from(termElement.childNodes)
             .filter(node => node.nodeType === Node.TEXT_NODE)
             .map(node => node.textContent.trim())
             .join('');
+         
+         allTerms.push({
+            element: termElement,
+            textContent: textContent
+         });
+      });
+      
+      // Then process all terms in a consistent order (from the JS file order)
+      allTerms.forEach(termData => {
+         const termElement = termData.element;
+         const textContent = termData.textContent;
 
          // Find the first matching xref to avoid duplicates
          const xref = xtrefsData.xtrefs.find(x => x.term === textContent);
-         if (!xref) return; // Skip if no match
-
+         
+         // Skip if we've already added content for this term (check for existing dd elements)
+         const dt = termElement.closest('dt');
+         if (dt) {
+            const nextElement = dt.nextElementSibling;
+            if (nextElement && nextElement.classList.contains('transcluded-xref-term') && 
+                nextElement.classList.contains('meta-info-content-wrapper')) {
+               return; // Already processed
+            }
+         }
+         
+         // Create meta info <dd> with available data or placeholders
+         const ddMetaInfo = document.createElement('dd');
+         ddMetaInfo.classList.add('transcluded-xref-term', 'meta-info-content-wrapper', 'collapsed');
+         
          // Create definition <dd>
          const ddTrefDef = document.createElement('dd');
          ddTrefDef.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
-
-         // Clean up markdown content
-         let content = xref.content
-            .replace(/\[\[def:[^\]]*?\]\]/g, '') // Remove [[def: ...]] patterns regardless of trailing chars
-            .split('\n')
-            .map(line => line.replace(/^\s*~\s*/, '')) // Remove leading ~ and spaces
-            .join('\n')
-            .replace(/\[\[ref:/g, '') // Remove [[ref: ...]]
-            .replace(/\]\]/g, '');
-
-         ddTrefDef.innerHTML = md.render(content);
-
-         // Create meta info <dd>
-         const ddMetaInfo = document.createElement('dd');
-         ddMetaInfo.classList.add('transcluded-xref-term', 'meta-info-content-wrapper');
-
-         // Handle missing xref properties
-         const avatar = xref.avatarUrl ? `![avatar](${xref.avatarUrl})` : '';
-         const owner = xref.owner || 'Unknown';
-         const repo = xref.repo && xref.repoUrl ? `[${xref.repo}](${xref.repoUrl})` : 'Unknown';
-         const commitHash = xref.commitHash || 'Unknown';
-
-         const metaInfo = `
+         
+         if (xref) {
+            // Use data from xref
+            const avatar = xref.avatarUrl ? `![avatar](${xref.avatarUrl})` : '';
+            const owner = xref.owner || 'Unknown';
+            const repo = xref.repo && xref.repoUrl ? `[${xref.repo}](${xref.repoUrl})` : 'Unknown';
+            const commitHash = xref.commitHash || 'Unknown';
+            
+            const metaInfo = `
 | Property | Value |
 | -------- | ----- |
 | Owner | ${avatar} ${owner} |
 | Repo | ${repo} |
 | Commit hash | ${commitHash} |
-         `;
-         ddMetaInfo.innerHTML = md.render(metaInfo);
-
-         // Insert both <dd> elements in the correct order
-         const dt = termElement.closest('dt');
+            `;
+            ddMetaInfo.innerHTML = md.render(metaInfo);
+            
+            // Clean up markdown content
+            let content = xref.content
+               .replace(/\[\[def:[^\]]*?\]\]/g, '') // Remove [[def: ...]] patterns regardless of trailing chars
+               .split('\n')
+               .map(line => line.replace(/^\s*~\s*/, '')) // Remove leading ~ and spaces
+               .join('\n')
+               .replace(/\[\[ref:/g, '') // Remove [[ref: ...]]
+               .replace(/\]\]/g, '');
+               
+            ddTrefDef.innerHTML = md.render(content);
+         } else {
+            // Use placeholder data
+            const metaInfo = `
+| Property | Value |
+| -------- | ----- |
+| Owner | Unknown |
+| Repo | Unknown |
+| Commit hash | not found |
+            `;
+            ddMetaInfo.innerHTML = md.render(metaInfo);
+            ddTrefDef.innerHTML = '<p>This term was not found in the external repository.</p>';
+         }
+         
+         // Insert both elements
          if (dt) {
             const parent = dt.parentNode;
             parent.insertBefore(ddMetaInfo, dt.nextSibling); // Meta info first
