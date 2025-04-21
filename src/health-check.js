@@ -12,6 +12,7 @@ const termReferencesChecker = require('./health-check/term-references-checker');
 const specsConfigurationChecker = require('./health-check/specs-configuration-checker');
 const termsIntroChecker = require('./health-check/terms-intro-checker');
 const outputGitignoreChecker = require('./health-check/output-gitignore-checker');
+const trefTermChecker = require('./health-check/tref-term-checker');
 
 // Configuration
 const OUTPUT_DIR = path.join(process.cwd(), 'output');
@@ -178,7 +179,15 @@ async function runHealthCheck() {
     // Collection to store all check results
     const results = [];
 
-    try {
+  try {
+      
+        // Run term reference tref check
+        const trefTermResults = await trefTermChecker.checkTrefTerms(process.cwd());
+        results.push({
+          title: 'Check Trefs in all external specs',
+          results: trefTermResults
+        });
+
         // Run external specs URL check
         const externalSpecsResults = await externalSpecsChecker.checkExternalSpecs(process.cwd());
         results.push({
@@ -307,6 +316,11 @@ function generateHtmlReport(checkResults, timestamp, repoInfo) {
 
             if (result.status === 'warning') {
                 // Warning status
+                statusClass = 'text-warning';
+                statusIcon = '<i class="bi bi-exclamation-triangle-fill"></i>';
+                statusText = 'Warning';
+            } else if (result.success === 'partial') {
+                // Partial success (warning) status
                 statusClass = 'text-warning';
                 statusIcon = '<i class="bi bi-exclamation-triangle-fill"></i>';
                 statusText = 'Warning';
