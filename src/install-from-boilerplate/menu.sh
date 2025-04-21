@@ -10,11 +10,12 @@ function handle_choice() {
         "Collect external references (no cache, slower)" "collect_external_references_no_cache"
         "Add, remove or view xref source" "do_add_remove_xref_source"
         "Configure" "do_configure"
+        "Run health check" "do_health_check"
         "Open documentation website" "do_help"
         "Freeze specification" "do_freeze"
     )
 
-    if [[ "$choice" =~ ^[0-8]$ ]]; then
+    if [[ "$choice" =~ ^[0-9]$ ]]; then
         local index=$((choice * 2))
         echo -e "\n\n  ************************************"
         echo "  ${options[index]}"
@@ -50,8 +51,9 @@ function display_intro() {
    [4] Collect external references (no cache, slower)
    [5] Add, remove or view xref source
    [6] Configure
-   [7] Open documentation website
-   [8] Freeze specification
+   [7] Run health check
+   [8] Open documentation website
+   [9] Freeze specification
    [Q] Quit
 
    An xref is a reference to another repository.
@@ -76,6 +78,7 @@ function collect_external_references_cache() { clear; npm run collectExternalRef
 function collect_external_references_no_cache() { clear; npm run collectExternalReferencesNoCache; }
 function do_add_remove_xref_source() { clear; npm run addremovexrefsource; }
 function do_configure() { clear; npm run configure; }
+function do_health_check() { clear; npm run healthCheck; }
 function do_freeze() { clear; npm run freeze; }
 
 function do_help() {

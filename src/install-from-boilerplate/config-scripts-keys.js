@@ -11,6 +11,7 @@ const configScriptsKeys = {
     "menu": "bash ./node_modules/spec-up-t/src/install-from-boilerplate/menu.sh",
     "addremovexrefsource": "node --no-warnings -e \"require('spec-up-t/src/add-remove-xref-source.js')\"",
     "configure": "node --no-warnings -e \"require('spec-up-t/src/configure.js')\"",
+    "healthCheck": "node --no-warnings -e \"require('spec-up-t/src/health-check.js')\"",
     "custom-update": "npm update && node -e \"require('spec-up-t/src/install-from-boilerplate/custom-update.js')\""
 };
 
@@ -28,6 +29,7 @@ const configOverwriteScriptsKeys = {
     "menu": true,
     "addremovexrefsource": true,
     "configure": true,
+    "healthCheck": true,
     "custom-update": true
 };
 
