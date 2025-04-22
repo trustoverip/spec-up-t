@@ -70,6 +70,25 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                 continue; // Skip to next repository
             }
             
+            // Log the terms we found with their mapping information
+            console.log(`===== TERMS MAPPING DEBUG INFO =====`);
+            console.log(`Repository: ${repoKey}`);
+            allTermsData.terms.forEach(term => {
+                console.log(`Term: ${term.term}`);
+                console.log(`  Source File: ${term.sourceFile || 'null'}`);
+                console.log(`  File Commit Hash: ${term.fileCommitHash || 'null'}`);
+                console.log(`  Source Pattern Match: ${term.sourceFile ? 'YES' : 'NO'}`);
+                console.log(`  Commit Hash Match: ${term.fileCommitHash ? 'YES' : 'NO'}`);
+            });
+            console.log(`===== END DEBUG INFO =====`);
+            
+            // Check for the terms directory to make sure it exists
+            if (allTermsData.termsDir) {
+                console.log(`Terms directory found: ${allTermsData.termsDir}`);
+            } else {
+                console.log(`⚠️ No terms directory found in specs.json. Check if spec_terms_directory is set correctly.`);
+            }
+            
             // Now process each term in this repository
             for (const xtref of repoGroup.xtrefs) {
                 // Find the term in the pre-fetched data
@@ -78,10 +97,24 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                 );
                 
                 if (foundTerm) {
-                    xtref.commitHash = allTermsData.sha;
+                    // Use the file-specific commit hash if available, fall back to repo SHA if not
+                    xtref.commitHash = foundTerm.fileCommitHash || allTermsData.sha;
+                    xtref.sourceFile = foundTerm.sourceFile || null; // Store the source file path
                     xtref.content = foundTerm.definition;
                     xtref.avatarUrl = allTermsData.avatarUrl;
-                    console.log(`✅ Match found for term: ${xtref.term} in ${xtref.externalSpec}`);
+                    
+                    console.log(`===== TERM PROCESSING DEBUG INFO =====`);
+                    console.log(`Term: ${xtref.term}`);
+                    console.log(`Using hash: ${xtref.commitHash}`);
+                    console.log(`File hash available: ${foundTerm.fileCommitHash ? 'YES' : 'NO'}`);
+                    console.log(`Repo hash fallback: ${!foundTerm.fileCommitHash ? 'YES - using ' + allTermsData.sha : 'NO'}`);
+                    console.log(`===== END TERM DEBUG INFO =====`);
+                    
+                    if (foundTerm.fileCommitHash) {
+                        console.log(`✅ Match found for term: ${xtref.term} in ${xtref.externalSpec} (file: ${foundTerm.sourceFile}, commit: ${foundTerm.fileCommitHash.substring(0, 7)}...)`);
+                    } else {
+                        console.log(`✅ Match found for term: ${xtref.term} in ${xtref.externalSpec} (using repo SHA)`);
+                    }
                 } else {
                     xtref.commitHash = "not found";
                     xtref.content = "This term was not found in the external repository.";
