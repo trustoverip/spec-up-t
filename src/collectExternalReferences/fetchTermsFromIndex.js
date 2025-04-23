@@ -73,6 +73,39 @@ function saveToCache(cacheKey, data) {
 }
 
 /**
+ * Fetches the latest commit hash for a specific file in a repository
+ * @param {string} token - GitHub API Token
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {string} filePath - Path to the file in the repository
+ * @param {object} headers - Request headers
+ * @returns {string|null} - Latest commit hash or null if error
+ */
+async function getFileCommitHash(token, owner, repo, filePath, headers) {
+    try {
+        // Normalize the file path to ensure it doesn't have leading slash
+        const normalizedPath = filePath.replace(/^\//, '');
+        
+        // Construct API URL to get commits for the specific file
+        const commitsUrl = `https://api.github.com/repos/${owner}/${repo}/commits?path=${normalizedPath}&per_page=1`;
+        console.log(`Fetching latest commit for file: ${commitsUrl}`);
+        
+        const response = await axios.get(commitsUrl, { headers });
+        
+        if (response.status !== 200 || !response.data || response.data.length === 0) {
+            console.log(`❌ Could not find commit information for ${filePath}`);
+            return null;
+        }
+        
+        // Return the SHA of the latest commit
+        return response.data[0].sha;
+    } catch (error) {
+        console.error(`❌ Error fetching commit hash: ${error.message}`);
+        return null;
+    }
+}
+
+/**
  * Fetches all terms and definitions from a repository's index.html
  * @param {string} token - GitHub API Token
  * @param {string} owner - Repository owner
@@ -94,15 +127,15 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
             }
         }
 
-        // Get the specs.json content from the repository to find the output_path
-        const specsJsonUrl = `https://api.github.com/repos/${owner}/${repo}/contents/specs.json`;
-        console.log(`Fetching specs.json from: ${specsJsonUrl}`);
-
         // Configure headers for GitHub API
         const headers = {};
         if (token) {
             headers['Authorization'] = `token ${token}`;
         }
+
+        // Get the specs.json content from the repository to find the output_path
+        const specsJsonUrl = `https://api.github.com/repos/${owner}/${repo}/contents/specs.json`;
+        console.log(`Fetching specs.json from: ${specsJsonUrl}`);
 
         // Fetch specs.json content
         const specsJsonResponse = await axios.get(specsJsonUrl, { headers });
@@ -125,14 +158,23 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
         // Fix: Properly normalize the output path to ensure it doesn't have leading "./" or trailing "/"
         const normalizedOutputPath = outputPath.replace(/^\.\//, '').replace(/\/$/, '');
         
+        // Create the path to the index.html file
+        const indexHtmlPath = `${normalizedOutputPath}/index.html`;
+        
         // Fetch the index.html content with properly constructed URL
-        const indexHtmlUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${normalizedOutputPath}/index.html`;
+        const indexHtmlUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${indexHtmlPath}`;
         console.log(`Fetching index.html from: ${indexHtmlUrl}`);
         
         const indexHtmlResponse = await axios.get(indexHtmlUrl, { headers });
         if (indexHtmlResponse.status !== 200) {
             console.log(`❌ Could not find index.html at ${indexHtmlUrl}`);
             return null;
+        }
+
+        // Get the commit hash for the index.html file
+        const commitHash = await getFileCommitHash(token, owner, repo, indexHtmlPath, headers);
+        if (!commitHash) {
+            console.log(`⚠️ Could not get commit hash for index.html, continuing without it`);
         }
 
         const htmlContent = indexHtmlResponse.data;
@@ -205,7 +247,7 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
             timestamp,
             repository: `${owner}/${repo}`,
             terms,
-            sha: specsJsonResponse.data.sha,
+            sha: commitHash, // Use the commit hash of the index.html file
             avatarUrl: null,
             outputFileName
         };
