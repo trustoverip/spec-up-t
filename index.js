@@ -53,15 +53,9 @@ module.exports = async function (options = {}) {
     const replacers = [
       {
         test: 'insert',
-        transform: function (originalMatch, type, path) {
+        transform: function (path) {
           if (!path) return '';
           return fs.readFileSync(path, 'utf8');
-        }
-      },
-      {
-        test: 'tref',
-        transform: function (originalMatch, type, spec, term) {
-          return `${originalMatch}\n: <span class="placeholder-tref">No custom content found for ${spec}:${term}</span> { .placeholder-dd }\n`;
         }
       }
     ];
@@ -88,11 +82,7 @@ module.exports = async function (options = {}) {
     function applyReplacers(doc) {
       return doc.replace(replacerRegex, function (match, type, args) {
         let replacer = replacers.find(r => type.trim().match(r.test));
-        if (replacer) {
-          let argsArray = args ? args.trim().split(replacerArgsRegex) : [];
-          return replacer.transform(match, type, ...argsArray);
-        }
-        return match;
+        return replacer ? replacer.transform(...args.trim().split(replacerArgsRegex)) : match;
       });
     }
     function normalizePath(path) {
@@ -424,16 +414,16 @@ module.exports = async function (options = {}) {
             externalReferences = await fetchExternalSpecs(spec);
           }
 
-              // Find the index of the terms-and-definitions-intro.md file
+          // Find the index of the terms-and-definitions-intro.md file
           const termsIndex = (spec.markdown_paths || ['spec.md']).indexOf('terms-and-definitions-intro.md');
           if (termsIndex !== -1) {
-                // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to create a div that is used to insert an alphabet index, and a div that is used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
+            // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to create a div that is used to insert an alphabet index, and a div that is used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
             docs[termsIndex] += '\n\n<div id="terminology-section-start-h7vc6omi2hr2880"></div>\n\n';
           }
 
           let doc = docs.join("\n");
 
-              // `doc` is markdown 
+          // `doc` is markdown 
           doc = applyReplacers(doc);
 
           md[spec.katex ? "enable" : "disable"](katexRules);
@@ -482,7 +472,7 @@ module.exports = async function (options = {}) {
       config.specs.forEach(spec => {
         spec.spec_directory = normalizePath(spec.spec_directory);
         spec.destination = normalizePath(spec.output_path || spec.spec_directory);
-      
+
         if (!fs.existsSync(spec.destination)) {
           try {
             fs.mkdirSync(spec.destination, { recursive: true });
@@ -563,7 +553,7 @@ module.exports = async function (options = {}) {
             console.error('❌ Render failed:', e.message);
             process.exit(1);
           });
-        
+
         if (!options.nowatch) {
           gulp.watch(
             [spec.spec_directory + '**/*', '!' + path.join(spec.destination, 'index.html')],
