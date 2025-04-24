@@ -53,9 +53,31 @@ module.exports = async function (options = {}) {
     const replacers = [
       {
         test: 'insert',
-        transform: function (path) {
+        transform: function (originalMatch, type, path) {
           if (!path) return '';
           return fs.readFileSync(path, 'utf8');
+        }
+      },
+      /**
+       * Custom replacer for tref tags that converts them directly to HTML definition term elements.
+       * 
+       * This is a critical part of our solution for fixing transcluded terms in definition lists.
+       * When a [[tref:spec,term]] tag is found in the markdown, this replacer transforms it into
+       * a proper <dt> element with the appropriate structure before the markdown parser processes it.
+       * 
+       * By directly generating the HTML structure (instead of letting the markdown-it parser
+       * handle it later), we prevent the issue where transcluded terms break the definition list.
+       * 
+       * @param {string} originalMatch - The original [[tref:spec,term]] tag found in the markdown
+       * @param {string} type - The tag type ('tref')
+       * @param {string} spec - The specification identifier (e.g., 'wot-1')
+       * @param {string} term - The term to transclude (e.g., 'DAR')
+       * @returns {string} - HTML representation of the term as a dt element
+       */
+      {
+        test: 'tref',
+        transform: function (originalMatch, type, spec, term) {
+          return `<dt><span class="transcluded-xref-term" id="term:${term.replace(/\s+/g, '-').toLowerCase()}">${term}</span></dt>`;
         }
       }
     ];
@@ -79,10 +101,27 @@ module.exports = async function (options = {}) {
 
     const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
 
+    /**
+     * Processes custom tag patterns in markdown content and applies transformation functions.
+     * 
+     * This function scans the document for special tag patterns like [[tref:spec,term]]
+     * and replaces them with the appropriate HTML using the matching replacer.
+     * 
+     * For tref tags, this is where the magic happens - we intercept them before
+     * the markdown parser even sees them, and convert them directly to HTML structure
+     * that will integrate properly with definition lists.
+     * 
+     * @param {string} doc - The markdown document to process
+     * @returns {string} - The processed document with tags replaced by their HTML equivalents
+     */
     function applyReplacers(doc) {
       return doc.replace(replacerRegex, function (match, type, args) {
         let replacer = replacers.find(r => type.trim().match(r.test));
-        return replacer ? replacer.transform(...args.trim().split(replacerArgsRegex)) : match;
+        if (replacer) {
+          let argsArray = args ? args.trim().split(replacerArgsRegex) : [];
+          return replacer.transform(match, type, ...argsArray);
+        }
+        return match;
       });
     }
     function normalizePath(path) {
@@ -188,6 +227,89 @@ module.exports = async function (options = {}) {
       return dom.serialize();
     }
 
+    // Function to fix broken definition list structures
+    /**
+     * This function repairs broken definition list (dl) structures in the HTML output.
+     * Specifically, it addresses the issue where transcluded terms (tref tags) break
+     * out of the definition list, creating separate lists instead of a continuous one.
+     * 
+     * The strategy:
+     * 1. Find all definition lists (dl elements) in the document
+     * 2. Use the dl with class 'terms-and-definitions-list' as the main/target list
+     * 3. Process each subsequent node after the this main dl:
+     *    - If another dl is found, merge all its children into the main dl
+     *    - If a standalone dt is found, move it into the main dl
+     *    - Remove any empty paragraphs that might be breaking the list continuity
+     * 
+     * This ensures all terms appear in one continuous definition list,
+     * regardless of how they were originally rendered in the markdown.
+     * 
+     * @param {string} html - The HTML content to fix
+     * @returns {string} - The fixed HTML content with merged definition lists
+     */
+    function fixDefinitionListStructure(html) {
+      const { JSDOM } = require('jsdom');
+      const dom = new JSDOM(html);
+      const document = dom.window.document;
+      
+      // Find all dl elements first
+      const allDls = Array.from(document.querySelectorAll('dl'));
+      
+      // Then filter to find the one with the terms-and-definitions-list class
+      const dlElements = allDls.filter(dl => {
+        return dl.classList && dl.classList.contains('terms-and-definitions-list');
+      });
+      
+      // If there's more than one dl element with the class, or if we found the main dl
+      if (dlElements.length > 0) {
+        // Start with the first matching dl as our target
+        let mainDl = dlElements[0];
+        
+        // Keep track of the current element we're examining
+        let currentNode = mainDl.nextSibling;
+        
+        // Process all subsequent content
+        while (currentNode) {
+          // Save the next node before potentially modifying the DOM
+          // (This is important because modifying the DOM can invalidate our references)
+          const nextNode = currentNode.nextSibling;
+          
+          // Handle different node types
+          if (currentNode.nodeType === 1) { // 1 = Element node
+            if (currentNode.tagName === 'DL') {
+              // Found another definition list - move all its children to the main dl
+              // This effectively merges the two lists into one
+              while (currentNode.firstChild) {
+                mainDl.appendChild(currentNode.firstChild);
+              }
+              
+              // Remove the now-empty dl element
+              currentNode.parentNode.removeChild(currentNode);
+            } 
+            else if (currentNode.tagName === 'DT') {
+              // Found a standalone dt (like our transcluded tref terms)
+              // Move it into the main dl to maintain continuity
+              const dtClone = currentNode.cloneNode(true);
+              mainDl.appendChild(dtClone);
+              currentNode.parentNode.removeChild(currentNode);
+            }
+            else if (currentNode.tagName === 'P' && 
+                    (!currentNode.textContent || currentNode.textContent.trim() === '')) {
+              // Remove empty paragraphs - these break the list structure
+              // Empty <p></p> tags often appear between dl elements
+              currentNode.parentNode.removeChild(currentNode);
+            }
+          }
+          
+          // Move to the next node we saved earlier
+          currentNode = nextNode;
+        }
+      }
+      
+      // Return the fixed HTML
+      return dom.serialize();
+    }
+
     async function render(spec, assets) {
       try {
         noticeTitles = {};
@@ -225,6 +347,9 @@ module.exports = async function (options = {}) {
 
         // `render` is the rendered HTML
         let renderedHtml = md.render(doc);
+        
+        // Apply the fix for broken definition list structures
+        renderedHtml = fixDefinitionListStructure(renderedHtml);
         
         // Sort definition terms case-insensitively before final rendering
         renderedHtml = sortDefinitionTermsInHtml(renderedHtml);
@@ -428,8 +553,11 @@ module.exports = async function (options = {}) {
 
           md[spec.katex ? "enable" : "disable"](katexRules);
 
-              // `render` is the rendered HTML
+          // `render` is the rendered HTML
           let renderedHtml = md.render(doc);
+          
+          // Apply the fix for broken definition list structures
+          renderedHtml = fixDefinitionListStructure(renderedHtml);
           
           // Sort definition terms case-insensitively before final rendering
           renderedHtml = sortDefinitionTermsInHtml(renderedHtml);
