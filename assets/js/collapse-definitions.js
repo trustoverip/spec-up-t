@@ -13,6 +13,7 @@ function collapseDefinitions() {
             button.innerHTML = isHidden ? '▲' : '▼';
             button.title = isHidden ? 'Collapse all definitions' : 'Expand all definitions';
         });
+        document.querySelector('html').classList.toggle('defs-hidden');
     }
 
     // Add button as last child of every <dl>
