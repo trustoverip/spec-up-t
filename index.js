@@ -77,7 +77,7 @@ module.exports = async function (options = {}) {
       {
         test: 'tref',
         transform: function (originalMatch, type, spec, term) {
-          return `<dt><span class="transcluded-xref-term" id="term:${term.replace(/\s+/g, '-').toLowerCase()}">${term}</span></dt>`;
+          return `<dt class="transcluded-xref-term"><span class="transcluded-xref-term" id="term:${term.replace(/\s+/g, '-').toLowerCase()}">${term}</span></dt>`;
         }
       }
     ];
