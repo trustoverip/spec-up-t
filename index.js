@@ -46,6 +46,134 @@ module.exports = async function (options = {}) {
     let externalReferences;
     let references = [];
     let definitions = [];
+    var toc;
+    var specGroups = {};
+    var noticeTitles = {};
+
+    const noticeTypes = {
+      note: 1,
+      issue: 1,
+      example: 1,
+      warning: 1,
+      todo: 1
+    };
+    const spaceRegex = /\s+/g;
+    const specNameRegex = /^spec$|^spec[-]*\w+$/i;
+    const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
+    const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
+    const containers = require('markdown-it-container');
+
+    /* 
+    `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
+    
+    The md function (which is an instance of the markdown-it parser) takes a Markdown string as its primary argument. It is called elsewhere as follows: `md.render(doc)`
+    */
+    const md = require('markdown-it')({
+      html: true,
+      linkify: true,
+      typographer: true
+    })
+      .use(require('./src/markdown-it-extensions.js'), [
+        {
+          filter: type => type.match(terminologyRegex),
+          parse(token, type, primary) {
+            if (!primary) return;
+            if (type === 'def') {
+              definitions.push(token.info.args);
+              return token.info.args.reduce((acc, syn) => {
+                return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}">${acc}</span>`;
+              }, primary);
+            }
+            else if (type === 'xref') {
+              // Get the URL for the external specification reference, or default to '#' if not found
+              const externalSpec = findExternalSpecByKey(config, token.info.args[0]);
+              const url = externalSpec?.gh_page || '#';
+
+              const term = token.info.args[1].replace(spaceRegex, '-').toLowerCase();
+              return `<a class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}"
+              href="${url}#term:${term}">${token.info.args[1]}</a>`;
+            }
+            else if (type === 'tref') {
+              return `<span class="transcluded-xref-term" id="term:${token.info.args[1]}">${token.info.args[1]}</span>`;
+            }
+            else {
+              references.push(primary);
+              return `<a class="term-reference" href="#term:${primary.replace(spaceRegex, '-').toLowerCase()}">${primary}</a>`;
+            }
+          }
+        },
+        {
+          filter: type => type.match(specNameRegex),
+          parse(token, type, name) {
+            if (name) {
+              let _name = name.replace(spaceRegex, '-').toUpperCase();
+              let spec = specCorpus[_name] ||
+                specCorpus[_name.toLowerCase()] ||
+                specCorpus[name.toLowerCase()] ||
+                specCorpus[name];
+              if (spec) {
+                spec._name = _name;
+                let group = specGroups[type] = specGroups[type] || {};
+                token.info.spec = group[_name] = spec;
+              }
+            }
+          },
+          render(token, type, name) {
+            if (name) {
+              let spec = token.info.spec;
+              if (spec) return `[<a class="spec-reference" href="#ref:${spec._name}">${spec._name}</a>]`;
+            }
+            else return renderRefGroup(type);
+          }
+        }
+      ])
+      .use(require('markdown-it-attrs'))
+      .use(require('markdown-it-chart').default)
+      .use(require('markdown-it-deflist'))
+      .use(require('markdown-it-references'))
+      .use(require('markdown-it-icons').default, 'font-awesome')
+      .use(require('markdown-it-ins'))
+      .use(require('markdown-it-mark'))
+      .use(require('markdown-it-textual-uml'))
+      .use(require('markdown-it-sub'))
+      .use(require('markdown-it-sup'))
+      .use(require('markdown-it-task-lists'))
+      .use(require('markdown-it-multimd-table'), {
+        multiline: true,
+        rowspan: true,
+        headerless: true
+      })
+      .use(containers, 'notice', {
+        validate: function (params) {
+          let matches = params.match(/(\w+)\s?(.*)?/);
+          return matches && noticeTypes[matches[1]];
+        },
+        render: function (tokens, idx) {
+          let matches = tokens[idx].info.match(/(\w+)\s?(.*)?/);
+          if (matches && tokens[idx].nesting === 1) {
+            let id;
+            let type = matches[1];
+            if (matches[2]) {
+              id = matches[2].trim().replace(/\s+/g, '-').toLowerCase();
+              if (noticeTitles[id]) id += '-' + noticeTitles[id]++;
+              else noticeTitles[id] = 1;
+            }
+            else id = type + '-' + noticeTypes[type]++;
+            return `<div id="${id}" class="notice ${type}"><a class="notice-link" href="#${id}">${type.toUpperCase()}</a>`;
+          }
+          else return '</div>\n';
+        }
+      })
+      .use(require('markdown-it-prism'))
+      .use(require('markdown-it-toc-and-anchor').default, {
+        tocClassName: 'toc',
+        tocFirstLevel: 2,
+        tocLastLevel: 4,
+        tocCallback: (_md, _tokens, html) => toc = html,
+        anchorLinkSymbol: '#', // was: §
+        anchorClassName: 'toc-anchor'
+      })
+      .use(require('@traptitech/markdown-it-katex'))
 
     const katexRules = ['math_block', 'math_inline'];
     const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
@@ -124,6 +252,7 @@ module.exports = async function (options = {}) {
         return match;
       });
     }
+
     function normalizePath(path) {
       return path.trim().replace(/\/$/g, '') + '/';
     }
@@ -390,134 +519,6 @@ module.exports = async function (options = {}) {
     }
 
     try {
-
-      var toc;
-      var specGroups = {};
-      const noticeTypes = {
-        note: 1,
-        issue: 1,
-        example: 1,
-        warning: 1,
-        todo: 1
-      };
-      const spaceRegex = /\s+/g;
-      const specNameRegex = /^spec$|^spec[-]*\w+$/i;
-      const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
-      const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
-      const containers = require('markdown-it-container');
-
-      /* 
-      `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
-      
-      The md function (which is an instance of the markdown-it parser) takes a Markdown string as its primary argument. It is called elsewhere as follows: `md.render(doc)`
-      */
-      const md = require('markdown-it')({
-        html: true,
-        linkify: true,
-        typographer: true
-      })
-        .use(require('./src/markdown-it-extensions.js'), [
-          {
-            filter: type => type.match(terminologyRegex),
-            parse(token, type, primary) {
-              if (!primary) return;
-              if (type === 'def') {
-                definitions.push(token.info.args);
-                return token.info.args.reduce((acc, syn) => {
-                  return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}">${acc}</span>`;
-                }, primary);
-              }
-              else if (type === 'xref') {
-                // Get the URL for the external specification reference, or default to '#' if not found
-                const externalSpec = findExternalSpecByKey(config, token.info.args[0]);
-                const url = externalSpec?.gh_page || '#';
-
-                const term = token.info.args[1].replace(spaceRegex, '-').toLowerCase();
-                return `<a class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}"
-                href="${url}#term:${term}">${token.info.args[1]}</a>`;
-              }
-              else if (type === 'tref') {
-                return `<span class="transcluded-xref-term" id="term:${token.info.args[1]}">${token.info.args[1]}</span>`;
-              }
-              else {
-                references.push(primary);
-                return `<a class="term-reference" href="#term:${primary.replace(spaceRegex, '-').toLowerCase()}">${primary}</a>`;
-              }
-            }
-          },
-          {
-            filter: type => type.match(specNameRegex),
-            parse(token, type, name) {
-              if (name) {
-                let _name = name.replace(spaceRegex, '-').toUpperCase();
-                let spec = specCorpus[_name] ||
-                  specCorpus[_name.toLowerCase()] ||
-                  specCorpus[name.toLowerCase()] ||
-                  specCorpus[name];
-                if (spec) {
-                  spec._name = _name;
-                  let group = specGroups[type] = specGroups[type] || {};
-                  token.info.spec = group[_name] = spec;
-                }
-              }
-            },
-            render(token, type, name) {
-              if (name) {
-                let spec = token.info.spec;
-                if (spec) return `[<a class="spec-reference" href="#ref:${spec._name}">${spec._name}</a>]`;
-              }
-              else return renderRefGroup(type);
-            }
-          }
-        ])
-        .use(require('markdown-it-attrs'))
-        .use(require('markdown-it-chart').default)
-        .use(require('markdown-it-deflist'))
-        .use(require('markdown-it-references'))
-        .use(require('markdown-it-icons').default, 'font-awesome')
-        .use(require('markdown-it-ins'))
-        .use(require('markdown-it-mark'))
-        .use(require('markdown-it-textual-uml'))
-        .use(require('markdown-it-sub'))
-        .use(require('markdown-it-sup'))
-        .use(require('markdown-it-task-lists'))
-        .use(require('markdown-it-multimd-table'), {
-          multiline: true,
-          rowspan: true,
-          headerless: true
-        })
-        .use(containers, 'notice', {
-          validate: function (params) {
-            let matches = params.match(/(\w+)\s?(.*)?/);
-            return matches && noticeTypes[matches[1]];
-          },
-          render: function (tokens, idx) {
-            let matches = tokens[idx].info.match(/(\w+)\s?(.*)?/);
-            if (matches && tokens[idx].nesting === 1) {
-              let id;
-              let type = matches[1];
-              if (matches[2]) {
-                id = matches[2].trim().replace(/\s+/g, '-').toLowerCase();
-                if (noticeTitles[id]) id += '-' + noticeTitles[id]++;
-                else noticeTitles[id] = 1;
-              }
-              else id = type + '-' + noticeTypes[type]++;
-              return `<div id="${id}" class="notice ${type}"><a class="notice-link" href="#${id}">${type.toUpperCase()}</a>`;
-            }
-            else return '</div>\n';
-          }
-        })
-        .use(require('markdown-it-prism'))
-        .use(require('markdown-it-toc-and-anchor').default, {
-          tocClassName: 'toc',
-          tocFirstLevel: 2,
-          tocLastLevel: 4,
-          tocCallback: (_md, _tokens, html) => toc = html,
-          anchorLinkSymbol: '#', // was: §
-          anchorClassName: 'toc-anchor'
-        })
-        .use(require('@traptitech/markdown-it-katex'))
-
       config.specs.forEach(spec => {
         spec.spec_directory = normalizePath(spec.spec_directory);
         spec.destination = normalizePath(spec.output_path || spec.spec_directory);
