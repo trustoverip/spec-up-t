@@ -77,6 +77,38 @@
  */
 
 function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
+   function addClassToTranscludedTerms() {
+      // Find all spans with class 'transcluded-xref-term'
+      const spans = document.querySelectorAll('span.transcluded-xref-term');
+
+      spans.forEach(span => {
+         // Find the closest <dt> ancestor
+         const dt = span.closest('dt');
+         if (dt) {
+            // Add class 'transcluded-xref-term' to the <dt>
+            dt.classList.add('transcluded-xref-term');
+
+            // Get the next sibling elements until the next <dt> or </dl>
+            let sibling = dt.nextElementSibling;
+            let lastDD = null; // Track the last DD element
+
+            while (sibling && sibling.tagName !== 'DT' && sibling.tagName !== 'DL') {
+               if (sibling.tagName === 'DD') {
+                  // Ensure the dd element has the transcluded-xref-term class
+                  sibling.classList.add('transcluded-xref-term');
+                  lastDD = sibling; // Update the last DD reference
+               }
+               sibling = sibling.nextElementSibling;
+            }
+
+            // Add the "last-dd" class to the last DD if found
+            if (lastDD) {
+               lastDD.classList.add('last-dd');
+            }
+         }
+      });
+   }
+
    function processTerms(xtrefsData) {
       // First collect all terms to ensure consistent processing order
       const allTerms = [];
@@ -85,13 +117,13 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
             .filter(node => node.nodeType === Node.TEXT_NODE)
             .map(node => node.textContent.trim())
             .join('');
-         
+
          allTerms.push({
             element: termElement,
             textContent: textContent
          });
       });
-      
+
       // Then process all terms in a consistent order (from the JS file order)
       allTerms.forEach(termData => {
          const termElement = termData.element;
@@ -99,32 +131,30 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
 
          // Find the first matching xref to avoid duplicates
          const xref = xtrefsData.xtrefs.find(x => x.term === textContent);
-         
+
          // Skip if we've already added content for this term (check for existing dd elements)
          const dt = termElement.closest('dt');
          if (dt) {
             const nextElement = dt.nextElementSibling;
-            if (nextElement && nextElement.classList.contains('transcluded-xref-term') && 
-                nextElement.classList.contains('meta-info-content-wrapper')) {
+            if (nextElement && nextElement.classList.contains('transcluded-xref-term') &&
+               nextElement.classList.contains('meta-info-content-wrapper')) {
                return; // Already processed
             }
          }
-         
-         // Create meta info <dd> with available data or placeholders
-         const ddMetaInfo = document.createElement('dd');
-         ddMetaInfo.classList.add('transcluded-xref-term', 'meta-info-content-wrapper', 'collapsed');
-         
-         // Create definition <dd>
-         const ddTrefDef = document.createElement('dd');
-         ddTrefDef.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
-         
+
          if (xref) {
-            // Use data from xref
+            const parent = dt.parentNode;
+
+            // Create and insert meta info element
+            const metaInfoEl = document.createElement('dd');
+            metaInfoEl.classList.add('transcluded-xref-term', 'meta-info-content-wrapper', 'collapsed');
+
+            // Generate meta info content
             const avatar = xref.avatarUrl ? `![avatar](${xref.avatarUrl})` : '';
             const owner = xref.owner || 'Unknown';
             const repo = xref.repo && xref.repoUrl ? `[${xref.repo}](${xref.repoUrl})` : 'Unknown';
             const commitHash = xref.commitHash || 'Unknown';
-            
+
             const metaInfo = `
 | Property | Value |
 | -------- | ----- |
@@ -132,8 +162,9 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
 | Repo | ${repo} |
 | Commit hash | ${commitHash} |
             `;
-            ddMetaInfo.innerHTML = md.render(metaInfo);
-            
+            metaInfoEl.innerHTML = md.render(metaInfo);
+            parent.insertBefore(metaInfoEl, dt.nextSibling);
+
             // Clean up markdown content
             let content = xref.content
                .replace(/\[\[def:[^\]]*?\]\]/g, '') // Remove [[def: ...]] patterns regardless of trailing chars
@@ -142,10 +173,36 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
                .join('\n')
                .replace(/\[\[ref:/g, '') // Remove [[ref: ...]]
                .replace(/\]\]/g, '');
-               
-            ddTrefDef.innerHTML = md.render(content);
+
+            // Parse the rendered HTML to check for dd elements
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = md.render(content);
+
+            // If there are dd elements in the rendered content, insert them directly
+            const ddElements = tempDiv.querySelectorAll('dd');
+            if (ddElements.length > 0) {
+               // Insert each dd element directly after the meta info
+               Array.from(ddElements).forEach(dd => {
+                  // Clone the node to avoid removing it from tempDiv during insertion
+                  const clonedDD = dd.cloneNode(true);
+                  // Add necessary classes
+                  clonedDD.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
+                  parent.insertBefore(clonedDD, metaInfoEl.nextSibling);
+               });
+            } else {
+               // No dd elements found, create one to hold the content
+               const contentEl = document.createElement('dd');
+               contentEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
+               contentEl.innerHTML = tempDiv.innerHTML;
+               parent.insertBefore(contentEl, metaInfoEl.nextSibling);
+            }
          } else {
-            // Use placeholder data
+            // Handle case where xref is not found
+            const parent = dt.parentNode;
+
+            // Create and insert meta info for not found case
+            const metaInfoEl = document.createElement('dd');
+            metaInfoEl.classList.add('transcluded-xref-term', 'meta-info-content-wrapper', 'collapsed');
             const metaInfo = `
 | Property | Value |
 | -------- | ----- |
@@ -153,16 +210,17 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
 | Repo | Unknown |
 | Commit hash | not found |
             `;
-            ddMetaInfo.innerHTML = md.render(metaInfo);
-            ddTrefDef.innerHTML = '<p>This term was not found in the external repository.</p>';
+            metaInfoEl.innerHTML = md.render(metaInfo);
+            parent.insertBefore(metaInfoEl, dt.nextSibling);
+
+            // Create and insert not found message
+            const notFoundEl = document.createElement('dd');
+            notFoundEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
+            notFoundEl.innerHTML = '<p>This term was not found in the external repository.</p>';
+            parent.insertBefore(notFoundEl, metaInfoEl.nextSibling);
          }
-         
-         // Insert both elements
-         if (dt) {
-            const parent = dt.parentNode;
-            parent.insertBefore(ddMetaInfo, dt.nextSibling); // Meta info first
-            parent.insertBefore(ddTrefDef, ddMetaInfo.nextSibling); // Definition second
-         }
+
+         addClassToTranscludedTerms();
       });
    }
 
