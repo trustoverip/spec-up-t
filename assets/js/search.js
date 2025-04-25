@@ -43,7 +43,7 @@ function inPageSearch() {
    /* Add DOM elements: search container with search bar, back and forth buttons, and results count */
    const searchContainer = document.createElement("div");
    searchContainer.setAttribute("id", `container-${antiNameCollisions}`);
-   searchContainer.classList.add("input-group", "mb-3", "d-flex", "align-items-center"); // Bootstrap 5.3 input group with margin bottom
+   searchContainer.classList.add("input-group", "mb-1", "d-flex", "align-items-center"); // Bootstrap 5.3 input group with margin bottom
    searchContainer.setAttribute("role", "search"); // ARIA role for search container
    terminologySectionUtilityContainer.appendChild(searchContainer);
 
