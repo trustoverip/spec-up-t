@@ -90,12 +90,20 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
 
             // Get the next sibling elements until the next <dt> or </dl>
             let sibling = dt.nextElementSibling;
+            let lastDD = null; // Track the last DD element
+
             while (sibling && sibling.tagName !== 'DT' && sibling.tagName !== 'DL') {
                if (sibling.tagName === 'DD') {
                   // Ensure the dd element has the transcluded-xref-term class
                   sibling.classList.add('transcluded-xref-term');
+                  lastDD = sibling; // Update the last DD reference
                }
                sibling = sibling.nextElementSibling;
+            }
+
+            // Add the "last-dd" class to the last DD if found
+            if (lastDD) {
+               lastDD.classList.add('last-dd');
             }
          }
       });
