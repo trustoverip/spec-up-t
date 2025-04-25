@@ -233,8 +233,8 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
 
 document.addEventListener('DOMContentLoaded', () => {
    // Check if allXTrefs is defined in the global scope
-   if (typeof window.allXTrefs !== 'undefined') {
-      insertTrefs(window.allXTrefs);
+   if (typeof allXTrefs !== 'undefined') {
+      insertTrefs(allXTrefs);
    } else {
       console.warn('allXTrefs is not available in the global scope. Transcluded references will not be inserted.');
    }
