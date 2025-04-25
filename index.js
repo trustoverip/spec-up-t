@@ -170,16 +170,16 @@ module.exports = async function (options = {}) {
       const { JSDOM } = require('jsdom');
       const dom = new JSDOM(html);
       const document = dom.window.document;
-      
+
       // Find the terms and definitions list
       const dlElement = document.querySelector('.terms-and-definitions-list');
       if (!dlElement) return html; // If not found, return the original HTML
-      
+
       // Collect all dt/dd pairs
       const pairs = [];
       let currentDt = null;
       let currentDds = [];
-      
+
       // Process each child of the dl element
       Array.from(dlElement.children).forEach(child => {
         if (child.tagName === 'DT') {
@@ -197,7 +197,7 @@ module.exports = async function (options = {}) {
           currentDds.push(child);
         }
       });
-      
+
       // Add the last pair if exists
       if (currentDt) {
         pairs.push({
@@ -206,15 +206,15 @@ module.exports = async function (options = {}) {
           text: currentDt.textContent.trim().toLowerCase()
         });
       }
-      
+
       // Sort pairs case-insensitively
       pairs.sort((a, b) => a.text.localeCompare(b.text));
-      
+
       // Clear the dl element
       while (dlElement.firstChild) {
         dlElement.removeChild(dlElement.firstChild);
       }
-      
+
       // Re-append elements in sorted order
       pairs.forEach(pair => {
         dlElement.appendChild(pair.dt);
@@ -222,7 +222,7 @@ module.exports = async function (options = {}) {
           dlElement.appendChild(dd);
         });
       });
-      
+
       // Return the modified HTML
       return dom.serialize();
     }
@@ -251,29 +251,29 @@ module.exports = async function (options = {}) {
       const { JSDOM } = require('jsdom');
       const dom = new JSDOM(html);
       const document = dom.window.document;
-      
+
       // Find all dl elements first
       const allDls = Array.from(document.querySelectorAll('dl'));
-      
+
       // Then filter to find the one with the terms-and-definitions-list class
       const dlElements = allDls.filter(dl => {
         return dl.classList && dl.classList.contains('terms-and-definitions-list');
       });
-      
+
       // If there's more than one dl element with the class, or if we found the main dl
       if (dlElements.length > 0) {
         // Start with the first matching dl as our target
         let mainDl = dlElements[0];
-        
+
         // Keep track of the current element we're examining
         let currentNode = mainDl.nextSibling;
-        
+
         // Process all subsequent content
         while (currentNode) {
           // Save the next node before potentially modifying the DOM
           // (This is important because modifying the DOM can invalidate our references)
           const nextNode = currentNode.nextSibling;
-          
+
           // Handle different node types
           if (currentNode.nodeType === 1) { // 1 = Element node
             if (currentNode.tagName === 'DL') {
@@ -282,10 +282,10 @@ module.exports = async function (options = {}) {
               while (currentNode.firstChild) {
                 mainDl.appendChild(currentNode.firstChild);
               }
-              
+
               // Remove the now-empty dl element
               currentNode.parentNode.removeChild(currentNode);
-            } 
+            }
             else if (currentNode.tagName === 'DT') {
               // Found a standalone dt (like our transcluded tref terms)
               // Move it into the main dl to maintain continuity
@@ -293,19 +293,19 @@ module.exports = async function (options = {}) {
               mainDl.appendChild(dtClone);
               currentNode.parentNode.removeChild(currentNode);
             }
-            else if (currentNode.tagName === 'P' && 
-                    (!currentNode.textContent || currentNode.textContent.trim() === '')) {
+            else if (currentNode.tagName === 'P' &&
+              (!currentNode.textContent || currentNode.textContent.trim() === '')) {
               // Remove empty paragraphs - these break the list structure
               // Empty <p></p> tags often appear between dl elements
               currentNode.parentNode.removeChild(currentNode);
             }
           }
-          
+
           // Move to the next node we saved earlier
           currentNode = nextNode;
         }
       }
-      
+
       // Return the fixed HTML
       return dom.serialize();
     }
@@ -347,10 +347,10 @@ module.exports = async function (options = {}) {
 
         // `render` is the rendered HTML
         let renderedHtml = md.render(doc);
-        
+
         // Apply the fix for broken definition list structures
         renderedHtml = fixDefinitionListStructure(renderedHtml);
-        
+
         // Sort definition terms case-insensitively before final rendering
         renderedHtml = sortDefinitionTermsInHtml(renderedHtml);
 
@@ -517,85 +517,6 @@ module.exports = async function (options = {}) {
           anchorClassName: 'toc-anchor'
         })
         .use(require('@traptitech/markdown-it-katex'))
-
-      async function render(spec, assets) {
-        try {
-          noticeTitles = {};
-          specGroups = {};
-          console.log('ℹ️ Rendering: ' + spec.title);
-
-          function interpolate(template, variables) {
-            return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
-          }
-
-          const docs = await Promise.all(
-            (spec.markdown_paths || ['spec.md']).map(_path =>
-              fs.readFile(spec.spec_directory + _path, 'utf8')
-            )
-          );
-
-          const features = (({ source, logo }) => ({ source, logo }))(spec);
-          if (spec.external_specs && !externalReferences) {
-            externalReferences = await fetchExternalSpecs(spec);
-          }
-
-          // Find the index of the terms-and-definitions-intro.md file
-          const termsIndex = (spec.markdown_paths || ['spec.md']).indexOf('terms-and-definitions-intro.md');
-          if (termsIndex !== -1) {
-            // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to create a div that is used to insert an alphabet index, and a div that is used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
-            docs[termsIndex] += '\n\n<div id="terminology-section-start-h7vc6omi2hr2880"></div>\n\n';
-          }
-
-          let doc = docs.join("\n");
-
-          // `doc` is markdown 
-          doc = applyReplacers(doc);
-
-          md[spec.katex ? "enable" : "disable"](katexRules);
-
-          // `render` is the rendered HTML
-          let renderedHtml = md.render(doc);
-          
-          // Apply the fix for broken definition list structures
-          renderedHtml = fixDefinitionListStructure(renderedHtml);
-          
-          // Sort definition terms case-insensitively before final rendering
-          renderedHtml = sortDefinitionTermsInHtml(renderedHtml);
-
-          const templateInterpolated = interpolate(template, {
-            title: spec.title,
-            description: spec.description,
-            author: spec.author,
-            toc: toc,
-            render: renderedHtml,
-            assetsHead: assets.head,
-            assetsBody: assets.body,
-            assetsSvg: assets.svg,
-            features: Object.keys(features).join(' '),
-            externalReferences: JSON.stringify(externalReferences),
-            xtrefsData: xtrefsData,
-            specLogo: spec.logo,
-            specFavicon: spec.favicon,
-            specLogoLink: spec.logo_link,
-            spec: JSON.stringify(spec),
-            externalSpecsList: externalSpecsList,
-          });
-
-          const outputPath = path.join(spec.destination, 'index.html');
-          console.log('ℹ️ Attempting to write to:', outputPath);
-
-          // Use promisified version instead of callback
-          await fs.promises.writeFile(outputPath, templateInterpolated, 'utf8');
-          console.log(`✅ Successfully wrote ${outputPath}`);
-
-          validateReferences(references, definitions, renderedHtml);
-          references = [];
-          definitions = [];
-        } catch (e) {
-          console.error("❌ Render error: " + e.message);
-          throw e;
-        }
-      }
 
       config.specs.forEach(spec => {
         spec.spec_directory = normalizePath(spec.spec_directory);
