@@ -1,11 +1,11 @@
 /* Hide local terms */
-.hide-terms-defs #content dl.terms-and-definitions-list > dt:not(.transcluded-xref-term),
-.hide-terms-defs #content dl.terms-and-definitions-list > dd:not(.transcluded-xref-term) {
+.hide-local-terms #content dl.terms-and-definitions-list > dt:not(.transcluded-xref-term),
+.hide-local-terms #content dl.terms-and-definitions-list > dd:not(.transcluded-xref-term) {
     display: none !important;
 }
 
 /* Hide transcluded terms */
-.hide-terms-trefs #content dl.terms-and-definitions-list > dt.transcluded-xref-term,
-.hide-terms-trefs #content dl.terms-and-definitions-list > dd.transcluded-xref-term {
+.hide-external-terms #content dl.terms-and-definitions-list > dt.transcluded-xref-term,
+.hide-external-terms #content dl.terms-and-definitions-list > dd.transcluded-xref-term {
     display: none !important;
 }
