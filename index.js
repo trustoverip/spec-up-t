@@ -389,12 +389,32 @@ module.exports = async function (options = {}) {
         return dl.classList && dl.classList.contains('terms-and-definitions-list');
       });
 
-      // If there's more than one dl element with the class, or if we found the main dl
-      if (dlElements.length > 0) {
-        // Start with the first matching dl as our target
-        let mainDl = dlElements[0];
+      // First special case - handle transcluded-xref-term dt that comes BEFORE the main dl
+      const transcludedTermsBeforeMainDl = document.querySelectorAll('dt.transcluded-xref-term');
+      let mainDl = null;
 
-        // Keep track of the current element we're examining
+      if (dlElements.length > 0) {
+        // Use the first terms-and-definitions-list as our main container
+        mainDl = dlElements[0];
+
+        // Special handling for transcluded terms that appear BEFORE the main dl
+        transcludedTermsBeforeMainDl.forEach(dt => {
+          // Check if this dt is not already inside a dl.terms-and-definitions-list
+          if (!dt.parentElement.classList.contains('terms-and-definitions-list')) {
+            // This is a dt outside our main list - move it into the main dl at the beginning
+            const dtClone = dt.cloneNode(true);
+            mainDl.insertBefore(dtClone, mainDl.firstChild);
+            dt.parentNode.removeChild(dt);
+          }
+        });
+
+        // Remove any empty dt elements that may exist
+        const emptyDts = mainDl.querySelectorAll('dt:empty');
+        emptyDts.forEach(emptyDt => {
+          emptyDt.parentNode.removeChild(emptyDt);
+        });
+
+        // Process all subsequent content after the main dl
         let currentNode = mainDl.nextSibling;
 
         // Process all subsequent content
