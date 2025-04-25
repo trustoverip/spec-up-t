@@ -78,7 +78,6 @@ module.exports = function (md, templates = {}) {
   let classAdded = false;
 
   md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
-
     const targetHtml = 'terminology-section-start-h7vc6omi2hr2880';
     let targetIndex = -1;
 
@@ -97,7 +96,32 @@ module.exports = function (md, templates = {}) {
     }
 
     let lastDdIndex = -1;
+    let currentDtIndex = -1; // Track current dt to detect empty dt elements
 
+    // First pass - check for and mark empty dt elements
+    // This scan identifies definition terms that have no content (empty dt elements)
+    // which is one of the root causes of the issues we're fixing
+    for (let i = idx + 1; i < tokens.length; i++) {
+      if (tokens[i].type === 'dl_close') {
+        break;
+      }
+      
+      if (tokens[i].type === 'dt_open') {
+        currentDtIndex = i;
+        // Check if this is an empty dt (no content between dt_open and dt_close)
+        // An empty dt is when a dt_close token immediately follows a dt_open token
+        if (i + 1 < tokens.length && tokens[i + 1].type === 'dt_close') {
+          // Mark this dt pair for handling by adding an isEmpty property
+          // This property will be used later to skip rendering these empty elements
+          tokens[i].isEmpty = true;
+          tokens[i + 1].isEmpty = true;
+        }
+      }
+    }
+
+    // Second pass - add classes and handle last-dd
+    // Now that we've identified empty dt elements, we can process the tokens
+    // while skipping the empty ones
     for (let i = idx + 1; i < tokens.length; i++) {
       if (tokens[i].type === 'dl_close') {
         // Add class to the last <dd> before closing <dl>
@@ -114,6 +138,12 @@ module.exports = function (md, templates = {}) {
       }
 
       if (tokens[i].type === 'dt_open') {
+        // Skip empty dt elements - this is where we use the isEmpty flag
+        // to avoid processing empty definition terms
+        if (tokens[i].isEmpty) {
+          continue; // Skip to the next iteration without processing this empty dt
+        }
+        
         // Add class to the last <dd> before a new <dt>
         if (lastDdIndex !== -1) {
           const ddToken = tokens[lastDdIndex];
@@ -133,5 +163,68 @@ module.exports = function (md, templates = {}) {
     }
 
     return originalRender(tokens, idx, options, env, self);
+  };
+  
+  // Override the rendering of dt elements to properly handle transcluded terms
+  const originalDtRender = md.renderer.rules.dt_open || function (tokens, idx, options, env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+  
+  md.renderer.rules.dt_open = function (tokens, idx, options, env, self) {
+    // Skip rendering empty dt elements - this is the first critical fix
+    // When a dt has been marked as empty, we return an empty string
+    // instead of rendering the <dt> tag. This effectively removes empty dt tags
+    // from the output HTML.
+    if (tokens[idx].isEmpty) {
+      return '';
+    }
+    
+    // Check if this dt is part of a transcluded term by looking at the next inline token
+    // This is part of the second fix, to properly handle transcluded terms
+    let isTranscluded = false;
+    for (let i = idx + 1; i < tokens.length; i++) {
+      if (tokens[i].type === 'dt_close') {
+        break;
+      }
+      // Look for child tokens that are template tokens with type 'tref'
+      // These represent transcluded terms from external sources
+      if (tokens[i].type === 'inline' && 
+          tokens[i].children && 
+          tokens[i].children.some(child => 
+            child.type === 'template' && 
+            child.info && 
+            child.info.type === 'tref')) {
+        isTranscluded = true;
+        break;
+      }
+    }
+    
+    // Add a class for transcluded terms to ensure proper styling
+    // This helps maintain consistent styling for transcluded terms
+    if (isTranscluded) {
+      const classIndex = tokens[idx].attrIndex('class');
+      if (classIndex < 0) {
+        tokens[idx].attrPush(['class', 'transcluded-xref-term']);
+      } else {
+        tokens[idx].attrs[classIndex][1] += ' transcluded-xref-term';
+      }
+    }
+    
+    return originalDtRender(tokens, idx, options, env, self);
+  };
+  
+  // Similarly override dt_close to skip empty dts
+  const originalDtCloseRender = md.renderer.rules.dt_close || function (tokens, idx, options, env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+  
+  md.renderer.rules.dt_close = function (tokens, idx, options, env, self) {
+    // Skip rendering the closing </dt> tag for empty dt elements
+    // This completes the fix for empty dt elements by ensuring neither
+    // the opening nor closing tags are rendered
+    if (tokens[idx].isEmpty) {
+      return '';
+    }
+    return originalDtCloseRender(tokens, idx, options, env, self);
   };
 };
