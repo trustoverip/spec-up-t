@@ -77,6 +77,30 @@
  */
 
 function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
+   function addClassToTranscludedTerms() {
+      // Find all spans with class 'transcluded-xref-term'
+      const spans = document.querySelectorAll('span.transcluded-xref-term');
+
+      spans.forEach(span => {
+         // Find the closest <dt> ancestor
+         const dt = span.closest('dt');
+         if (dt) {
+            // Add class 'transcluded-xref-term' to the <dt>
+            dt.classList.add('transcluded-xref-term');
+
+            // Get the next sibling elements until the next <dt> or </dl>
+            let sibling = dt.nextElementSibling;
+            while (sibling && sibling.tagName !== 'DT' && sibling.tagName !== 'DL') {
+               if (sibling.tagName === 'DD') {
+                  // Ensure the dd element has the transcluded-xref-term class
+                  sibling.classList.add('transcluded-xref-term');
+               }
+               sibling = sibling.nextElementSibling;
+            }
+         }
+      });
+   }
+
    function processTerms(xtrefsData) {
       // First collect all terms to ensure consistent processing order
       const allTerms = [];
@@ -163,6 +187,8 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
             parent.insertBefore(ddMetaInfo, dt.nextSibling); // Meta info first
             parent.insertBefore(ddTrefDef, ddMetaInfo.nextSibling); // Definition second
          }
+
+         addClassToTranscludedTerms();
       });
    }
 
