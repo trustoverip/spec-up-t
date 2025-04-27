@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const glob = require('glob');
 
 /**
  * Extracts the spec name from a tref tag at the beginning of a markdown file
@@ -118,7 +117,9 @@ async function checkTermReferences(projectRoot) {
       }
       
       // Find all markdown files in the terms directory
-      const markdownFiles = glob.sync(path.join(termsDir, '*.md'));
+      const markdownFiles = fs.readdirSync(termsDir)
+        .filter(file => path.extname(file) === '.md')
+        .map(file => path.join(termsDir, file));
       
       if (markdownFiles.length === 0) {
         results.push({
