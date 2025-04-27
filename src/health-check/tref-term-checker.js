@@ -312,23 +312,24 @@ async function checkTrefTerms(projectRoot) {
       details: `Found ${specDirs.length} spec terms directories`
     });
     
-    // Path to the GitHub cache directory
-    const githubCacheDir = path.join(projectRoot, 'output', 'github-cache');
+    // Directory is auto generated, no need for this warning
+    // // Path to the GitHub cache directory
+    // const githubCacheDir = path.join(projectRoot, 'output', 'github-cache');
     
-    if (!fs.existsSync(githubCacheDir)) {
-      results.push({
-        name: 'Find GitHub cache directory',
-        success: false,
-        details: 'GitHub cache directory not found at output/github-cache. Terms in external repos cannot be verified.'
-      });
-      return results;
-    }
+    // if (!fs.existsSync(githubCacheDir)) {
+    //   results.push({
+    //     name: 'Find GitHub cache directory',
+    //     success: false,
+    //     details: 'GitHub cache directory not found at output/github-cache. Terms in external repos cannot be verified.'
+    //   });
+    //   return results;
+    // }
     
-    results.push({
-      name: 'Find GitHub cache directory',
-      success: true,
-      details: 'GitHub cache directory found'
-    });
+    // results.push({
+    //   name: 'Find GitHub cache directory',
+    //   success: true,
+    //   details: 'GitHub cache directory found'
+    // });
     
     // Find and check all markdown files in all spec directories
     let totalFiles = 0;
