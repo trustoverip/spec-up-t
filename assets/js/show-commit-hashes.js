@@ -306,7 +306,8 @@ function fetchCommitHashes() {
             const defRegex = /\[\[def: ([^\]]+)\]\]/g;
             match.content = match.content.replace(defRegex, '');
 
-            const content = md.render(match.content);
+            // const content = md.render(match.content);
+            const content = match.content;
             localStoredTerm.addEventListener('click', function (event) {
                event.preventDefault();
                showModal(`
