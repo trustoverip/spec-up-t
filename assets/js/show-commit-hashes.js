@@ -88,7 +88,13 @@ function fetchCommitHashes() {
       notyf.error('GitHub API rate limit exceeded. See <a target="_blank" rel="noopener" href="https://blockchainbird.github.io/spec-up-t-website/docs/getting-started/github-token">documentation</a> for more info.');
    }, 3000); // Delay in milliseconds
 
-   // Fetch the content of a term-file from GitHub
+   /**
+ * Fetches the content of a term file from GitHub using the GitHub API.
+ * Compares the fetched content with the locally stored version and displays the diff in a modal.
+ * 
+ * @param {string} savedToken - GitHub API token for authentication
+ * @param {Object} match - The matched term object containing repository and term information
+ */
    function fetchGitHubContent(savedToken, match) {
       // Create a headers object with the Authorization header if a GitHub API token is set
       const headers = {};
@@ -209,6 +215,10 @@ function fetchCommitHashes() {
 
             // If no commit hash is found, display a message and return
             if (!match.commitHash) {
+               /**
+                * Error message element shown when no cross-reference is found
+                * Displayed directly after the term reference element
+                */
                const noXTrefFoundMessage = document.createElement('span');
                noXTrefFoundMessage.classList.add('no-xref-found-message');
                noXTrefFoundMessage.innerHTML = 'No xref found.';
@@ -221,6 +231,10 @@ function fetchCommitHashes() {
             const commitHashShort = match.commitHash && match.commitHash ? match.commitHash.substring(0, 7) : 'No hash';
 
             // Diff of the latest commit hash of a term file and the referenced commit hash
+            /**
+             * Button that links to GitHub comparison between referenced commit and current main branch
+             * Shows the difference between the referenced version and latest version on GitHub
+             */
             const diff = document.createElement('a');
             diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash + '../main';
             diff.target = '_blank';
@@ -231,6 +245,10 @@ function fetchCommitHashes() {
             element.parentNode.insertBefore(diff, element.nextSibling);
 
             // Latest version of a term-file
+            /**
+             * Button that links to the latest version of the term file on GitHub
+             * Takes the user to the most current version in the repository
+             */
             const latestVersion = document.createElement('a');
             latestVersion.href = 'https://github.com/' + match.owner + '/' + match.repo + '/blob/main/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md';
             latestVersion.target = '_blank';
@@ -241,6 +259,10 @@ function fetchCommitHashes() {
             diff.parentNode.insertBefore(latestVersion, element.nextSibling);
 
             // Exact commit hash at the time of referencing the file
+            /**
+             * Button that links to the exact commit version of the term file referenced in the document
+             * Shows the historical version that was used when creating the reference
+             */
             const exactCommitHash = document.createElement('a');
             exactCommitHash.href = 'https://github.com/' + match.owner + '/' + match.repo + '/blob/' + match.commitHash + '/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md';
             exactCommitHash.target = '_blank';
@@ -251,6 +273,10 @@ function fetchCommitHashes() {
             latestVersion.parentNode.insertBefore(exactCommitHash, element.nextSibling);
 
             // Diff of the latest version and the referenced version in a modal
+            /**
+             * Button that opens a modal showing the diff between referenced version and latest version
+             * Displays changes inline within the current page context
+             */
             const showDiffModal = document.createElement('button');
             showDiffModal.classList.add('show-diff-modal', 'xref-info-links', 'btn');
             showDiffModal.innerHTML = 'Xref &lt; &gt; <svg icon><use xlink:href="#svg-github"></use></svg> Now';
@@ -262,13 +288,17 @@ function fetchCommitHashes() {
             });
 
             // The stored version of the term-file
+            /**
+             * Button that opens a modal showing only the locally stored version of the term
+             * Displays the exact content that was stored when the reference was created
+             */
             const localStoredTerm = document.createElement('button');
             localStoredTerm.classList.add('show-diff-modal', 'xref-info-links', 'btn');
             localStoredTerm.innerHTML = 'Xref';
             localStoredTerm.title = 'Show the stored version of the term-file';
             showDiffModal.parentNode.insertBefore(localStoredTerm, element.nextSibling);
-            
-            
+
+
 
             // Replace all occurrences of [[def: ]] with ''
             const defRegex = /\[\[def: ([^\]]+)\]\]/g;
