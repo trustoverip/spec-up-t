@@ -84,6 +84,7 @@ delegateEvent('pointerover', '.term-reference, .spec-reference', (e, anchor) => 
       }
       break;
   }
+  console.log('KORKORtip.content: ', tip.content);
   if (tip.content) tipMap.set(anchor, tippy(anchor, tip));
 }, { passive: true });
 
