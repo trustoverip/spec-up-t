@@ -25,7 +25,7 @@
  * @since 2024-06-09
  */
 
-var md = window.markdownit();
+
 
 function fetchCommitHashes() {
 
