@@ -232,11 +232,13 @@ function fetchCommitHashes() {
             // To be used in the future
             const commitHashShort = match.commitHash && match.commitHash ? match.commitHash.substring(0, 7) : 'No hash';
 
+            // Comment out all UI elements except tooltip
+            /*
             // Diff of the latest commit hash of a term file and the referenced commit hash
-            /**
-             * Button that links to GitHub comparison between referenced commit and current main branch
-             * Shows the difference between the referenced version and latest version on GitHub
-             */
+
+            // Button that links to GitHub comparison between referenced commit and current main branch
+            // Shows the difference between the referenced version and latest version on GitHub
+
             const diff = document.createElement('a');
             diff.href = 'https://github.com/' + match.owner + '/' + match.repo + '/compare/' + match.commitHash + '../main';
             diff.target = '_blank';
@@ -247,38 +249,38 @@ function fetchCommitHashes() {
             element.parentNode.insertBefore(diff, element.nextSibling);
 
             // Latest version of a term-file
-            /**
-             * Button that links to the latest version of the term file on GitHub
-             * Takes the user to the most current version in the repository
-             */
+
+            // Button that links to the latest version of the term file on GitHub
+            // Takes the user to the most current version in the repository
+
             const latestVersion = document.createElement('a');
             latestVersion.href = 'https://github.com/' + match.owner + '/' + match.repo + '/blob/main/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md';
             latestVersion.target = '_blank';
             latestVersion.rel = 'noopener noreferrer';
             latestVersion.classList.add('latest-version', 'xref-info-links', 'btn');
             latestVersion.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> Now';
-            latestVersion.title = 'Go to the repo page of the definition‘s latest version.';
+            latestVersion.title = 'Go to the repo page of the definition's latest version.';
             diff.parentNode.insertBefore(latestVersion, element.nextSibling);
 
             // Exact commit hash at the time of referencing the file
-            /**
-             * Button that links to the exact commit version of the term file referenced in the document
-             * Shows the historical version that was used when creating the reference
-             */
+
+            // Button that links to the exact commit version of the term file referenced in the document
+            // Shows the historical version that was used when creating the reference
+
             const exactCommitHash = document.createElement('a');
             exactCommitHash.href = 'https://github.com/' + match.owner + '/' + match.repo + '/blob/' + match.commitHash + '/' + match.terms_dir + '/' + match.term.replace(/ /g, '-').toLowerCase() + '.md';
             exactCommitHash.target = '_blank';
             exactCommitHash.rel = 'noopener noreferrer';
             exactCommitHash.classList.add('exact-commit-hash', 'xref-info-links', 'btn');
             exactCommitHash.innerHTML = '<svg icon><use xlink:href="#svg-github"></use></svg> Xref';
-            exactCommitHash.title = 'Go to the repo page of the definition‘s version referenced when the link was created.';
+            exactCommitHash.title = 'Go to the repo page of the definition's version referenced when the link was created.';
             latestVersion.parentNode.insertBefore(exactCommitHash, element.nextSibling);
 
             // Diff of the latest version and the referenced version in a modal
-            /**
-             * Button that opens a modal showing the diff between referenced version and latest version
-             * Displays changes inline within the current page context
-             */
+
+            // Button that opens a modal showing the diff between referenced version and latest version
+            // Displays changes inline within the current page context
+
             const showDiffModal = document.createElement('button');
             showDiffModal.classList.add('show-diff-modal', 'xref-info-links', 'btn');
             showDiffModal.innerHTML = 'Xref &lt; &gt; <svg icon><use xlink:href="#svg-github"></use></svg> Now';
@@ -290,10 +292,9 @@ function fetchCommitHashes() {
             });
 
             // The stored version of the term-file
-            /**
-             * Button that opens a modal showing only the locally stored version of the term
-             * Displays the exact content that was stored when the reference was created
-             */
+            // Button that opens a modal showing only the locally stored version of the term
+            // Displays the exact content that was stored when the reference was created
+
             const localStoredTerm = document.createElement('button');
             localStoredTerm.classList.add('show-diff-modal', 'xref-info-links', 'btn');
             localStoredTerm.innerHTML = 'Xref';
@@ -330,8 +331,9 @@ function fetchCommitHashes() {
             div.classList.add('transcluded-xref-term');
             div.innerHTML = `<p class='transclusion-heading'>Snapshot</p><p>Commit Hash: ${match.commitHash}</p> ${content}`;
             element.parentNode.insertBefore(div, element.nextSibling);
+            */
 
-
+            // Tooltip functionality
             delegateEvent('pointerover', '.x-term-reference', (e, anchor) => {
                // Get the matching term from your data
                const href = anchor.getAttribute('data-local-href');
@@ -348,9 +350,6 @@ function fetchCommitHashes() {
 
                // Create tooltip with content
                let tip = {
-
-
-
                   // content: md.render(match.content.replace(/\[\[def: ([^\]]+)\]\]/g, '')),
                   // content: `<dl>` +  md.render(match.content.replace(/\[\[def: ([^\]]+)\]\]/g, '')) + `</dl>`,
                   content: match.content.replace(/\[\[def: ([^\]]+)\]\]/g, ''),
@@ -361,11 +360,10 @@ function fetchCommitHashes() {
                if (tip.content) tipMap.set(anchor, tippy(anchor, tip));
             }, { passive: true });
 
-
-
-
-
+            // Keep tooltip functionality active, but comment out real-time content fetch
+            /*
             insertGitHubTermRealTime(match, element);
+            */
          }
       });
    });
