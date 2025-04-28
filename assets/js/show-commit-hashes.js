@@ -29,6 +29,8 @@
 
 function fetchCommitHashes() {
 
+   let tipMap = new WeakMap();
+
    async function insertGitHubTermRealTime(match, element) {
       const div = document.createElement('div');
       div.classList.add('fetched-xref-term');
@@ -327,6 +329,39 @@ function fetchCommitHashes() {
             div.classList.add('transcluded-xref-term');
             div.innerHTML = `<p class='transclusion-heading'>Snapshot</p><p>Commit Hash: ${match.commitHash}</p> ${content}`;
             element.parentNode.insertBefore(div, element.nextSibling);
+
+
+            delegateEvent('pointerover', '.x-term-reference', (e, anchor) => {
+               // Get the matching term from your data
+               const href = anchor.getAttribute('data-local-href');
+               const splitHref = href.split(':');
+
+               // Find matching term in allXTrefs
+               const match = allXTrefs.xtrefs.find(m =>
+                  m.externalSpec === splitHref[1] &&
+                  m.term.toLowerCase() === splitHref[2].toLowerCase());
+
+               if (!match || tipMap.has(anchor)) return;
+
+               console.log('KORKOR match.content: ', match.content);
+
+               // Create tooltip with content
+               let tip = {
+
+
+
+                  // content: md.render(match.content.replace(/\[\[def: ([^\]]+)\]\]/g, '')),
+                  // content: `<dl>` +  md.render(match.content.replace(/\[\[def: ([^\]]+)\]\]/g, '')) + `</dl>`,
+                  content: match.content.replace(/\[\[def: ([^\]]+)\]\]/g, ''),
+                  allowHTML: true,
+                  inlinePositioning: true
+               };
+
+               if (tip.content) tipMap.set(anchor, tippy(anchor, tip));
+            }, { passive: true });
+
+
+
 
 
             insertGitHubTermRealTime(match, element);
