@@ -100,6 +100,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
         fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
         fs.writeFileSync(outputPathJSTimeStamped, stringReadyForFileWrite, 'utf8');
 
+        // This will run index.js
         require('../../index.js')({ nowatch: true });
     } catch (error) {
         console.error("An error occurred:", error);
