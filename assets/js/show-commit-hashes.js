@@ -332,6 +332,7 @@ function fetchCommitHashes() {
             div.innerHTML = `<p class='transclusion-heading'>Snapshot</p><p>Commit Hash: ${match.commitHash}</p> ${content}`;
             element.parentNode.insertBefore(div, element.nextSibling);
             
+            insertGitHubTermRealTime(match, element);
 
             // Tooltip functionality
             delegateEvent('pointerover', '.x-term-reference', (e, anchor) => {
@@ -357,10 +358,7 @@ function fetchCommitHashes() {
 
                if (tip.content) tipMap.set(anchor, tippy(anchor, tip));
             }, { passive: true });
-
-            // Keep tooltip functionality active, but comment out real-time content fetch
             
-            insertGitHubTermRealTime(match, element);
             
          }
       });
