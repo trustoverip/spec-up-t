@@ -42,6 +42,21 @@ main * {
   /* Breaks words at logical places according to the language */
 }
 
+/* Fix for Bootstrap's responsive tables */
+.table-responsive {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Override the overflow-wrap property for table-responsive content */
+.table-responsive * {
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  white-space: nowrap !important;
+}
+
 dd td img {
   max-width: 30px;
 }
