@@ -12,6 +12,12 @@ module.exports = function (md, templates = {}) {
     return self.renderToken(tokens, idx, options);
   };
 
+  // Save the original table_close renderer
+  const originalTableCloseRender = md.renderer.rules.table_close || function (tokens, idx, options, env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+
+  // Override table_open to add both the classes and open a wrapper div
   md.renderer.rules.table_open = function (tokens, idx, options, env, self) {
     // Add Bootstrap classes to the table element
     const token = tokens[idx];
@@ -34,7 +40,14 @@ module.exports = function (md, templates = {}) {
       }
     }
     
-    return originalTableRender(tokens, idx, options, env, self);
+    // Add the responsive wrapper div before the table
+    return '<div class="table-responsive">' + originalTableRender(tokens, idx, options, env, self);
+  };
+
+  // Override table_close to close the wrapper div
+  md.renderer.rules.table_close = function (tokens, idx, options, env, self) {
+    // Close the table and add the closing div
+    return originalTableCloseRender(tokens, idx, options, env, self) + '</div>';
   };
 
   md.inline.ruler.after('emphasis', 'templates', function templates_ruler(state, silent) {
