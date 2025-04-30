@@ -16,7 +16,7 @@ module.exports = function (md, templates = {}) {
     // Add Bootstrap classes to the table element
     const token = tokens[idx];
     const classIndex = token.attrIndex('class');
-    const tableClasses = 'table table-striped table-bordered table-hover table-responsive';
+    const tableClasses = 'table table-striped table-bordered table-hover';
     
     if (classIndex < 0) {
       token.attrPush(['class', tableClasses]);
