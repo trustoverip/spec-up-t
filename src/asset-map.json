@@ -64,6 +64,7 @@
       "assets/js/close-off-canvas-menu.js",
       "assets/js/show-commit-hashes.js",
       "assets/js/index.js",
+      "assets/js/horizontal-scroll-hint.js",
       "assets/js/bootstrap.bundle.min.js"
     ]
   }
