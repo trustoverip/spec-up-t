@@ -2,9 +2,13 @@
   "head": {
     "css": [
       "assets/css/theme-vars.css",
+      "assets/css/bootstrap.min.css",
       "assets/css/custom-elements.css",
       "assets/css/prism.css",
       "assets/css/chart.css",
+      "assets/css/header-navbar.css",
+      "assets/css/sidebar-toc.css",
+      "assets/css/terms-and-definitions.css",
       "assets/css/edit-term-buttons.css",
       "assets/css/search.css",
       "assets/css/highlightMenuItems.css",
@@ -16,10 +20,6 @@
       "assets/css/modal.css",
       "assets/css/create-alphabet-index.css",
       "assets/css/pdf-download.css",
-      "assets/css/terms-and-definitions.css",
-      "assets/css/bootstrap.min.css",
-      "assets/css/header-navbar.css",
-      "assets/css/sidebar-toc.css",
       "assets/css/loader.css",
       "assets/css/external-links.css",
       "assets/css/repo-issues.css",
@@ -64,6 +64,7 @@
       "assets/js/close-off-canvas-menu.js",
       "assets/js/show-commit-hashes.js",
       "assets/js/index.js",
+      "assets/js/horizontal-scroll-hint.js",
       "assets/js/bootstrap.bundle.min.js"
     ]
   }

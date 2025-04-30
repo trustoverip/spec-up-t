@@ -7,6 +7,49 @@ const contentRegex = /\s*([^\s\[\]:]+):?\s*([^\]\n]+)?/i;
 
 module.exports = function (md, templates = {}) {
 
+  // Add table renderer to apply Bootstrap classes to all tables by default
+  const originalTableRender = md.renderer.rules.table_open || function (tokens, idx, options, env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+
+  // Save the original table_close renderer
+  const originalTableCloseRender = md.renderer.rules.table_close || function (tokens, idx, options, env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+
+  // Override table_open to add both the classes and open a wrapper div
+  md.renderer.rules.table_open = function (tokens, idx, options, env, self) {
+    // Add Bootstrap classes to the table element
+    const token = tokens[idx];
+    const classIndex = token.attrIndex('class');
+    const tableClasses = 'table table-striped table-bordered table-hover';
+    
+    if (classIndex < 0) {
+      token.attrPush(['class', tableClasses]);
+    } else {
+      // If a class attribute already exists, append our classes
+      const existingClasses = token.attrs[classIndex][1];
+      // Only add classes that aren't already present
+      const classesToAdd = tableClasses
+        .split(' ')
+        .filter(cls => !existingClasses.includes(cls))
+        .join(' ');
+      
+      if (classesToAdd) {
+        token.attrs[classIndex][1] = existingClasses + ' ' + classesToAdd;
+      }
+    }
+    
+    // Add the responsive wrapper div before the table
+    return '<div class="table-responsive">' + originalTableRender(tokens, idx, options, env, self);
+  };
+
+  // Override table_close to close the wrapper div
+  md.renderer.rules.table_close = function (tokens, idx, options, env, self) {
+    // Close the table and add the closing div
+    return originalTableCloseRender(tokens, idx, options, env, self) + '</div>';
+  };
+
   md.inline.ruler.after('emphasis', 'templates', function templates_ruler(state, silent) {
 
     var start = state.pos;
