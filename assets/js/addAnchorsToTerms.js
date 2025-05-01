@@ -20,7 +20,7 @@ function addAnchorsToTerms() {
         const id = dt.getAttribute('id');
         const a = document.createElement('a');
         a.setAttribute('href', `#${id}`);
-        a.setAttribute('class', 'toc-anchor exclude-in-print');
+        a.setAttribute('class', 'toc-anchor d-print-none');
         a.innerHTML = '# '; // was '§';
         dt.parentNode.insertBefore(a, dt);
     });
