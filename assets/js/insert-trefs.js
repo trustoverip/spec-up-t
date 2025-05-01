@@ -1,4 +1,19 @@
+/**
+ * @fileoverview Handles the insertion of transcluded external references (xrefs) into HTML documentation.
+ * This script processes terms marked with a specific class and adds their definitions from external sources.
+ */
+
+/**
+ * Inserts transcluded external references into the document.
+ * @param {Object} allXTrefs - The object containing all external references data
+ * @param {Array} allXTrefs.xtrefs - Array of external reference objects, each containing term definitions
+ */
 function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
+   /**
+    * Processes all terms found in the document and inserts their corresponding content
+    * @param {Object} xtrefsData - The object containing xtrefs data
+    * @param {Array} xtrefsData.xtrefs - Array of external reference objects
+    */
    function processTerms(xtrefsData) {
       // First collect all terms to ensure consistent processing order
       const allTerms = [];
@@ -125,6 +140,10 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
    }
 }
 
+/**
+ * Initialize the transcluded references when the DOM is fully loaded.
+ * Checks for the global allXTrefs object and calls insertTrefs if available.
+ */
 document.addEventListener('DOMContentLoaded', () => {
    // Check if allXTrefs is defined in the global scope
    if (typeof allXTrefs !== 'undefined') {
