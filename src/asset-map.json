@@ -61,7 +61,7 @@
       "assets/js/collapse-meta-info.js",
       "assets/js/add-href-to-snapshot-link.js",
       "assets/js/adjust-font-size.js",
-      "assets/js/container-toggle.js",
+      "assets/js/toggle-dense-info.js",
       "assets/js/close-off-canvas-menu.js",
       "assets/js/show-commit-hashes.js",
       "assets/js/index.js",
