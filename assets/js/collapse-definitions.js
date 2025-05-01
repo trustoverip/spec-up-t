@@ -19,7 +19,7 @@ function collapseDefinitions() {
     // Add button as last child of every <dl>
     dts.forEach(dt => {
         const button = document.createElement('button');
-        button.classList.add('collapse-all-defs-button', 'btn', 'p-0', 'fs-5', 'd-flex', 'align-items-center','justify-content-center');
+        button.classList.add('collapse-all-defs-button', 'exclude-in-print', 'btn', 'p-0', 'fs-5', 'd-flex', 'align-items-center','justify-content-center');
         button.innerHTML = '▲';
         button.setAttribute('id', 'toggleButton');
         dt.appendChild(button);
