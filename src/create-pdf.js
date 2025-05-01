@@ -27,24 +27,21 @@ const pdfLib = require('pdf-lib');
         // Navigate to the HTML file
         await page.goto(fileUrl, { waitUntil: 'networkidle2' });
 
-        // this class will hold the text that we want to wait for (xref term fetched from another domain)
+        // Handle cross-reference terms that may be fetched from another domain
         const targetClass = '.fetched-xref-term';
-
-        // Check if there are any elements with the target class
-        const hasTargetElements = await page.evaluate((targetClass) => {
-            return document.querySelectorAll(targetClass).length > 0;
-        }, targetClass);
-
-        // Fetch the initial innerText of the element
+        
+        // Try to get the first element with the target class
         const targetElement = await page.$(targetClass);
-        const targetText = await page.evaluate(el => el.innerText, targetElement);
-        if (hasTargetElements) {
+        
+        // If such an element exists, wait for its content to be fully loaded
+        if (targetElement) {
+            const targetText = await page.evaluate(el => el.innerText, targetElement);
             await page.waitForFunction(
                 (targetClass, targetText) => {
                     const element = document.querySelector(targetClass);
                     return element && element.innerText !== targetText;
                 },
-                {}, // You can specify additional options here if needed
+                {}, // Additional options if needed
                 targetClass,
                 targetText
             );
