@@ -84,9 +84,34 @@ const pdfLib = require('pdf-lib');
                     border: none;
                 }
 
-                /* Override all fonts with system fonts */
+                /* Override all fonts with system fonts and increase base font size */
                 * {
                     font-family: Arial, Helvetica, sans-serif !important;
+                }
+                
+                /* Set base font size to improve readability */
+                body {
+                    font-size: 14pt !important; /* Medium font size */
+                    line-height: 1.5 !important;
+                }
+                
+                /* Adjust heading sizes proportionally */
+                h1 { font-size: 22pt !important; font-weight: bold !important; }
+                h2 { font-size: 20pt !important; font-weight: bold !important; }
+                h3 { font-size: 18pt !important; font-weight: bold !important; }
+                h4 { font-size: 16pt !important; font-weight: bold !important; }
+                h5 { font-size: 15pt !important; font-weight: bold !important; }
+                h6 { font-size: 14pt !important; font-weight: bold !important; }
+                
+                /* Make pre and code blocks more readable */
+                pre, code {
+                    font-size: 13pt !important;
+                    line-height: 1.4 !important;
+                }
+                
+                /* Make table text more readable */
+                table, th, td {
+                    font-size: 13pt !important;
                 }
                 
                 /* Additional print-specific styles */
@@ -103,6 +128,8 @@ const pdfLib = require('pdf-lib');
                     /* Improve page breaks */
                     h1, h2, h3, h4, h5, h6 {
                         page-break-after: avoid;
+                        margin-top: 1.2em !important;
+                        margin-bottom: 0.6em !important;
                     }
                     
                     img {
@@ -182,7 +209,7 @@ const pdfLib = require('pdf-lib');
                 const logoImg = document.createElement('img');
                 logoImg.src = logo;
                 logoImg.className = 'img-fluid';
-                logoImg.style.maxHeight = '80px';
+                logoImg.style.maxHeight = '90px'; // Moderate logo size
                 logoImg.alt = title || 'Logo';
                 
                 logoContainer.appendChild(logoImg);
@@ -193,7 +220,8 @@ const pdfLib = require('pdf-lib');
             if (title) {
                 const titleElement = document.createElement('h1');
                 titleElement.textContent = title;
-                titleElement.className = 'display-4 mb-2';
+                titleElement.className = 'display-4 mb-2'; // Moderate title size
+                titleElement.style.fontSize = '26pt'; // Explicitly set title font size
                 titleWrapper.appendChild(titleElement);
             }
             
@@ -201,7 +229,8 @@ const pdfLib = require('pdf-lib');
             if (description) {
                 const descriptionElement = document.createElement('p');
                 descriptionElement.textContent = description;
-                descriptionElement.className = 'lead text-muted';
+                descriptionElement.className = 'lead';
+                descriptionElement.style.fontSize = '16pt'; // Explicitly set description font size
                 titleWrapper.appendChild(descriptionElement);
             }
             
@@ -235,12 +264,202 @@ const pdfLib = require('pdf-lib');
                 element.remove();
             });
 
-            // Set terms and defs backgrounds to white to save ink when printing
+            // Improve styling for definition terms and descriptions
             const termsAndDefs = document.querySelectorAll('dt,dd');
             termsAndDefs.forEach((element) => {
+                // Base styling for all terms and definitions
                 element.style.backgroundColor = 'white';
                 element.style.border = 'none';
+                element.style.pageBreakInside = 'avoid'; // Avoid page breaks within terms/definitions
+                
+                if (element.tagName === 'DT') {
+                    // Styling specifically for definition terms
+                    element.style.fontWeight = 'bold';
+                    element.style.marginTop = '1.3em';
+                    element.style.paddingBottom = '0.4em';
+                    element.style.borderBottom = '1px solid #e0e0e0';
+                    element.style.fontSize = '16pt'; // Moderate font size for definition terms
+                } else if (element.tagName === 'DD') {
+                    // Styling specifically for definition descriptions
+                    element.style.paddingLeft = '1.5em';
+                    element.style.paddingTop = '0.6em';
+                    element.style.paddingBottom = '0.8em';
+                    element.style.marginBottom = '0.8em';
+                    element.style.textAlign = 'justify';
+                    element.style.fontSize = '14pt'; // Moderate font size for definition descriptions
+                    
+                    // Style tables inside definition descriptions
+                    const tables = element.querySelectorAll('table');
+                    tables.forEach(table => {
+                        table.style.width = '100%';
+                        table.style.marginTop = '0.6em';
+                        table.style.marginBottom = '0.6em';
+                        table.style.borderCollapse = 'collapse';
+                        
+                        // Style table cells
+                        const cells = table.querySelectorAll('th, td');
+                        cells.forEach(cell => {
+                            cell.style.border = '1px solid #ddd';
+                            cell.style.padding = '0.4em';
+                            cell.style.fontSize = '13pt'; // Moderate font size for table cells
+                        });
+                    });
+                }
             });
+            
+            // Ensure proper spacing between definition groups
+            const dts = document.querySelectorAll('dt');
+            dts.forEach((dt, index) => {
+                if (index > 0) {
+                    dt.style.marginTop = '2em'; // Add moderate space between definition groups
+                }
+            });
+            
+            // Set moderate font size for paragraphs and list items
+            document.querySelectorAll('p, li').forEach(element => {
+                element.style.fontSize = '14pt'; // Moderate size for paragraphs and lists
+                element.style.margin = '0.4em 0';
+                element.style.lineHeight = '1.5';
+            });
+            
+            // Set moderate font size for code blocks and inline code
+            document.querySelectorAll('pre code, code').forEach(element => {
+                element.style.fontSize = '13pt'; // Moderate size for code blocks
+            });
+        });
+
+        // Add hierarchical section numbering for PDF output only
+        await page.evaluate(() => {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @media print {
+                    /* Base styles for all numbered elements */
+                    article#content h1, 
+                    article#content h2, 
+                    article#content h3, 
+                    article#content h4, 
+                    article#content h5, 
+                    article#content h6, 
+                    article#content dt {
+                        position: relative;
+                        padding-left: 2.8em; /* Moderate padding for better readability */
+                        text-indent: 0;
+                    }
+                    
+                    /* Number styling for all heading levels */
+                    article#content h1::before, 
+                    article#content h2::before, 
+                    article#content h3::before, 
+                    article#content h4::before, 
+                    article#content h5::before, 
+                    article#content h6::before, 
+                    article#content dt::before {
+                        position: absolute;
+                        left: 0;
+                        font-weight: bold;
+                        color: #333;
+                        font-size: 100%; /* Match the font size of the respective heading */
+                    }
+
+                    /* Counter setup for the root element */
+                    article#content {
+                        counter-reset: h1;
+                    }
+
+                    /* Level 1 headings */
+                    article#content h1 {
+                        counter-increment: h1;
+                        counter-reset: h2;
+                        padding-left: 1.9em; /* Specific padding for h1 */
+                    }
+                    
+                    article#content h1::before {
+                        content: counter(h1) ".";
+                    }
+
+                    /* Level 2 headings */
+                    article#content h2 {
+                        counter-increment: h2;
+                        counter-reset: h3;
+                        padding-left: 2.6em; /* Specific padding for h2 */
+                    }
+                    
+                    article#content h2::before {
+                        content: counter(h1) "." counter(h2) ".";
+                    }
+
+                    /* Level 3 headings */
+                    article#content h3 {
+                        counter-increment: h3;
+                        counter-reset: h4;
+                        padding-left: 3.3em; /* Specific padding for h3 */
+                    }
+                    
+                    article#content h3::before {
+                        content: counter(h1) "." counter(h2) "." counter(h3) ".";
+                    }
+
+                    /* Level 4 headings */
+                    article#content h4 {
+                        counter-increment: h4;
+                        counter-reset: h5;
+                        padding-left: 4em; /* Specific padding for h4 */
+                    }
+                    
+                    article#content h4::before {
+                        content: counter(h1) "." counter(h2) "." counter(h3) "." counter(h4) ".";
+                    }
+
+                    /* Level 5 headings */
+                    article#content h5 {
+                        counter-increment: h5;
+                        counter-reset: h6;
+                        padding-left: 4.7em; /* Specific padding for h5 */
+                    }
+                    
+                    article#content h5::before {
+                        content: counter(h1) "." counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) ".";
+                    }
+
+                    /* Level 6 headings */
+                    article#content h6 {
+                        counter-increment: h6;
+                        padding-left: 5.4em; /* Specific padding for h6 */
+                    }
+                    
+                    article#content h6::before {
+                        content: counter(h1) "." counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) "." counter(h6) ".";
+                    }
+
+                    /* Definition terms - treat as level 3 since they appear under level 2 headings */
+                    article#content dt {
+                        counter-increment: h3;
+                        padding-left: 3.3em; /* Match h3 padding */
+                    }
+                    
+                    article#content dt::before {
+                        content: counter(h1) "." counter(h2) "." counter(h3) ".";
+                        position: absolute;
+                        left: 0;
+                        /* Improve vertical alignment with the text */
+                        top: 50%;
+                        transform: translateY(-50%);
+                        line-height: normal;
+                    }
+                    
+                    /* Add spacing after the numbers */
+                    article#content h1::before, 
+                    article#content h2::before, 
+                    article#content h3::before, 
+                    article#content h4::before, 
+                    article#content h5::before, 
+                    article#content h6::before, 
+                    article#content dt::before {
+                        margin-right: 0.4em;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
         });
 
         // Generate the PDF with optimized settings
@@ -252,10 +471,10 @@ const pdfLib = require('pdf-lib');
             printBackground: true, // Enable background graphics for Bootstrap styling
             quality: 100, // Maximum quality for images
             margin: {
-                top: '15mm',
-                bottom: '15mm',
-                left: '15mm',
-                right: '15mm',
+                top: '18mm', // Moderate margins for better readability
+                bottom: '18mm',
+                left: '18mm',
+                right: '18mm',
             }
         });
 
