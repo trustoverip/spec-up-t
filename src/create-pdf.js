@@ -19,6 +19,12 @@ const pdfLib = require('pdf-lib');
 
         // Extract the output_path from the specs.json file
         const outputPath = config.specs[0].output_path;
+        
+        // Extract title and description from the config
+        const title = config.specs[0].title || '';
+        const description = config.specs[0].description || '';
+        const logo = config.specs[0].logo || '';
+        const logoLink = config.specs[0].logo_link || '#';
 
         // Define the path to the HTML file based on the directory where the script is called from
         const filePath = path.resolve(process.cwd(), outputPath, 'index.html');
@@ -66,6 +72,56 @@ const pdfLib = require('pdf-lib');
             `;
             document.head.appendChild(style);
         });
+
+        // Inject logo, title and description at the top of the document
+        await page.evaluate((logo, logoLink, title, description) => {
+            // Create wrapper for the logo, title and description
+            const titleWrapper = document.createElement('div');
+            titleWrapper.style.textAlign = 'center';
+            titleWrapper.style.marginBottom = '30px';
+            titleWrapper.style.padding = '20px';
+            titleWrapper.style.borderBottom = '1px solid #ccc';
+            
+            // Add the logo if it exists
+            if (logo) {
+                const logoContainer = document.createElement('a');
+                logoContainer.href = logoLink || '#';
+                logoContainer.style.display = 'block';
+                logoContainer.style.marginBottom = '15px';
+                
+                const logoImg = document.createElement('img');
+                logoImg.src = logo;
+                logoImg.style.maxHeight = '80px';
+                logoImg.style.maxWidth = '100%';
+                logoImg.alt = title || 'Logo';
+                
+                logoContainer.appendChild(logoImg);
+                titleWrapper.appendChild(logoContainer);
+            }
+            
+            // Create and style the title element
+            if (title) {
+                const titleElement = document.createElement('h1');
+                titleElement.textContent = title;
+                titleElement.style.fontSize = '24px';
+                titleElement.style.fontWeight = 'bold';
+                titleElement.style.marginBottom = '10px';
+                titleWrapper.appendChild(titleElement);
+            }
+            
+            // Create and style the description element
+            if (description) {
+                const descriptionElement = document.createElement('p');
+                descriptionElement.textContent = description;
+                descriptionElement.style.fontSize = '16px';
+                descriptionElement.style.color = '#555';
+                titleWrapper.appendChild(descriptionElement);
+            }
+            
+            // Insert at the top of the body
+            const body = document.body;
+            body.insertBefore(titleWrapper, body.firstChild);
+        }, logo, logoLink, title, description);
 
         // Remove or hide the search bar or any other element
         await page.evaluate(() => {
