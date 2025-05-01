@@ -93,7 +93,7 @@ const pdfLib = require('pdf-lib');
             //     img.remove();
             // });
 
-            const displayNoneInPdf = document.querySelectorAll('#header span, #container-search-h7vc6omi2hr2880, .btn'); // Adjust the selector as needed
+            const displayNoneInPdf = document.querySelectorAll('.exclude-in-print'); // Adjust the selector as needed
             if (displayNoneInPdf) {
                 displayNoneInPdf.forEach((element) => {
                     element.remove();
