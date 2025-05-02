@@ -506,6 +506,11 @@ module.exports = async function (options = {}) {
         // Sort definition terms case-insensitively before final rendering
         renderedHtml = sortDefinitionTermsInHtml(renderedHtml);
 
+        // Process external references to ensure they are inserted as raw HTML, not as JSON string
+        const externalReferencesHtml = Array.isArray(externalReferences) 
+          ? externalReferences.join('') 
+          : (externalReferences || '');
+
         const templateInterpolated = interpolate(template, {
           title: spec.title,
           description: spec.description,
@@ -516,7 +521,7 @@ module.exports = async function (options = {}) {
           assetsBody: assets.body,
           assetsSvg: assets.svg,
           features: Object.keys(features).join(' '),
-          externalReferences: JSON.stringify(externalReferences),
+          externalReferences: externalReferencesHtml,
           xtrefsData: xtrefsData,
           specLogo: spec.logo,
           specFavicon: spec.favicon,
