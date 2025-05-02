@@ -60,7 +60,7 @@ delegateEvent('pointerover', '.term-reference, .spec-reference', (e, anchor) => 
   let tip = {
     allowHTML: true,
     inlinePositioning: true
-  } 
+  };
   switch (container.tagName) {
     case 'DT':
       tip.content = container.nextElementSibling.textContent;
