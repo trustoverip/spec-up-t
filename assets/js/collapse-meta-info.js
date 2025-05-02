@@ -1,7 +1,7 @@
 /**
  * @file This file creates a collapsible meta info section for each term definition on the page. It is used to hide meta information about a term definition by default and show it when the user clicks the button.
  * @author Kor Dwarshuis
- * @version 0.0.1
+ * @version 0.0.2
  * @since 2025-02-16
  */
 
@@ -13,12 +13,22 @@ function createToggleButton(element) {
     toggleButton.title = 'Meta info';
 
     // Add event listener to the button
-    toggleButton.addEventListener('click', function () {
-        element.classList.toggle('collapsed');
-        if (element.classList.contains('collapsed')) {
-            this.textContent = 'ℹ️';
+    toggleButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Get the wrapper containing the meta info
+        const isCollapsed = element.classList.contains('collapsed');
+        
+        // Toggle the collapsed state
+        if (isCollapsed) {
+            // If collapsed, expand it
+            element.classList.remove('collapsed');
+            // Force reflow to ensure transition works properly
+            element.getBoundingClientRect();
         } else {
-            this.textContent = 'ℹ️';
+            // If expanded, collapse it
+            element.classList.add('collapsed');
         }
     });
 
@@ -36,25 +46,29 @@ function createToggleButton(element) {
 }
 
 // Find all elements with class 'collapsible' and make them collapsible
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     const collapsibles = document.querySelectorAll('dl > dd:has(table)');
 
-    collapsibles.forEach(function (element) {
-        // Wrap content (excluding button) in a div for easy toggling
+    collapsibles.forEach(function(element) {
+        // Add meta-info-content-wrapper class
+        element.classList.add('meta-info-content-wrapper');
+        
+        // Wrap content in a div for proper spacing
         const wrapper = document.createElement('div');
+        wrapper.classList.add('meta-info-inner-wrapper');
 
         // Move all children except potential existing buttons into wrapper
         while (element.firstChild && element.firstChild !== element.querySelector('.meta-info-toggle-button')) {
             wrapper.appendChild(element.firstChild);
         }
 
-        if (!element.querySelector('.meta-info-toggle-button')) { // Check if already has a button from previous runs or other scripts
+        if (!element.querySelector('.meta-info-toggle-button')) { // Check if already has a button
             createToggleButton(element);
         }
 
         element.appendChild(wrapper);
 
-        // Optionally collapse by default on load (remove this line or modify as needed)
+        // Collapse by default on load
         element.classList.add('collapsed');
     });
 });

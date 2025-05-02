@@ -1,114 +1,19 @@
 /**
- * @fileoverview Inserts transcluded external references (trefs) into the document.
- *
- * This script enhances an HTML document by adding definitions and meta information
- * for terms marked with `<span class="transcluded-xref-term">` inside `<dt>` elements
- * within a `<dl>` structure. It matches these terms against an external data source,
- * renders the corresponding content and meta information from markdown to HTML,
- * and inserts them as `<dd>` elements following each matching `<dt>`. The script
- * executes automatically when the DOM is fully loaded via a `DOMContentLoaded` event listener.
- *
- * ### Dependencies
- * - **`allXTrefs`**: A global object containing the external references to be transcluded.
- * - **`md`**: A markdown renderer object with a `render` method to convert markdown to HTML.
- *
- * ### Data Structure
- * The `allXTrefs` object must have the following structure:
- * ```javascript
- * {
- *   xtrefs: [
- *     {
- *       term: string,          // The term to match against the <span> text content
- *       content: string,       // Markdown content for the definition
- *       owner: string,         // Owner of the source repository
- *       repo: string,          // Repository name
- *       repoUrl: string,       // URL to the repository
- *       commitHash: string,    // Commit hash of the source
- *       avatarUrl: string      // URL to the owner's avatar
- *     },
- *     // Additional reference objects...
- *   ]
- * }
- * ```
- *
- * ### Behavior
- * The script:
- * 1. Identifies all `<dt>` elements containing `<span class="transcluded-xref-term">`.
- * 2. Extracts the text content of each `<span>`.
- * 3. Searches for a matching `term` in `allXTrefs.xtrefs`.
- * 4. If a match is found, creates:
- *    - A `<dd>` element with the rendered `content` (markdown to HTML).
- *    - A `<dd>` element with meta information (e.g., owner, repo, commit hash) also rendered from markdown.
- * 5. Inserts these `<dd>` elements after the corresponding `<dt>`.
- *
- * ### DOM Modifications
- * The script modifies the DOM by appending new `<dd>` elements after each matching `<dt>`.
- *
- * @requires {Object} allXTrefs - The external data source containing the references.
- * @requires {Object} md - A markdown renderer with a `render` method (e.g., marked.js or similar).
- *
- * @example
- * // Define dependencies in a <script> tag before this script:
- * window.allXTrefs = {
- *   xtrefs: [
- *     {
- *       term: "example",
- *       content: "This is an **example** definition.",
- *       owner: "user",
- *       repo: "glossary",
- *       repoUrl: "https://github.com/user/glossary",
- *       commitHash: "abc123",
- *       avatarUrl: "https://github.com/user.png"
- *     }
- *   ]
- * };
- * window.md = { render: function(markdown) { return "<p>" + markdown + "</p>"; } };
- *
- * // HTML example:
- * // <dl>
- * //   <dt><span class="transcluded-xref-term">example</span></dt>
- * // </dl>
- * // After script execution:
- * // <dl>
- * //   <dt><span class="transcluded-xref-term">example</span></dt>
- * //   <dd> … table with meta info … </dd>
- * //   <dd><p>This is an <strong>example</strong> definition.</p></dd>
- * // </dl>
+ * @fileoverview Handles the insertion of transcluded external references (xrefs) into HTML documentation.
+ * This script processes terms marked with a specific class and adds their definitions from external sources.
  */
 
+/**
+ * Inserts transcluded external references into the document.
+ * @param {Object} allXTrefs - The object containing all external references data
+ * @param {Array} allXTrefs.xtrefs - Array of external reference objects, each containing term definitions
+ */
 function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
-   function addClassToTranscludedTerms() {
-      // Find all spans with class 'transcluded-xref-term'
-      const spans = document.querySelectorAll('span.transcluded-xref-term');
-
-      spans.forEach(span => {
-         // Find the closest <dt> ancestor
-         const dt = span.closest('dt');
-         if (dt) {
-            // Add class 'transcluded-xref-term' to the <dt>
-            dt.classList.add('transcluded-xref-term');
-
-            // Get the next sibling elements until the next <dt> or </dl>
-            let sibling = dt.nextElementSibling;
-            let lastDD = null; // Track the last DD element
-
-            while (sibling && sibling.tagName !== 'DT' && sibling.tagName !== 'DL') {
-               if (sibling.tagName === 'DD') {
-                  // Ensure the dd element has the transcluded-xref-term class
-                  sibling.classList.add('transcluded-xref-term');
-                  lastDD = sibling; // Update the last DD reference
-               }
-               sibling = sibling.nextElementSibling;
-            }
-
-            // Add the "last-dd" class to the last DD if found
-            if (lastDD) {
-               lastDD.classList.add('last-dd');
-            }
-         }
-      });
-   }
-
+   /**
+    * Processes all terms found in the document and inserts their corresponding content
+    * @param {Object} xtrefsData - The object containing xtrefs data
+    * @param {Array} xtrefsData.xtrefs - Array of external reference objects
+    */
    function processTerms(xtrefsData) {
       // First collect all terms to ensure consistent processing order
       const allTerms = [];
@@ -181,13 +86,19 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
             // If there are dd elements in the rendered content, insert them directly
             const ddElements = tempDiv.querySelectorAll('dd');
             if (ddElements.length > 0) {
-               // Insert each dd element directly after the meta info
+               // Insert each dd element in the correct order
+               let insertPosition = metaInfoEl; // Start inserting after the meta info element
+               
+               // Convert NodeList to Array and insert in original order
                Array.from(ddElements).forEach(dd => {
                   // Clone the node to avoid removing it from tempDiv during insertion
                   const clonedDD = dd.cloneNode(true);
                   // Add necessary classes
                   clonedDD.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
-                  parent.insertBefore(clonedDD, metaInfoEl.nextSibling);
+                  // Insert after the previous element
+                  parent.insertBefore(clonedDD, insertPosition.nextSibling);
+                  // Update insertion position to be after this newly inserted element
+                  insertPosition = clonedDD;
                });
             } else {
                // No dd elements found, create one to hold the content
@@ -219,8 +130,6 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
             notFoundEl.innerHTML = '<p>This term was not found in the external repository.</p>';
             parent.insertBefore(notFoundEl, metaInfoEl.nextSibling);
          }
-
-         addClassToTranscludedTerms();
       });
    }
 
@@ -231,6 +140,10 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
    }
 }
 
+/**
+ * Initialize the transcluded references when the DOM is fully loaded.
+ * Checks for the global allXTrefs object and calls insertTrefs if available.
+ */
 document.addEventListener('DOMContentLoaded', () => {
    // Check if allXTrefs is defined in the global scope
    if (typeof allXTrefs !== 'undefined') {

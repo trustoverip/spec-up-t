@@ -109,7 +109,7 @@
 
     <header id="header" class="navbar sticky-top p-0 shadow">
         <!-- Left-aligned elements -->
-        <button class="nav-link px-3 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
+        <button class="nav-link d-print-none px-3 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
             aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
             <svg class="bi">
                 <use xlink:href="#list" />
@@ -117,7 +117,7 @@
         </button>
 
         <a id="logo" href="${specLogoLink}">
-            <img class="m-1" src="${specLogo}" alt="" />
+            <img class="d-print-none m-1" src="${specLogo}" alt="" />
         </a>
         <!-- <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="#">Spec-Up-T</a> -->
 
@@ -125,7 +125,7 @@
         <div class="flex-grow-1"></div>
 
         <!-- Right-aligned elements -->
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center service-menu d-print-none">
 
             <!-- Settings side menu -->
             <button id="repo_settings" animate class="btn btn-sm btn-outline-secondary ms-2" type="button"
@@ -197,7 +197,7 @@
 
     <div class="container">
         <div class="row">
-            <div class="sidebar border border-right col-md-4 col-lg-3 bg-body-tertiary">
+            <div class="sidebar d-print-none border border-right col-md-4 col-lg-3 bg-body-tertiary">
                 <div class="offcanvas-md offcanvas-start bg-body-tertiary p-2 pt-5" tabindex="-1" id="sidebarMenu"
                     aria-labelledby="sidebarMenuLabel">
                     <div class="offcanvas-header">
@@ -215,7 +215,7 @@
 
             <main class="col-md-8 ms-sm-auto col-lg-9 px-md-4 pt-5">
                 <article id="content" class="">
-                    <div id="terminology-section-utility-container" class="alert alert-primary p-3"></div>
+                    <div id="terminology-section-utility-container" class="d-print-none alert alert-primary p-3"></div>
                     ${render}
                 </article>
 

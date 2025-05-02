@@ -50,17 +50,32 @@ dl.terms-and-definitions-list {
   z-index: 1; /* Set a baseline z-index for the whole list */
 }
 
+/* ====== DEFAULT STYLING ====== */
 /* Term styling (dt) */
 dl.terms-and-definitions-list > dt {
   font-weight: 700;
   margin: 0;
   background-color: var(--card-bg-dt);
   border: 1px solid var(--card-border);
-  padding: 0.1rem 1.25rem;
+  padding: 0.5rem 1.25rem; /* Increased vertical padding for better readability */
   border-radius: 0.375rem 0.375rem 0 0;
   box-shadow: 0 0.125rem 0.25rem var(--card-shadow);
   color: var(--card-text);
   position: relative; /* Position relative for stacking */
+  line-height: 1.5; /* Improve line spacing */
+  font-size: 1.05em; /* Slightly larger font for better hierarchy */
+  align-items: center; /* Vertically center the content */
+}
+
+/* This adds spacing between the term text and the buttons */
+dl.terms-and-definitions-list > dt > span {
+  margin-right: 1.5em; /* Add spacing to the right of the term text */
+}
+
+
+/* Increase the size for all buttons in definition terms */
+dl.terms-and-definitions-list > dt .btn {
+  font-size: 1.2em !important; /* Increase button size */
 }
 
 dl.terms-and-definitions-list > dt:hover {
@@ -68,23 +83,56 @@ dl.terms-and-definitions-list > dt:hover {
   transition: background-color 0.2s ease-in-out;
 }
 
-/* Definition styling (dd) */
+/* Add a subtle indicator to each term */
+dl.terms-and-definitions-list > dt::before {
+  content: "";
+  width: 4px;
+  height: 70%;
+  background-color: #73c2df;
+  position: absolute;
+  left: 0;
+  border-radius: 0 2px 2px 0;
+}
+
+/* Definition styling (dd) - using the original simpler styling */
 dl.terms-and-definitions-list > dd {
   margin: 0;
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-top: none;
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 2rem;
   color: var(--card-text);
-  overflow: scroll;
   width: 100%;
-  position: relative; /* Position relative for stacking */
+  position: relative;
 }
 
-/* Style paragraphs inside dd */
+/* Style paragraphs inside dd - using original styling */
 dl.terms-and-definitions-list dd p {
-  margin: 0;
+  margin: 0; /* Original margin for paragraphs */
   color: var(--card-text);
+  padding-left: 0.5rem;
+}
+
+/* Remove the blue line indicator for dd */
+dl.terms-and-definitions-list > dd::before {
+  display: none;
+}
+
+/* Improve table styling in definitions */
+dl.terms-and-definitions-list dd table {
+  margin: 1em 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+dl.terms-and-definitions-list dd table th,
+dl.terms-and-definitions-list dd table td {
+  padding: 0.5em;
+  border: 1px solid #ddd;
+}
+
+dl.terms-and-definitions-list dd table th {
+  background-color: #f5f5f5;
 }
 
 /* Borders and spacing between elements */
@@ -105,6 +153,28 @@ dl.terms-and-definitions-list dd + dt {
 dl.terms-and-definitions-list dd.last-dd {
   border-radius: 0 0 0.375rem 0.375rem;
   border-bottom: 1px solid var(--card-border);
+}
+
+/* ====== DENSE INFO STYLING ====== */
+/* Apply original, more condensed styling when the html element has class "dense-info" */
+html.dense-info dl.terms-and-definitions-list > dt {
+  padding: 0.1rem 1.25rem;
+  display: block; /* Revert from flexbox to block */
+  line-height: inherit;
+  font-size: inherit;
+}
+
+html.dense-info dl.terms-and-definitions-list > dt::before {
+  display: none; /* Remove the blue indicator bar */
+}
+
+html.dense-info dl.terms-and-definitions-list > dt > span {
+  margin-right: 0; /* Remove spacing for term text */
+}
+
+/* No need to change dd styling in dense-info mode since it's already using the original styling */
+html.dense-info dl.terms-and-definitions-list > dd {
+  padding: 0.75rem 1.25rem;
 }
 
 /* ====== TRANSCLUSIONS STYLING ====== */

@@ -174,7 +174,7 @@ module.exports = async function (options = {}) {
         tocLastLevel: 4,
         tocCallback: (_md, _tokens, html) => toc = html,
         anchorLinkSymbol: '#', // was: §
-        anchorClassName: 'toc-anchor'
+        anchorClassName: 'toc-anchor d-print-none'
       })
       .use(require('@traptitech/markdown-it-katex'))
 
