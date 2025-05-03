@@ -189,6 +189,14 @@ module.exports = async function (options = {}) {
           return fs.readFileSync(path, 'utf8');
         }
       },
+      {
+        test: 'spec',
+        transform: function (originalMatch, type, name) {
+          // Simply return an empty string or special marker that won't be treated as a definition term
+          // The actual rendering will be handled by the markdown-it extension
+          return `<span class="spec-marker" data-spec="${name}"></span>`;
+        }
+      },
       /**
        * Custom replacer for tref tags that converts them directly to HTML definition term elements.
        * 
@@ -392,41 +400,27 @@ module.exports = async function (options = {}) {
         return dl.classList && dl.classList.contains('terms-and-definitions-list');
       });
 
-      // First special case - handle transcluded-xref-term dt that comes BEFORE the main dl
-      const transcludedTermsBeforeMainDl = document.querySelectorAll('dt.transcluded-xref-term');
+      // Find any transcluded term dt elements anywhere in the document
+      const transcludedTerms = document.querySelectorAll('dt.transcluded-xref-term');
+
       let mainDl = null;
 
-      // If we have an existing dl with the terms-and-definitions-list class, use it
-      if (dlElements.length > 0) {
-        mainDl = dlElements[0]; // Use the first one
-      }
       // If we have transcluded terms but no main dl, we need to create one
-      else if (transcludedTerms.length > 0) {
+      if (transcludedTerms.length > 0 && dlElements.length === 0) {
         // Create a new dl element with the right class
         mainDl = document.createElement('dl');
         mainDl.className = 'terms-and-definitions-list';
 
-        // Look for the marker
-        const marker = document.getElementById('terminology-section-start-h7vc6omi2hr2880');
-
-        if (marker) {
-          // Insert the new dl right after the marker
-          if (marker.nextSibling) {
-            marker.parentNode.insertBefore(mainDl, marker.nextSibling);
-          } else {
-            marker.parentNode.appendChild(mainDl);
-          }
-        } else {
-          // Fallback to the original approach if marker isn't found
-          const firstTerm = transcludedTerms[0];
-          const insertPoint = firstTerm.parentNode;
-          insertPoint.parentNode.insertBefore(mainDl, insertPoint);
-        }
-      }
-
-      // Safety check - if we still don't have a mainDl, exit early to avoid null reference errors
-      if (!mainDl) {
-        return html; // Return the original HTML without modifications
+        // Find a good location to insert it - use the first transcluded term's parent as reference
+        const firstTerm = transcludedTerms[0];
+        const insertPoint = firstTerm.parentNode;
+        insertPoint.parentNode.insertBefore(mainDl, insertPoint);
+      } else if (dlElements.length > 0) {
+        // Use the first terms-and-definitions-list as our main container
+        mainDl = dlElements[0];
+      } else {
+        // No dl and no transcluded terms, nothing to fix
+        return html;
       }
 
       // Now process all transcluded terms and other dt elements
@@ -443,62 +437,56 @@ module.exports = async function (options = {}) {
       // First special case - handle transcluded-xref-term dt that comes BEFORE the main dl
       const transcludedTermsBeforeMainDl = document.querySelectorAll('dt.transcluded-xref-term');
 
-        // Special handling for transcluded terms that appear BEFORE the main dl
-        transcludedTermsBeforeMainDl.forEach(dt => {
-          // Check if this dt is not already inside a dl.terms-and-definitions-list
-          if (!dt.parentElement.classList.contains('terms-and-definitions-list')) {
-            // This is a dt outside our main list - move it into the main dl at the beginning
-            const dtClone = dt.cloneNode(true);
-            mainDl.insertBefore(dtClone, mainDl.firstChild);
-            dt.parentNode.removeChild(dt);
-          }
-        });
-
-        // Remove any empty dt elements that may exist
-        const emptyDts = mainDl.querySelectorAll('dt:empty');
-        emptyDts.forEach(emptyDt => {
-          emptyDt.parentNode.removeChild(emptyDt);
-        });
-
-        // Process all subsequent content after the main dl
-        let currentNode = mainDl.nextSibling;
-
-        // Process all subsequent content
-        while (currentNode) {
-          // Save the next node before potentially modifying the DOM
-          // (This is important because modifying the DOM can invalidate our references)
-          const nextNode = currentNode.nextSibling;
-
-          // Handle different node types
-          if (currentNode.nodeType === 1) { // 1 = Element node
-            if (currentNode.tagName === 'DL') {
-              // Found another definition list - move all its children to the main dl
-              // This effectively merges the two lists into one
-              while (currentNode.firstChild) {
-                mainDl.appendChild(currentNode.firstChild);
-              }
-
-              // Remove the now-empty dl element
-              currentNode.parentNode.removeChild(currentNode);
-            }
-            else if (currentNode.tagName === 'DT') {
-              // Found a standalone dt (like our transcluded tref terms)
-              // Move it into the main dl to maintain continuity
-              const dtClone = currentNode.cloneNode(true);
-              mainDl.appendChild(dtClone);
-              currentNode.parentNode.removeChild(currentNode);
-            }
-            else if (currentNode.tagName === 'P' &&
-              (!currentNode.textContent || currentNode.textContent.trim() === '')) {
-              // Remove empty paragraphs - these break the list structure
-              // Empty <p></p> tags often appear between dl elements
-              currentNode.parentNode.removeChild(currentNode);
-            }
-          }
-
-          // Move to the next node we saved earlier
-          currentNode = nextNode;
+      // Special handling for transcluded terms that appear BEFORE the main dl
+      transcludedTermsBeforeMainDl.forEach(dt => {
+        // Check if this dt is not already inside our main list
+        if (dt.parentElement !== mainDl) {
+          // This is a dt outside our main list - move it into the main dl
+          const dtClone = dt.cloneNode(true);
+          mainDl.appendChild(dtClone);
+          dt.parentNode.removeChild(dt);
         }
+      });
+
+      // Remove any empty dt elements that may exist
+      const emptyDts = mainDl.querySelectorAll('dt:empty');
+      emptyDts.forEach(emptyDt => {
+        emptyDt.parentNode.removeChild(emptyDt);
+      });
+
+      // Process all subsequent content after the main dl
+      let currentNode = mainDl.nextSibling;
+
+      // Process all subsequent content
+      while (currentNode) {
+        // Save the next node before potentially modifying the DOM
+        const nextNode = currentNode.nextSibling;
+
+        // Handle different node types
+        if (currentNode.nodeType === 1) { // 1 = Element node
+          if (currentNode.tagName === 'DL') {
+            // Found another definition list - move all its children to the main dl
+            while (currentNode.firstChild) {
+              mainDl.appendChild(currentNode.firstChild);
+            }
+            // Remove the now-empty dl element
+            currentNode.parentNode.removeChild(currentNode);
+          }
+          else if (currentNode.tagName === 'DT') {
+            // Found a standalone dt - move it into the main dl
+            const dtClone = currentNode.cloneNode(true);
+            mainDl.appendChild(dtClone);
+            currentNode.parentNode.removeChild(currentNode);
+          }
+          else if (currentNode.tagName === 'P' &&
+            (!currentNode.textContent || currentNode.textContent.trim() === '')) {
+            // Remove empty paragraphs - these break the list structure
+            currentNode.parentNode.removeChild(currentNode);
+          }
+        }
+
+        // Move to the next node we saved earlier
+        currentNode = nextNode;
       }
 
       // Return the fixed HTML
