@@ -82,21 +82,21 @@ dl.terms-and-definitions-list > dt:hover {
   transition: background-color 0.2s ease-in-out;
 }
 
-/* Definition styling (dd) - using the original simpler styling */
+/* Definition styling (dd) */
 dl.terms-and-definitions-list > dd {
   margin: 0;
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-top: none;
-  padding: 0.75rem 2rem;
+  padding: 0.5rem 2rem;
   color: var(--card-text);
   width: 100%;
   position: relative;
 }
 
-/* Style paragraphs inside dd - using original styling */
+/* Style paragraphs inside dd */
 dl.terms-and-definitions-list dd p {
-  margin: 0; /* Original margin for paragraphs */
+  margin: 0;
   color: var(--card-text);
   padding-left: 0.5rem;
 }
@@ -108,7 +108,7 @@ dl.terms-and-definitions-list > dd::before {
 
 /* Improve table styling in definitions */
 dl.terms-and-definitions-list dd table {
-  margin: 1em 0;
+  margin: 0.5em 0;
   width: 100%;
   border-collapse: collapse;
 }
@@ -134,7 +134,7 @@ dl.terms-and-definitions-list dd + dd {
 }
 
 dl.terms-and-definitions-list dd + dt {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
 }
 
 /* Last definition in a group */
@@ -152,17 +152,16 @@ html.dense-info dl.terms-and-definitions-list > dt {
   font-size: inherit;
 }
 
+html.dense-info dl.terms-and-definitions-list dd+dt {
+  margin-top: 0.3rem;
+}
+
 html.dense-info dl.terms-and-definitions-list > dt::before {
   display: none; /* Remove the blue indicator bar */
 }
 
 html.dense-info dl.terms-and-definitions-list > dt > span {
   margin-right: 0; /* Remove spacing for term text */
-}
-
-/* No need to change dd styling in dense-info mode since it's already using the original styling */
-html.dense-info dl.terms-and-definitions-list > dd {
-  padding: 0.75rem 1.25rem;
 }
 
 /* ====== TRANSCLUSIONS STYLING ====== */
@@ -191,23 +190,15 @@ dd.transcluded-xref-term {
 .transclusion-heading {
   font-size: 1.3em;
   font-weight: bold;
-  margin: 1em 0 0.5em;
+  margin: 0.2em 0 0.2em;
 }
 
 /* Embedded transclusions in definition lists */
 dl.terms-and-definitions-list > dd.transcluded-xref-term-embedded {
   position: relative;
   padding-left: 2.5rem;
-}
-
-dl.terms-and-definitions-list > dd.transcluded-xref-term-embedded::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 2rem;
-  border-right: 1px dashed #a9dde0;
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
 }
 
 /* Arrow styling for transclusions */
@@ -229,16 +220,6 @@ dl.terms-and-definitions-list span.transcluded-xref-term::after {
 dl.terms-and-definitions-list span.transcluded-xref-term {
   padding-left: 1.5rem;
   display: inline-block;
-}
-
-dl.terms-and-definitions-list span.transcluded-xref-term::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 1.2rem;
-  border-right: 1px dashed #a9dde0;
 }
 
 dl.terms-and-definitions-list span.transcluded-xref-term::after {
