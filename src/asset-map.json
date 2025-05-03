@@ -48,6 +48,7 @@
       "assets/js/create-alphabet-index.js",
       "assets/js/search.js",
       "assets/js/highlightMenuItems.js",
+      "assets/js/collapsibleMenu.js",
       "assets/js/backToTop.js",
       "assets/js/addAnchorsToTerms.js",
       "assets/js/copyAnchorToCliboard.js",
