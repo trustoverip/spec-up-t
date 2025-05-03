@@ -59,7 +59,6 @@ dl.terms-and-definitions-list > dt {
   border: 1px solid var(--card-border);
   padding: 0.5rem 1.25rem; /* Increased vertical padding for better readability */
   border-radius: 0.375rem 0.375rem 0 0;
-  box-shadow: 0 0.125rem 0.25rem var(--card-shadow);
   color: var(--card-text);
   position: relative; /* Position relative for stacking */
   line-height: 1.5; /* Improve line spacing */
