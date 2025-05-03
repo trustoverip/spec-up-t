@@ -396,9 +396,52 @@ module.exports = async function (options = {}) {
       const transcludedTermsBeforeMainDl = document.querySelectorAll('dt.transcluded-xref-term');
       let mainDl = null;
 
+      // If we have an existing dl with the terms-and-definitions-list class, use it
       if (dlElements.length > 0) {
-        // Use the first terms-and-definitions-list as our main container
-        mainDl = dlElements[0];
+        mainDl = dlElements[0]; // Use the first one
+      }
+      // If we have transcluded terms but no main dl, we need to create one
+      else if (transcludedTerms.length > 0) {
+        // Create a new dl element with the right class
+        mainDl = document.createElement('dl');
+        mainDl.className = 'terms-and-definitions-list';
+
+        // Look for the marker
+        const marker = document.getElementById('terminology-section-start-h7vc6omi2hr2880');
+
+        if (marker) {
+          // Insert the new dl right after the marker
+          if (marker.nextSibling) {
+            marker.parentNode.insertBefore(mainDl, marker.nextSibling);
+          } else {
+            marker.parentNode.appendChild(mainDl);
+          }
+        } else {
+          // Fallback to the original approach if marker isn't found
+          const firstTerm = transcludedTerms[0];
+          const insertPoint = firstTerm.parentNode;
+          insertPoint.parentNode.insertBefore(mainDl, insertPoint);
+        }
+      }
+
+      // Safety check - if we still don't have a mainDl, exit early to avoid null reference errors
+      if (!mainDl) {
+        return html; // Return the original HTML without modifications
+      }
+
+      // Now process all transcluded terms and other dt elements
+      transcludedTerms.forEach(dt => {
+        // Check if this dt is not already inside our main dl
+        if (dt.parentElement !== mainDl) {
+          // Move it into the main dl
+          const dtClone = dt.cloneNode(true);
+          mainDl.appendChild(dtClone);
+          dt.parentNode.removeChild(dt);
+        }
+      });
+
+      // First special case - handle transcluded-xref-term dt that comes BEFORE the main dl
+      const transcludedTermsBeforeMainDl = document.querySelectorAll('dt.transcluded-xref-term');
 
         // Special handling for transcluded terms that appear BEFORE the main dl
         transcludedTermsBeforeMainDl.forEach(dt => {
