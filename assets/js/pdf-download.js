@@ -6,18 +6,18 @@
  */
 
 function pdfDownload() {
-   fetch('index.pdf', { method: 'HEAD' })
+   fetch('./index.pdf', { method: 'HEAD' })
       .then(response => {
          if (response.ok) {
             let buttonPdfDownload = document.createElement("a");
             buttonPdfDownload.classList.add("button-pdf-download");
-            buttonPdfDownload.classList.add("btn");
+            buttonPdfDownload.classList.add("btn", "d-block", "btn-sm", "btn-outline-secondary", "me-2");
             buttonPdfDownload.target = "_blank";
             buttonPdfDownload.rel = "noopener noreferrer";
-            buttonPdfDownload.href = "index.pdf";
+            buttonPdfDownload.href = "./index.pdf";
             buttonPdfDownload.title = "Download this page as a PDF";
             buttonPdfDownload.innerHTML = "PDF";
-            document.querySelector('#container-search-h7vc6omi2hr2880').appendChild(buttonPdfDownload);
+            document.querySelector('.service-menu').appendChild(buttonPdfDownload);
          } else {
             console.log('PDF file does not exist. No PDF download button will be added.');
          }
