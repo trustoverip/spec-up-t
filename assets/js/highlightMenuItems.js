@@ -18,6 +18,11 @@ function highlightMenuItems() {
       if (menuItem) {
          menuItem.classList.add("highlight-cfib41dyhcd99sm");
          menuItem.scrollIntoView({ behavior: "smooth", block: "center" });
+         
+         // Dispatch custom event for the collapsible menu to handle
+         document.dispatchEvent(new CustomEvent('highlight-menu-item', {
+            detail: { menuItem, headingId: heading.id }
+         }));
       }
    }
 
