@@ -82,17 +82,6 @@ dl.terms-and-definitions-list > dt:hover {
   transition: background-color 0.2s ease-in-out;
 }
 
-/* Add a subtle indicator to each term */
-dl.terms-and-definitions-list > dt::before {
-  content: "";
-  width: 4px;
-  height: 70%;
-  background-color: #73c2df;
-  position: absolute;
-  left: 0;
-  border-radius: 0 2px 2px 0;
-}
-
 /* Definition styling (dd) - using the original simpler styling */
 dl.terms-and-definitions-list > dd {
   margin: 0;
@@ -222,8 +211,7 @@ dl.terms-and-definitions-list > dd.transcluded-xref-term-embedded::before {
 }
 
 /* Arrow styling for transclusions */
-dl.terms-and-definitions-list span.transcluded-xref-term::after,
-dl.terms-and-definitions-list > dd.transcluded-xref-term-embedded::after {
+dl.terms-and-definitions-list span.transcluded-xref-term::after {
   content: "";
   position: absolute;
   left: 0.5rem;
