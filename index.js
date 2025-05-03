@@ -405,22 +405,37 @@ module.exports = async function (options = {}) {
 
       let mainDl = null;
 
+      // If we have an existing dl with the terms-and-definitions-list class, use it
+      if (dlElements.length > 0) {
+        mainDl = dlElements[0]; // Use the first one
+      }
       // If we have transcluded terms but no main dl, we need to create one
-      if (transcludedTerms.length > 0 && dlElements.length === 0) {
+      else if (transcludedTerms.length > 0) {
         // Create a new dl element with the right class
         mainDl = document.createElement('dl');
         mainDl.className = 'terms-and-definitions-list';
 
-        // Find a good location to insert it - use the first transcluded term's parent as reference
-        const firstTerm = transcludedTerms[0];
-        const insertPoint = firstTerm.parentNode;
-        insertPoint.parentNode.insertBefore(mainDl, insertPoint);
-      } else if (dlElements.length > 0) {
-        // Use the first terms-and-definitions-list as our main container
-        mainDl = dlElements[0];
-      } else {
-        // No dl and no transcluded terms, nothing to fix
-        return html;
+        // Look for the marker
+        const marker = document.getElementById('terminology-section-start-h7vc6omi2hr2880');
+
+        if (marker) {
+          // Insert the new dl right after the marker
+          if (marker.nextSibling) {
+            marker.parentNode.insertBefore(mainDl, marker.nextSibling);
+          } else {
+            marker.parentNode.appendChild(mainDl);
+          }
+        } else {
+          // Fallback to the original approach if marker isn't found
+          const firstTerm = transcludedTerms[0];
+          const insertPoint = firstTerm.parentNode;
+          insertPoint.parentNode.insertBefore(mainDl, insertPoint);
+        }
+      }
+
+      // Safety check - if we still don't have a mainDl, exit early to avoid null reference errors
+      if (!mainDl) {
+        return html; // Return the original HTML without modifications
       }
 
       // Now process all transcluded terms and other dt elements
