@@ -123,6 +123,55 @@ dl.terms-and-definitions-list dd table th {
   background-color: #f5f5f5;
 }
 
+/*
+  Make the meta-info tables collapsible
+*/
+
+/* Wrapper for meta info content */
+dl>dd:has(table).meta-info-content-wrapper {
+  display: block;
+  font-size: 0.7em;
+  position: relative;
+  max-height: none;
+  height: auto;
+  overflow: visible;
+  transition: all 0.3s ease-out;
+}
+
+dl>dd:has(table).meta-info-content-wrapper td,
+dl>dd:has(table).meta-info-content-wrapper th {
+  padding: 0.3em;
+}
+
+/* Collapsed state for meta info content */
+dl>dd:has(table).collapsed.meta-info-content-wrapper {
+  max-height: 0;
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-out;
+  line-height: 0;
+}
+
+/* The inner content wrapper to ensure proper spacing */
+dl>dd:has(table).meta-info-content-wrapper>div {
+  display: block;
+  padding: inherit;
+}
+
+/* Meta info toggle button */
+.meta-info-toggle-button {
+  position: relative;
+  cursor: pointer;
+}
+
+/*
+  END Make the meta-info tables collapsible
+*/
+
 /* Borders and spacing between elements */
 dl.terms-and-definitions-list dt + dd {
   border-bottom: none;
@@ -244,3 +293,4 @@ dl.terms-and-definitions-list span.transcluded-xref-term::after {
   font-variant: small-caps;
   text-transform: uppercase;
 }
+
