@@ -58,6 +58,33 @@ const pdfLib = require('pdf-lib');
             );
         }
 
+        // Force larger width on page content BEFORE injecting styles
+        await page.evaluate(() => {
+            // Select main content containers and expand them
+            const containers = document.querySelectorAll('.container, main, section, article, .content');
+            containers.forEach(container => {
+                container.style.maxWidth = '95%';
+                container.style.width = '95%';
+                container.style.margin = '0 auto';
+                container.style.padding = '0';
+            });
+            
+            // Override any Bootstrap column constraints
+            const columns = document.querySelectorAll('[class*="col-"]');
+            columns.forEach(col => {
+                col.style.maxWidth = '100%';
+                col.style.width = '100%';
+                col.style.paddingLeft = '0';
+                col.style.paddingRight = '0';
+            });
+            
+            // Ensure body takes full width
+            document.body.style.maxWidth = '100%';
+            document.body.style.width = '100%';
+            document.body.style.padding = '0';
+            document.body.style.margin = '0';
+        });
+
         // Inject Bootstrap CSS and PDF styles CSS - No inline styling
         await page.evaluate((bootstrapCss, pdfStylesCss) => {
             // Add bootstrap if it exists
@@ -144,7 +171,7 @@ const pdfLib = require('pdf-lib');
             preferCSSPageSize: true,
             printBackground: true,
             quality: 100,
-            margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' }
+            margin: { top: '10mm', bottom: '10mm', left: '3mm', right: '3mm' }
         });
 
         await browser.close();
