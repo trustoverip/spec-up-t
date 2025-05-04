@@ -1,7 +1,9 @@
 /* PDF Styling for optimized print layout */
 
+/* Target the pdf-document class that's added during PDF generation */
+
 /* Reset all margins and paddings */
-* {
+.pdf-document * {
   box-sizing: border-box !important;
 }
 
@@ -15,14 +17,14 @@ body.pdf-document {
 }
 
 /* Extremely aggressive content width adjustment */
-body.pdf-document .container,
-body.pdf-document main,
-body.pdf-document section,
-body.pdf-document article,
-body.pdf-document .content,
-body.pdf-document div[class*="container"],
-body.pdf-document div[class*="col-"],
-body.pdf-document .row {
+.pdf-document .container,
+.pdf-document main,
+.pdf-document section,
+.pdf-document article,
+.pdf-document .content,
+.pdf-document div[class*="container"],
+.pdf-document div[class*="col-"],
+.pdf-document .row {
   max-width: 95% !important;
   width: 95% !important;
   margin-left: auto !important;
@@ -32,29 +34,16 @@ body.pdf-document .row {
 }
 
 /* Override any Bootstrap container constraints */
-@media (min-width: 576px) {
-  .container, .container-sm {
-    max-width: 95% !important;
-  }
-}
-@media (min-width: 768px) {
-  .container, .container-md, .container-sm {
-    max-width: 95% !important;
-  }
-}
-@media (min-width: 992px) {
-  .container, .container-lg, .container-md, .container-sm {
-    max-width: 95% !important;
-  }
-}
-@media (min-width: 1200px) {
-  .container, .container-lg, .container-md, .container-sm, .container-xl {
-    max-width: 95% !important;
-  }
+.pdf-document .container, 
+.pdf-document .container-sm, 
+.pdf-document .container-md, 
+.pdf-document .container-lg, 
+.pdf-document .container-xl {
+  max-width: 95% !important;
 }
 
 /* Table adjustments */
-table {
+.pdf-document table {
   width: 100% !important;
   max-width: 100% !important;
   margin-bottom: 1rem;
@@ -62,19 +51,20 @@ table {
 }
 
 /* Header styling */
-.pdf-title {
+.pdf-document .pdf-title {
   font-size: 24pt !important;
   margin-bottom: 0.5rem !important;
 }
 
 /* Images in PDF */
-img {
+.pdf-document img {
   max-width: 100% !important;
   height: auto !important;
 }
 
 /* Code blocks */
-pre, code {
+.pdf-document pre, 
+.pdf-document code {
   white-space: pre-wrap !important;
   word-break: break-word !important;
   max-width: 100% !important;
@@ -82,26 +72,102 @@ pre, code {
 }
 
 /* Ensure proper page breaks */
-h1, h2, h3, h4 {
+.pdf-document h1, 
+.pdf-document h2, 
+.pdf-document h3, 
+.pdf-document h4 {
   page-break-after: avoid;
   page-break-inside: avoid;
 }
 
-table, figure {
+.pdf-document table, 
+.pdf-document figure {
   page-break-inside: avoid;
 }
 
 /* Force any fixed-position elements to static */
-.fixed-top, .fixed-bottom, .sticky-top, .position-fixed, .position-sticky {
+.pdf-document .fixed-top, 
+.pdf-document .fixed-bottom, 
+.pdf-document .sticky-top, 
+.pdf-document .position-fixed, 
+.pdf-document .position-sticky {
   position: static !important;
 }
 
 /* Aggressively set all columns to take up more space */
-.col, .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, 
-.col-7, .col-8, .col-9, .col-10, .col-11, .col-12,
-.col-sm, .col-md, .col-lg, .col-xl {
+.pdf-document .col, 
+.pdf-document [class*="col-"] {
   flex: 0 0 100% !important;
   max-width: 100% !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
+}
+
+/* ====== DEFINITION LIST STYLING FOR PDF ====== */
+/* Remove background and borders from terms and definitions in PDF */
+.pdf-document dl.terms-and-definitions-list > dt,
+.pdf-document dl.terms-and-definitions-list > dd {
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.5rem 0 !important;
+  color: #000 !important;
+}
+
+/* Fix spacing between terms */
+.pdf-document dl.terms-and-definitions-list > dt {
+  margin-top: 1em !important;
+  font-weight: bold !important;
+  page-break-after: avoid !important;
+}
+
+/* Hide toggle buttons in PDF output */
+.pdf-document .meta-info-toggle-button {
+  display: none !important;
+}
+
+/* Always show meta-info content in PDF */
+.pdf-document dl > dd.meta-info-content-wrapper,
+.pdf-document dl > dd.collapsed.meta-info-content-wrapper {
+  display: block !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 0.5rem 0 !important;
+  margin: 0 !important;
+  line-height: normal !important;
+}
+
+/* Transclusion styling for PDF */
+.pdf-document dt.transcluded-xref-term,
+.pdf-document dd.transcluded-xref-term {
+  background: transparent !important;
+}
+
+/* Remove any other visual indicators that aren't needed in PDF */
+.pdf-document dl.terms-and-definitions-list > dt::before,
+.pdf-document dl.terms-and-definitions-list > dd::before {
+  display: none !important;
+}
+
+/* Ensure all definition content is visible in PDF */
+.pdf-document dl.terms-and-definitions-list dd p {
+  padding-left: 0 !important;
+}
+
+/* Ensure good page breaks in definition lists */
+.pdf-document dl.terms-and-definitions-list > dt,
+.pdf-document dl.terms-and-definitions-list > dd {
+  page-break-inside: avoid !important;
+}
+
+/* Improve table display in definitions for PDF */
+.pdf-document dl.terms-and-definitions-list dd table {
+  margin: 0.5em 0 !important;
+  border-collapse: collapse !important;
+}
+
+.pdf-document dl.terms-and-definitions-list dd table th,
+.pdf-document dl.terms-and-definitions-list dd table td {
+  border: 0.5pt solid #888 !important;
 }

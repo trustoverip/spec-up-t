@@ -156,6 +156,44 @@ const pdfLib = require('pdf-lib');
 
             document.body.insertBefore(titleWrapper, document.body.firstChild);
         }, logo, logoLink, title, description);
+        
+        // Direct manipulation of definition lists to ensure proper styling in PDF
+        await page.evaluate(() => {
+            // Process all definition lists
+            const definitionLists = document.querySelectorAll('dl.terms-and-definitions-list');
+            definitionLists.forEach(list => {
+                // Process all terms and definitions
+                const terms = list.querySelectorAll('dt, dd');
+                terms.forEach(term => {
+                    // Remove background and borders
+                    term.style.backgroundColor = 'transparent';
+                    term.style.border = 'none';
+                    term.style.borderRadius = '0';
+                    term.style.padding = '0.5rem 0';
+                });
+                
+                // Ensure all meta-info content is visible
+                const metaInfoContents = list.querySelectorAll('dd.meta-info-content-wrapper');
+                metaInfoContents.forEach(content => {
+                    content.style.display = 'block';
+                    content.style.maxHeight = 'none';
+                    content.style.height = 'auto';
+                    content.style.overflow = 'visible';
+                    content.style.padding = '0.5rem 0';
+                    content.style.margin = '0';
+                    content.style.lineHeight = 'normal';
+                    
+                    // Remove the collapsed class if present
+                    content.classList.remove('collapsed');
+                });
+                
+                // Hide all meta-info toggle buttons
+                const toggleButtons = list.querySelectorAll('.meta-info-toggle-button');
+                toggleButtons.forEach(button => {
+                    button.style.display = 'none';
+                });
+            });
+        });
 
         // Generate PDF
         const pdfBuffer = await page.pdf({
