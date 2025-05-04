@@ -126,12 +126,13 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
 
             // Create and insert not found message
             const notFoundEl = document.createElement('dd');
-            notFoundEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
+            notFoundEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded', 'last-dd');
             notFoundEl.innerHTML = '<p>This term was not found in the external repository.</p>';
             parent.insertBefore(notFoundEl, metaInfoEl.nextSibling);
          }
       });
    }
+   
 
    if (allXTrefs && allXTrefs.xtrefs) {
       processTerms(allXTrefs);
