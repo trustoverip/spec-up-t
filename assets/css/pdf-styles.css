@@ -1,0 +1,107 @@
+/* PDF Styling for optimized print layout */
+
+/* Reset all margins and paddings */
+* {
+  box-sizing: border-box !important;
+}
+
+/* Body and main container styling */
+body.pdf-document {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+/* Extremely aggressive content width adjustment */
+body.pdf-document .container,
+body.pdf-document main,
+body.pdf-document section,
+body.pdf-document article,
+body.pdf-document .content,
+body.pdf-document div[class*="container"],
+body.pdf-document div[class*="col-"],
+body.pdf-document .row {
+  max-width: 95% !important;
+  width: 95% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Override any Bootstrap container constraints */
+@media (min-width: 576px) {
+  .container, .container-sm {
+    max-width: 95% !important;
+  }
+}
+@media (min-width: 768px) {
+  .container, .container-md, .container-sm {
+    max-width: 95% !important;
+  }
+}
+@media (min-width: 992px) {
+  .container, .container-lg, .container-md, .container-sm {
+    max-width: 95% !important;
+  }
+}
+@media (min-width: 1200px) {
+  .container, .container-lg, .container-md, .container-sm, .container-xl {
+    max-width: 95% !important;
+  }
+}
+
+/* Table adjustments */
+table {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-bottom: 1rem;
+  table-layout: fixed !important;
+}
+
+/* Header styling */
+.pdf-title {
+  font-size: 24pt !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Images in PDF */
+img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Code blocks */
+pre, code {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+/* Ensure proper page breaks */
+h1, h2, h3, h4 {
+  page-break-after: avoid;
+  page-break-inside: avoid;
+}
+
+table, figure {
+  page-break-inside: avoid;
+}
+
+/* Force any fixed-position elements to static */
+.fixed-top, .fixed-bottom, .sticky-top, .position-fixed, .position-sticky {
+  position: static !important;
+}
+
+/* Aggressively set all columns to take up more space */
+.col, .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, 
+.col-7, .col-8, .col-9, .col-10, .col-11, .col-12,
+.col-sm, .col-md, .col-lg, .col-xl {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
