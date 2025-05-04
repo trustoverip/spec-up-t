@@ -162,14 +162,11 @@ const pdfLib = require('pdf-lib');
             // Process all definition lists
             const definitionLists = document.querySelectorAll('dl.terms-and-definitions-list');
             definitionLists.forEach(list => {
-                // Process all terms and definitions
+                // Process all terms and definitions - target all dt and dd elements regardless of class
                 const terms = list.querySelectorAll('dt, dd');
                 terms.forEach(term => {
-                    // Remove background and borders
-                    term.style.backgroundColor = 'transparent';
-                    term.style.border = 'none';
-                    term.style.borderRadius = '0';
-                    term.style.padding = '0.5rem 0';
+                    // Remove background and borders with !important to override any existing styles
+                    term.setAttribute('style', term.getAttribute('style') + '; background: transparent !important; background-color: transparent !important; background-image: none !important; border: none !important; border-radius: 0 !important; padding: 0.5rem 0 !important;');
                 });
                 
                 // Ensure all meta-info content is visible
@@ -192,6 +189,28 @@ const pdfLib = require('pdf-lib');
                 toggleButtons.forEach(button => {
                     button.style.display = 'none';
                 });
+            });
+            
+            // Special handling for ALL transcluded terms with blue background - no class restrictions
+            document.querySelectorAll('.transcluded-xref-term').forEach(el => {
+                // Use the most aggressive approach possible to override the blue background
+                el.setAttribute('style', el.getAttribute('style') + '; background: transparent !important; background-color: transparent !important; background-image: none !important;');
+                
+                // Also process any child elements to ensure complete removal of background
+                Array.from(el.children).forEach(child => {
+                    child.setAttribute('style', child.getAttribute('style') + '; background: transparent !important; background-color: transparent !important; background-image: none !important;');
+                });
+            });
+            
+            // Remove any inline styles that might be setting backgrounds
+            document.querySelectorAll('style').forEach(styleTag => {
+                let cssText = styleTag.textContent;
+                // If the style tag contains transcluded-xref-term styles, modify them
+                if (cssText.includes('transcluded-xref-term') && cssText.includes('background')) {
+                    cssText = cssText.replace(/dt\.transcluded-xref-term[^}]+}/g, 
+                                             'dt.transcluded-xref-term, dd.transcluded-xref-term { background: transparent !important; background-color: transparent !important; background-image: none !important; }');
+                    styleTag.textContent = cssText;
+                }
             });
         });
 

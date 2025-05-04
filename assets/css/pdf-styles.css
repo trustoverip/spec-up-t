@@ -142,6 +142,7 @@ body.pdf-document {
 .pdf-document dt.transcluded-xref-term,
 .pdf-document dd.transcluded-xref-term {
   background: transparent !important;
+  background-color: transparent !important;
 }
 
 /* Remove any other visual indicators that aren't needed in PDF */
