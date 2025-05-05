@@ -59,6 +59,7 @@
       "assets/js/collapse-definitions.js",
       "assets/js/create-term-filter.js",
       "assets/js/collapse-meta-info.js",
+      "assets/js/fix-last-dd.js",
       "assets/js/add-href-to-snapshot-link.js",
       "assets/js/adjust-font-size.js",
       "assets/js/toggle-dense-info.js",
