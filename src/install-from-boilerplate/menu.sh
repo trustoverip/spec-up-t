@@ -101,6 +101,20 @@ function show_progress() {
 }
 
 # Main script
-display_intro
-prompt_input
-handle_choice
+if [[ -n "$1" && "$1" =~ ^[0-9]$ ]]; then
+    choice="$1"
+    handle_choice
+else
+    display_intro
+    prompt_input
+    # Allow user to quit with Q/q
+    if [[ "$choice" =~ ^[Qq]$ ]]; then
+        clear
+        echo -e "\n\n  ************************************"
+        echo "  Goodbye! You chose to exit."
+        echo -e "  ************************************\n\n"
+        echo -e "\n\n\nℹ️ Type 'npm run menu' to return to the main menu.\n"
+        exit 0
+    fi
+    handle_choice
+fi
