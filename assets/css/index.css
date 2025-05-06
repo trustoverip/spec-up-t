@@ -117,7 +117,7 @@ dd td img {
   display: block;
   color: inherit;
   font-size: 1.1em;
-  font-family: Heebo, san-serif;
+  font-family: Heebo, sans-serif;
 }
 
 .example pre[class*="language-"] {
