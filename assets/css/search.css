@@ -19,7 +19,6 @@
 
 .highlight-matches-search-h7vc6omi2hr2880.active {
   outline: 3px solid #1d6dae;
-  /* outline-offset: 5px; */
   /* Works in tandem with the setTimeout in JS: */
   transition: outline 0.3s ease-in-out;
 }
