@@ -16,7 +16,6 @@ function addAnchorsToTerms() {
     dts.forEach(item => {
 
         const dt = findDeepestSpan(item);
-        // dt.classList.add('toc-anchor');
         const id = dt.getAttribute('id');
         const a = document.createElement('a');
         a.setAttribute('href', `#${id}`);
