@@ -1,5 +1,4 @@
 *:target {
-  /* scroll-margin-top: 160px; */
   scroll-margin-top: calc(50vh);
   /* Matches sticky header height */
 }
