@@ -70,7 +70,6 @@ customElements.define('detail-box', class DetailBox extends HTMLElement {
             }
             else if (node.offsetHeight > 0) {
               node.style.height = node.offsetHeight + 'px';
-              let scroll = this.scrollHeight;
               node.style.height = 0;
             }
             break;
