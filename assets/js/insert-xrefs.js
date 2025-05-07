@@ -228,11 +228,6 @@ function fetchCommitHashes() {
 
                return
             };
-
-            // To be used in the future
-            const commitHashShort = match.commitHash && match.commitHash ? match.commitHash.substring(0, 7) : 'No hash';
-
-            // Comment out all UI elements except tooltip
             
             // Diff of the latest commit hash of a term file and the referenced commit hash
 
