@@ -2,6 +2,9 @@
  * Displays a modal with the given content.
  *
  * @param {string} content - The HTML content to display inside the modal.
+ *
+ * Example usage:
+ * showModal('<h2>This is a Modal</h2><p>You can put any content here.</p>');
  */
 function showModal(content) {
    // Create the modal overlay
@@ -47,6 +50,3 @@ function showModal(content) {
       }
    }, { once: true });
 }
-
-// // Example usage:
-// showModal('<h2>This is a Modal</h2><p>You can put any content here.</p>');

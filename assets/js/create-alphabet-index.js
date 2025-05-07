@@ -12,7 +12,7 @@ function createAlphabetIndex() {
 
     dtElements.forEach(dt => {
         const span = dt.querySelector("span");
-        if (span && span.id) {
+        if (span?.span.id) {
             const termId = span.id;
             const firstChar = termId.charAt(termId.indexOf("term:") + 5).toUpperCase();
             if (!alphabetIndex[firstChar]) {

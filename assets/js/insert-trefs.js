@@ -41,7 +41,7 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
          const dt = termElement.closest('dt');
          if (dt) {
             const nextElement = dt.nextElementSibling;
-            if (nextElement && nextElement.classList.contains('transcluded-xref-term') &&
+            if (nextElement?.classList.contains('transcluded-xref-term') &&
                nextElement.classList.contains('meta-info-content-wrapper')) {
                return; // Already processed
             }
@@ -134,7 +134,7 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
    }
    
 
-   if (allXTrefs && allXTrefs.xtrefs) {
+   if (allXTrefs?.xtrefs) {
       processTerms(allXTrefs);
    } else {
       console.error('allXTrefs is undefined or missing xtrefs property');

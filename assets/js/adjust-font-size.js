@@ -21,17 +21,9 @@ function adjustFontSize() {
       }
    }
 
-   function reset() {
-      const body = document.body;
-
-      // Set font size to default value
-      body.style.fontSize = `${DEFAULT_SIZE}px`;
-   }
-
    // Add event listeners to buttons
    document.getElementById('decreaseBtn').addEventListener('click', () => adjust(-2));
    document.getElementById('increaseBtn').addEventListener('click', () => adjust(2));
-   // document.getElementById('resetBtn').addEventListener('click', reset);
 }
 
 document.addEventListener("DOMContentLoaded", function () {

@@ -165,10 +165,6 @@ function fetchCommitHashes() {
          const defRegex = /\[\[def: ([^\]]+)\]\]/g;
          markdown = markdown.replace(defRegex, '');
 
-         // // Replace all occurrences of [[ref: ]] with <a href="#"></a>
-         // const refRegex = /\[\[ref: ([^\]]+)\]\]/g;
-         // markdown = markdown.replace(refRegex, '<a class="x-term-reference" data-local-href="ref:$1">$1</a>');
-
          return md.render(markdown);
       }
 
@@ -228,11 +224,6 @@ function fetchCommitHashes() {
 
                return
             };
-
-            // To be used in the future
-            const commitHashShort = match.commitHash && match.commitHash ? match.commitHash.substring(0, 7) : 'No hash';
-
-            // Comment out all UI elements except tooltip
             
             // Diff of the latest commit hash of a term file and the referenced commit hash
 
@@ -301,13 +292,10 @@ function fetchCommitHashes() {
             localStoredTerm.title = 'Show the stored version of the term-file';
             showDiffModal.parentNode.insertBefore(localStoredTerm, element.nextSibling);
 
-
-
             // Replace all occurrences of [[def: ]] with ''
             const defRegex = /\[\[def: ([^\]]+)\]\]/g;
             match.content = match.content.replace(defRegex, '');
 
-            // const content = md.render(match.content);
             const content = match.content;
             localStoredTerm.addEventListener('click', function (event) {
                event.preventDefault();
