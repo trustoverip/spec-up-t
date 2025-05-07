@@ -301,13 +301,10 @@ function fetchCommitHashes() {
             localStoredTerm.title = 'Show the stored version of the term-file';
             showDiffModal.parentNode.insertBefore(localStoredTerm, element.nextSibling);
 
-
-
             // Replace all occurrences of [[def: ]] with ''
             const defRegex = /\[\[def: ([^\]]+)\]\]/g;
             match.content = match.content.replace(defRegex, '');
 
-            // const content = md.render(match.content);
             const content = match.content;
             localStoredTerm.addEventListener('click', function (event) {
                event.preventDefault();
