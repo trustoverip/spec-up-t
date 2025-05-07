@@ -134,7 +134,7 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
    }
    
 
-   if (allXTrefs && allXTrefs.xtrefs) {
+   if (allXTrefs?.xtrefs) {
       processTerms(allXTrefs);
    } else {
       console.error('allXTrefs is undefined or missing xtrefs property');
