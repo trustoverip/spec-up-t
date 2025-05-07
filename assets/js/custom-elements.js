@@ -24,17 +24,16 @@ customElements.define('slide-panels', class SidePanels extends HTMLElement {
   close (){
     this.removeAttribute('open');
   }
+
   attributeChangedCallback(attr, last, current) {
-    switch(attr) {
-      case 'open': for (let child of this.children) {
+    if (attr === 'open') {
+      for (let child of this.children) {
         if (child.id === current) child.setAttribute('open', '');
         else child.removeAttribute('open', '');
       }
-      break;
     }
   }
 });
-
 customElements.define('detail-box', class DetailBox extends HTMLElement {
   static get observedAttributes() {
     return ['open'];
