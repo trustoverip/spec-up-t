@@ -223,121 +223,276 @@ function findCacheFileForRepo(cacheDir, specConfig) {
 }
 
 /**
+ * Get configuration and setup data from specs.json
+ * @param {string} projectRoot - Root directory of the project
+ * @returns {Object} - Object containing results, specs data, external specs and spec directories
+ */
+async function getProjectConfiguration(projectRoot) {
+  const results = [];
+  
+  // Path to the project's specs.json
+  const specsPath = path.join(projectRoot, 'specs.json');
+  
+  // Check if specs.json exists
+  if (!fs.existsSync(specsPath)) {
+    return {
+      results: [{
+        name: 'Find specs.json file',
+        success: false,
+        details: 'specs.json file not found in project root'
+      }],
+      valid: false
+    };
+  }
+  
+  results.push({
+    name: 'Find specs.json file',
+    success: true,
+    details: 'specs.json file found'
+  });
+  
+  // Read specs.json to get the spec directory
+  const specsContent = fs.readFileSync(specsPath, 'utf8');
+  const specs = JSON.parse(specsContent);
+  
+  // Get the external specs
+  if (!specs.specs || !Array.isArray(specs.specs)) {
+    results.push({
+      name: 'Find specs configuration',
+      success: false,
+      details: 'specs array not found in specs.json'
+    });
+    return { results, valid: false };
+  }
+  
+  // Collect all external specs and spec directories
+  const externalSpecs = [];
+  const specDirs = [];
+  
+  specs.specs.forEach(spec => {
+    if (spec.external_specs && Array.isArray(spec.external_specs)) {
+      externalSpecs.push(...spec.external_specs);
+    }
+    
+    if (spec.spec_directory && spec.spec_terms_directory) {
+      const termsDir = path.join(
+        projectRoot, 
+        spec.spec_directory, 
+        spec.spec_terms_directory
+      );
+      specDirs.push(termsDir);
+    }
+  });
+
+  if (externalSpecs.length === 0) {
+    results.push({
+      name: 'Find external specs',
+      success: false,
+      details: 'No external specs found in specs.json'
+    });
+    return { results, valid: false };
+  }
+  
+  results.push({
+    name: 'Find external specs',
+    success: true,
+    details: `Found ${externalSpecs.length} external specs`
+  });
+  
+  if (specDirs.length === 0) {
+    results.push({
+      name: 'Find spec terms directories',
+      success: false,
+      details: 'No spec terms directories found'
+    });
+    return { results, valid: false };
+  }
+  
+  results.push({
+    name: 'Find spec terms directories', 
+    success: true,
+    details: `Found ${specDirs.length} spec terms directories`
+  });
+
+  return { 
+    results, 
+    specs, 
+    externalSpecs, 
+    specDirs, 
+    valid: true,
+    githubCacheDir: path.join(projectRoot, 'output', 'github-cache')
+  };
+}
+
+/**
+ * Verify if a term exists in the specified repository
+ * @param {Object} options - Options for verification
+ * @param {string} options.githubCacheDir - Path to GitHub cache directory
+ * @param {string} options.repo - Repository to check
+ * @param {string} options.term - Term to find
+ * @param {string} options.file - File name for reporting
+ * @param {Array} options.externalSpecs - List of external specs
+ * @returns {Object} - Object containing results and status
+ */
+function verifyTermInRepo(options) {
+  const { githubCacheDir, repo, term, file, externalSpecs } = options;
+  const results = [];
+
+  // Check if the referenced repo exists in external_specs
+  const specConfig = externalSpecs.find(spec => spec.external_spec === repo);
+  if (!specConfig) {
+    results.push({
+      name: `Check repo reference in ${file}`,
+      success: false,
+      details: `Referenced repo "${repo}" is not defined in external_specs`
+    });
+    return { results, status: 'invalid_repo' };
+  }
+  
+  // Find the cache file for this repo
+  const cacheFile = findCacheFileForRepo(githubCacheDir, specConfig);
+  
+  if (!cacheFile) {
+    results.push({
+      name: `Find cache for repo "${repo}" referenced in ${file}`,
+      success: false,
+      details: `No cache file found for repo "${repo}". Unable to verify if term "${term}" exists.`
+    });
+    return { results, status: 'no_cache' };
+  }
+  
+  // Check if the term exists in the repo
+  const termExists = termExistsInRepo(cacheFile, term);
+  
+  if (termExists) {
+    results.push({
+      name: `Term "${term}" in repo "${repo}" (${file})`,
+      success: true,
+      details: `Term "${term}" found in repo "${repo}"`
+    });
+    return { results, status: 'found' };
+  }
+  
+  // Check if the term exists in other repos
+  const otherRepos = findTermInOtherRepos(githubCacheDir, externalSpecs, repo, term);
+  
+  if (otherRepos.length > 0) {
+    // Show as warning (partial success) instead of failure
+    results.push({
+      name: `Term "${term}" in repo "${repo}" (${file})`,
+      success: 'partial', // Use 'partial' to indicate a warning
+      details: `Warning: Term <code>${term}</code> NOT found in repo ${repo} but found in these repos: <code>${otherRepos.join(', ')}</code>. Consider updating the reference.`
+    });
+    return { results, status: 'found_elsewhere' };
+  }
+  
+  results.push({
+    name: `Term "${term}" in repo "${repo}" (${file})`,
+    success: false,
+    details: `Term <code>${term}</code> NOT found in repo <code>${repo}</code> and not found in any other external repos`
+  });
+  return { results, status: 'not_found' };
+}
+
+/**
+ * Process a single markdown file to check for tref tags
+ * @param {Object} options - Processing options
+ * @param {string} options.filePath - Path to markdown file
+ * @param {string} options.githubCacheDir - Path to GitHub cache directory
+ * @param {Array} options.externalSpecs - List of external specs
+ * @returns {Object} - Object containing results and counts
+ */
+function processMarkdownFile(options) {
+  const { filePath, githubCacheDir, externalSpecs } = options;
+  const file = path.basename(filePath);
+  const results = [];
+  const counts = { 
+    filesWithTref: 0, 
+    validTerms: 0, 
+    invalidTerms: 0, 
+    termsFoundInOtherRepos: 0 
+  };
+  
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split('\n');
+    const firstLine = lines[0];
+    
+    if (!firstLine.includes('[[tref:')) {
+      return { results, counts };
+    }
+    
+    counts.filesWithTref = 1;
+    
+    // Extract repo and term information
+    const trefInfo = extractTrefInfo(firstLine);
+    if (!trefInfo) {
+      results.push({
+        name: `Parse tref in ${file}`,
+        success: false,
+        details: `Could not parse tref information from first line: "${firstLine}"`
+      });
+      return { results, counts };
+    }
+    
+    const { repo, term } = trefInfo;
+    
+    // Verify the term
+    const verification = verifyTermInRepo({
+      githubCacheDir,
+      repo,
+      term,
+      file,
+      externalSpecs
+    });
+    
+    results.push(...verification.results);
+    
+    // Update counts based on verification status
+    if (verification.status === 'found') {
+      counts.validTerms = 1;
+    } else if (verification.status === 'found_elsewhere') {
+      counts.termsFoundInOtherRepos = 1;
+    } else if (verification.status === 'not_found') {
+      counts.invalidTerms = 1;
+    }
+    
+  } catch (error) {
+    results.push({
+      name: `Process file ${file}`,
+      success: false,
+      details: `Error processing file: ${error.message}`
+    });
+  }
+  
+  return { results, counts };
+}
+
+/**
  * Check if terms referenced via tref tags exist in the corresponding external repos
  * @param {string} projectRoot - Root directory of the project
  * @returns {Promise<Array>} - Array of check results
  */
 async function checkTrefTerms(projectRoot) {
-  const results = [];
-  
   try {
-    // Path to the project's specs.json
-    const specsPath = path.join(projectRoot, 'specs.json');
+    // Get project configuration
+    const config = await getProjectConfiguration(projectRoot);
     
-    // Check if specs.json exists
-    if (!fs.existsSync(specsPath)) {
-      return [{
-        name: 'Find specs.json file',
-        success: false,
-        details: 'specs.json file not found in project root'
-      }];
+    // If configuration is invalid, return early with errors
+    if (!config.valid) {
+      return config.results;
     }
     
-    results.push({
-      name: 'Find specs.json file',
-      success: true,
-      details: 'specs.json file found'
-    });
+    const { results, specDirs, externalSpecs, githubCacheDir } = config;
     
-    // Read specs.json to get the spec directory
-    const specsContent = fs.readFileSync(specsPath, 'utf8');
-    const specs = JSON.parse(specsContent);
-    
-    // Get the external specs
-    if (!specs.specs || !Array.isArray(specs.specs)) {
-      results.push({
-        name: 'Find specs configuration',
-        success: false,
-        details: 'specs array not found in specs.json'
-      });
-      return results;
-    }
-    
-    // Collect all external specs and spec directories
-    const externalSpecs = [];
-    const specDirs = [];
-    
-    specs.specs.forEach(spec => {
-      if (spec.external_specs && Array.isArray(spec.external_specs)) {
-        externalSpecs.push(...spec.external_specs);
-      }
-      
-      if (spec.spec_directory && spec.spec_terms_directory) {
-        const termsDir = path.join(
-          projectRoot, 
-          spec.spec_directory, 
-          spec.spec_terms_directory
-        );
-        specDirs.push(termsDir);
-      }
-    });
-    
-    if (externalSpecs.length === 0) {
-      results.push({
-        name: 'Find external specs',
-        success: false,
-        details: 'No external specs found in specs.json'
-      });
-      return results;
-    }
-    
-    results.push({
-      name: 'Find external specs',
-      success: true,
-      details: `Found ${externalSpecs.length} external specs`
-    });
-    
-    if (specDirs.length === 0) {
-      results.push({
-        name: 'Find spec terms directories',
-        success: false,
-        details: 'No spec terms directories found'
-      });
-      return results;
-    }
-    
-    results.push({
-      name: 'Find spec terms directories', 
-      success: true,
-      details: `Found ${specDirs.length} spec terms directories`
-    });
-    
-    // Directory is auto generated, no need for this warning
-    // // Path to the GitHub cache directory
-    // const githubCacheDir = path.join(projectRoot, 'output', 'github-cache');
-    
-    // if (!fs.existsSync(githubCacheDir)) {
-    //   results.push({
-    //     name: 'Find GitHub cache directory',
-    //     success: false,
-    //     details: 'GitHub cache directory not found at output/github-cache. Terms in external repos cannot be verified.'
-    //   });
-    //   return results;
-    // }
-    
-    // results.push({
-    //   name: 'Find GitHub cache directory',
-    //   success: true,
-    //   details: 'GitHub cache directory found'
-    // });
-    
-    // Find and check all markdown files in all spec directories
+    // Initialize counters
     let totalFiles = 0;
     let filesWithTref = 0;
     let validTerms = 0;
     let invalidTerms = 0;
     let termsFoundInOtherRepos = 0;
     
+    // Process each spec directory
     for (const specDir of specDirs) {
       if (!fs.existsSync(specDir)) {
         continue;
@@ -349,98 +504,27 @@ async function checkTrefTerms(projectRoot) {
       
       totalFiles += markdownFiles.length;
       
+      // Process each markdown file
       for (const file of markdownFiles) {
         const filePath = path.join(specDir, file);
+        const fileResult = processMarkdownFile({
+          filePath,
+          githubCacheDir,
+          externalSpecs
+        });
         
-        try {
-          const content = fs.readFileSync(filePath, 'utf8');
-          const lines = content.split('\n');
-          const firstLine = lines[0];
-          
-          if (!firstLine.includes('[[tref:')) {
-            continue;
-          }
-          
-          filesWithTref++;
-          
-          // Extract repo and term information
-          const trefInfo = extractTrefInfo(firstLine);
-          if (!trefInfo) {
-            results.push({
-              name: `Parse tref in ${file}`,
-              success: false,
-              details: `Could not parse tref information from first line: "${firstLine}"`
-            });
-            continue;
-          }
-          
-          const { repo, term } = trefInfo;
-          
-          // Check if the referenced repo exists in external_specs
-          const specConfig = externalSpecs.find(spec => spec.external_spec === repo);
-          if (!specConfig) {
-            results.push({
-              name: `Check repo reference in ${file}`,
-              success: false,
-              details: `Referenced repo "${repo}" is not defined in external_specs`
-            });
-            continue;
-          }
-          
-          // Find the cache file for this repo
-          const cacheFile = findCacheFileForRepo(githubCacheDir, specConfig);
-          
-          if (!cacheFile) {
-            results.push({
-              name: `Find cache for repo "${repo}" referenced in ${file}`,
-              success: false,
-              details: `No cache file found for repo "${repo}". Unable to verify if term "${term}" exists.`
-            });
-            continue;
-          }
-          
-          // Check if the term exists in the repo
-          const termExists = termExistsInRepo(cacheFile, term);
-          
-          if (termExists) {
-            validTerms++;
-            results.push({
-              name: `Term "${term}" in repo "${repo}" (${file})`,
-              success: true,
-              details: `Term "${term}" found in repo "${repo}"`
-            });
-          } else {
-            // Check if the term exists in other repos
-            const otherRepos = findTermInOtherRepos(githubCacheDir, externalSpecs, repo, term);
-            
-            if (otherRepos.length > 0) {
-              // Change: Show as warning (partial success) instead of failure
-              termsFoundInOtherRepos++;
-              results.push({
-                name: `Term "${term}" in repo "${repo}" (${file})`,
-                success: 'partial', // Use 'partial' to indicate a warning
-                details: `Warning: Term <code>${term}</code> NOT found in repo ${repo} but found in these repos: <code>${otherRepos.join(', ')}</code>. Consider updating the reference.`
-              });
-            } else {
-              invalidTerms++;
-              results.push({
-                name: `Term "${term}" in repo "${repo}" (${file})`,
-                success: false,
-                details: `Term <code>${term}</code> NOT found in repo <code>${repo}</code> and not found in any other external repos`
-              });
-            }
-          }
-        } catch (error) {
-          results.push({
-            name: `Process file ${file}`,
-            success: false,
-            details: `Error processing file: ${error.message}`
-          });
-        }
+        // Add results
+        results.push(...fileResult.results);
+        
+        // Update counters
+        filesWithTref += fileResult.counts.filesWithTref;
+        validTerms += fileResult.counts.validTerms;
+        invalidTerms += fileResult.counts.invalidTerms;
+        termsFoundInOtherRepos += fileResult.counts.termsFoundInOtherRepos;
       }
     }
     
-    // Add summary results - modified to include terms found in other repos
+    // Add summary results
     results.push({
       name: 'Term reference validation summary',
       success: invalidTerms === 0,
