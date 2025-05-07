@@ -165,10 +165,6 @@ function fetchCommitHashes() {
          const defRegex = /\[\[def: ([^\]]+)\]\]/g;
          markdown = markdown.replace(defRegex, '');
 
-         // // Replace all occurrences of [[ref: ]] with <a href="#"></a>
-         // const refRegex = /\[\[ref: ([^\]]+)\]\]/g;
-         // markdown = markdown.replace(refRegex, '<a class="x-term-reference" data-local-href="ref:$1">$1</a>');
-
          return md.render(markdown);
       }
 
