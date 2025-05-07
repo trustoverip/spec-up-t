@@ -91,8 +91,7 @@ function addNewXTrefsFromMarkdown(allMarkdownContent, allXTrefs) {
         const xtrefs = allMarkdownContent.match(regex);
         xtrefs.forEach(xtref => {
             const newXTrefObj = processXTref(xtref);
-            // Add newXTrefObj only if an object with the same term and externalSpec doesn't already exist.
-            if (!allXTrefs.xtrefs.some(existingXTref =>
+            if (!allXTrefs?.xtrefs?.some(existingXTref =>
                 existingXTref.term === newXTrefObj.term &&
                 existingXTref.externalSpec === newXTrefObj.externalSpec)) {
                 allXTrefs.xtrefs.push(newXTrefObj);
@@ -135,14 +134,12 @@ function extendXTrefs(config, xtrefs) {
 
             // Loop through "external_specs" to find the site URL for each xtref
             xtref.site = null;
-            if (spec.external_specs) {
-                spec.external_specs.forEach(externalSpec => {
-                    const key = Object.keys(externalSpec)[0];
-                    if (key === xtref.externalSpec) {
-                        xtref.site = externalSpec[key];
-                    }
-                });
-            }
+            spec?.external_specs?.forEach(externalSpec => {
+                const key = Object.keys(externalSpec)[0];
+                if (key === xtref.externalSpec) {
+                    xtref.site = externalSpec[key];
+                }
+            });
         });
     });
 }
@@ -213,7 +210,7 @@ function processExternalReferences(config, GITHUB_API_TOKEN, options) {
     // If the output JSON file exists, load its data.
     if (fs.existsSync(outputPathJSON)) {
         const existingXTrefs = fs.readJsonSync(outputPathJSON);
-        if (existingXTrefs && existingXTrefs.xtrefs) {
+        if (existingXTrefs?.xtrefs) {
             allXTrefs = existingXTrefs;
         }
     }
