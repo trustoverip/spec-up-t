@@ -180,6 +180,32 @@ function getHumanReadableTimestamp() {
     return new Date().toLocaleString();
 }
 
+// Helper function to determine status display parameters based on result
+function getStatusDisplay(result) {
+    if (result.status === 'warning' || result.success === 'partial') {
+        // Warning status
+        return {
+            statusClass: 'text-warning',
+            statusIcon: '<i class="bi bi-exclamation-triangle-fill"></i>',
+            statusText: 'Warning'
+        };
+    } else if (result.success) {
+        // Pass status
+        return {
+            statusClass: 'text-success',
+            statusIcon: '<i class="bi bi-check-circle-fill"></i>',
+            statusText: 'Pass'
+        };
+    } else {
+        // Fail status
+        return {
+            statusClass: 'text-danger',
+            statusIcon: '<i class="bi bi-x-circle-fill"></i>',
+            statusText: 'Fail'
+        };
+    }
+}
+
 // Main function to run all checks and generate the report
 async function runHealthCheck() {
     console.log('Running health checks...');
@@ -270,6 +296,12 @@ function generateHtmlReport(checkResults, timestamp, repoInfo) {
 
     // Add repository verification check at the beginning if needed
     if (repoInfo && repoInfo.verified === false) {
+        const failStatus = {
+            statusClass: 'text-danger',
+            statusIcon: '<i class="bi bi-x-circle-fill"></i>',
+            statusText: 'Fail'
+        };
+        
         // Create a new section at the top for repository verification
         resultsHtml += `
       <div class="card mb-4 results-card alert-danger" data-section="repository-verification">
@@ -287,8 +319,8 @@ function generateHtmlReport(checkResults, timestamp, repoInfo) {
             </thead>
             <tbody>
               <tr data-status="fail" class="check-row">
-                <td class="text-danger" style="white-space: nowrap;">
-                  <i class="bi bi-x-circle-fill"></i> <span style="vertical-align: middle;">Fail</span>
+                <td class="${failStatus.statusClass}" style="white-space: nowrap;">
+                  ${failStatus.statusIcon} <span style="vertical-align: middle;">${failStatus.statusText}</span>
                 </td>
                 <td>Repository existence check</td>
                 <td>The repository at https://${repoInfo.host}.com/${repoInfo.account}/${repoInfo.repo} does not exist or is not accessible. Please verify the repository information in specs.json.</td>
@@ -319,29 +351,7 @@ function generateHtmlReport(checkResults, timestamp, repoInfo) {
     `;
 
         section.results.forEach(result => {
-            let statusClass, statusIcon, statusText;
-
-            if (result.status === 'warning') {
-                // Warning status
-                statusClass = 'text-warning';
-                statusIcon = '<i class="bi bi-exclamation-triangle-fill"></i>';
-                statusText = 'Warning';
-            } else if (result.success === 'partial') {
-                // Partial success (warning) status
-                statusClass = 'text-warning';
-                statusIcon = '<i class="bi bi-exclamation-triangle-fill"></i>';
-                statusText = 'Warning';
-            } else if (result.success) {
-                // Pass status
-                statusClass = 'text-success';
-                statusIcon = '<i class="bi bi-check-circle-fill"></i>';
-                statusText = 'Pass';
-            } else {
-                // Fail status
-                statusClass = 'text-danger';
-                statusIcon = '<i class="bi bi-x-circle-fill"></i>';
-                statusText = 'Fail';
-            }
+            const { statusClass, statusIcon, statusText } = getStatusDisplay(result);
 
             // Add data-status attribute to identify rows by status and reorder columns to put status first
             resultsHtml += `
