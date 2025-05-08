@@ -295,9 +295,9 @@ function inPageSearch() {
          */
          function hasHiddenAncestor(node) {
             while (node) {
-               if (node.classList && node.classList.contains('hidden')) {
-                  return true;
-               }
+                  if (node?.classList?.contains('hidden')) {
+                    return true;
+                  }
                node = node.parentNode;
             }
             return false;
