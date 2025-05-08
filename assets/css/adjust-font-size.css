@@ -4,6 +4,10 @@
     background-color: #a9dde0;
     /* Set background color */
     padding: 14px 14px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 0;
 }
 
 .adjust-font-size #increaseBtn {
@@ -18,13 +22,6 @@
     margin-left: -1px !important;
     /* Fix the spacing issue between buttons */
 
-}
-
-.adjust-font-size #decreaseBtn {
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 0;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 0;
 }
 
 /* Ensure the adjust-font-size button group displays buttons tightly together */
