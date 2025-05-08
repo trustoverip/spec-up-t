@@ -60,7 +60,6 @@ function getRepoInfo() {
 
         // Look for specs.json in the current working directory (where the command is run from)
         const specsPath = path.join(process.cwd(), 'specs.json');
-        // console.log(`Looking for specs.json at: ${specsPath}`);
         
         if (fs.existsSync(specsPath)) {
             // console.log('specs.json found!');
@@ -128,7 +127,6 @@ function getRepoInfo() {
     }
     
     // Return default values if specs.json doesn't exist or doesn't contain the required information
-    // console.log('Using default repository values');
     return {
         host: 'github',
         account: 'blockchain-bird',
