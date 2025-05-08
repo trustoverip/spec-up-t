@@ -17,6 +17,7 @@ function isValidGitHubPagesUrl(urlStr) {
       parsedUrl.hostname.endsWith('.github.io')
     );
   } catch (error) {
+    console.error(`❌ Error validating GitHub Pages URL: ${error.message}`);
     return false;
   }
 }
@@ -34,6 +35,7 @@ function isValidGitHubRepoUrl(urlStr) {
       parsedUrl.pathname.split('/').filter(Boolean).length >= 2
     );
   } catch (error) {
+    console.error(`❌ Error validating GitHub repo URL: ${error.message}`);
     return false;
   }
 }
@@ -111,7 +113,7 @@ function checkAndReadSpecsFile(projectRoot) {
       results: [{
         name: 'Parse specs.json file',
         success: false,
-        details: `Error parsing specs.json: ${error.message}`
+        details: `❌ Error parsing specs.json: ${error.message}`
       }],
       specs: null
     };
@@ -270,7 +272,7 @@ async function checkExternalSpecs(projectRoot) {
     
     return allResults;
   } catch (error) {
-    console.error('Error checking external specs:', error);
+    console.error('❌ Error checking external specs:', error);
     return [{
       name: 'External specs check',
       success: false,
