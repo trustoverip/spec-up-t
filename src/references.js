@@ -4,12 +4,11 @@ const axios = require('axios').default;
 const spaceRegex = /\s+/g;
 
 function validateReferences(references, definitions, render) {
-  const resolvedRefs = [];
   const unresolvedRefs = [];
   [...new Set(references)].forEach(
     ref => {
       if(render.includes(`id="term:${ref.replace(spaceRegex, '-').toLowerCase()}"`)) {
-        resolvedRefs.push(ref);
+        // Reference is resolved
       } else {
         unresolvedRefs.push(ref);
       }
