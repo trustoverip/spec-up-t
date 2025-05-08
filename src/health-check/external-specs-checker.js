@@ -69,6 +69,7 @@ function urlExists(urlStr) {
 
       req.end();
     } catch (error) {
+      console.error(`❌ URL Format Error: Invalid URL format for ${urlStr} - ${error.message}`);
       resolve(false);
     }
   });
