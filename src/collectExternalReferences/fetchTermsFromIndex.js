@@ -33,10 +33,11 @@ function generateCacheKey(owner, repo) {
  * @param {object} options - Options object
  * @param {number} options.cacheTTL - Time-to-live for cache in milliseconds (default: 24 hours)
  * @returns {object|null} - Cached data or null if not found or expired
+ * @example
+ * const cacheTTL = options.cacheTTL || 24 * 60 * 60 * 1000; // Default: 24 hours
  */
 function getFromCache(cacheKey, options = {}) {
     const cachePath = path.join(CACHE_DIR, `${cacheKey}.json`);
-    // const cacheTTL = options.cacheTTL || 24 * 60 * 60 * 1000; // Default: 24 hours
     const cacheTTL = 0;
 
     if (!fs.existsSync(cachePath)) {

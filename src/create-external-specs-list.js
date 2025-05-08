@@ -13,7 +13,7 @@
  */
 
 module.exports = function createExternalSpecsList(config) {
-    if (!config || !config.specs || !Array.isArray(config.specs)) {
+    if (!config?.specs?.length || !Array.isArray(config.specs)) {
         console.warn('❌ Invalid config format. Expected an object with a specs array.');
         return '<p>No external specifications found.</p>';
     }

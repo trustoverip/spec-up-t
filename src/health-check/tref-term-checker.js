@@ -137,7 +137,8 @@ function findRepoForCacheFile(filePath, externalSpecs) {
     
     return null;
   } catch (error) {
-    return null;
+    console.error(`Error finding repository for cache file ${filePath}:`, error);
+    return null; // Could not determine repository due to error reading or parsing cache file
   }
 }
 

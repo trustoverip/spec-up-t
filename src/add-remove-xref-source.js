@@ -125,7 +125,6 @@ function updateJSON() {
         externalSpecs.push(inputs);
 
         fs.writeFileSync(JSON_FILE, JSON.stringify(data, null, 2), 'utf8');
-        // console.log(`Updated ${JSON_FILE} successfully.`);
         console.log(`Updated successfully.`);
     } catch (error) {
         console.error(`Error: Failed to update ${JSON_FILE}.`, error.message);
@@ -159,7 +158,6 @@ function removeEntry(externalSpec) {
         data.specs[0].external_specs = filteredSpecs;
 
         fs.writeFileSync(JSON_FILE, JSON.stringify(data, null, 2), 'utf8');
-        // console.log(`Removed entry with external_spec "${externalSpec}" successfully.`);
         console.log(`Removed entry successfully.`);
     } catch (error) {
         console.error(`Error: Failed to update ${JSON_FILE}.`, error.message);

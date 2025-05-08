@@ -1,5 +1,4 @@
 const { initialize } = require('./src/init');
-const {fetchExternalTerms} = require('./src/utils/fetch');
 
 module.exports = async function (options = {}) {
   try {
@@ -18,9 +17,6 @@ module.exports = async function (options = {}) {
     const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
     runJsonKeyValidatorSync();
 
-    // const { createTermRelations } = require('./src/create-term-relations.js');
-    // createTermRelations();
-
     const { createTermIndex } = require('./src/create-term-index.js');
     createTermIndex();
 
@@ -30,8 +26,6 @@ module.exports = async function (options = {}) {
     const findPkgDir = require('find-pkg-dir');
     const modulePath = findPkgDir(__dirname);
     let config = fs.readJsonSync('./output/specs-generated.json');
-
-    const externalTerms = fetchExternalTerms();
 
     const createExternalSpecsList = require('./src/create-external-specs-list.js');
 

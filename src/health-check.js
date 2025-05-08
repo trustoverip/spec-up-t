@@ -60,7 +60,6 @@ function getRepoInfo() {
 
         // Look for specs.json in the current working directory (where the command is run from)
         const specsPath = path.join(process.cwd(), 'specs.json');
-        // console.log(`Looking for specs.json at: ${specsPath}`);
         
         if (fs.existsSync(specsPath)) {
             // console.log('specs.json found!');
@@ -68,10 +67,9 @@ function getRepoInfo() {
             const specs = JSON.parse(specsContent);
             
             // Check if source field exists and has required properties
-            if (specs?.specs?.[0]?.source && 
-                specs.specs[0].source.host && 
-                specs.specs[0].source.account && 
-                specs.specs[0].source.repo) {
+            if (specs?.specs?.[0]?.source?.host && 
+                specs?.specs?.[0]?.source?.account && 
+                specs?.specs?.[0]?.source?.repo) {
                 
                 const sourceInfo = specs.specs[0].source;
                 
@@ -128,7 +126,6 @@ function getRepoInfo() {
     }
     
     // Return default values if specs.json doesn't exist or doesn't contain the required information
-    // console.log('Using default repository values');
     return {
         host: 'github',
         account: 'blockchain-bird',
@@ -158,6 +155,17 @@ function checkRepositoryExists(host, account, repo) {
     }
 }
 
+// Helper function to get the appropriate file open command based on platform
+function getOpenCommand() {
+    if (process.platform === 'win32') {
+        return 'start';
+    } else if (process.platform === 'darwin') {
+        return 'open';
+    } else {
+        return 'xdg-open';
+    }
+}
+
 // Helper function to format current time for the filename
 function getFormattedTimestamp() {
     const now = new Date();
@@ -170,6 +178,32 @@ function getFormattedTimestamp() {
 // Helper function to generate a human-readable timestamp for display
 function getHumanReadableTimestamp() {
     return new Date().toLocaleString();
+}
+
+// Helper function to determine status display parameters based on result
+function getStatusDisplay(result) {
+    if (result.status === 'warning' || result.success === 'partial') {
+        // Warning status
+        return {
+            statusClass: 'text-warning',
+            statusIcon: '<i class="bi bi-exclamation-triangle-fill"></i>',
+            statusText: 'Warning'
+        };
+    } else if (result.success) {
+        // Pass status
+        return {
+            statusClass: 'text-success',
+            statusIcon: '<i class="bi bi-check-circle-fill"></i>',
+            statusText: 'Pass'
+        };
+    } else {
+        // Fail status
+        return {
+            statusClass: 'text-danger',
+            statusIcon: '<i class="bi bi-x-circle-fill"></i>',
+            statusText: 'Fail'
+        };
+    }
 }
 
 // Main function to run all checks and generate the report
@@ -249,8 +283,7 @@ function generateReport(checkResults) {
 
     // Open the report in the default browser
     try {
-        const openCommand = process.platform === 'win32' ? 'start' :
-            process.platform === 'darwin' ? 'open' : 'xdg-open';
+        const openCommand = getOpenCommand();
         execSync(`${openCommand} "${reportPath}"`);
     } catch (error) {
         console.error('Failed to open the report:', error);
@@ -263,6 +296,12 @@ function generateHtmlReport(checkResults, timestamp, repoInfo) {
 
     // Add repository verification check at the beginning if needed
     if (repoInfo && repoInfo.verified === false) {
+        const failStatus = {
+            statusClass: 'text-danger',
+            statusIcon: '<i class="bi bi-x-circle-fill"></i>',
+            statusText: 'Fail'
+        };
+        
         // Create a new section at the top for repository verification
         resultsHtml += `
       <div class="card mb-4 results-card alert-danger" data-section="repository-verification">
@@ -280,8 +319,8 @@ function generateHtmlReport(checkResults, timestamp, repoInfo) {
             </thead>
             <tbody>
               <tr data-status="fail" class="check-row">
-                <td class="text-danger" style="white-space: nowrap;">
-                  <i class="bi bi-x-circle-fill"></i> <span style="vertical-align: middle;">Fail</span>
+                <td class="${failStatus.statusClass}" style="white-space: nowrap;">
+                  ${failStatus.statusIcon} <span style="vertical-align: middle;">${failStatus.statusText}</span>
                 </td>
                 <td>Repository existence check</td>
                 <td>The repository at https://${repoInfo.host}.com/${repoInfo.account}/${repoInfo.repo} does not exist or is not accessible. Please verify the repository information in specs.json.</td>
@@ -312,29 +351,7 @@ function generateHtmlReport(checkResults, timestamp, repoInfo) {
     `;
 
         section.results.forEach(result => {
-            let statusClass, statusIcon, statusText;
-
-            if (result.status === 'warning') {
-                // Warning status
-                statusClass = 'text-warning';
-                statusIcon = '<i class="bi bi-exclamation-triangle-fill"></i>';
-                statusText = 'Warning';
-            } else if (result.success === 'partial') {
-                // Partial success (warning) status
-                statusClass = 'text-warning';
-                statusIcon = '<i class="bi bi-exclamation-triangle-fill"></i>';
-                statusText = 'Warning';
-            } else if (result.success) {
-                // Pass status
-                statusClass = 'text-success';
-                statusIcon = '<i class="bi bi-check-circle-fill"></i>';
-                statusText = 'Pass';
-            } else {
-                // Fail status
-                statusClass = 'text-danger';
-                statusIcon = '<i class="bi bi-x-circle-fill"></i>';
-                statusText = 'Fail';
-            }
+            const { statusClass, statusIcon, statusText } = getStatusDisplay(result);
 
             // Add data-status attribute to identify rows by status and reorder columns to put status first
             resultsHtml += `

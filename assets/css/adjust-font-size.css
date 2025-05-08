@@ -4,6 +4,10 @@
     background-color: #a9dde0;
     /* Set background color */
     padding: 14px 14px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 0;
 }
 
 .adjust-font-size #increaseBtn {
@@ -11,22 +15,13 @@
     background-color: #a9dde0;
     /* Set background color */
     padding: 14px 14px;
-}
-
-/* This should ot be necessary but I can't get it right */
-.adjust-font-size #increaseBtn {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 4px;
     border-top-left-radius: 0;
     border-top-right-radius: 4px;
-    margin-left: -1px !important; /* Fix the spacing issue between buttons */
-}
+    margin-left: -1px !important;
+    /* Fix the spacing issue between buttons */
 
-.adjust-font-size #decreaseBtn {
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 0;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 0;
 }
 
 /* Ensure the adjust-font-size button group displays buttons tightly together */
