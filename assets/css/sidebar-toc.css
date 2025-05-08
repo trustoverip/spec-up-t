@@ -53,6 +53,8 @@ ul.toc li a {
     /* Initial padding */
     border-left: 3px solid transparent;
     /* Add transparent border for hover */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    /* Add a very subtle bottom border to each list item */
 }
 
 /* Indent nested levels for hierarchy */
@@ -87,7 +89,8 @@ ul.toc a:focus {
     outline-offset: -2px;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
     position: relative;
-    z-index: 1; /* Ensure the focus outline is visible */
+    z-index: 1;
+    /* Ensure the focus outline is visible */
 }
 
 .powered-by {
@@ -103,11 +106,6 @@ ul.toc li a[aria-current="page"] {
     /* Make active item slightly bolder */
     background: #f0f0f0;
     /* Light background for active item */
-}
-
-/* Add a very subtle bottom border to each list item */
-ul.toc li a {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 /* Remove bottom border from last list item */
@@ -133,7 +131,8 @@ ul.toc li:last-child a {
     width: 28px;
     height: 28px;
     background: transparent;
-    border: 1px solid transparent; /* Border for focus state */
+    border: 1px solid transparent;
+    /* Border for focus state */
     border-radius: 3px;
     padding: 0;
     display: flex;
@@ -175,17 +174,19 @@ ul.toc li:last-child a {
 }
 
 /* Hide submenu when collapsed - with screen reader considerations */
-#toc ul li.has-children > ul {
-    max-height: 1000px; /* Arbitrary large value */
+#toc ul li.has-children>ul {
+    max-height: 1000px;
+    /* Arbitrary large value */
     overflow: hidden;
     transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
     opacity: 1;
 }
 
-#toc ul li.has-children.collapsed > ul {
+#toc ul li.has-children.collapsed>ul {
     max-height: 0;
     overflow: hidden;
-    opacity: 0.6; /* Better visual cue that content is hidden */
+    opacity: 0.6;
+    /* Better visual cue that content is hidden */
 }
 
 /* Skip to content - accessibility enhancement */
@@ -196,7 +197,7 @@ ul.toc li:last-child a {
     padding: 0;
     margin: -1px;
     overflow: hidden;
-    clip: rect(0,0,0,0);
+    clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
 }
