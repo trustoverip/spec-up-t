@@ -1,9 +1,6 @@
 
 (function(){
 
-var markdown = window.markdownit();
-
-
 /* GitHub Issues */
 
  let source = specConfig.source;
@@ -19,7 +16,7 @@ var markdown = window.markdownit();
           repo_issue_list.innerHTML = issues.map(issue => {
             return `<li class="repo-issue">
               <detail-box>
-                <section>${markdown.render(issue.body || '')}</section>
+                <section>${md.render(issue.body || '')}</section>
                 <header class="repo-issue-title">
                   <span class="repo-issue-number">${issue.number}</span>
                   <span class="repo-issue-link">
@@ -34,7 +31,6 @@ var markdown = window.markdownit();
         })
     }
   }
-  //${markdown.render(issue.body)}
 
 /* Mermaid Diagrams */
 
