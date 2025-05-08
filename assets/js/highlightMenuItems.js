@@ -18,7 +18,7 @@ function highlightMenuItems() {
       if (menuItem) {
          menuItem.classList.add("highlight-cfib41dyhcd99sm");
          menuItem.scrollIntoView({ behavior: "smooth", block: "center" });
-         
+
          // Dispatch custom event for the collapsible menu to handle
          document.dispatchEvent(new CustomEvent('highlight-menu-item', {
             detail: { menuItem, headingId: heading.id }
@@ -40,10 +40,10 @@ function highlightMenuItems() {
          // Update last heading in view to the first one found in the current viewport
          lastHeadingInView = headingsInView[0];
          highlightMenuItem(lastHeadingInView);
-      } else {
+      } else if (lastHeadingInView) {
          // No headings are currently in view
          // Highlight the last heading in view if it exists
-         if (lastHeadingInView) highlightMenuItem(lastHeadingInView);
+         highlightMenuItem(lastHeadingInView);
       }
    }, options);
 

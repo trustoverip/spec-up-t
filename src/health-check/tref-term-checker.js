@@ -15,11 +15,11 @@ function extractTrefInfo(firstLine) {
   try {
     // Extract content between [[tref: and ]]
     const trefMatch = firstLine.match(/\[\[tref:([^\]]+)\]\]/);
-    if (!trefMatch || !trefMatch[1]) {
+    if (!trefMatch?.length) {
       return null;
     }
     
-    const trefContent = trefMatch[1].trim();
+    const trefContent = trefMatch[1]?.trim();
     
     // Split by the first comma
     const parts = trefContent.split(',');
@@ -75,7 +75,7 @@ function termExistsInRepo(filePath, term) {
     const cacheData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     
     // Check if the file has a terms array
-    if (!cacheData || !cacheData.terms || !Array.isArray(cacheData.terms)) {
+    if (!cacheData?.terms?.length) {
       console.log(`Warning: Cache file ${filePath} has no terms array`);
       return false;
     }
@@ -86,7 +86,7 @@ function termExistsInRepo(filePath, term) {
     // Check each term in the terms array
     for (const termObj of cacheData.terms) {
       // First check the 'term' property if it exists
-      if (termObj.term && termObj.term.toLowerCase() === termLower) {
+      if (termObj.term?.toLowerCase() === termLower) {
         return true;
       }
       
@@ -94,7 +94,7 @@ function termExistsInRepo(filePath, term) {
       if (termObj.definition) {
         // Look for patterns like [[def: term]] or similar
         const defMatch = termObj.definition.match(/\[\[def:\s*([^\],]+)/i);
-        if (defMatch && defMatch[1] && defMatch[1].trim().toLowerCase() === termLower) {
+        if (defMatch?.[1]?.trim().toLowerCase() === termLower) {
           return true;
         }
       }
@@ -117,7 +117,7 @@ function findRepoForCacheFile(filePath, externalSpecs) {
   try {
     const cacheData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     
-    if (!cacheData || !cacheData.repository) {
+    if (!cacheData?.repository) {
       return null;
     }
     
@@ -129,8 +129,8 @@ function findRepoForCacheFile(filePath, externalSpecs) {
       if (!spec.url) continue;
       
       // Extract owner/repo from the URL
-      const match = spec.url.match(/github\.com\/([^\/]+\/[^\/]+)/i);
-      if (match && match[1] && repoPath.includes(match[1])) {
+      const match = spec.url.match(/github\.com\/([^/]+\/[^/]+)/i);
+      if (match?.[1] && repoPath.includes(match[1])) {
         return spec.external_spec;
       }
     }
@@ -181,14 +181,14 @@ function findTermInOtherRepos(cacheDir, externalSpecs, currentRepo, term) {
  * @returns {string|null} - Path to the cache file or null
  */
 function findCacheFileForRepo(cacheDir, specConfig) {
-  if (!fs.existsSync(cacheDir) || !specConfig || !specConfig.url) {
+  if (!fs.existsSync(cacheDir) || !specConfig?.url) {
     return null;
   }
   
   try {
     // Extract owner and repo from URL
-    const match = specConfig.url.match(/github\.com\/([^\/]+)\/([^\/]+)/i);
-    if (!match || !match[1] || !match[2]) {
+    const match = specConfig.url.match(/github\.com\/([^/]+)\/([^/]+)/i);
+    if (!match?.[1] || !match?.[2]) {
       return null;
     }
     
@@ -204,8 +204,8 @@ function findCacheFileForRepo(cacheDir, specConfig) {
       }))
       // Sort by timestamp descending (assuming timestamp is at the beginning of filename)
       .sort((a, b) => {
-        const timestampA = parseInt(a.name.split('-')[0] || '0', 10);
-        const timestampB = parseInt(b.name.split('-')[0] || '0', 10);
+        const timestampA = parseInt(a.name.split('-')[0] ?? '0', 10);
+        const timestampB = parseInt(b.name.split('-')[0] ?? '0', 10);
         return timestampB - timestampA;
       });
     
@@ -257,7 +257,7 @@ async function getProjectConfiguration(projectRoot) {
   const specs = JSON.parse(specsContent);
   
   // Get the external specs
-  if (!specs.specs || !Array.isArray(specs.specs)) {
+  if (!specs.specs?.length) {
     results.push({
       name: 'Find specs configuration',
       success: false,
@@ -271,7 +271,7 @@ async function getProjectConfiguration(projectRoot) {
   const specDirs = [];
   
   specs.specs.forEach(spec => {
-    if (spec.external_specs && Array.isArray(spec.external_specs)) {
+    if (spec.external_specs?.length) {
       externalSpecs.push(...spec.external_specs);
     }
     

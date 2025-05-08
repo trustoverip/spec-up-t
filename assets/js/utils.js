@@ -5,7 +5,7 @@ function delegateEvent(type, selector, fn, options = {}){
   }, options);
 }
 
-skipAnimationFrame = fn => requestAnimationFrame(() => requestAnimationFrame(fn));
+const skipAnimationFrame = fn => requestAnimationFrame(() => requestAnimationFrame(fn));
 
 const domReady = new Promise(resolve => {
   document.addEventListener('DOMContentLoaded', e => resolve())

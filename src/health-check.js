@@ -62,7 +62,6 @@ function getRepoInfo() {
         const specsPath = path.join(process.cwd(), 'specs.json');
         
         if (fs.existsSync(specsPath)) {
-            // console.log('specs.json found!');
             const specsContent = fs.readFileSync(specsPath, 'utf8');
             const specs = JSON.parse(specsContent);
             
