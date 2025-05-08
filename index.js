@@ -17,9 +17,6 @@ module.exports = async function (options = {}) {
     const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
     runJsonKeyValidatorSync();
 
-    // const { createTermRelations } = require('./src/create-term-relations.js');
-    // createTermRelations();
-
     const { createTermIndex } = require('./src/create-term-index.js');
     createTermIndex();
 
