@@ -42,8 +42,6 @@ module.exports = async function (options = {}) {
 
     const { fixMarkdownFiles } = require('./src/fix-markdown-files.js');
 
-    // const { prepareTref } = require('./src/prepare-tref.js');
-
     let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
     let assets = fs.readJsonSync(modulePath + '/src/asset-map.json');
     let externalReferences;
