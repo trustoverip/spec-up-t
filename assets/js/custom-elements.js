@@ -59,22 +59,19 @@ customElements.define('detail-box', class DetailBox extends HTMLElement {
     this.toggleAttribute('open');
   }
   attributeChangedCallback(attr, last, current) {
-    switch(attr) {
-      case 'open':
-        for (let node of this.children) {
-          if (node.tagName === 'SECTION') {
-            if (current !== null) {
-              if (node.offsetHeight < node.scrollHeight) {
-                node.style.height = node.scrollHeight + 'px';
-              }
+    if (attr === 'open') {
+      for (let node of this.children) {
+        if (node.tagName === 'SECTION') {
+          if (current !== null) {
+            if (node.offsetHeight < node.scrollHeight) {
+              node.style.height = node.scrollHeight + 'px';
             }
-            else if (node.offsetHeight > 0) {
-              node.style.height = node.offsetHeight + 'px';
-              node.style.height = 0;
-            }
-            break;
+          } else if (node.offsetHeight > 0) {
+            node.style.height = node.offsetHeight + 'px';
+            node.style.height = 0;
           }
         }
+      }
     }
   }
 });
