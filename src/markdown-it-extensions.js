@@ -1,8 +1,14 @@
 'use strict';
 
-const levels = 2;
-const openString = '['.repeat(levels);
-const closeString = ']'.repeat(levels);
+/**
+ * Configuration for custom template syntax [[example]] used throughout the markdown parsing
+ * These constants define how template markers are identified and processed
+ */
+const levels = 2;                         // Number of bracket characters used for template markers
+const openString = '['.repeat(levels);    // Opening delimiter for template markers, e.g., '[['
+const closeString = ']'.repeat(levels);   // Closing delimiter for template markers, e.g., ']]'
+// Regular expression to extract template type and arguments from content between delimiters
+// Captures: 1st group = template type (e.g., "ref", "tref"), 2nd group = optional arguments
 const contentRegex = /\s*([^\s\[\]:]+):?\s*([^\]\n]+)?/i;
 
 module.exports = function (md, templates = {}) {
@@ -23,7 +29,7 @@ module.exports = function (md, templates = {}) {
     const token = tokens[idx];
     const classIndex = token.attrIndex('class');
     const tableClasses = 'table table-striped table-bordered table-hover';
-    
+
     if (classIndex < 0) {
       token.attrPush(['class', tableClasses]);
     } else {
@@ -34,12 +40,12 @@ module.exports = function (md, templates = {}) {
         .split(' ')
         .filter(cls => !existingClasses.includes(cls))
         .join(' ');
-      
+
       if (classesToAdd) {
         token.attrs[classIndex][1] = existingClasses + ' ' + classesToAdd;
       }
     }
-    
+
     // Add the responsive wrapper div before the table
     return '<div class="table-responsive">' + originalTableRender(tokens, idx, options, env, self);
   };
@@ -50,30 +56,43 @@ module.exports = function (md, templates = {}) {
     return originalTableCloseRender(tokens, idx, options, env, self) + '</div>';
   };
 
+  /**
+   * Custom template syntax rule for markdown-it
+   * Processes template markers like [[template-type:arg1,arg2]] in markdown content
+   * and converts them to tokens that can be processed by template renderers
+   */
   md.inline.ruler.after('emphasis', 'templates', function templates_ruler(state, silent) {
-
+    // Get the current parsing position
     var start = state.pos;
+    // Check if we're at a template opening marker
     let prefix = state.src.slice(start, start + levels);
     if (prefix !== openString) return false;
+    // Find the matching closing marker
     var indexOfClosingBrace = state.src.indexOf(closeString, start);
 
     if (indexOfClosingBrace > 0) {
-
+      // Extract the template content using regex
       let match = contentRegex.exec(state.src.slice(start + levels, indexOfClosingBrace));
       if (!match) return false;
 
+      // Get template type and find a matching template handler
       let type = match[1];
       let template = templates.find(t => t.filter(type) && t);
       if (!template) return false;
 
+      // Parse template arguments (comma-separated)
       let args = match[2] ? match[2].trim().split(/\s*,+\s*/) : [];
+      // Create a template token to be processed during rendering
       let token = state.push('template', '', 0);
       token.content = match[0];
       token.info = { type, template, args };
+
+      // If the template has a parse function, use it to preprocess the token
       if (template.parse) {
         token.content = template.parse(token, type, ...args) || token.content;
       }
 
+      // Advance the parser position past the template
       state.pos = indexOfClosingBrace + levels;
       return true;
     }
@@ -81,6 +100,10 @@ module.exports = function (md, templates = {}) {
     return false;
   });
 
+  /**
+   * Renderer for template tokens
+   * Takes template tokens created during parsing and renders them using their associated template handler
+   */
   md.renderer.rules.template = function (tokens, idx, options, env, renderer) {
     let token = tokens[idx];
     let template = token.info.template;
@@ -90,7 +113,16 @@ module.exports = function (md, templates = {}) {
     return token.content;
   }
 
+  /**
+   * Regular expression to extract domains and path segments from URLs
+   * Used to add path-related attributes to links for styling and behavior
+   */
   let pathSegmentRegex = /(?:http[s]*:\/\/([^\/]*)|(?:\/([^\/?]*)))/g;
+
+  /**
+   * Custom link_open renderer that adds path attributes for styling and behavior
+   * Extracts domain and path segments from href attributes and adds them as path-X attributes
+   */
   md.renderer.rules.link_open = function (tokens, idx, options, env, renderer) {
     let token = tokens[idx];
     let attrs = token.attrs.reduce((str, attr) => {
@@ -105,6 +137,7 @@ module.exports = function (md, templates = {}) {
       return str += name + '="' + value + '" ';
     }, '');
     let anchor = `<a ${attrs}>`;
+    // Special handling for auto-detected links (linkify)
     return token.markup === 'linkify' ? anchor + '<span>' : anchor;
   }
 
@@ -120,17 +153,111 @@ module.exports = function (md, templates = {}) {
   // Variable to keep track of whether the class has been added to the first <dl> after the target HTML
   let classAdded = false;
 
-  md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
-    const targetHtml = 'terminology-section-start-h7vc6omi2hr2880';
-    let targetIndex = -1;
-
-    // Find the index of the target HTML
+  /**
+   * Helper function to locate a specific marker in the token stream
+   * Used to identify the terminology section in the document
+   * 
+   * @param {Array} tokens - The token array to search through
+   * @param {String} targetHtml - The HTML string to look for in token content
+   * @return {Number} The index of the token containing targetHtml, or -1 if not found
+   */
+  function findTargetIndex(tokens, targetHtml) {
     for (let i = 0; i < tokens.length; i++) {
       if (tokens[i].content && tokens[i].content.includes(targetHtml)) {
-        targetIndex = i;
-        break;
+        return i;
       }
     }
+    return -1;
+  }
+
+  /**
+   * Helper function to identify and mark empty definition term elements
+   * Empty dt elements cause rendering and styling issues, so we mark them for special handling
+   * 
+   * @param {Array} tokens - The token array to process
+   * @param {Number} startIdx - The index in the token array to start processing from
+   */
+  function markEmptyDtElements(tokens, startIdx) {
+    for (let i = startIdx; i < tokens.length; i++) {
+      if (tokens[i].type === 'dl_close') {
+        break; // Stop when we reach the end of this definition list
+      }
+
+      // An empty dt element is one where dt_open is immediately followed by dt_close
+      // with no content in between
+      if (tokens[i].type === 'dt_open' &&
+        i + 1 < tokens.length &&
+        tokens[i + 1].type === 'dt_close') {
+        // Mark both opening and closing tokens so they can be skipped during rendering
+        tokens[i].isEmpty = true;
+        tokens[i + 1].isEmpty = true;
+      }
+    }
+  }
+
+  /**
+   * Helper function to add a 'last-dd' class to a dd token
+   * This enables special styling for the last definition description in a group
+   * 
+   * @param {Array} tokens - The token array containing the dd token
+   * @param {Number} ddIndex - The index of the dd_open token to modify
+   */
+  function addLastDdClass(tokens, ddIndex) {
+    if (ddIndex === -1) return;
+
+    const ddToken = tokens[ddIndex];
+    const classIndex = ddToken.attrIndex('class');
+    if (classIndex < 0) {
+      ddToken.attrPush(['class', 'last-dd']);
+    } else {
+      ddToken.attrs[classIndex][1] += ' last-dd';
+    }
+  }
+
+  /**
+   * Helper function to process definition description elements
+   * Identifies and marks the last dd element in each dt/dd group for special styling
+   * 
+   * @param {Array} tokens - The token array to process
+   * @param {Number} startIdx - The index in the token array to start processing from
+   */
+  function processLastDdElements(tokens, startIdx) {
+    let lastDdIndex = -1; // Tracks the most recent dd_open token
+
+    for (let i = startIdx; i < tokens.length; i++) {
+      if (tokens[i].type === 'dl_close') {
+        // Add class to the last <dd> before closing the entire <dl>
+        addLastDdClass(tokens, lastDdIndex);
+        break;
+      }
+
+      if (tokens[i].type === 'dt_open' && !tokens[i].isEmpty) {
+        // When we find a non-empty dt, mark the previous dd as the last one in its group
+        addLastDdClass(tokens, lastDdIndex);
+        lastDdIndex = -1; // Reset for the next group
+      }
+
+      if (tokens[i].type === 'dd_open') {
+        lastDdIndex = i; // Track the most recently seen dd_open
+      }
+    }
+  }
+
+  /**
+   * Custom renderer for definition list opening tags
+   * Handles special styling for terminology sections and processes definition terms and descriptions
+   * This function was refactored to reduce cognitive complexity by extracting helper functions
+   * 
+   * @param {Array} tokens - The token array being processed
+   * @param {Number} idx - The index of the current token
+   * @param {Object} options - Rendering options
+   * @param {Object} env - Environment variables
+   * @param {Object} self - Reference to the renderer
+   * @return {String} The rendered HTML output
+   */
+  md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
+    const targetHtml = 'terminology-section-start-h7vc6omi2hr2880';
+    let targetIndex = findTargetIndex(tokens, targetHtml);
 
     // Add class to the first <dl> only if it comes after the target HTML
     if (targetIndex !== -1 && idx > targetIndex && !classAdded) {
@@ -138,113 +265,69 @@ module.exports = function (md, templates = {}) {
       classAdded = true;
     }
 
-    let lastDdIndex = -1;
-    let currentDtIndex = -1; // Track current dt to detect empty dt elements
+    // First pass - mark empty dt elements
+    markEmptyDtElements(tokens, idx + 1);
 
-    // First pass - check for and mark empty dt elements
-    // This scan identifies definition terms that have no content (empty dt elements)
-    // which is one of the root causes of the issues we're fixing
-    for (let i = idx + 1; i < tokens.length; i++) {
-      if (tokens[i].type === 'dl_close') {
-        break;
-      }
-      
-      if (tokens[i].type === 'dt_open') {
-        currentDtIndex = i;
-        // Check if this is an empty dt (no content between dt_open and dt_close)
-        // An empty dt is when a dt_close token immediately follows a dt_open token
-        if (i + 1 < tokens.length && tokens[i + 1].type === 'dt_close') {
-          // Mark this dt pair for handling by adding an isEmpty property
-          // This property will be used later to skip rendering these empty elements
-          tokens[i].isEmpty = true;
-          tokens[i + 1].isEmpty = true;
-        }
-      }
-    }
-
-    // Second pass - add classes and handle last-dd
-    // Now that we've identified empty dt elements, we can process the tokens
-    // while skipping the empty ones
-    for (let i = idx + 1; i < tokens.length; i++) {
-      if (tokens[i].type === 'dl_close') {
-        // Add class to the last <dd> before closing <dl>
-        if (lastDdIndex !== -1) {
-          const ddToken = tokens[lastDdIndex];
-          const classIndex = ddToken.attrIndex('class');
-          if (classIndex < 0) {
-            ddToken.attrPush(['class', 'last-dd']);
-          } else {
-            ddToken.attrs[classIndex][1] += ' last-dd';
-          }
-        }
-        break;
-      }
-
-      if (tokens[i].type === 'dt_open') {
-        // Skip empty dt elements - this is where we use the isEmpty flag
-        // to avoid processing empty definition terms
-        if (tokens[i].isEmpty) {
-          continue; // Skip to the next iteration without processing this empty dt
-        }
-        
-        // Add class to the last <dd> before a new <dt>
-        if (lastDdIndex !== -1) {
-          const ddToken = tokens[lastDdIndex];
-          const classIndex = ddToken.attrIndex('class');
-          if (classIndex < 0) {
-            ddToken.attrPush(['class', 'last-dd']);
-          } else {
-            ddToken.attrs[classIndex][1] += ' last-dd';
-          }
-          lastDdIndex = -1; // Reset for the next series
-        }
-      }
-
-      if (tokens[i].type === 'dd_open') {
-        lastDdIndex = i;
-      }
-    }
+    // Second pass - process last dd elements
+    processLastDdElements(tokens, idx + 1);
 
     return originalRender(tokens, idx, options, env, self);
   };
-  
+
+  /**
+   * Helper function to determine if a definition term is transcluded from another source
+   * Transcluded terms require special styling and handling
+   * 
+   * @param {Array} tokens - The token array to process
+   * @param {Number} dtOpenIndex - The index of the dt_open token to check
+   * @return {Boolean} True if the term is transcluded, false otherwise
+   */
+  function isTermTranscluded(tokens, dtOpenIndex) {
+    for (let i = dtOpenIndex + 1; i < tokens.length; i++) {
+      if (tokens[i].type === 'dt_close') {
+        break; // Only examine tokens within this definition term
+      }
+
+      // Look for inline content that contains template tokens of type 'tref'
+      // These are transcluded term references
+      if (tokens[i].type === 'inline' && tokens[i].children) {
+        for (let j = 0; j < tokens[i].children.length; j++) {
+          const child = tokens[i].children[j];
+          if (child.type === 'template' &&
+            child.info &&
+            child.info.type === 'tref') {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   // Override the rendering of dt elements to properly handle transcluded terms
   const originalDtRender = md.renderer.rules.dt_open || function (tokens, idx, options, env, self) {
     return self.renderToken(tokens, idx, options);
   };
-  
+
+  /**
+   * Custom renderer for definition term opening tags
+   * Handles special cases like empty terms and transcluded terms
+   * 
+   * @param {Array} tokens - The token array being processed
+   * @param {Number} idx - The index of the current token
+   * @param {Object} options - Rendering options
+   * @param {Object} env - Environment variables
+   * @param {Object} self - Reference to the renderer
+   * @return {String} The rendered HTML output or empty string for skipped elements
+   */
   md.renderer.rules.dt_open = function (tokens, idx, options, env, self) {
-    // Skip rendering empty dt elements - this is the first critical fix
-    // When a dt has been marked as empty, we return an empty string
-    // instead of rendering the <dt> tag. This effectively removes empty dt tags
-    // from the output HTML.
+    // Skip rendering empty dt elements that were marked during preprocessing
     if (tokens[idx].isEmpty) {
       return '';
     }
-    
-    // Check if this dt is part of a transcluded term by looking at the next inline token
-    // This is part of the second fix, to properly handle transcluded terms
-    let isTranscluded = false;
-    for (let i = idx + 1; i < tokens.length; i++) {
-      if (tokens[i].type === 'dt_close') {
-        break;
-      }
-      // Look for child tokens that are template tokens with type 'tref'
-      // These represent transcluded terms from external sources
-      if (tokens[i].type === 'inline' && 
-          tokens[i].children && 
-          tokens[i].children.some(child => 
-            child.type === 'template' && 
-            child.info && 
-            child.info.type === 'tref')) {
-        isTranscluded = true;
-        break;
-      }
-    }
-    
-    // Add a class for transcluded terms to ensure proper styling
-    // This helps maintain consistent styling for transcluded terms
-    if (isTranscluded) {
+
+    // Check if this dt is part of a transcluded term and add appropriate class
+    if (isTermTranscluded(tokens, idx)) {
       const classIndex = tokens[idx].attrIndex('class');
       if (classIndex < 0) {
         tokens[idx].attrPush(['class', 'transcluded-xref-term']);
@@ -252,15 +335,26 @@ module.exports = function (md, templates = {}) {
         tokens[idx].attrs[classIndex][1] += ' transcluded-xref-term';
       }
     }
-    
+
     return originalDtRender(tokens, idx, options, env, self);
   };
-  
+
   // Similarly override dt_close to skip empty dts
   const originalDtCloseRender = md.renderer.rules.dt_close || function (tokens, idx, options, env, self) {
     return self.renderToken(tokens, idx, options);
   };
-  
+
+  /**
+   * Custom renderer for definition term closing tags
+   * Ensures empty terms are not rendered in the final output
+   * 
+   * @param {Array} tokens - The token array being processed
+   * @param {Number} idx - The index of the current token
+   * @param {Object} options - Rendering options
+   * @param {Object} env - Environment variables
+   * @param {Object} self - Reference to the renderer
+   * @return {String} The rendered HTML output or empty string for skipped elements
+   */
   md.renderer.rules.dt_close = function (tokens, idx, options, env, self) {
     // Skip rendering the closing </dt> tag for empty dt elements
     // This completes the fix for empty dt elements by ensuring neither
