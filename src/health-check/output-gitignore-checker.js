@@ -16,6 +16,7 @@ function isPathGitIgnored(projectRoot, targetPath) {
     execSync(`git -C "${projectRoot}" check-ignore -q "${targetPath}"`, { stdio: 'ignore' });
     return true; // Path is ignored (command exited with status 0)
   } catch (error) {
+    console.log(`Error checking if path is gitignored: ${error.message}`);
     return false; // Path is not ignored (command exited with non-zero status)
   }
 }
