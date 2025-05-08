@@ -67,10 +67,9 @@ function getRepoInfo() {
             const specs = JSON.parse(specsContent);
             
             // Check if source field exists and has required properties
-            if (specs?.specs?.[0]?.source && 
-                specs.specs[0].source.host && 
-                specs.specs[0].source.account && 
-                specs.specs[0].source.repo) {
+            if (specs?.specs?.[0]?.source?.host && 
+                specs?.specs?.[0]?.source?.account && 
+                specs?.specs?.[0]?.source?.repo) {
                 
                 const sourceInfo = specs.specs[0].source;
                 
