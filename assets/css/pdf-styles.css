@@ -34,10 +34,10 @@ body.pdf-document {
 }
 
 /* Override any Bootstrap container constraints */
-.pdf-document .container, 
-.pdf-document .container-sm, 
-.pdf-document .container-md, 
-.pdf-document .container-lg, 
+.pdf-document .container,
+.pdf-document .container-sm,
+.pdf-document .container-md,
+.pdf-document .container-lg,
 .pdf-document .container-xl {
   max-width: 95% !important;
 }
@@ -63,7 +63,7 @@ body.pdf-document {
 }
 
 /* Code blocks */
-.pdf-document pre, 
+.pdf-document pre,
 .pdf-document code {
   white-space: pre-wrap !important;
   word-break: break-word !important;
@@ -72,30 +72,30 @@ body.pdf-document {
 }
 
 /* Ensure proper page breaks */
-.pdf-document h1, 
-.pdf-document h2, 
-.pdf-document h3, 
+.pdf-document h1,
+.pdf-document h2,
+.pdf-document h3,
 .pdf-document h4 {
   page-break-after: avoid;
   page-break-inside: avoid;
 }
 
-.pdf-document table, 
+.pdf-document table,
 .pdf-document figure {
   page-break-inside: avoid;
 }
 
 /* Force any fixed-position elements to static */
-.pdf-document .fixed-top, 
-.pdf-document .fixed-bottom, 
-.pdf-document .sticky-top, 
-.pdf-document .position-fixed, 
+.pdf-document .fixed-top,
+.pdf-document .fixed-bottom,
+.pdf-document .sticky-top,
+.pdf-document .position-fixed,
 .pdf-document .position-sticky {
   position: static !important;
 }
 
 /* Aggressively set all columns to take up more space */
-.pdf-document .col, 
+.pdf-document .col,
 .pdf-document [class*="col-"] {
   flex: 0 0 100% !important;
   max-width: 100% !important;
@@ -105,17 +105,19 @@ body.pdf-document {
 
 /* ====== DEFINITION LIST STYLING FOR PDF ====== */
 /* Remove background and borders from terms and definitions in PDF */
-.pdf-document dl.terms-and-definitions-list > dt,
-.pdf-document dl.terms-and-definitions-list > dd {
+.pdf-document dl.terms-and-definitions-list>dt,
+.pdf-document dl.terms-and-definitions-list>dd {
   background-color: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   padding: 0.5rem 0 !important;
   color: #000 !important;
+  /* Ensure good page breaks in definition lists */
+  page-break-inside: avoid !important;
 }
 
 /* Fix spacing between terms */
-.pdf-document dl.terms-and-definitions-list > dt {
+.pdf-document dl.terms-and-definitions-list>dt {
   margin-top: 1em !important;
   font-weight: bold !important;
   page-break-after: avoid !important;
@@ -127,8 +129,8 @@ body.pdf-document {
 }
 
 /* Always show meta-info content in PDF */
-.pdf-document dl > dd.meta-info-content-wrapper,
-.pdf-document dl > dd.collapsed.meta-info-content-wrapper {
+.pdf-document dl>dd.meta-info-content-wrapper,
+.pdf-document dl>dd.collapsed.meta-info-content-wrapper {
   display: block !important;
   max-height: none !important;
   height: auto !important;
@@ -146,20 +148,14 @@ body.pdf-document {
 }
 
 /* Remove any other visual indicators that aren't needed in PDF */
-.pdf-document dl.terms-and-definitions-list > dt::before,
-.pdf-document dl.terms-and-definitions-list > dd::before {
+.pdf-document dl.terms-and-definitions-list>dt::before,
+.pdf-document dl.terms-and-definitions-list>dd::before {
   display: none !important;
 }
 
 /* Ensure all definition content is visible in PDF */
 .pdf-document dl.terms-and-definitions-list dd p {
   padding-left: 0 !important;
-}
-
-/* Ensure good page breaks in definition lists */
-.pdf-document dl.terms-and-definitions-list > dt,
-.pdf-document dl.terms-and-definitions-list > dd {
-  page-break-inside: avoid !important;
 }
 
 /* Improve table display in definitions for PDF */
