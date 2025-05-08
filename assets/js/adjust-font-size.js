@@ -6,7 +6,6 @@
 
 function adjustFontSize() {
    const body = document.body;
-   const DEFAULT_SIZE = parseFloat(window.getComputedStyle(body).fontSize); // Define default font size for reset
 
    function adjust(change) {
       // Get current font size from body (in pixels)
