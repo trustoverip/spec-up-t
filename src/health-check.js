@@ -155,6 +155,17 @@ function checkRepositoryExists(host, account, repo) {
     }
 }
 
+// Helper function to get the appropriate file open command based on platform
+function getOpenCommand() {
+    if (process.platform === 'win32') {
+        return 'start';
+    } else if (process.platform === 'darwin') {
+        return 'open';
+    } else {
+        return 'xdg-open';
+    }
+}
+
 // Helper function to format current time for the filename
 function getFormattedTimestamp() {
     const now = new Date();
@@ -246,8 +257,7 @@ function generateReport(checkResults) {
 
     // Open the report in the default browser
     try {
-        const openCommand = process.platform === 'win32' ? 'start' :
-            process.platform === 'darwin' ? 'open' : 'xdg-open';
+        const openCommand = getOpenCommand();
         execSync(`${openCommand} "${reportPath}"`);
     } catch (error) {
         console.error('Failed to open the report:', error);
