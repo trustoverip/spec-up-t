@@ -26,7 +26,8 @@ h6 {
   #terminology-section-utility-container {
     position: sticky;
     top: 3.5em;
-    z-index: 10; /* Higher z-index to ensure it stays on top */
+    z-index: 10;
+    /* Higher z-index to ensure it stays on top */
   }
 }
 
@@ -47,43 +48,51 @@ dl.terms-and-definitions-list {
   margin: 0;
   padding: 0;
   position: relative;
-  z-index: 1; /* Set a baseline z-index for the whole list */
+  z-index: 1;
+  /* Set a baseline z-index for the whole list */
 }
 
 /* ====== DEFAULT STYLING ====== */
 /* Term styling (dt) */
-dl.terms-and-definitions-list > dt {
+dl.terms-and-definitions-list>dt {
   font-weight: 700;
   margin: 0;
   background-color: var(--card-bg-dt);
   border: 1px solid var(--card-border);
-  padding: 0.5rem 1.25rem; /* Increased vertical padding for better readability */
+  padding: 0.5rem 1.25rem;
+  /* Increased vertical padding for better readability */
   border-radius: 0.375rem 0.375rem 0 0;
   color: var(--card-text);
-  position: relative; /* Position relative for stacking */
-  line-height: 1.5; /* Improve line spacing */
-  font-size: 1.05em; /* Slightly larger font for better hierarchy */
-  align-items: center; /* Vertically center the content */
+  position: relative;
+  /* Position relative for stacking */
+  line-height: 1.5;
+  /* Improve line spacing */
+  font-size: 1.05em;
+  /* Slightly larger font for better hierarchy */
+  align-items: center;
+  /* Vertically center the content */
 }
 
 /* This adds spacing between the term text and the buttons */
-dl.terms-and-definitions-list > dt > span {
-  margin-right: 1.5em; /* Add spacing to the right of the term text */
+dl.terms-and-definitions-list>dt>span {
+  margin-right: 1.5em;
+  /* Add spacing to the right of the term text */
 }
 
 
 /* Increase the size for all buttons in definition terms */
-dl.terms-and-definitions-list > dt .btn {
-  font-size: 1.2em !important; /* Increase button size */
+dl.terms-and-definitions-list>dt .btn {
+  font-size: 1.2em !important;
+  /* Increase button size */
 }
 
-dl.terms-and-definitions-list > dt:hover {
+dl.terms-and-definitions-list>dt:hover {
   background-color: var(--card-hover-bg);
   transition: background-color 0.2s ease-in-out;
 }
 
 /* Definition styling (dd) */
-dl.terms-and-definitions-list > dd {
+dl.terms-and-definitions-list>dd {
   margin: 0;
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
@@ -102,7 +111,7 @@ dl.terms-and-definitions-list dd p {
 }
 
 /* Remove the blue line indicator for dd */
-dl.terms-and-definitions-list > dd::before {
+dl.terms-and-definitions-list>dd::before {
   display: none;
 }
 
@@ -173,16 +182,16 @@ dl>dd:has(table).meta-info-content-wrapper>div {
 */
 
 /* Borders and spacing between elements */
-dl.terms-and-definitions-list dt + dd {
+dl.terms-and-definitions-list dt+dd {
   border-bottom: none;
 }
 
-dl.terms-and-definitions-list dd + dd {
+dl.terms-and-definitions-list dd+dd {
   border-top: none;
   border-bottom: none;
 }
 
-dl.terms-and-definitions-list dd + dt {
+dl.terms-and-definitions-list dd+dt {
   margin-top: 1rem;
 }
 
@@ -194,9 +203,10 @@ dl.terms-and-definitions-list dd.last-dd {
 
 /* ====== DENSE INFO STYLING ====== */
 /* Apply original, more condensed styling when the html element has class "dense-info" */
-html.dense-info dl.terms-and-definitions-list > dt {
+html.dense-info dl.terms-and-definitions-list>dt {
   padding: 0.1rem 1.25rem;
-  display: block; /* Revert from flexbox to block */
+  display: block;
+  /* Revert from flexbox to block */
   line-height: inherit;
   font-size: inherit;
 }
@@ -205,12 +215,14 @@ html.dense-info dl.terms-and-definitions-list dd+dt {
   margin-top: 0.3rem;
 }
 
-html.dense-info dl.terms-and-definitions-list > dt::before {
-  display: none; /* Remove the blue indicator bar */
+html.dense-info dl.terms-and-definitions-list>dt::before {
+  display: none;
+  /* Remove the blue indicator bar */
 }
 
-html.dense-info dl.terms-and-definitions-list > dt > span {
-  margin-right: 0; /* Remove spacing for term text */
+html.dense-info dl.terms-and-definitions-list>dt>span {
+  margin-right: 0;
+  /* Remove spacing for term text */
 }
 
 /* ====== TRANSCLUSIONS STYLING ====== */
@@ -229,7 +241,8 @@ dd.transcluded-xref-term {
   font-variant: small-caps;
   text-transform: uppercase;
   position: relative;
-  z-index: 5; /* Higher z-index for all buttons */
+  z-index: 5;
+  /* Higher z-index for all buttons */
 }
 
 .collapse-all-defs-button {
@@ -243,7 +256,7 @@ dd.transcluded-xref-term {
 }
 
 /* Embedded transclusions in definition lists */
-dl.terms-and-definitions-list > dd.transcluded-xref-term-embedded {
+dl.terms-and-definitions-list>dd.transcluded-xref-term-embedded {
   position: relative;
   padding-left: 2.5rem;
   padding-top: 0.3rem;
@@ -263,18 +276,15 @@ dl.terms-and-definitions-list span.transcluded-xref-term::after {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+  width: 0.8rem;
+  height: 0.8rem;
+  left: 0.2rem;
 }
 
 /* Inline span styling for transclusions */
 dl.terms-and-definitions-list span.transcluded-xref-term {
   padding-left: 1.5rem;
   display: inline-block;
-}
-
-dl.terms-and-definitions-list span.transcluded-xref-term::after {
-  width: 0.8rem;
-  height: 0.8rem;
-  left: 0.2rem;
 }
 
 .placeholder-tref {
@@ -293,4 +303,3 @@ dl.terms-and-definitions-list span.transcluded-xref-term::after {
   font-variant: small-caps;
   text-transform: uppercase;
 }
-
