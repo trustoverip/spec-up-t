@@ -245,6 +245,88 @@ function findComplexHtmlPatterns(lines) {
 }
 
 /**
+ * Check if HTML files in the output directory are being ignored by Git
+ * @param {string} projectRoot - Root directory of the project
+ * @param {string} normalizedPath - Normalized output path
+ * @param {string} outputPath - Original output path
+ * @param {Array} relevantLines - Relevant lines from .gitignore
+ * @returns {Array} - Results for HTML files gitignore check
+ */
+function checkHtmlFilesGitignore(projectRoot, normalizedPath, outputPath, relevantLines) {
+  const results = [];
+  const htmlIgnorePatterns = findHtmlIgnorePatterns(relevantLines);
+  
+  if (htmlIgnorePatterns.length > 0) {
+    results.push({
+      name: 'Check if index.html files are gitignored',
+      success: false,
+      details: `Found patterns in .gitignore that would ignore HTML files: ${htmlIgnorePatterns.join(', ')}. This is problematic as they're crucial output files.`
+    });
+    return results;
+  }
+  
+  // Check if index.html would be ignored
+  const indexHtmlPath = path.join(normalizedPath, 'index.html');
+  const isIndexHtmlIgnored = isPathGitIgnored(projectRoot, indexHtmlPath);
+  
+  results.push({
+    name: 'Check if index.html files are gitignored',
+    success: !isIndexHtmlIgnored,
+    details: isIndexHtmlIgnored 
+      ? `index.html files in the output directory would be ignored by Git. This is problematic as they're crucial output files.`
+      : `index.html files in the output directory are properly tracked by Git.`
+  });
+  
+  // If index.html is ignored but we couldn't find an explicit pattern, look for more complex patterns
+  if (isIndexHtmlIgnored && htmlIgnorePatterns.length === 0) {
+    const complexPatterns = findComplexHtmlPatterns(relevantLines);
+    
+    if (complexPatterns.length > 0) {
+      results.push({
+        name: 'Found complex .gitignore entries potentially affecting HTML files',
+        status: 'warning',
+        success: true, // Still considered a "success" for backward compatibility
+        details: `The following entries in .gitignore might cause HTML files to be ignored: ${complexPatterns.join(', ')}. Consider reviewing these patterns.`
+      });
+    }
+  }
+  
+  return results;
+}
+
+/**
+ * Check if output directory is being ignored by Git
+ * @param {string} projectRoot - Root directory of the project
+ * @param {string} normalizedPath - Normalized output path
+ * @param {string} outputPath - Original output path
+ * @param {string} dirName - Directory name from path
+ * @param {Array} relevantLines - Relevant lines from .gitignore
+ * @returns {Array} - Results for output directory gitignore check
+ */
+function checkOutputDirIgnorePatterns(projectRoot, normalizedPath, outputPath, dirName, relevantLines) {
+  const dirIgnorePatterns = findOutputDirIgnorePatterns(relevantLines, normalizedPath, dirName);
+  
+  if (dirIgnorePatterns.length > 0) {
+    return [{
+      name: 'Check if output directory is gitignored',
+      success: false,
+      details: `Found patterns in .gitignore that would ignore the output directory: ${dirIgnorePatterns.join(', ')}. Remove these entries to ensure generated content is tracked.`
+    }];
+  }
+  
+  // Fall back to using git check-ignore for verification
+  const isIgnored = isPathGitIgnored(projectRoot, normalizedPath);
+  
+  return [{
+    name: 'Check if output directory is gitignored',
+    success: !isIgnored,
+    details: isIgnored 
+      ? `Output directory "${outputPath}" is being ignored by Git. This could be due to a complex pattern in .gitignore. Remove any entries that might affect this directory.`
+      : `Output directory "${outputPath}" is not being ignored by Git, which is good.`
+  }];
+}
+
+/**
  * Check if the output directory is being ignored by Git
  * @param {string} projectRoot - Root directory of the project
  * @returns {Promise<Array>} - Array of check results
@@ -282,73 +364,22 @@ async function checkOutputDirGitIgnore(projectRoot) {
       return results;
     }
     
-    // Read .gitignore content
+    // Read .gitignore content and process it
     const gitignoreContent = fs.readFileSync(gitignoreCheck.gitignorePath, 'utf8');
     const relevantLines = getRelevantGitignoreLines(gitignoreContent);
-    
-    // Extract the directory name from the path
     const dirName = path.basename(normalizedPath);
     
-    // Check for patterns that would ignore the output directory
-    const dirIgnorePatterns = findOutputDirIgnorePatterns(relevantLines, normalizedPath, dirName);
+    // Check output directory ignore patterns
+    const dirResults = checkOutputDirIgnorePatterns(
+      projectRoot, normalizedPath, outputPath, dirName, relevantLines
+    );
+    results.push(...dirResults);
     
-    // Report results for directory ignore check
-    if (dirIgnorePatterns.length > 0) {
-      results.push({
-        name: 'Check if output directory is gitignored',
-        success: false,
-        details: `Found patterns in .gitignore that would ignore the output directory: ${dirIgnorePatterns.join(', ')}. Remove these entries to ensure generated content is tracked.`
-      });
-    } else {
-      // Fall back to using git check-ignore for verification
-      const isIgnored = isPathGitIgnored(projectRoot, normalizedPath);
-      
-      results.push({
-        name: 'Check if output directory is gitignored',
-        success: !isIgnored,
-        details: isIgnored 
-          ? `Output directory "${outputPath}" is being ignored by Git. This could be due to a complex pattern in .gitignore. Remove any entries that might affect this directory.`
-          : `Output directory "${outputPath}" is not being ignored by Git, which is good.`
-      });
-    }
-    
-    // Check for HTML file ignoring patterns
-    const htmlIgnorePatterns = findHtmlIgnorePatterns(relevantLines);
-    
-    // Report results for HTML ignore check
-    if (htmlIgnorePatterns.length > 0) {
-      results.push({
-        name: 'Check if index.html files are gitignored',
-        success: false,
-        details: `Found patterns in .gitignore that would ignore HTML files: ${htmlIgnorePatterns.join(', ')}. This is problematic as they're crucial output files.`
-      });
-    } else {
-      // Check if index.html would be ignored
-      const indexHtmlPath = path.join(normalizedPath, 'index.html');
-      const isIndexHtmlIgnored = isPathGitIgnored(projectRoot, indexHtmlPath);
-      
-      results.push({
-        name: 'Check if index.html files are gitignored',
-        success: !isIndexHtmlIgnored,
-        details: isIndexHtmlIgnored 
-          ? `index.html files in the output directory would be ignored by Git. This is problematic as they're crucial output files.`
-          : `index.html files in the output directory are properly tracked by Git.`
-      });
-      
-      // If index.html is ignored but we couldn't find an explicit pattern, look for more complex patterns
-      if (isIndexHtmlIgnored && htmlIgnorePatterns.length === 0) {
-        const complexPatterns = findComplexHtmlPatterns(relevantLines);
-        
-        if (complexPatterns.length > 0) {
-          results.push({
-            name: 'Found complex .gitignore entries potentially affecting HTML files',
-            status: 'warning',
-            success: true, // Still considered a "success" for backward compatibility
-            details: `The following entries in .gitignore might cause HTML files to be ignored: ${complexPatterns.join(', ')}. Consider reviewing these patterns.`
-          });
-        }
-      }
-    }
+    // Check HTML files ignore patterns
+    const htmlResults = checkHtmlFilesGitignore(
+      projectRoot, normalizedPath, outputPath, relevantLines
+    );
+    results.push(...htmlResults);
     
     return results;
   } catch (error) {
