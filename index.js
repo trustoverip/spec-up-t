@@ -53,7 +53,7 @@ module.exports = async function (options = {}) {
       todo: 1
     };
     const spaceRegex = /\s+/g;
-    const specNameRegex = /^spec$|^spec[-]*\w+$/i;
+    const specNameRegex = /^spec$|^spec-*\w+$/i;
     const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
     const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
     const containers = require('markdown-it-container');
@@ -212,8 +212,6 @@ module.exports = async function (options = {}) {
         }
       }
     ];
-
-    // prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
     // Synchronously process markdown files
     fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
@@ -389,7 +387,7 @@ module.exports = async function (options = {}) {
 
       // Then filter to find the one with the terms-and-definitions-list class
       const dlElements = allDls.filter(dl => {
-        return dl.classList && dl.classList.contains('terms-and-definitions-list');
+        return dl?.classList?.contains('terms-and-definitions-list');
       });
 
       // Find any transcluded term dt elements anywhere in the document

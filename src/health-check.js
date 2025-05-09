@@ -171,7 +171,7 @@ function getFormattedTimestamp() {
     return now.toISOString()
         .replace(/[T:]/g, '-')
         .replace(/\..+/, '')
-        .replace(/[Z]/g, '');
+        .replace(/Z/g, 'Z');
 }
 
 // Helper function to generate a human-readable timestamp for display

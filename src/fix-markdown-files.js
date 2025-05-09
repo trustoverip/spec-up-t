@@ -38,11 +38,11 @@ function fixMarkdownFiles(directory) {
                     let newLines = [];
                     let previousLineWasEmpty = false;
 
-                    for (let i = 0; i < lines.length; i++) {
-                        const isCurrentLineEmpty = lines[i].trim() === '';
+                    for (const line of lines) {
+                        const isCurrentLineEmpty = line.trim() === '';
 
                         if (!isCurrentLineEmpty) {
-                            newLines.push(lines[i]); // Add non-empty lines
+                            newLines.push(line); // Add non-empty lines
                             previousLineWasEmpty = false;
                         } else if (!previousLineWasEmpty) {
                             newLines.push(''); // Add exactly one blank line
