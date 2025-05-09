@@ -213,8 +213,6 @@ module.exports = async function (options = {}) {
       }
     ];
 
-    // prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
-
     // Synchronously process markdown files
     fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
