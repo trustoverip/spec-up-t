@@ -387,7 +387,7 @@ module.exports = async function (options = {}) {
 
       // Then filter to find the one with the terms-and-definitions-list class
       const dlElements = allDls.filter(dl => {
-        return dl.classList && dl.classList.contains('terms-and-definitions-list');
+        return dl?.classList?.contains('terms-and-definitions-list');
       });
 
       // Find any transcluded term dt elements anywhere in the document
