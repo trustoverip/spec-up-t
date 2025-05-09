@@ -146,7 +146,7 @@ function evaluateRequiredField(field, projectSpecs, defaultSpecs) {
         configured = true;
     }
 
-    let status = undefined;
+    let status;
     let success = true;
     
     if (!configured) {
