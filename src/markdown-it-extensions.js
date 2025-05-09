@@ -291,8 +291,7 @@ module.exports = function (md, templates = {}) {
       // Look for inline content that contains template tokens of type 'tref'
       // These are transcluded term references
       if (tokens[i].type === 'inline' && tokens[i].children) {
-        for (let j = 0; j < tokens[i].children.length; j++) {
-          const child = tokens[i].children[j];
+        for (let child of tokens[i].children) {
           if (child.type === 'template' &&
             child.info &&
             child.info.type === 'tref') {
