@@ -41,9 +41,9 @@ module.exports = async function (options = {}) {
     let externalReferences;
     let references = [];
     let definitions = [];
-    var toc;
-    var specGroups = {};
-    var noticeTitles = {};
+    let toc;
+    let specGroups = {};
+    let noticeTitles = {};
 
     const noticeTypes = {
       note: 1,
