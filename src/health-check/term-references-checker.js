@@ -237,7 +237,6 @@ async function checkTermReferences(projectRoot) {
     
     const { externalSpecs, allSpecDirectories } = extractSpecsInfo(specs, projectRoot);
     
-    const hasExternalSpecs = reportExternalSpecs(externalSpecs, results);
     const hasDirectories = reportSpecDirectories(allSpecDirectories, results);
     
     if (!hasDirectories) {
