@@ -164,7 +164,7 @@ function evaluateRequiredField(field, projectSpecs, defaultSpecs) {
             ? `Default value for ${field.description} is acceptable`
             : `${field.description} has been changed from default`;
     } else {
-        details = `${field.description} is still set to default value${field.key === 'title' || field.key === 'author' ? `: "${defaultValue}"` : ''}`;
+        details = `${field.description} is still set to default value${['title', 'author'].includes(field.key) ? `: \"${defaultValue}\"` : ''}`;
     }
 
     return {
