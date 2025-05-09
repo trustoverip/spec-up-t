@@ -53,7 +53,7 @@ module.exports = async function (options = {}) {
       todo: 1
     };
     const spaceRegex = /\s+/g;
-    const specNameRegex = /^spec$|^spec[-]*\w+$/i;
+    const specNameRegex = /^spec$|^spec-*\w+$/i;
     const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
     const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
     const containers = require('markdown-it-container');
