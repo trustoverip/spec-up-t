@@ -8,7 +8,9 @@ const path = require('path');
  * @param {Object} [overwriteKeys={}] - An object specifying which scripts to overwrite if they already exist.
  */
 function addScriptsKeys(scriptKeys, overwriteKeys = {}) {
-    const packageJsonPath = path.resolve(__dirname, '../../../../', 'package.json');
+    // Use process.cwd() to get the current working directory where the command is run
+    const packageJsonPath = path.resolve(process.cwd(), 'package.json');
+
 
     // Read the package.json file
     fs.readFile(packageJsonPath, 'utf8', (err, data) => {
