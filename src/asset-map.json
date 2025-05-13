@@ -44,6 +44,7 @@
       "assets/js/tippy.js",
       "assets/js/diff.min.js",
       "assets/js/edit-term-buttons.js",
+      "assets/js/hide-show-utility-container.js",
       "assets/js/create-alphabet-index.js",
       "assets/js/search.js",
       "assets/js/highlightMenuItems.js",
