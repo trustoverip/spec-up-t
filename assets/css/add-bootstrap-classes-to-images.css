@@ -1,0 +1,34 @@
+/**
+ * @file CSS for Bootstrap-enhanced images
+ * @author Kor Dwarshuis
+ * @version 1.0.0
+ */
+
+/* Enhanced styles for Bootstrap images in normal view */
+#content .figure {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+#content .figure img {
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for better UX */
+#content .figure img:hover {
+  transform: scale(1.01);
+  cursor: pointer;
+}
+
+/* Make sure images don't exceed their container width */
+#content img.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Better caption styling */
+#content .figure-caption {
+  margin-top: 0.5rem;
+  font-style: italic;
+  color: #6c757d;
+}
