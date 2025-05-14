@@ -1,0 +1,73 @@
+/**
+ * @file CSS for full-size image display
+ * @author Kor Dwarshuis
+ * @version 1.0.0
+ */
+
+/* Container that holds the full-size image */
+.image-container-full-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+  box-sizing: border-box;
+  cursor: zoom-out;
+}
+
+/* Style for the image inside the container */
+.image-container-full-page img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Optional animation for better UX */
+.image-container-full-page {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Enhanced styles for Bootstrap images in normal view */
+#content .figure {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+#content .figure img {
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for better UX */
+#content .figure img:hover {
+  transform: scale(1.01);
+  cursor: pointer;
+}
+
+/* Make sure images don't exceed their container width */
+#content img.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Better caption styling */
+#content .figure-caption {
+  margin-top: 0.5rem;
+  font-style: italic;
+  color: #6c757d;
+}
