@@ -24,6 +24,7 @@
       "assets/css/repo-issues.css",
       "assets/css/adjust-font-size.css",
       "assets/css/image-full-size.css",
+      "assets/css/add-bootstrap-classes-to-images.css",
       "assets/css/index.css"
     ],
     "js": [
@@ -68,6 +69,7 @@
       "assets/js/close-off-canvas-menu.js",
       "assets/js/index.js",
       "assets/js/horizontal-scroll-hint.js",
+      "assets/js/add-bootstrap-classes-to-images.js",
       "assets/js/image-full-size.js",
       "assets/js/bootstrap.bundle.min.js"
     ]
