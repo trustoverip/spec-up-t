@@ -255,7 +255,6 @@ function inPageSearch() {
     * @param {boolean} scrollToFirstMatch - Whether to automatically scroll to the first match after highlighting
     */
    function search(searchString, scrollToFirstMatch) {
-      console.log('KORKOR scrollToFirstMatch: ', scrollToFirstMatch);
       // Start clean
       removeAllSpans();
       totalMatches = 0;
@@ -352,7 +351,6 @@ function inPageSearch() {
       // Scroll to the first match
       // Using querySelector instead of querySelectorAll because we only want to select the first element
       if (scrollToFirstMatch) {
-         console.log("KORKOR kennelijk wel scrollen");
          let firstHighlight = document.querySelector('.' + matchesStyleSelectorClassName);
          if (firstHighlight !== null) {
             scrollToElementCenter(firstHighlight);
