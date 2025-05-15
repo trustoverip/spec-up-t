@@ -32,7 +32,7 @@ function inPageSearch() {
    const terminologySectionUtilityContainer = document.getElementById("terminology-section-utility-container");
 
    const matchesStyle = specConfig.searchHighlightStyle || 'ssi';
-   const antiNameCollisions = 'search-h7vc6omi2hr2880';// random string to be added to classes, id's etc, to prevent name collisions in the global space
+   const antiNameCollisions = 'search';
    const debounceTime = 600;
    const matches = 'matches';// What text to display after the number of matches
    const searchBarPlaceholder = '🔍';
@@ -43,12 +43,12 @@ function inPageSearch() {
 
    // Styling of search matches. See styles in /assets/css/search.css
    const matchesStyleSelector = {
-      dif: 'highlight-matches-DIF-search-h7vc6omi2hr2880',
-      toip: 'highlight-matches-ToIP-search-h7vc6omi2hr2880',
-      btc: 'highlight-matches-BTC-search-h7vc6omi2hr2880',
-      keri: 'highlight-matches-KERI-search-h7vc6omi2hr2880',
-      ssi: 'highlight-matches-SSI-search-h7vc6omi2hr2880',
-      gleif: 'highlight-matches-GLEIF-search-h7vc6omi2hr2880'
+      dif: 'highlight-matches-DIF-search',
+      toip: 'highlight-matches-ToIP-search',
+      btc: 'highlight-matches-BTC-search',
+      keri: 'highlight-matches-KERI-search',
+      ssi: 'highlight-matches-SSI-search',
+      gleif: 'highlight-matches-GLEIF-search'
    };
 
 

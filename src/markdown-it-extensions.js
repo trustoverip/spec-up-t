@@ -256,7 +256,7 @@ module.exports = function (md, templates = {}) {
    * @return {String} The rendered HTML output
    */
   md.renderer.rules.dl_open = function (tokens, idx, options, env, self) {
-    const targetHtml = 'terminology-section-start-h7vc6omi2hr2880';
+    const targetHtml = 'terminology-section-start';
     let targetIndex = findTargetIndex(tokens, targetHtml);
 
     // Add class to the first <dl> only if it comes after the target HTML
