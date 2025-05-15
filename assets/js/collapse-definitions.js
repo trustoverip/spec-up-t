@@ -1,17 +1,20 @@
 function collapseDefinitions() {
     const dds = document.querySelectorAll('#content dl.terms-and-definitions-list > dd');
     const dts = document.querySelectorAll('#content dl.terms-and-definitions-list > dt');
-    const buttons = document.querySelectorAll('.collapse-all-defs-button');
+    const buttonTitleTextCollapsed = 'Expand all definitions';
+    const buttonTitleTextExpanded = 'Collapse all definitions';
 
     function toggleVisibility() {
+        const buttons = document.querySelectorAll('.collapse-all-defs-button');
         const isHidden = dds[0].classList.contains('hidden');
         dds.forEach(dd => {
             dd.classList.toggle('hidden', !isHidden);
             dd.classList.toggle('visible', isHidden);
         });
         buttons.forEach(button => {
+            console.log("each button");
             button.innerHTML = isHidden ? '▲' : '▼';
-            button.title = isHidden ? 'Collapse all definitions' : 'Expand all definitions';
+            button.title = isHidden ? buttonTitleTextExpanded : buttonTitleTextCollapsed;
         });
         document.querySelector('html').classList.toggle('defs-hidden');
     }
@@ -22,6 +25,7 @@ function collapseDefinitions() {
         button.classList.add('collapse-all-defs-button', 'd-print-none', 'btn', 'p-0', 'fs-5', 'd-flex', 'align-items-center','justify-content-center');
         button.innerHTML = '▲';
         button.setAttribute('id', 'toggleButton');
+        button.setAttribute('title', buttonTitleTextExpanded);
         dt.appendChild(button);
     });
 
