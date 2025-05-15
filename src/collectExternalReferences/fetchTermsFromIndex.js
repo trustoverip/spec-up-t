@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 const axios = require('axios');
-const { addPath, getPath, getAllPaths } = require('../config/paths');
+const { addPath, getPath, getAllPaths } = require('../../config/paths');
 const crypto = require('crypto');
 
 // Directory to store cached files

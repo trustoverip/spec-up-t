@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { fetchTermsFromIndex, fetchAllTermsFromIndex } = require('./fetchTermsFromIndex.js');
 const { matchTerm } = require('./matchTerm.js');
-const { addPath, getPath, getAllPaths } = require('../config/paths');
+const { addPath, getPath, getAllPaths } = require('../../config/paths');
 const path = require('path');
 
 // Directory to store cached files
