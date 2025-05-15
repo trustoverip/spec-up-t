@@ -113,13 +113,15 @@ function inPageSearch() {
 
    // Add an event listener to the input element
    searchInput.addEventListener("input", function () {
-      debouncedSearchAndHighlight(searchInput.value, true);
+      const shouldScrollToFirstMatch = true; // Scroll to first match when user is actively searching
+      debouncedSearchAndHighlight(searchInput.value, shouldScrollToFirstMatch);
    });
 
    // The search will run when the user clicks the collapse button, so the search results are updated when the terms are collapsed or expanded. If the definitions are collapsed, the search results in the definitions will be removed.
    document.addEventListener('click', event => {
       if (event.target.classList.contains('collapse-all-defs-button')) {
-         debouncedSearchAndHighlight(searchInput.value, false);
+         const shouldScrollToFirstMatch = true; // Scroll when updating after collapse/expand
+         debouncedSearchAndHighlight(searchInput.value, shouldScrollToFirstMatch);
       }
    });
 
@@ -192,7 +194,11 @@ function inPageSearch() {
       totalMatchesSpan.innerHTML = `${totalMatches} ${matches}`;
    }
 
-   // Debounce search input. Prepare the debounced function outside the event listener
+   // Debounce search input to improve performance. This creates a function that will only execute
+   // after the user has stopped typing for the specified debounceTime.
+   // The function takes two parameters:
+   // - searchString: The text to search for
+   // - scrollToFirstMatch: Whether to automatically scroll to the first match after highlighting
    const debouncedSearchAndHighlight = debounce(search, debounceTime);
 
    goToPreviousMatchButton.addEventListener("click", function () {
@@ -243,6 +249,11 @@ function inPageSearch() {
    });
 
    // Runs after every search input (debounced)
+   /**
+    * Performs search and highlighting of matches in the document
+    * @param {string} searchString - The text to search for
+    * @param {boolean} scrollToFirstMatch - Whether to automatically scroll to the first match after highlighting
+    */
    function search(searchString, scrollToFirstMatch) {
       console.log('KORKOR scrollToFirstMatch: ', scrollToFirstMatch);
       // Start clean
