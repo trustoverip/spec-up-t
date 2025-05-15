@@ -12,7 +12,6 @@ function collapseDefinitions() {
             dd.classList.toggle('visible', isHidden);
         });
         buttons.forEach(button => {
-            console.log("each button");
             button.innerHTML = isHidden ? '▲' : '▼';
             button.title = isHidden ? buttonTitleTextExpanded : buttonTitleTextCollapsed;
         });
