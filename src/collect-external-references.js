@@ -188,12 +188,12 @@ function processExternalReferences(config, GITHUB_API_TOKEN, options) {
     );
 
     // Ensure that the 'output' directory exists, creating it if necessary.
-    const outputDir = 'output';
+    const outputDir = '.cache';
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
     }
 
-    // Ensure that the 'output/xtrefs-history' directory exists, creating it if necessary.
+    // Ensure that the 'xtrefs-history' in outputDir exists, creating it if necessary.
     const xtrefsHistoryDir = path.join(outputDir, 'xtrefs-history');
     if (!fs.existsSync(xtrefsHistoryDir)) {
         fs.mkdirSync(xtrefsHistoryDir);

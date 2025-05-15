@@ -15,7 +15,7 @@ const outputGitignoreChecker = require('./health-check/output-gitignore-checker'
 const trefTermChecker = require('./health-check/tref-term-checker');
 
 // Configuration
-const OUTPUT_DIR = path.join(process.cwd(), 'output');
+const OUTPUT_DIR = path.join(process.cwd(), '.cache');
 
 // Create output directory if it doesn't exist
 if (!fs.existsSync(OUTPUT_DIR)) {

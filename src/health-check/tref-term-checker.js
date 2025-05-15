@@ -321,7 +321,7 @@ async function getProjectConfiguration(projectRoot) {
     externalSpecs, 
     specDirs, 
     valid: true,
-    githubCacheDir: path.join(projectRoot, 'output', 'github-cache')
+    githubCacheDir: path.join(projectRoot, '.cache', 'github-cache')
   };
 }
 

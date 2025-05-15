@@ -25,7 +25,7 @@ module.exports = async function (options = {}) {
 
     const findPkgDir = require('find-pkg-dir');
     const modulePath = findPkgDir(__dirname);
-    let config = fs.readJsonSync('./output/specs-generated.json');
+    let config = fs.readJsonSync('./.cache/specs-generated.json');
 
     const createExternalSpecsList = require('./src/create-external-specs-list.js');
 
@@ -218,7 +218,7 @@ module.exports = async function (options = {}) {
 
     function createScriptElementWithXTrefDataForEmbeddingInHtml() {
       // Test if xtrefs-data.js exists, else make it an empty string
-      const inputPath = path.join('output', 'xtrefs-data.js');
+      const inputPath = path.join('.cache', 'xtrefs-data.js');
 
       let xtrefsData = '';
       if (fs.existsSync(inputPath)) {

@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const outputDir = path.join(process.cwd(), 'output');
+const outputDir = path.join(process.cwd(), '.cache');
 const initFlagPath = path.join(outputDir, 'init.flag');
 
 async function initialize() {

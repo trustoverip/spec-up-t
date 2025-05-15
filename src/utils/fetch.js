@@ -5,13 +5,13 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Fetches the output/specs-generated.json file and returns it as a JavaScript object
+ * Fetches the .cache/specs-generated.json file and returns it as a JavaScript object
  * @returns {Object} The parsed contents of specs-generated.json
  */
 function fetchSpecs() {
   try {
-    // Resolve path to output/specs-generated.json from the project root
-    const specsPath = path.resolve(process.cwd(), 'output', 'specs-generated.json');
+    // Resolve path to .cache/specs-generated.json from the project root
+    const specsPath = path.resolve(process.cwd(), '.cache', 'specs-generated.json');
     
     // Read the file synchronously
     const specsContent = fs.readFileSync(specsPath, 'utf8');
@@ -21,19 +21,19 @@ function fetchSpecs() {
     
     return specs;
   } catch (error) {
-    console.error('Error fetching output/specs-generated.json:', error.message);
+    console.error('Error fetching .cache/specs-generated.json:', error.message);
     return null;
   }
 }
 
 /**
- * Fetches the output/xtrefs-data.json file and returns it as a JavaScript object
+ * Fetches the .cache/xtrefs-data.json file and returns it as a JavaScript object
  * @returns {Object} The parsed contents of xtrefs-data.json
  */
 function fetchExternalTerms() {
   try {
-    // Resolve path to output/xtrefs-data.json from the project root
-    const xtrefsPath = path.resolve(process.cwd(), 'output', 'xtrefs-data.json');
+    // Resolve path to .cache/xtrefs-data.json from the project root
+    const xtrefsPath = path.resolve(process.cwd(), '.cache', 'xtrefs-data.json');
     
     // Read the file synchronously
     const xtrefsContent = fs.readFileSync(xtrefsPath, 'utf8');
@@ -43,7 +43,7 @@ function fetchExternalTerms() {
     
     return xtrefs;
   } catch (error) {
-    console.error('Error fetching output/xtrefs-data.json:', error.message);
+    console.error('Error fetching .cache/xtrefs-data.json:', error.message);
     return null;
   }
 }
@@ -54,8 +54,8 @@ function fetchExternalTerms() {
  */
 async function fetchSpecsAsync() {
   try {
-    // Resolve path to output/specs-generated.json from the project root
-    const specsPath = path.resolve(process.cwd(), 'output', 'specs-generated.json');
+    // Resolve path to .cache/specs-generated.json from the project root
+    const specsPath = path.resolve(process.cwd(), '.cache', 'specs-generated.json');
     
     // Read the file asynchronously
     const specsContent = await fs.promises.readFile(specsPath, 'utf8');
@@ -65,7 +65,7 @@ async function fetchSpecsAsync() {
     
     return specs;
   } catch (error) {
-    console.error('Error fetching output/specs-generated.json:', error.message);
+    console.error('Error fetching .cache/specs-generated.json:', error.message);
     return null;
   }
 }
@@ -76,8 +76,8 @@ async function fetchSpecsAsync() {
  */
 async function fetchExternalTermsAsync() {
   try {
-    // Resolve path to output/xtrefs-data.json from the project root
-    const xtrefsPath = path.resolve(process.cwd(), 'output', 'xtrefs-data.json');
+    // Resolve path to .cache/xtrefs-data.json from the project root
+    const xtrefsPath = path.resolve(process.cwd(), '.cache', 'xtrefs-data.json');
     
     // Read the file asynchronously
     const xtrefsContent = await fs.promises.readFile(xtrefsPath, 'utf8');
@@ -87,7 +87,7 @@ async function fetchExternalTermsAsync() {
     
     return xtrefs;
   } catch (error) {
-    console.error('Error fetching output/xtrefs-data.json:', error.message);
+    console.error('Error fetching .cache/xtrefs-data.json:', error.message);
     return null;
   }
 }

@@ -4,7 +4,7 @@
  * 2. Extracts the directories containing the specifications and terms, with defaults for missing values.
  * 3. Lists all file names in the specified terms directory if it exists.
  * 4. Joins each file name with the terms directory path.
- * 5. Creates an 'output' directory in the project root if it does not exist.
+ * 5. Creates an '.cache' directory in the project root if it does not exist.
  * 6. Writes the list of file paths to 'term-index.json' in the project root.
  *
  * If any errors occur during the process, appropriate warnings are logged, and an empty term index
@@ -82,9 +82,9 @@ function createTermIndex() {
             console.log('No term directories found in configuration. Creating empty term index.');
             
             // Create an empty term index
-            const outputPathJSON = path.join('output', 'term-index.json');
-            if (!fs.existsSync('output')) {
-                fs.mkdirSync('output', { recursive: true });
+            const outputPathJSON = path.join('.cache', 'term-index.json');
+            if (!fs.existsSync('.cache')) {
+                fs.mkdirSync('.cache', { recursive: true });
             }
             fs.writeJsonSync(outputPathJSON, [], { spaces: 2 });
             console.log(`✅ Empty term index created at: ${outputPathJSON}`);
@@ -97,9 +97,9 @@ function createTermIndex() {
             console.warn(`Spec directory '${baseSpecDir}' does not exist. Creating empty term index.`);
             
             // Create an empty term index
-            const outputPathJSON = path.join('output', 'term-index.json');
-            if (!fs.existsSync('output')) {
-                fs.mkdirSync('output', { recursive: true });
+            const outputPathJSON = path.join('.cache', 'term-index.json');
+            if (!fs.existsSync('.cache')) {
+                fs.mkdirSync('.cache', { recursive: true });
             }
             fs.writeJsonSync(outputPathJSON, [], { spaces: 2 });
             console.log(`✅ Empty term index created at: ${outputPathJSON}`);
@@ -122,11 +122,11 @@ function createTermIndex() {
         }
         
         const filePaths = files.map(file => specTermDirectoryName[0] + '/' + file);
-        const outputPathJSON = path.join('output', 'term-index.json');
+        const outputPathJSON = path.join('.cache', 'term-index.json');
         
-        // Create output directory if it doesn't exist
-        if (!fs.existsSync('output')) {
-            fs.mkdirSync('output', { recursive: true });
+        // Create .cache directory if it doesn't exist
+        if (!fs.existsSync('.cache')) {
+            fs.mkdirSync('.cache', { recursive: true });
         }
         
         // Write the term index file

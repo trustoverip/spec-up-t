@@ -12,9 +12,9 @@ const paths = {};
 // console.log(getAllPaths());
 
 // Add paths
-paths['output-local-terms'] = path.resolve('output', 'local-terms-dir');
+paths['output-local-terms'] = path.resolve('.cache', 'local-terms-dir');
 paths['specsjson'] = path.resolve('specs.json');
-paths['githubcache'] = path.resolve('output', 'github-cache');
+paths['githubcache'] = path.resolve('.cache', 'github-cache');
 
 module.exports = {
     /**
