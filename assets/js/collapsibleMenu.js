@@ -98,24 +98,16 @@ function initCollapsibleMenu() {
       }
     }
   });
-  
-  console.log('Collapsible menu initialized with accessibility improvements');
 }
 
 // Log TOC structure to help debugging
 function logTOCStructure() {
   const tocContainer = document.getElementById('toc');
   if (tocContainer) {
-    console.log('TOC container found:', tocContainer);
-    console.log('TOC container children:', tocContainer.children);
     const firstUL = tocContainer.querySelector('ul');
     if (firstUL) {
-      console.log('First UL found:', firstUL);
-      console.log('UL class list:', firstUL.classList);
       const listItems = firstUL.querySelectorAll('li');
-      console.log('List items count:', listItems.length);
     } else {
-      console.warn('No UL found in TOC container');
     }
   } else {
     console.warn('TOC container not found');

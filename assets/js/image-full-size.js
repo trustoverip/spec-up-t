@@ -19,8 +19,6 @@ const imageFullSize = () => {
   }
 
   if (markdownElement) {
-    console.log("event listener added");
-    
     markdownElement.addEventListener('click', (event) => {
       if (event.target.tagName === 'IMG') {
 
