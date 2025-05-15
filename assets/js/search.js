@@ -113,13 +113,13 @@ function inPageSearch() {
 
    // Add an event listener to the input element
    searchInput.addEventListener("input", function () {
-      debouncedSearchAndHighlight(searchInput.value);
+      debouncedSearchAndHighlight(searchInput.value, true);
    });
 
    // The search will run when the user clicks the collapse button, so the search results are updated when the terms are collapsed or expanded. If the definitions are collapsed, the search results in the definitions will be removed.
    document.addEventListener('click', event => {
       if (event.target.classList.contains('collapse-all-defs-button')) {
-         debouncedSearchAndHighlight(searchInput.value);
+         debouncedSearchAndHighlight(searchInput.value, false);
       }
    });
 
@@ -243,7 +243,8 @@ function inPageSearch() {
    });
 
    // Runs after every search input (debounced)
-   function search(searchString) {
+   function search(searchString, scrollToFirstMatch) {
+      console.log('KORKOR scrollToFirstMatch: ', scrollToFirstMatch);
       // Start clean
       removeAllSpans();
       totalMatches = 0;
@@ -328,13 +329,6 @@ function inPageSearch() {
 
       searchNodes(searchableContent);
 
-      // Scroll to the first match
-      // Using querySelector instead of querySelectorAll because we only want to select the first element
-      let firstHighlight = document.querySelector('.' + matchesStyleSelectorClassName);
-      if (firstHighlight !== null) {
-         scrollToElementCenter(firstHighlight);
-      }
-
       // Update the total matches counter
       setTotalMatches();
 
@@ -343,6 +337,17 @@ function inPageSearch() {
 
       // Update the active match index
       activeMatchIndex = -1;
+
+      // Scroll to the first match
+      // Using querySelector instead of querySelectorAll because we only want to select the first element
+      if (scrollToFirstMatch) {
+         console.log("KORKOR kennelijk wel scrollen");
+         let firstHighlight = document.querySelector('.' + matchesStyleSelectorClassName);
+         if (firstHighlight !== null) {
+            scrollToElementCenter(firstHighlight);
+      }
+   
+}
    }
 }
 
