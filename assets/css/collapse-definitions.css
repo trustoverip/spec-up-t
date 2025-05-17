@@ -11,6 +11,53 @@
   display: block;
 }
 
+/* Styles to help with smooth transitions when toggling definitions */
+html.definitions-transitioning dl.terms-and-definitions-list {
+  transition: none !important;
+}
+
+html.definitions-transitioning #content {
+  position: relative;
+}
+
+/* We keep the button positioned in place visually during transitions */
+.collapse-all-defs-button[style*="position: fixed"] {
+  margin: 0;
+  padding: 0;
+  will-change: transform;
+}
+
 .collapse-all-defs-button {
   float: right;
+  display: flex;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.collapse-all-defs-button .state-indicator {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+}
+
+.collapse-all-defs-button .state-indicator:hover {
+  background-color: #e9ecef;
+}
+
+.collapse-all-defs-button .state-indicator.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #0069d9;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+dl.terms-and-definitions-list>dd.terms-def-extra-info {
+  background-color: #a9dde05d;
 }
