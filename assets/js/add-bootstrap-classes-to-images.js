@@ -69,7 +69,7 @@ function initImageBootstrapClasses() {
               if (node.nodeType === 1) { // Element node
                 if (node.tagName === 'IMG') {
                   shouldUpdate = true;
-                } else if (node.querySelector && node.querySelector('img')) {
+                } else if (node.querySelector?.('img')) {
                   shouldUpdate = true;
                 }
               }
