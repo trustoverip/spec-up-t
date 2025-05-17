@@ -113,7 +113,7 @@ const horizontalScrollHint = (elements) => {
         // Create scroll hint element
         const scrollHint = document.createElement('p');
         scrollHint.classList.add('scrollHint');
-        scrollHint.innerHTML = `<img style='width: 40px; vertical-align: middle;' src='${fingerHorizontalScrollingImage}' alt='finger scrolling horizontally' /> Scroll to the right`;
+        scrollHint.innerHTML = `<img class='scrollHintImage' style='width: 40px; vertical-align: middle; padding: 0;margin: 0 !important;' src='${fingerHorizontalScrollingImage}' alt='' /> Scroll to the right`;
         scrollHint.style.animation = 'arrow-tweet-panel-pulse 0.82s ease-in-out infinite';
 
         el.appendChild(scrollHint);

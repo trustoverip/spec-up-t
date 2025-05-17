@@ -25,6 +25,7 @@
       "assets/css/adjust-font-size.css",
       "assets/css/image-full-size.css",
       "assets/css/add-bootstrap-classes-to-images.css",
+      "assets/css/horizontal-scroll-hint.css",
       "assets/css/index.css"
     ],
     "js": [
