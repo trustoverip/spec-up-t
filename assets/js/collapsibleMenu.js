@@ -100,20 +100,6 @@ function initCollapsibleMenu() {
   });
 }
 
-// Log TOC structure to help debugging
-function logTOCStructure() {
-  const tocContainer = document.getElementById('toc');
-  if (tocContainer) {
-    const firstUL = tocContainer.querySelector('ul');
-    if (firstUL) {
-      const listItems = firstUL.querySelectorAll('li');
-    } else {
-    }
-  } else {
-    console.warn('TOC container not found');
-  }
-}
-
 // Run after DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   initCollapsibleMenu();
