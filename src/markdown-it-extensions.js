@@ -47,7 +47,7 @@ module.exports = function (md, templates = {}) {
     }
 
     // Add the responsive wrapper div before the table
-    return '<div class="table-responsive">' + originalTableRender(tokens, idx, options, env, self);
+    return '<div class="table-responsive-md">' + originalTableRender(tokens, idx, options, env, self);
   };
 
   // Override table_close to close the wrapper div

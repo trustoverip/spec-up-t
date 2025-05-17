@@ -155,5 +155,5 @@ document.addEventListener("DOMContentLoaded", function () {
   // Apply to multiple different elements
   // horizontalScrollHint(['.table-container', '.code-block', document.querySelector('#special-element')]);
 
-  horizontalScrollHint(['.table-responsive']);
+  horizontalScrollHint(['.table-responsive-md']);
 });
