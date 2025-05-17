@@ -11,6 +11,11 @@ body:not([hashscroll]) dt:has(:target) {
   animation: highlight-target-parent-dt 3.5s 0.25s ease;
 }
 
+dl.terms-and-definitions-list>.highlight {
+  background-color: yellow !important;
+  transition: background-color 0.3s ease-in-out;
+}
+
 svg[icon] {
   width: 1.25em;
   height: 1.25em;
