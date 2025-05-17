@@ -19,6 +19,7 @@
   padding: 20px;
   box-sizing: border-box;
   cursor: zoom-out;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 /* Style for the image inside the container */
@@ -27,11 +28,6 @@
   max-height: 90%;
   object-fit: contain;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-/* Optional animation for better UX */
-.image-container-full-page {
-  animation: fadeIn 0.3s ease-in-out;
 }
 
 @keyframes fadeIn {
