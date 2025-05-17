@@ -231,9 +231,9 @@ html.dense-info dl.terms-and-definitions-list>dt>span {
   position: relative;
 }
 
-dt.transcluded-xref-term,
-dd.transcluded-xref-term {
-  background: #a9dde03b !important;
+dl.terms-and-definitions-list>dt.transcluded-xref-term,
+dl.terms-and-definitions-list>dd.transcluded-xref-term {
+  background: #a9dde03b;
 }
 
 /* Fix for all buttons */
