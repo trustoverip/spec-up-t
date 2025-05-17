@@ -67,11 +67,8 @@ function initImageBootstrapClasses() {
             // Look for added images
             mutation.addedNodes.forEach(node => {
               if (node.nodeType === 1) { // Element node
-                if (node.tagName === 'IMG') {
-                  shouldUpdate = true;
-                } else if (node.querySelector?.('img')) {
-                  shouldUpdate = true;
-                }
+                // Check if node is an image or contains images
+                shouldUpdate = node.tagName === 'IMG' || node.querySelector?.('img');
               }
             });
           }
