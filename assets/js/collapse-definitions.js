@@ -172,11 +172,9 @@ function collapseDefinitions() {
             
             // Find the parent dt and dl elements
             const dtElement = button.closest('dt');
-            const dlElement = dtElement.closest('dl');
             
             // Get button's position in viewport and page
             const buttonRect = button.getBoundingClientRect();
-            const buttonPageY = buttonRect.top + window.scrollY;
             
             // Apply a class to prevent layout shifts during transition
             document.documentElement.classList.add('definitions-transitioning');
@@ -220,7 +218,6 @@ function collapseDefinitions() {
                 
                 // Scroll to correct position so the button appears where it was fixed
                 const newButtonRect = button.getBoundingClientRect();
-                const newButtonPageY = newButtonRect.top + window.scrollY;
                 
                 // Calculate and apply precise scroll adjustment to maintain visual position
                 window.scrollTo({
