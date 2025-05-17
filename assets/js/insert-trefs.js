@@ -10,7 +10,9 @@
  */
 function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
    /**
-    * Processes all terms found in the document and inserts their corresponding content
+    * Processes all terms found in the document and collects DOM changes
+    * before applying them in batch to improve performance.
+    * 
     * @param {Object} xtrefsData - The object containing xtrefs data
     * @param {Array} xtrefsData.xtrefs - Array of external reference objects
     */
@@ -23,22 +25,10 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
             .map(node => node.textContent.trim())
             .join('');
 
-         allTerms.push({
-            element: termElement,
-            textContent: textContent
-         });
-      });
-
-      // Then process all terms in a consistent order (from the JS file order)
-      allTerms.forEach(termData => {
-         const termElement = termData.element;
-         const textContent = termData.textContent;
-
-         // Find the first matching xref to avoid duplicates
-         const xref = xtrefsData.xtrefs.find(x => x.term === textContent);
-
-         // Skip if we've already added content for this term (check for existing dd elements)
+         // Find the dt element once outside the loop
          const dt = termElement.closest('dt');
+
+         // Skip if the term has already been processed
          if (dt) {
             const nextElement = dt.nextElementSibling;
             if (nextElement?.classList.contains('transcluded-xref-term') &&
@@ -47,13 +37,34 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
             }
          }
 
+         // Only add terms that haven't been processed yet
+         allTerms.push({
+            element: termElement,
+            textContent: textContent,
+            dt: dt,
+            parent: dt?.parentNode
+         });
+      });
+
+      // Prepare all DOM changes first before making any insertions
+      const domChanges = allTerms.map(termData => {
+         const { textContent, dt, parent } = termData;
+
+         if (!dt || !parent) {
+            return null; // Skip invalid entries
+         }
+
+         // Find the first matching xref to avoid duplicates
+         const xref = xtrefsData.xtrefs.find(x => x.term === textContent);
+
+         // Create a DocumentFragment to hold all new elements for this term
+         const fragment = document.createDocumentFragment();
+
+         // Create meta info element
+         const metaInfoEl = document.createElement('dd');
+         metaInfoEl.classList.add('transcluded-xref-term', 'meta-info-content-wrapper', 'collapsed');
+
          if (xref) {
-            const parent = dt.parentNode;
-
-            // Create and insert meta info element
-            const metaInfoEl = document.createElement('dd');
-            metaInfoEl.classList.add('transcluded-xref-term', 'meta-info-content-wrapper', 'collapsed');
-
             // Generate meta info content
             const avatar = xref.avatarUrl ? `![avatar](${xref.avatarUrl})` : '';
             const owner = xref.owner || 'Unknown';
@@ -68,7 +79,7 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
 | Commit hash | ${commitHash} |
             `;
             metaInfoEl.innerHTML = md.render(metaInfo);
-            parent.insertBefore(metaInfoEl, dt.nextSibling);
+            fragment.appendChild(metaInfoEl);
 
             // Clean up markdown content
             let content = xref.content
@@ -83,56 +94,59 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = md.render(content);
 
-            // If there are dd elements in the rendered content, insert them directly
+            // If there are dd elements in the rendered content, prepare them for insertion
             const ddElements = tempDiv.querySelectorAll('dd');
             if (ddElements.length > 0) {
-               // Insert each dd element in the correct order
-               let insertPosition = metaInfoEl; // Start inserting after the meta info element
-               
-               // Convert NodeList to Array and insert in original order
+               // Add all dd elements to the fragment in original order
                Array.from(ddElements).forEach(dd => {
                   // Clone the node to avoid removing it from tempDiv during insertion
                   const clonedDD = dd.cloneNode(true);
                   // Add necessary classes
                   clonedDD.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
-                  // Insert after the previous element
-                  parent.insertBefore(clonedDD, insertPosition.nextSibling);
-                  // Update insertion position to be after this newly inserted element
-                  insertPosition = clonedDD;
+                  // Add to fragment
+                  fragment.appendChild(clonedDD);
                });
             } else {
                // No dd elements found, create one to hold the content
                const contentEl = document.createElement('dd');
                contentEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
                contentEl.innerHTML = tempDiv.innerHTML;
-               parent.insertBefore(contentEl, metaInfoEl.nextSibling);
+               fragment.appendChild(contentEl);
             }
          } else {
             // Handle case where xref is not found
-            const parent = dt.parentNode;
-
-            // Create and insert meta info for not found case
-            const metaInfoEl = document.createElement('dd');
-            metaInfoEl.classList.add('transcluded-xref-term', 'meta-info-content-wrapper', 'collapsed');
-            const metaInfo = `
+            metaInfoEl.innerHTML = md.render(`
 | Property | Value |
 | -------- | ----- |
 | Owner | Unknown |
 | Repo | Unknown |
 | Commit hash | not found |
-            `;
-            metaInfoEl.innerHTML = md.render(metaInfo);
-            parent.insertBefore(metaInfoEl, dt.nextSibling);
+            `);
+            fragment.appendChild(metaInfoEl);
 
-            // Create and insert not found message
+            // Create not found message
             const notFoundEl = document.createElement('dd');
             notFoundEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded', 'last-dd');
             notFoundEl.innerHTML = '<p>This term was not found in the external repository.</p>';
-            parent.insertBefore(notFoundEl, metaInfoEl.nextSibling);
+            fragment.appendChild(notFoundEl);
          }
+
+         // Return all necessary information for DOM insertion
+         return {
+            dt: dt,
+            parent: parent,
+            fragment: fragment
+         };
+      }).filter(Boolean); // Remove null entries
+
+      // Perform all DOM insertions in a single batch
+      requestAnimationFrame(() => {
+         domChanges.forEach(change => {
+            const { dt, parent, fragment } = change;
+            parent.insertBefore(fragment, dt.nextSibling);
+         });
       });
    }
-   
 
    if (allXTrefs?.xtrefs) {
       processTerms(allXTrefs);
