@@ -263,8 +263,8 @@ function inPageSearch() {
       // Remove outer quotes if present
       if (searchString.length >= 2) {
          if (
-            (searchString[0] === '"' && searchString[searchString.length - 1] === '"') ||
-            (searchString[0] === "'" && searchString[searchString.length - 1] === "'")
+            (searchString.startsWith('"') && searchString.endsWith('"')) ||
+            (searchString.startsWith("'") && searchString.endsWith("'"))
          ) {
             searchString = searchString.substring(1, searchString.length - 1);
          }
