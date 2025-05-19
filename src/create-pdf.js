@@ -29,7 +29,7 @@ const pdfLib = require('pdf-lib');
         let bootstrapCss = bootstrapExists ? fs.readFileSync(bootstrapCssPath, 'utf8') : '';
 
         // Path to PDF styles CSS
-        const pdfStylesPath = path.resolve(process.cwd(), 'assets/css/pdf-styles.css');
+        const pdfStylesPath = path.resolve(process.cwd(), 'assets/css/create-pdf.css');
         const pdfStylesExist = fs.existsSync(pdfStylesPath);
         const pdfStylesCss = pdfStylesExist ? fs.readFileSync(pdfStylesPath, 'utf8') : '';
 
