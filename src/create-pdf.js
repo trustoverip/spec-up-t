@@ -109,62 +109,6 @@ const pdfLib = require('pdf-lib');
                 document.head.appendChild(style);
             }
 
-            // Load the special TOC page numbers stylesheet
-            const tocPageNumbersStyle = document.createElement('style');
-            tocPageNumbersStyle.id = 'toc-page-numbers-style';
-            tocPageNumbersStyle.innerHTML = `
-            /* Special stylesheet for TOC page numbers */
-            .pdf-document #pdf-toc .toc-page-number {
-              display: inline-block !important;
-              visibility: visible !important;
-              opacity: 1 !important;
-              color: black !important;
-              font-weight: normal !important;
-              font-size: 11pt !important;
-              position: absolute !important;
-              right: 0 !important;
-              top: 0 !important;
-              z-index: 9999 !important;
-              background-color: white !important;
-              padding: 0 4px !important;
-              overflow: visible !important;
-              white-space: nowrap !important;
-              print-color-adjust: exact !important;
-              -webkit-print-color-adjust: exact !important;
-            }
-            
-            .pdf-document #pdf-toc li {
-              position: relative !important;
-              margin-bottom: 0.5rem !important;
-              padding-right: 20px !important;
-            }
-            
-            .pdf-document #pdf-toc * {
-              visibility: visible !important;
-              opacity: 1 !important;
-            }
-            
-            .pdf-document #pdf-toc .toc-leader {
-              flex-grow: 1 !important;
-              margin-right: 20px !important;
-              border-bottom: 1px dotted #777 !important;
-            }
-            
-            .pdf-document #pdf-toc .toc-row {
-              display: flex !important;
-              width: 100% !important;
-              align-items: baseline !important;
-              position: relative !important;
-            }
-            
-            .pdf-document #pdf-toc .toc-title {
-              white-space: nowrap !important;
-              overflow: hidden !important;
-              text-overflow: ellipsis !important;
-              max-width: 70% !important;
-            }`;
-            // document.head.appendChild(tocPageNumbersStyle);
-
             // Add print-specific class
             document.body.classList.add('pdf-document', 'print');
         }, bootstrapCss, pdfStylesCss);
