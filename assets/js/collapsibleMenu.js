@@ -103,8 +103,6 @@ function initCollapsibleMenu() {
 // Run after DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   initCollapsibleMenu();
-  // Log the TOC structure for debugging
-  logTOCStructure();
 });
 
 // Re-initialize when highlighting changes
