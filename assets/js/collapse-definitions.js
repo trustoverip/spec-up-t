@@ -20,13 +20,13 @@ function collapseDefinitions() {
         const dts = document.querySelectorAll('#content dl.terms-and-definitions-list > dt');
         const regularDds = Array.from(dds).filter(dd => !isSpecialDefinition(dd.textContent.trim()));
         const specialDds = Array.from(dds).filter(dd => isSpecialDefinition(dd.textContent.trim()));
-        
+
         return { dds, dts, regularDds, specialDds };
     }
-    
+
     let { dds, dts, regularDds, specialDds } = queryElements();
     const buttonTitleText = 'Change how much info is shown';
-    
+
     /**
      * Determines if a definition is a special type (e.g., a "See also" or "Source" note)
      * @param {string} content - The content of the definition to check
@@ -49,24 +49,7 @@ function collapseDefinitions() {
         ];
         return definitionHidePrefixes.some(prefix => content.startsWith(prefix));
     }
-    
-    /**
-     * Refreshes the collection of elements 
-     * This allows handling of elements added asynchronously by other scripts
-     */
-    function refreshElements() {
-        const elements = queryElements();
-        dds = elements.dds;
-        dts = elements.dts;
-        regularDds = elements.regularDds;
-        specialDds = elements.specialDds;
-        
-        // Apply special class to special definitions
-        specialDds.forEach(dd => {
-            dd.classList.add('terms-def-extra-info');
-        });
-    }
-    
+
     specialDds.forEach(dd => {
         dd.classList.add('terms-def-extra-info');
     });
@@ -82,9 +65,6 @@ function collapseDefinitions() {
      * @function
      */
     function toggleVisibility() {
-        // Refresh elements to include any that were added after initialization
-        // refreshElements();
-        
         const buttons = document.querySelectorAll('.collapse-all-defs-button');
         const currentState = parseInt(buttons[0].dataset.state || 0);
         // Cycle through 3 states: 0 (all hidden), 1 (only regular visible), 2 (all visible)
@@ -168,7 +148,7 @@ function collapseDefinitions() {
             if (dt.querySelector('.collapse-all-defs-button')) {
                 return; // Skip if button already exists
             }
-            
+
             const button = document.createElement('button');
             button.classList.add('collapse-all-defs-button', 'd-print-none', 'btn', 'p-0', 'fs-5', 'd-flex', 'align-items-center', 'justify-content-center');
             // Create a container for all three state indicators
@@ -176,10 +156,10 @@ function collapseDefinitions() {
             button.setAttribute('id', 'toggleButton');
             button.setAttribute('title', buttonTitleText);
             button.setAttribute('data-state', '2'); // Start with all definitions visible
-            
+
             // Set initial active state
             button.querySelector('.state-indicator[data-state="2"]').classList.add('active');
-            
+
             dt.appendChild(button);
         });
     }
@@ -199,22 +179,22 @@ function collapseDefinitions() {
      */
     document.addEventListener('click', event => {
         // Check if the click is on a state-indicator or the button itself
-        if (event.target.classList.contains('collapse-all-defs-button') || 
+        if (event.target.classList.contains('collapse-all-defs-button') ||
             event.target.classList.contains('state-indicator')) {
             // Get the button element (whether clicked directly or via child)
-            const button = event.target.classList.contains('collapse-all-defs-button') ? 
-                           event.target : 
-                           event.target.closest('.collapse-all-defs-button');
-            
+            const button = event.target.classList.contains('collapse-all-defs-button') ?
+                event.target :
+                event.target.closest('.collapse-all-defs-button');
+
             // Find the parent dt and dl elements
             const dtElement = button.closest('dt');
-            
+
             // Get button's position in viewport and page
             const buttonRect = button.getBoundingClientRect();
-            
+
             // Apply a class to prevent layout shifts during transition
             document.documentElement.classList.add('definitions-transitioning');
-            
+
             /**
              * Button position anchoring technique:
              * 1. Fix the button in its current viewport position to ensure 
@@ -226,7 +206,7 @@ function collapseDefinitions() {
             button.style.top = `${buttonRect.top}px`;
             button.style.right = `${window.innerWidth - buttonRect.right}px`;
             button.style.zIndex = '1000';
-            
+
             // Add highlight effect
             dtElement.classList.add('highlight');
             setTimeout(() => {
@@ -235,7 +215,7 @@ function collapseDefinitions() {
 
             // Toggle visibility which might change layout
             toggleVisibility();
-            
+
             /**
              * Visual stability restoration:
              * Use requestAnimationFrame to restore normal positioning at the optimal time
@@ -248,13 +228,13 @@ function collapseDefinitions() {
                 button.style.top = '';
                 button.style.right = '';
                 button.style.zIndex = '';
-                
+
                 // Remove the transitioning class
                 document.documentElement.classList.remove('definitions-transitioning');
-                
+
                 // Scroll to correct position so the button appears where it was fixed
                 const newButtonRect = button.getBoundingClientRect();
-                
+
                 // Calculate and apply precise scroll adjustment to maintain visual position
                 window.scrollTo({
                     top: window.scrollY + (newButtonRect.top - buttonRect.top),
@@ -271,7 +251,7 @@ function collapseDefinitions() {
  * happens after it completes.
  * @listens DOMContentLoaded
  */
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     /**
      * We use a setTimeout with a small delay to ensure that:
      * 1. insert-trefs.js has completed its DOM modifications via requestAnimationFrame
