@@ -14,10 +14,17 @@
  * @function
  */
 function collapseDefinitions() {
-    const dds = document.querySelectorAll('#content dl.terms-and-definitions-list > dd');
-    const dts = document.querySelectorAll('#content dl.terms-and-definitions-list > dt');
-    const regularDds = Array.from(dds).filter(dd => !isSpecialDefinition(dd.textContent.trim()));
-    const specialDds = Array.from(dds).filter(dd => isSpecialDefinition(dd.textContent.trim()));
+    // Query the DOM for elements
+    function queryElements() {
+        const dds = document.querySelectorAll('#content dl.terms-and-definitions-list > dd');
+        const dts = document.querySelectorAll('#content dl.terms-and-definitions-list > dt');
+        const regularDds = Array.from(dds).filter(dd => !isSpecialDefinition(dd.textContent.trim()));
+        const specialDds = Array.from(dds).filter(dd => isSpecialDefinition(dd.textContent.trim()));
+        
+        return { dds, dts, regularDds, specialDds };
+    }
+    
+    let { dds, dts, regularDds, specialDds } = queryElements();
     const buttonTitleText = 'Change how much info is shown';
     
     /**
@@ -43,6 +50,23 @@ function collapseDefinitions() {
         return definitionHidePrefixes.some(prefix => content.startsWith(prefix));
     }
     
+    /**
+     * Refreshes the collection of elements 
+     * This allows handling of elements added asynchronously by other scripts
+     */
+    function refreshElements() {
+        const elements = queryElements();
+        dds = elements.dds;
+        dts = elements.dts;
+        regularDds = elements.regularDds;
+        specialDds = elements.specialDds;
+        
+        // Apply special class to special definitions
+        specialDds.forEach(dd => {
+            dd.classList.add('terms-def-extra-info');
+        });
+    }
+    
     specialDds.forEach(dd => {
         dd.classList.add('terms-def-extra-info');
     });
@@ -58,6 +82,9 @@ function collapseDefinitions() {
      * @function
      */
     function toggleVisibility() {
+        // Refresh elements to include any that were added after initialization
+        // refreshElements();
+        
         const buttons = document.querySelectorAll('.collapse-all-defs-button');
         const currentState = parseInt(buttons[0].dataset.state || 0);
         // Cycle through 3 states: 0 (all hidden), 1 (only regular visible), 2 (all visible)
@@ -134,22 +161,31 @@ function collapseDefinitions() {
         }
     }
 
+    // Add button as last child of every <dt>
+    function addButtons() {
+        dts.forEach(dt => {
+            // Check if button already exists to avoid duplicates
+            if (dt.querySelector('.collapse-all-defs-button')) {
+                return; // Skip if button already exists
+            }
+            
+            const button = document.createElement('button');
+            button.classList.add('collapse-all-defs-button', 'd-print-none', 'btn', 'p-0', 'fs-5', 'd-flex', 'align-items-center', 'justify-content-center');
+            // Create a container for all three state indicators
+            button.innerHTML = `<span class="state-indicator" data-state="0">①</span><span class="state-indicator" data-state="1">②</span><span class="state-indicator" data-state="2">③</span>`;
+            button.setAttribute('id', 'toggleButton');
+            button.setAttribute('title', buttonTitleText);
+            button.setAttribute('data-state', '2'); // Start with all definitions visible
+            
+            // Set initial active state
+            button.querySelector('.state-indicator[data-state="2"]').classList.add('active');
+            
+            dt.appendChild(button);
+        });
+    }
 
-    // Add button as last child of every <dl>
-    dts.forEach(dt => {
-        const button = document.createElement('button');
-        button.classList.add('collapse-all-defs-button', 'd-print-none', 'btn', 'p-0', 'fs-5', 'd-flex', 'align-items-center', 'justify-content-center');
-        // Create a container for all three state indicators
-        button.innerHTML = `<span class="state-indicator" data-state="0">①</span><span class="state-indicator" data-state="1">②</span><span class="state-indicator" data-state="2">③</span>`;
-        button.setAttribute('id', 'toggleButton');
-        button.setAttribute('title', buttonTitleText);
-        button.setAttribute('data-state', '2'); // Start with all definitions visible
-        
-        // Set initial active state
-        button.querySelector('.state-indicator[data-state="2"]').classList.add('active');
-        
-        dt.appendChild(button);
-    });
+    // Initial button setup
+    addButtons();
 
     /**
      * Sets up event handling for definition toggle buttons.
@@ -230,9 +266,21 @@ function collapseDefinitions() {
 }
 
 /**
- * Initializes the collapsible definitions functionality when the DOM is fully loaded.
+ * Initialize the collapsible definitions functionality when the DOM is fully loaded.
+ * Since insert-trefs.js completes at load time, we only need to ensure our initialization
+ * happens after it completes.
  * @listens DOMContentLoaded
  */
-document.addEventListener("DOMContentLoaded", function () {
-    collapseDefinitions();
+document.addEventListener("DOMContentLoaded", function() {
+    /**
+     * We use a setTimeout with a small delay to ensure that:
+     * 1. insert-trefs.js has completed its DOM modifications via requestAnimationFrame
+     * 2. The browser has had time to render those changes
+     * 
+     * This is a simple approach that ensures our code runs after all the dynamic
+     * content from insert-trefs.js has been added to the DOM.
+     */
+    setTimeout(() => {
+        collapseDefinitions();
+    }, 50); // A small delay is enough since we only need to be after the first RAF cycle
 });
