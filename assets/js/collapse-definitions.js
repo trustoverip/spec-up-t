@@ -246,42 +246,6 @@ function collapseDefinitions() {
 }
 
 /**
- * Handles the initialization of collapsible definitions functionality.
- * @param {Function} initCallback - The function to call when initialization should occur
- */
-function initializeCollapsibleDefinitions(initCallback) {
-    // Track initialization state
-    let hasInitialized = false;
-    
-    // Set up the event listener for the custom event from insert-trefs.js
-    document.addEventListener('xrefs-inserted', function(event) {
-        // Avoid double initialization
-        if (hasInitialized) return;
-        
-        // Now we know for certain that insert-trefs.js has completed its work
-        hasInitialized = true;
-        initCallback();
-        
-        // Log info about the completed xrefs insertion (useful for debugging)
-        if (event.detail) {
-            console.log(`Collapsible definitions initialized after ${event.detail.count} xrefs were inserted`);
-        }
-    });
-    
-    // Fallback initialization in case insert-trefs.js doesn't run or doesn't emit the event
-    // This ensures our UI works even if there's an issue with xrefs
-    
-    // Wait for a reasonable time, then check if we've initialized
-    setTimeout(() => {
-        if (!hasInitialized) {
-            console.warn('xrefs-inserted event was not received, initializing collapsible definitions anyway');
-            initCallback();
-            hasInitialized = true;
-        }
-    }, 1000); // Longer timeout as this is just a fallback
-}
-
-/**
  * Initialize the collapsible definitions functionality when the DOM is fully loaded.
  * We listen for a custom event from insert-trefs.js to know exactly when all
  * external references have been inserted into the DOM.
@@ -290,5 +254,5 @@ function initializeCollapsibleDefinitions(initCallback) {
  */
 document.addEventListener("DOMContentLoaded", function () {
     // Initialize using our local function
-    initializeCollapsibleDefinitions(collapseDefinitions);
+    initializeOnTrefsInserted(collapseDefinitions);
 });

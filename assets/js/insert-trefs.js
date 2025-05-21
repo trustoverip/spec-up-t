@@ -148,7 +148,7 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
          
          // Dispatch a custom event when all DOM modifications are complete
          // This allows other scripts to know exactly when our work is done
-         document.dispatchEvent(new CustomEvent('xrefs-inserted', { 
+         document.dispatchEvent(new CustomEvent('trefs-inserted', { 
             detail: { count: domChanges.length } 
          }));
       });
@@ -159,10 +159,46 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
    } else {
       console.error('allXTrefs is undefined or missing xtrefs property');
       // Dispatch event even when there are no xrefs, so waiting code knows we're done
-      document.dispatchEvent(new CustomEvent('xrefs-inserted', { 
+      document.dispatchEvent(new CustomEvent('trefs-inserted', { 
          detail: { count: 0, error: 'Missing xtrefs data' } 
       }));
    }
+}
+
+/**
+ * Handles the initialization of collapsible definitions functionality.
+ * @param {Function} initCallback - The function to call when initialization should occur
+ */
+function initializeOnTrefsInserted(initCallback) {
+   // Track initialization state
+   let hasInitialized = false;
+
+   // Set up the event listener for the custom event from insert-trefs.js
+   document.addEventListener('trefs-inserted', function (event) {
+      // Avoid double initialization
+      if (hasInitialized) return;
+
+      // Now we know for certain that insert-trefs.js has completed its work
+      hasInitialized = true;
+      initCallback();
+
+      // Log info about the completed xrefs insertion (useful for debugging)
+      if (event.detail) {
+         console.log(`Collapsible definitions initialized after ${event.detail.count} xrefs were inserted`);
+      }
+   });
+
+   // Fallback initialization in case insert-trefs.js doesn't run or doesn't emit the event
+   // This ensures our UI works even if there's an issue with xrefs
+
+   // Wait for a reasonable time, then check if we've initialized
+   setTimeout(() => {
+      if (!hasInitialized) {
+         console.warn('trefs-inserted event was not received, initializing collapsible definitions anyway');
+         initCallback();
+         hasInitialized = true;
+      }
+   }, 1000); // Longer timeout as this is just a fallback
 }
 
 /**
@@ -177,3 +213,4 @@ document.addEventListener('DOMContentLoaded', () => {
       console.warn('allXTrefs is not available in the global scope. Transcluded references will not be inserted.');
    }
 });
+
