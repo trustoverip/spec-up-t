@@ -145,6 +145,12 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
             const { dt, parent, fragment } = change;
             parent.insertBefore(fragment, dt.nextSibling);
          });
+         
+         // Dispatch a custom event when all DOM modifications are complete
+         // This allows other scripts to know exactly when our work is done
+         document.dispatchEvent(new CustomEvent('xrefs-inserted', { 
+            detail: { count: domChanges.length } 
+         }));
       });
    }
 
@@ -152,6 +158,10 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
       processTerms(allXTrefs);
    } else {
       console.error('allXTrefs is undefined or missing xtrefs property');
+      // Dispatch event even when there are no xrefs, so waiting code knows we're done
+      document.dispatchEvent(new CustomEvent('xrefs-inserted', { 
+         detail: { count: 0, error: 'Missing xtrefs data' } 
+      }));
    }
 }
 

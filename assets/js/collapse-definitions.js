@@ -247,20 +247,39 @@ function collapseDefinitions() {
 
 /**
  * Initialize the collapsible definitions functionality when the DOM is fully loaded.
- * Since insert-trefs.js completes at load time, we only need to ensure our initialization
- * happens after it completes.
+ * We listen for a custom event from insert-trefs.js to know exactly when all
+ * external references have been inserted into the DOM.
  * @listens DOMContentLoaded
+ * @listens xrefs-inserted
  */
 document.addEventListener("DOMContentLoaded", function () {
-    /**
-     * We use a setTimeout with a small delay to ensure that:
-     * 1. insert-trefs.js has completed its DOM modifications via requestAnimationFrame
-     * 2. The browser has had time to render those changes
-     * 
-     * This is a simple approach that ensures our code runs after all the dynamic
-     * content from insert-trefs.js has been added to the DOM.
-     */
-    setTimeout(() => {
+    // Track initialization state
+    let hasInitialized = false;
+    
+    // Set up the event listener for the custom event from insert-trefs.js
+    document.addEventListener('xrefs-inserted', function(event) {
+        // Avoid double initialization
+        if (hasInitialized) return;
+        
+        // Now we know for certain that insert-trefs.js has completed its work
+        hasInitialized = true;
         collapseDefinitions();
-    }, 50); // A small delay is enough since we only need to be after the first RAF cycle
+        
+        // Log info about the completed xrefs insertion (useful for debugging)
+        if (event.detail) {
+            console.log(`Collapsible definitions initialized after ${event.detail.count} xrefs were inserted`);
+        }
+    });
+    
+    // Fallback initialization in case insert-trefs.js doesn't run or doesn't emit the event
+    // This ensures our UI works even if there's an issue with xrefs
+    
+    // Wait for a reasonable time, then check if we've initialized
+    setTimeout(() => {
+        if (!hasInitialized) {
+            console.warn('xrefs-inserted event was not received, initializing collapsible definitions anyway');
+            collapseDefinitions();
+            hasInitialized = true;
+        }
+    }, 1000); // Longer timeout as this is just a fallback
 });
