@@ -43,21 +43,15 @@ html.definitions-transitioning #content {
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  border: 1px solid #dee2e6;
-  background-color: #f8f9fa;
-}
-
-.collapse-all-defs-button .state-indicator:hover {
-  background-color: #e9ecef;
+  border-color: #ccc !important;
+  color: #ccc !important;
 }
 
 .collapse-all-defs-button .state-indicator.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #0069d9;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: #999 !important;
+  color: #999 !important;
 }
 
 dl.terms-and-definitions-list>dd.terms-def-extra-info {
-  background-color: #a9dde05d;
+  background-color: #edf3f4;
 }
