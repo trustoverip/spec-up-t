@@ -246,13 +246,10 @@ function collapseDefinitions() {
 }
 
 /**
- * Initialize the collapsible definitions functionality when the DOM is fully loaded.
- * We listen for a custom event from insert-trefs.js to know exactly when all
- * external references have been inserted into the DOM.
- * @listens DOMContentLoaded
- * @listens xrefs-inserted
+ * Handles the initialization of collapsible definitions functionality.
+ * @param {Function} initCallback - The function to call when initialization should occur
  */
-document.addEventListener("DOMContentLoaded", function () {
+function initializeCollapsibleDefinitions(initCallback) {
     // Track initialization state
     let hasInitialized = false;
     
@@ -263,7 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Now we know for certain that insert-trefs.js has completed its work
         hasInitialized = true;
-        collapseDefinitions();
+        initCallback();
         
         // Log info about the completed xrefs insertion (useful for debugging)
         if (event.detail) {
@@ -278,8 +275,20 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
         if (!hasInitialized) {
             console.warn('xrefs-inserted event was not received, initializing collapsible definitions anyway');
-            collapseDefinitions();
+            initCallback();
             hasInitialized = true;
         }
     }, 1000); // Longer timeout as this is just a fallback
+}
+
+/**
+ * Initialize the collapsible definitions functionality when the DOM is fully loaded.
+ * We listen for a custom event from insert-trefs.js to know exactly when all
+ * external references have been inserted into the DOM.
+ * @listens DOMContentLoaded
+ * @listens xrefs-inserted
+ */
+document.addEventListener("DOMContentLoaded", function () {
+    // Initialize using our local function
+    initializeCollapsibleDefinitions(collapseDefinitions);
 });
