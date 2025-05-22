@@ -1,11 +1,12 @@
-name: Run Jest Tests and Coverage
+name: Spec-Up-T CI
 
 on:
   push:
-    branches: [ "**" ] # Run on pushes to all branches
+    branches: [ "**" ]
 
 jobs:
-  test:
+  build:
+    name: Build Artifacts
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -16,5 +17,35 @@ jobs:
           node-version: '18'
       - name: Install dependencies
         run: npm install
-      - name: Run tests and coverage
+      - name: Compile assets
+        run: npx gulp compile # Use npx to ensure gulp CLI is available
+
+  test-no-coverage:
+    name: Run Tests (No Coverage)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install
+      - name: Run Jest tests
+        run: npm test
+
+  test-coverage:
+    name: Run Tests (With Coverage)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install
+      - name: Run Jest tests and coverage
         run: npm run test:coverage
