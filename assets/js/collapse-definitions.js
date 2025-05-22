@@ -6,15 +6,27 @@
  * of definition descriptions in a document with a smooth user experience.
  * It creates interactive buttons with three toggle states and prevents
  * UI jumping during transitions using fixed positioning and requestAnimationFrame.
+ * @requires insert-trefs.js - For the initializeOnTrefsInserted helper function
  */
 
 /**
  * Sets up collapsible definition lists with toggle buttons.
  * Handles the creation of buttons, event listeners, and visibility states.
+ * This is the main initialization function that's called when the DOM is ready
+ * and all transcluded references have been inserted.
  * @function
+ * @see initializeOnTrefsInserted - Helper function that ensures this runs at the right time
  */
 function collapseDefinitions() {
-    // Query the DOM for elements
+    /**
+     * Queries and categorizes definition list elements in the DOM.
+     * @function
+     * @returns {Object} Object containing categorized DOM element collections
+     * @returns {NodeList} returns.dds - All definition descriptions
+     * @returns {NodeList} returns.dts - All definition terms
+     * @returns {Array<Element>} returns.regularDds - Standard definition descriptions
+     * @returns {Array<Element>} returns.specialDds - Special definition descriptions (e.g., "See also", "Source")
+     */
     function queryElements() {
         const dds = document.querySelectorAll('#content dl.terms-and-definitions-list > dd');
         const dts = document.querySelectorAll('#content dl.terms-and-definitions-list > dt');
@@ -141,7 +153,12 @@ function collapseDefinitions() {
         }
     }
 
-    // Add button as last child of every <dt>
+    /**
+     * Creates and appends toggle buttons to all definition terms.
+     * Each button contains state indicators for the three visibility states,
+     * and is initialized to show all definitions (state 2).
+     * @function
+     */
     function addButtons() {
         dts.forEach(dt => {
             // Check if button already exists to avoid duplicates
@@ -168,7 +185,7 @@ function collapseDefinitions() {
     addButtons();
 
     /**
-     * Sets up event handling for definition toggle buttons.
+     * Handles click events on definition toggle buttons and their state indicators.
      * Uses advanced positioning techniques to prevent UI jumping during transitions:
      * 1. Temporarily fixes the button's position using position:fixed during DOM updates
      * 2. Uses requestAnimationFrame for optimal timing of position restoration
@@ -176,6 +193,8 @@ function collapseDefinitions() {
      * 
      * This prevents the visual disruption that would otherwise occur when expanding
      * or collapsing definitions causes layout reflow.
+     * 
+     * @param {Event} event - The DOM click event
      */
     document.addEventListener('click', event => {
         // Check if the click is on a state-indicator or the button itself
@@ -249,8 +268,9 @@ function collapseDefinitions() {
  * Initialize the collapsible definitions functionality when the DOM is fully loaded.
  * We listen for a custom event from insert-trefs.js to know exactly when all
  * external references have been inserted into the DOM.
- * @listens DOMContentLoaded
- * @listens xrefs-inserted
+ * @listens DOMContentLoaded - Standard DOM event fired when initial HTML document is completely loaded
+ * @listens trefs-inserted - Custom event fired by insert-trefs.js when all term references are processed
+ * @see initializeOnTrefsInserted - Helper function that manages initialization timing
  */
 document.addEventListener("DOMContentLoaded", function () {
     initializeOnTrefsInserted(collapseDefinitions);
