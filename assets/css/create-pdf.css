@@ -1,13 +1,12 @@
 /* PDF Styling for optimized print layout */
-
 /* Target the pdf-document class that's added during PDF generation */
 
-/* Reset all margins and paddings */
+/* ===== GENERAL LAYOUT STYLING ===== */
 .pdf-document * {
   box-sizing: border-box !important;
 }
 
-/* Body and main container styling */
+/* Basic layout settings */
 body.pdf-document {
   max-width: 100% !important;
   width: 100% !important;
@@ -16,7 +15,7 @@ body.pdf-document {
   overflow-x: hidden !important;
 }
 
-/* Extremely aggressive content width adjustment */
+/* Content container sizing */
 .pdf-document .container,
 .pdf-document main,
 .pdf-document section,
@@ -24,7 +23,11 @@ body.pdf-document {
 .pdf-document .content,
 .pdf-document div[class*="container"],
 .pdf-document div[class*="col-"],
-.pdf-document .row {
+.pdf-document .row,
+.pdf-document .container-sm,
+.pdf-document .container-md,
+.pdf-document .container-lg,
+.pdf-document .container-xl {
   max-width: 95% !important;
   width: 95% !important;
   margin-left: auto !important;
@@ -33,36 +36,38 @@ body.pdf-document {
   padding-right: 0 !important;
 }
 
-/* Override any Bootstrap container constraints */
-.pdf-document .container,
-.pdf-document .container-sm,
-.pdf-document .container-md,
-.pdf-document .container-lg,
-.pdf-document .container-xl {
-  max-width: 95% !important;
+/* Force columns to full width */
+.pdf-document .col,
+.pdf-document [class*="col-"] {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
 }
 
-/* Table adjustments */
+/* ===== COMMON ELEMENT STYLING ===== */
+
+/* Basic styling for tables */
 .pdf-document table {
   width: 100% !important;
   max-width: 100% !important;
   margin-bottom: 1rem;
   table-layout: fixed !important;
+  page-break-inside: avoid !important;
 }
 
-/* Header styling */
+/* Title styling */
 .pdf-document .pdf-title {
   font-size: 24pt !important;
   margin-bottom: 0.5rem !important;
 }
 
-/* Images in PDF */
+/* Consistent image handling */
 .pdf-document img {
   max-width: 100% !important;
   height: auto !important;
 }
 
-/* Links in PDF - remove blue color and underlining */
+/* Links in PDF */
 .pdf-document a {
   color: #000 !important;
   text-decoration: none !important;
@@ -78,21 +83,20 @@ body.pdf-document {
   overflow: visible !important;
 }
 
-/* Ensure proper page breaks */
+/* Page break control */
 .pdf-document h1,
 .pdf-document h2,
 .pdf-document h3,
 .pdf-document h4 {
-  page-break-after: avoid;
-  page-break-inside: avoid;
+  page-break-after: avoid !important;
+  page-break-inside: avoid !important;
 }
 
-.pdf-document table,
 .pdf-document figure {
-  page-break-inside: avoid;
+  page-break-inside: avoid !important;
 }
 
-/* Force any fixed-position elements to static */
+/* Make fixed elements static for PDF */
 .pdf-document .fixed-top,
 .pdf-document .fixed-bottom,
 .pdf-document .sticky-top,
@@ -101,20 +105,13 @@ body.pdf-document {
   position: static !important;
 }
 
-/* Aggressively set all columns to take up more space */
-.pdf-document .col,
-.pdf-document [class*="col-"] {
-  flex: 0 0 100% !important;
-  max-width: 100% !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+/* Hide elements not needed in PDF */
+.pdf-document .offcanvas.show,
+.pdf-document .meta-info-toggle-button {
+  display: none !important;
 }
 
-
-
-
-/* ====== TABLE OF CONTENTS STYLING FOR PDF ====== */
-/* Book-like Table of Contents styling */
+/* ===== TABLE OF CONTENTS STYLING ===== */
 .pdf-document #toc,
 .pdf-document #pdf-toc {
   break-before: page !important;
@@ -123,6 +120,14 @@ body.pdf-document {
   margin-bottom: 2rem !important;
 }
 
+/* Content after TOC starts on new page */
+.pdf-document #toc + *,
+.pdf-document #pdf-toc + * {
+  break-before: page !important;
+  page-break-before: always !important;
+}
+
+/* TOC header */
 .pdf-document #toc h2,
 .pdf-document #pdf-toc h2 {
   font-size: 24pt !important;
@@ -133,80 +138,35 @@ body.pdf-document {
   padding-bottom: 0.5rem !important;
 }
 
+/* TOC list basics */
 .pdf-document #toc ul,
 .pdf-document #pdf-toc ul {
   margin: 0 !important;
   padding: 0 !important;
   list-style-type: none !important;
+  width: 100% !important;
 }
 
-.pdf-document #toc ul li,
-.pdf-document #pdf-toc ul li {
+/* TOC nested lists */
+.pdf-document #toc ul ul,
+.pdf-document #pdf-toc ul ul {
+  padding-left: 1rem !important;
+  margin: 0.2rem 0 0.2rem 1rem !important;
+}
+
+/* TOC list items */
+.pdf-document #toc li,
+.pdf-document #pdf-toc li {
+  position: relative !important;
+  width: 100% !important;
   margin: 0 0 0.5rem 0 !important;
-  padding: 0 !important;
+  padding: 0 20px 0 0 !important;
   line-height: 1.5 !important;
   display: flex !important;
   align-items: baseline !important;
-  position: relative !important;
-  width: 100% !important;
 }
 
-.pdf-document #toc ul li .dotted-leader,
-.pdf-document #pdf-toc ul li .dotted-leader {
-  content: "" !important;
-  flex-grow: 1 !important;
-  border-bottom: 1px dotted #aaa !important;
-  margin: 0 0.3rem !important;
-  position: relative !important;
-  bottom: 0.3rem !important;
-}
-
-.pdf-document #toc ul li a,
-.pdf-document #pdf-toc ul li a,
-.pdf-document #pdf-toc .toc-title {
-  color: #000 !important;
-  text-decoration: none !important;
-  font-weight: normal !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  max-width: 80% !important;
-  border-bottom: none !important;
-  background-color: transparent !important;
-}
-
-.pdf-document #toc ul li span.page-number,
-.pdf-document #pdf-toc ul li span.page-number {
-  display: inline-block !important;
-  font-weight: normal !important;
-  white-space: nowrap !important;
-}
-
-/* Position container for page numbers */
-.pdf-document #toc ul li > div:last-child,
-.pdf-document #pdf-toc ul li > div:last-child {
-  position: absolute !important;
-  right: 0 !important;
-  background-color: white !important;
-  padding: 0 5px !important;
-  z-index: 100 !important;
-}
-
-.pdf-document #toc ul li ul,
-.pdf-document #pdf-toc ul li ul {
-  margin-left: 0.75rem !important;
-  margin-top: 0.3rem !important;
-  width: 100% !important;
-  padding-left: 0.5rem !important;
-}
-
-.pdf-document #toc ul li ul li,
-.pdf-document #pdf-toc ul li ul li {
-  font-size: 0.9em !important;
-  text-indent: 0.25rem !important;
-}
-
-/* Levels of TOC entries */
+/* TOC list styles for different levels */
 .pdf-document #toc > ul > li,
 .pdf-document #pdf-toc > ul > li {
   font-weight: bold !important;
@@ -226,27 +186,7 @@ body.pdf-document {
   margin-bottom: 0.3rem !important;
 }
 
-.pdf-document #toc ul,
-.pdf-document #pdf-toc ul {
-  width: 100% !important;
-  padding: 0 !important;
-  margin-left: 0 !important;
-}
-
-.pdf-document #toc ul ul,
-.pdf-document #pdf-toc ul ul {
-  padding-left: 1rem !important;
-  margin-left: 1rem !important;
-  margin-top: 0.2rem !important;
-  margin-bottom: 0.2rem !important;
-}
-
-.pdf-document #toc li,
-.pdf-document #pdf-toc li {
-  width: 100% !important;
-  position: relative !important;
-}
-
+/* TOC items with nested lists */
 .pdf-document #toc li:has(> ul),
 .pdf-document #pdf-toc li:has(> ul) {
   flex-direction: column !important;
@@ -259,60 +199,100 @@ body.pdf-document {
   width: 100% !important;
 }
 
-/* Add a "Contents" header before TOC if needed */
-.pdf-document #toc::before,
-.pdf-document #pdf-toc::before {
-  content: "" !important;
-  display: block !important;
-  height: 1em !important;
+/* TOC link styling */
+.pdf-document #toc ul li a,
+.pdf-document #pdf-toc ul li a,
+.pdf-document #pdf-toc .toc-title {
+  color: #000 !important;
+  text-decoration: none !important;
+  font-weight: normal !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 80% !important;
+  border-bottom: none !important;
+  background-color: transparent !important;
 }
 
-/* Proper page break - ensure TOC starts on a new page and sections after TOC start on new pages */
-.pdf-document #toc,
-.pdf-document #pdf-toc {
-  break-before: page !important;
-  page-break-before: always !important;
+/* Dotted leader line */
+.pdf-document #toc ul li .dotted-leader,
+.pdf-document #pdf-toc ul li .dotted-leader,
+.pdf-document #pdf-toc .toc-leader {
+  flex-grow: 1 !important;
+  border-bottom: 1px dotted #aaa !important;
+  margin: 0 0.3rem !important;
+  position: relative !important;
+  bottom: 0.3rem !important;
 }
 
-.pdf-document #toc + *,
-.pdf-document #pdf-toc + * {
-  break-before: page !important;
-  page-break-before: always !important;
+/* TOC row layout */
+.pdf-document #pdf-toc .toc-row {
+  display: flex !important;
+  width: 100% !important;
+  align-items: baseline !important;
+  position: relative !important;
 }
 
-/* Ensure the original sidebar TOC is hidden in PDF */
-.pdf-document .offcanvas.show {
-  display: none !important;
+/* ===== PAGE NUMBER STYLING ===== */
+/* Page margin for right side numbers */
+@page {
+  margin-right: 25mm !important;
 }
 
-/* ====== DEFINITION LIST STYLING FOR PDF ====== */
-/* Remove background and borders from terms and definitions in PDF */
-.pdf-document dl.terms-and-definitions-list>dt,
-.pdf-document dl.terms-and-definitions-list>dd {
+/* Page number styling - simplified and consolidated */
+.pdf-document .page-number,
+.pdf-document #pdf-toc .toc-page-number,
+.pdf-document #toc ul li span.page-number,
+.pdf-document #pdf-toc ul li span.page-number {
+  display: inline-block !important;
+  text-align: right !important;
+  font-size: 11pt !important;
+  background-color: white !important;
+  padding: 0 4px !important;
+  margin: 0 !important;
+  min-width: 2rem !important;
+  white-space: nowrap !important;
+  font-weight: normal !important;
+  z-index: 9999 !important;
+}
+
+/* Page number positioning */
+.pdf-document #pdf-toc ul li > div:last-child,
+.pdf-document #toc ul li > div:last-child {
+  position: absolute !important;
+  right: 0 !important;
+  background-color: white !important;
+  padding: 0 5px !important;
+  z-index: 100 !important;
+  width: 3rem !important;
+  min-width: 3rem !important;
+  max-width: 3rem !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+  text-align: right !important;
+}
+
+/* ===== DEFINITION LIST STYLING ===== */
+/* Clean definition list styling */
+.pdf-document dl.terms-and-definitions-list > dt,
+.pdf-document dl.terms-and-definitions-list > dd {
   background-color: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   padding: 0.5rem 0 !important;
   color: #000 !important;
-  /* Ensure good page breaks in definition lists */
   page-break-inside: avoid !important;
 }
 
-/* Fix spacing between terms */
-.pdf-document dl.terms-and-definitions-list>dt {
+.pdf-document dl.terms-and-definitions-list > dt {
   margin-top: 1em !important;
   font-weight: bold !important;
   page-break-after: avoid !important;
 }
 
-/* Hide toggle buttons in PDF output */
-.pdf-document .meta-info-toggle-button {
-  display: none !important;
-}
-
-/* Always show meta-info content in PDF */
-.pdf-document dl>dd.meta-info-content-wrapper,
-.pdf-document dl>dd.collapsed.meta-info-content-wrapper {
+/* Always show definitions content in PDF */
+.pdf-document dl > dd.meta-info-content-wrapper,
+.pdf-document dl > dd.collapsed.meta-info-content-wrapper {
   display: block !important;
   max-height: none !important;
   height: auto !important;
@@ -322,25 +302,24 @@ body.pdf-document {
   line-height: normal !important;
 }
 
-/* Transclusion styling for PDF */
+/* Clean styling for transclusion */
 .pdf-document dt.transcluded-xref-term,
 .pdf-document dd.transcluded-xref-term {
   background: transparent !important;
-  background-color: transparent !important;
 }
 
-/* Remove any other visual indicators that aren't needed in PDF */
-.pdf-document dl.terms-and-definitions-list>dt::before,
-.pdf-document dl.terms-and-definitions-list>dd::before {
+/* Remove unwanted elements */
+.pdf-document dl.terms-and-definitions-list > dt::before,
+.pdf-document dl.terms-and-definitions-list > dd::before {
   display: none !important;
 }
 
-/* Ensure all definition content is visible in PDF */
+/* Definition paragraphs */
 .pdf-document dl.terms-and-definitions-list dd p {
   padding-left: 0 !important;
 }
 
-/* Improve table display in definitions for PDF */
+/* Definition tables */
 .pdf-document dl.terms-and-definitions-list dd table {
   margin: 0.5em 0 !important;
   border-collapse: collapse !important;
@@ -349,161 +328,6 @@ body.pdf-document {
 .pdf-document dl.terms-and-definitions-list dd table th,
 .pdf-document dl.terms-and-definitions-list dd table td {
   border: 0.5pt solid #888 !important;
-}
-
-/* Ensure page numbers are always visible at the right side of TOC entries */
-.pdf-document #pdf-toc .page-number {
-  display: inline-block !important;
-  text-align: right !important;
-  min-width: 2rem !important;
-  margin-left: 0.5rem !important; /* Fixed margin instead of auto */
-  position: static !important; /* Ensure it's in the normal flow */
-  float: none !important; /* Remove float that might cause issues */
-  padding-left: 0.5rem !important; /* Ensure there's space between leader and number */
-  flex-shrink: 0 !important; /* Prevent page number from shrinking */
-  z-index: 2 !important; /* Ensure it's on top of other elements */
-}
-
-/* Ensure wrappers around page numbers are properly sized and positioned */
-.pdf-document #pdf-toc ul li > div > .page-number,
-.pdf-document #toc ul li > div > .page-number {
-  position: static !important;
-  display: block !important;
-  width: 100% !important;
-}
-
-/* Extra specificity for page number wrappers */
-.pdf-document #pdf-toc ul li > div:last-child,
-.pdf-document #toc ul li > div:last-child {
-  width: 3rem !important;
-  min-width: 3rem !important;
-  max-width: 3rem !important;
-  flex-shrink: 0 !important;
-  margin-left: auto !important;
-  text-align: right !important;
-  position: relative !important;
-  z-index: 90 !important;
-}
-
-/* Apply strong styles to all page numbers for good measure */
-.page-number {
-  background-color: white !important;
-  box-shadow: 0 0 0 4px white !important;
-  border-radius: 2px !important;
-  font-weight: normal !important;
-  text-align: right !important;
-  width: auto !important;
-  min-width: 3rem !important;
-  display: inline-block !important;
-}
-
-/* Absolutely positioned page numbers */
-.pdf-document #pdf-toc ul li div[style*="position: absolute"],
-.pdf-document #toc ul li div[style*="position: absolute"] {
-  position: absolute !important;
-  right: 0 !important;
-  background-color: white !important;
-  padding: 0 8px !important;
-  z-index: 1000 !important;
-  border-radius: 2px !important;
-  box-shadow: 0 0 0 2px white !important;
-}
-
-/* Make sure page numbers are visible */
-.pdf-document .page-number {
-  display: inline-block !important;
-  color: black !important;
-  font-weight: bold !important;
-  font-size: 1em !important;
-  text-align: right !important;
-  min-width: 1.5em !important;
-}
-
-/* Make sure TOC items have relative positioning */
-.pdf-document #pdf-toc li,
-.pdf-document #toc li {
-  position: relative !important;
-}
-
-/* Fix the position of page numbers for nested levels */
-.pdf-document #pdf-toc ul ul li div[style*="position: absolute"],
-.pdf-document #toc ul ul li div[style*="position: absolute"] {
-  right: 0 !important;
-}
-
-
-@page {
-  margin-right: 25mm !important; /* Extra margin on right side */
-}
-
-.page-number {
-  position: fixed !important;
-  right: 2mm !important;
-  text-align: right !important;
-  font-weight: bold !important;
-  font-size: 11pt !important;
-  background-color: white !important;
-  color: red !important; /* Using red to make them visible */
-  border: 1px solid red !important;
-  padding: 1px 4px !important;
-  margin: 0 !important;
-  box-shadow: 0 0 4px white, 0 0 0 1px red !important;
-  width: auto !important;
-  min-width: 10mm !important;
-  z-index: 9999 !important;
-  display: block !important;
-}
-
-/* ====== SPECIAL TOC PAGE NUMBERS STYLING ====== */
-/* Special stylesheet for TOC page numbers */
-.pdf-document #pdf-toc .toc-page-number {
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  color: black !important;
-  font-weight: normal !important;
-  font-size: 11pt !important;
-  position: absolute !important;
-  right: 0 !important;
-  top: 0 !important;
-  z-index: 9999 !important;
-  background-color: white !important;
-  padding: 0 4px !important;
-  overflow: visible !important;
-  white-space: nowrap !important;
-  print-color-adjust: exact !important;
-  -webkit-print-color-adjust: exact !important;
-}
-
-.pdf-document #pdf-toc li {
-  position: relative !important;
-  margin-bottom: 0.5rem !important;
-  padding-right: 20px !important;
-}
-
-.pdf-document #pdf-toc * {
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-.pdf-document #pdf-toc .toc-leader {
-  flex-grow: 1 !important;
-  margin-right: 20px !important;
-  border-bottom: 1px dotted #777 !important;
-}
-
-.pdf-document #pdf-toc .toc-row {
-  display: flex !important;
-  width: 100% !important;
-  align-items: baseline !important;
-  position: relative !important;
-}
-
-.pdf-document #pdf-toc .toc-title {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  max-width: 70% !important;
 }
 
 
