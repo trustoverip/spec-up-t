@@ -253,6 +253,5 @@ function collapseDefinitions() {
  * @listens xrefs-inserted
  */
 document.addEventListener("DOMContentLoaded", function () {
-    // Initialize using our local function
     initializeOnTrefsInserted(collapseDefinitions);
 });
