@@ -1,23 +1,31 @@
 /**
- * @fileoverview Handles the insertion of transcluded external references (xrefs) into HTML documentation.
+ * @fileoverview Handles the insertion of transcluded external references (trefs) into HTML documentation.
  * This script processes terms marked with a specific class and adds their definitions from external sources.
+ * The terms come from external repositories and are inserted into the document as collapsible definitions.
  */
 
 /**
- * Inserts transcluded external references into the document.
+ * Inserts transcluded external references (trefs) into the document.
+ * This function processes the allXTrefs data and inserts definition content into the document
+ * for terms marked with the 'transcluded-xref-term' class.
  * @param {Object} allXTrefs - The object containing all external references data
  * @param {Array} allXTrefs.xtrefs - Array of external reference objects, each containing term definitions
  */
-function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
+function insertTrefs(allXTrefs) {
    /**
     * Processes all terms found in the document and collects DOM changes
     * before applying them in batch to improve performance.
     * 
     * @param {Object} xtrefsData - The object containing xtrefs data
     * @param {Array} xtrefsData.xtrefs - Array of external reference objects
+    * @returns {void} - This function does not return a value but dispatches a 'trefs-inserted' event
+    * when all DOM modifications are complete
     */
    function processTerms(xtrefsData) {
-      // First collect all terms to ensure consistent processing order
+      /**
+       * First collect all terms to ensure consistent processing order
+       * @type {Array<{element: Element, textContent: string, dt: Element, parent: Element}>}
+       */
       const allTerms = [];
       document.querySelectorAll('dt span.transcluded-xref-term').forEach(termElement => {
          const textContent = Array.from(termElement.childNodes)
@@ -46,7 +54,11 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
          });
       });
 
-      // Prepare all DOM changes first before making any insertions
+      /**
+       * Prepare all DOM changes first before making any insertions
+       * Each item in the array contains the elements needed for DOM insertion
+       * @type {Array<{dt: Element, parent: Element, fragment: DocumentFragment}>}
+       */
       const domChanges = allTerms.map(termData => {
          const { textContent, dt, parent } = termData;
 
@@ -139,7 +151,10 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
          };
       }).filter(Boolean); // Remove null entries
 
-      // Perform all DOM insertions in a single batch
+      /**
+       * Perform all DOM insertions in a single batch using requestAnimationFrame
+       * to optimize browser rendering and prevent layout thrashing
+       */
       requestAnimationFrame(() => {
          domChanges.forEach(change => {
             const { dt, parent, fragment } = change;
@@ -148,6 +163,10 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
          
          // Dispatch a custom event when all DOM modifications are complete
          // This allows other scripts to know exactly when our work is done
+         /**
+          * Dispatches a custom event to signal that trefs insertion is complete
+          * @fires trefs-inserted
+          */
          document.dispatchEvent(new CustomEvent('trefs-inserted', { 
             detail: { count: domChanges.length } 
          }));
@@ -167,7 +186,10 @@ function insertTrefs(allXTrefs) { // Pass allXTrefs as a parameter
 
 /**
  * Handles the initialization of collapsible definitions functionality.
+ * This function sets up event listeners for the 'trefs-inserted' event and 
+ * provides a fallback initialization mechanism if the event is never fired.
  * @param {Function} initCallback - The function to call when initialization should occur
+ * @returns {void} - This function does not return a value
  */
 function initializeOnTrefsInserted(initCallback) {
    // Track initialization state
@@ -189,7 +211,8 @@ function initializeOnTrefsInserted(initCallback) {
    });
 
    // Fallback initialization in case insert-trefs.js doesn't run or doesn't emit the event
-   // This ensures our UI works even if there's an issue with xrefs
+   // This ensures our UI works even if there's an issue with xrefs processing
+   // or if the 'trefs-inserted' event is never dispatched for some reason
 
    // Wait for a reasonable time, then check if we've initialized
    setTimeout(() => {
@@ -204,6 +227,8 @@ function initializeOnTrefsInserted(initCallback) {
 /**
  * Initialize the transcluded references when the DOM is fully loaded.
  * Checks for the global allXTrefs object and calls insertTrefs if available.
+ * This event listener ensures that the DOM is ready before attempting to process references.
+ * @listens DOMContentLoaded
  */
 document.addEventListener('DOMContentLoaded', () => {
    // Check if allXTrefs is defined in the global scope
