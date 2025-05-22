@@ -5,25 +5,30 @@
  * @since 2025-02-16
  */
 
-// Function to create the toggle button
+/**
+ * Creates a toggle button for collapsible meta information sections.
+ * @function createToggleButton
+ * @param {HTMLElement} element - The DD element that contains the meta information
+ * @returns {void}
+ */
 function createToggleButton(element) {
     const toggleButton = document.createElement('button');
     toggleButton.classList.add('meta-info-toggle-button', 'btn');
     toggleButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="shape-rendering: geometricPrecision;">' +
         '<path fill-rule="evenodd" d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>' +
-        '<path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588z"/>' + 
+        '<path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588z"/>' +
         '<path d="M9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>' +
-    '</svg>';
+        '</svg>';
     toggleButton.title = 'Meta info';
 
     // Add event listener to the button
-    toggleButton.addEventListener('click', function(e) {
+    toggleButton.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         // Get the wrapper containing the meta info
         const isCollapsed = element.classList.contains('collapsed');
-        
+
         // Toggle the collapsed state
         if (isCollapsed) {
             // If collapsed, expand it
@@ -49,14 +54,20 @@ function createToggleButton(element) {
     }
 }
 
-// Find all elements with class 'collapsible' and make them collapsible
-document.addEventListener('DOMContentLoaded', function() {
+
+/**
+ * Finds all description list items (dd) that contain tables and makes them collapsible.
+ * Adds necessary wrapper elements and toggle buttons to create the collapsible UI.
+ * @function collapseMetaInfo
+ * @returns {void}
+ */
+function collapseMetaInfo() {
     const collapsibles = document.querySelectorAll('dl > dd:has(table)');
 
-    collapsibles.forEach(function(element) {
+    collapsibles.forEach(function (element) {
         // Add meta-info-content-wrapper class
         element.classList.add('meta-info-content-wrapper');
-        
+
         // Wrap content in a div for proper spacing
         const wrapper = document.createElement('div');
         wrapper.classList.add('meta-info-inner-wrapper');
@@ -75,4 +86,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Collapse by default on load
         element.classList.add('collapsed');
     });
+}
+
+
+/**
+ * Initialize the collapse meta info functionality when the DOM is fully loaded.
+ * We use the initializeOnTrefsInserted helper from insert-trefs.js to ensure our 
+ * functionality runs at the right time - either after all external references have
+ * been inserted, or after a timeout if the event isn't triggered.
+ * 
+ * @listens DOMContentLoaded - Initial event when DOM is ready
+ * @listens trefs-inserted - Custom event from insert-trefs.js when all external references are inserted
+ * @see initializeOnTrefsInserted - Helper function that manages initialization timing
+ */
+document.addEventListener("DOMContentLoaded", function () {
+    initializeOnTrefsInserted(collapseMetaInfo);
 });
+

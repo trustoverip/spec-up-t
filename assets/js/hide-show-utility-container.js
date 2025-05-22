@@ -8,7 +8,6 @@ function hideShowUtilityContainer() {
 
    if (dtElements.length === 0) {
       document.getElementById("terminology-section-utility-container")?.remove();
-      // document.getElementById("terminology-section-utility-container")?.style.display = "none";
    }
 }
 
