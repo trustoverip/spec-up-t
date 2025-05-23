@@ -1,7 +1,7 @@
 # Spec-Up-T
 
 ## Build Status
-[![Spec-Up-T CI Status](https://github.com/trustoverip/spec-up-t/actions/workflows/ci.yml/badge.svg?branch=add-jest-coverage-workflow)](https://github.com/trustoverip/spec-up-t/actions/workflows/ci.yml)
+[![Spec-Up-T CI Status](https://github.com/blockchainbird/spec-up-t/actions/workflows/ci.yml/badge.svg?branch=add-jest-coverage-workflow)](https://github.com/blockchainbird/spec-up-t/actions/workflows/ci.yml)
 
 ### Test Results
 Detailed test results can be found in the GitHub Actions logs for each workflow run. Specifically, check the output of the "Run Tests (No Coverage)" job for standard test results, and the "Run Tests (With Coverage)" job for tests run with coverage enabled.
