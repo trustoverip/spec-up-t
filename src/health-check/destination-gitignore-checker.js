@@ -1,5 +1,5 @@
 /**
- * @file output-gitignore-checker.js
+ * @file destination-gitignore-checker.js
  * @description Checks if the final destination directory (from output_path in specs.json) 
  * is being ignored by Git. This is the directory where index.html is generated, 
  * NOT the temporary .cache directory (formerly called "output").
@@ -342,7 +342,7 @@ function checkOutputDirIgnorePatterns(projectRoot, normalizedPath, outputPath, d
  * @param {string} projectRoot - Root directory of the project
  * @returns {Promise<Array>} - Array of check results
  */
-async function checkOutputDirGitIgnore(projectRoot) {
+async function checkDestinationGitIgnore(projectRoot) {
   const results = [];
   
   try {
@@ -404,5 +404,5 @@ async function checkOutputDirGitIgnore(projectRoot) {
 }
 
 module.exports = {
-  checkOutputDirGitIgnore
+  checkDestinationGitIgnore
 };

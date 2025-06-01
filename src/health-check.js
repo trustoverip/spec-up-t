@@ -11,7 +11,7 @@ const externalSpecsChecker = require('./health-check/external-specs-checker');
 const termReferencesChecker = require('./health-check/term-references-checker');
 const specsConfigurationChecker = require('./health-check/specs-configuration-checker');
 const termsIntroChecker = require('./health-check/terms-intro-checker');
-const outputGitignoreChecker = require('./health-check/output-gitignore-checker');
+const destinationGitignoreChecker = require('./health-check/destination-gitignore-checker');
 const trefTermChecker = require('./health-check/tref-term-checker');
 
 // Configuration
@@ -249,11 +249,11 @@ async function runHealthCheck() {
             results: termsIntroResults
         });
 
-        // Run output directory gitignore check
-        const outputGitignoreResults = await outputGitignoreChecker.checkOutputDirGitIgnore(process.cwd());
+        // Run destination directory gitignore check
+        const destinationGitignoreResults = await destinationGitignoreChecker.checkDestinationGitIgnore(process.cwd());
         results.push({
             title: 'Check <code>.gitignore</code>',
-            results: outputGitignoreResults
+            results: destinationGitignoreResults
         });
 
         // Add more checks here in the future
