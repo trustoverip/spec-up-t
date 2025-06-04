@@ -2,7 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const https = require('https');
+const fileOpener = require('./utils/file-opener');
 
 // Import modules from the health-check directory
 const externalSpecsChecker = require('./health-check/external-specs-checker');
@@ -21,7 +22,7 @@ if (!fs.existsSync(OUTPUT_DIR)) {
 }
 
 // Helper function to read specs.json file
-function getRepoInfo() {
+async function getRepoInfo() {
     try {
         // Path to the default boilerplate specs.json
         const defaultSpecsPath = path.join(
@@ -88,7 +89,7 @@ function getRepoInfo() {
                 }
                 
                 // If values have changed, verify the repository exists
-                const repoExists = checkRepositoryExists(
+                const repoExists = await checkRepositoryExists(
                     sourceInfo.host,
                     sourceInfo.account,
                     sourceInfo.repo
@@ -133,35 +134,33 @@ function getRepoInfo() {
 
 // Helper function to check if a repository exists
 function checkRepositoryExists(host, account, repo) {
-    try {
-        // For synchronous checking, we'll use a simple HTTP HEAD request
+    return new Promise((resolve) => {
         const url = `https://${host}.com/${account}/${repo}`;
         
-        // Simple synchronous HTTP request using spawnSync
-        const curlArgs = process.platform === 'win32' 
-            ? ['-s', '-o', '/nul', '-w', '%{http_code}', '-I', url]
-            : ['-s', '-o', '/dev/null', '-w', '%{http_code}', '-I', url];
+        try {
+            const request = https.request(url, { method: 'HEAD', timeout: 10000 }, (response) => {
+                // 200, 301, 302 status codes indicate the repo exists
+                const exists = [200, 301, 302].includes(response.statusCode);
+                resolve(exists);
+            });
             
-        const result = spawnSync('curl', curlArgs, { encoding: 'utf8' });
-        const statusCode = result.stdout ? result.stdout.trim() : '';
-        
-        // 200, 301, 302 status codes indicate the repo exists
-        return ['200', '301', '302'].includes(statusCode);
-    } catch (error) {
-        console.error('Error checking repository existence:', error);
-        return false;
-    }
-}
-
-// Helper function to get the appropriate file open command based on platform
-function getOpenCommand() {
-    if (process.platform === 'win32') {
-        return 'start';
-    } else if (process.platform === 'darwin') {
-        return 'open';
-    } else {
-        return 'xdg-open';
-    }
+            request.on('error', (error) => {
+                console.error('Error checking repository existence:', error.message);
+                resolve(false);
+            });
+            
+            request.on('timeout', () => {
+                console.error('Timeout checking repository existence');
+                request.destroy();
+                resolve(false);
+            });
+            
+            request.end();
+        } catch (error) {
+            console.error('Error checking repository existence:', error.message);
+            resolve(false);
+        }
+    });
 }
 
 // Helper function to format current time for the filename
@@ -258,7 +257,7 @@ async function runHealthCheck() {
         // Add more checks here in the future
 
         // Generate and open the report
-        generateReport(results);
+        await generateReport(results);
     } catch (error) {
         console.error('Error running health checks:', error);
         process.exit(1);
@@ -266,10 +265,10 @@ async function runHealthCheck() {
 }
 
 // Generate HTML report
-function generateReport(checkResults) {
+async function generateReport(checkResults) {
     const timestamp = getFormattedTimestamp();
     // Get repository information from specs.json
-    const repoInfo = getRepoInfo();
+    const repoInfo = await getRepoInfo();
     const reportFileName = `health-check-${timestamp}-${repoInfo.account}-${repoInfo.repo}.html`;
     const reportPath = path.join(OUTPUT_DIR, reportFileName);
 
@@ -281,8 +280,10 @@ function generateReport(checkResults) {
 
     // Open the report in the default browser
     try {
-        const openCommand = getOpenCommand();
-        spawnSync(openCommand, [reportPath], { stdio: 'ignore' });
+        const success = fileOpener.openHtmlFile(reportPath);
+        if (!success) {
+            console.error('Failed to open the report in browser');
+        }
     } catch (error) {
         console.error('Failed to open the report:', error);
     }
