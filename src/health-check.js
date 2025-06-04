@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const https = require('https');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 
 // Import modules from the health-check directory
 const externalSpecsChecker = require('./health-check/external-specs-checker');
@@ -139,12 +139,13 @@ function checkRepositoryExists(host, account, repo) {
         // For synchronous checking, we'll use a simple HTTP HEAD request
         const url = `https://${host}.com/${account}/${repo}`;
         
-        // Simple synchronous HTTP request using execSync
-        const cmd = process.platform === 'win32' 
-            ? `curl -s -o /nul -w "%{http_code}" -I ${url}`
-            : `curl -s -o /dev/null -w "%{http_code}" -I ${url}`;
+        // Simple synchronous HTTP request using spawnSync
+        const curlArgs = process.platform === 'win32' 
+            ? ['-s', '-o', '/nul', '-w', '%{http_code}', '-I', url]
+            : ['-s', '-o', '/dev/null', '-w', '%{http_code}', '-I', url];
             
-        const statusCode = execSync(cmd).toString().trim();
+        const result = spawnSync('curl', curlArgs, { encoding: 'utf8' });
+        const statusCode = result.stdout ? result.stdout.trim() : '';
         
         // 200, 301, 302 status codes indicate the repo exists
         return ['200', '301', '302'].includes(statusCode);
@@ -283,7 +284,7 @@ function generateReport(checkResults) {
     // Open the report in the default browser
     try {
         const openCommand = getOpenCommand();
-        execSync(`${openCommand} "${reportPath}"`);
+        spawnSync(openCommand, [reportPath], { stdio: 'ignore' });
     } catch (error) {
         console.error('Failed to open the report:', error);
     }
