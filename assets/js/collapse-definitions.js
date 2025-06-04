@@ -57,7 +57,8 @@ function collapseDefinitions() {
             "See more about",
             "See more on",
             "See more at",
-            "More:"
+            "More:",
+            "Supporting definitions:"
         ];
         return definitionHidePrefixes.some(prefix => content.startsWith(prefix));
     }

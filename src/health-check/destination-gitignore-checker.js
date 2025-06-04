@@ -1,6 +1,17 @@
+/**
+ * @file destination-gitignore-checker.js
+ * @description Checks if the final destination directory (from output_path in specs.json) 
+ * is being ignored by Git. This is the directory where index.html is generated, 
+ * NOT the temporary .cache directory (formerly called "output").
+ * 
+ * Important: This file deals with concept #1 (output_path from specs.json),
+ * not concept #2 (the temporary .cache directory for build artifacts).
+ */
+
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
+const fileOpener = require('../utils/file-opener');
 
 /**
  * Checks if a path is gitignored
@@ -13,8 +24,11 @@ function isPathGitIgnored(projectRoot, targetPath) {
     // Use git check-ignore to determine if the path is ignored
     // If command exits with status 0, path is ignored
     // If command exits with status 1, path is not ignored
-    execSync(`git -C "${projectRoot}" check-ignore -q "${targetPath}"`, { stdio: 'ignore' });
-    return true; // Path is ignored (command exited with status 0)
+    const gitPath = fileOpener.getCommandPath('git');
+    const result = spawnSync(gitPath, ['-C', projectRoot, 'check-ignore', '-q', targetPath], { 
+      stdio: 'ignore' 
+    });
+    return result.status === 0; // Path is ignored (command exited with status 0)
   } catch (error) {
     console.log(`Error checking if path is gitignored: ${error.message}`);
     return false; // Path is not ignored (command exited with non-zero status)
@@ -87,11 +101,11 @@ function extractOutputPath(specsPath) {
 }
 
 /**
- * Check if the output directory exists
+ * Check if the final destination directory (from output_path) exists
  * @param {string} projectRoot - Root directory of the project
  * @param {string} outputPath - Output path from specs.json
  * @param {string} normalizedPath - Normalized output path
- * @returns {Object} - Result with output directory check
+ * @returns {Object} - Result with final destination directory check
  */
 function checkOutputDirExists(projectRoot, outputPath, normalizedPath) {
   // Check if the path exists
@@ -100,17 +114,17 @@ function checkOutputDirExists(projectRoot, outputPath, normalizedPath) {
   
   if (!outputPathExists) {
     return {
-      name: 'Output directory existence',
+      name: 'Final destination directory existence',
       status: 'warning',
       success: true, // Still considered a "success" for backward compatibility
-      details: `Output directory "${outputPath}" does not exist yet. This is OK if you haven't rendered the specs yet.`
+      details: `Final destination directory "${outputPath}" does not exist yet. This is OK if you haven't rendered the specs yet.`
     };
   } 
   
   return {
-    name: 'Output directory existence',
+    name: 'Final destination directory existence',
     success: true,
-    details: `Output directory "${outputPath}" exists`
+    details: `Final destination directory "${outputPath}" exists`
   };
 }
 
@@ -245,7 +259,7 @@ function findComplexHtmlPatterns(lines) {
 }
 
 /**
- * Check if HTML files in the output directory are being ignored by Git
+ * Check if HTML files in the final destination directory are being ignored by Git
  * @param {string} projectRoot - Root directory of the project
  * @param {string} normalizedPath - Normalized output path
  * @param {string} outputPath - Original output path
@@ -273,8 +287,8 @@ function checkHtmlFilesGitignore(projectRoot, normalizedPath, outputPath, releva
     name: 'Check if index.html files are gitignored',
     success: !isIndexHtmlIgnored,
     details: isIndexHtmlIgnored 
-      ? `index.html files in the output directory would be ignored by Git. This is problematic as they're crucial output files.`
-      : `index.html files in the output directory are properly tracked by Git.`
+      ? `index.html files in the final destination directory would be ignored by Git. This is problematic as they're crucial output files.`
+      : `index.html files in the final destination directory are properly tracked by Git.`
   });
   
   // If index.html is ignored but we couldn't find an explicit pattern, look for more complex patterns
@@ -295,22 +309,22 @@ function checkHtmlFilesGitignore(projectRoot, normalizedPath, outputPath, releva
 }
 
 /**
- * Check if output directory is being ignored by Git
+ * Check if final destination directory (from output_path) is being ignored by Git
  * @param {string} projectRoot - Root directory of the project
  * @param {string} normalizedPath - Normalized output path
  * @param {string} outputPath - Original output path
  * @param {string} dirName - Directory name from path
  * @param {Array} relevantLines - Relevant lines from .gitignore
- * @returns {Array} - Results for output directory gitignore check
+ * @returns {Array} - Results for final destination directory gitignore check
  */
 function checkOutputDirIgnorePatterns(projectRoot, normalizedPath, outputPath, dirName, relevantLines) {
   const dirIgnorePatterns = findOutputDirIgnorePatterns(relevantLines, normalizedPath, dirName);
   
   if (dirIgnorePatterns.length > 0) {
     return [{
-      name: 'Check if output directory is gitignored',
+      name: 'Check if final destination directory is gitignored',
       success: false,
-      details: `Found patterns in .gitignore that would ignore the output directory: ${dirIgnorePatterns.join(', ')}. Remove these entries to ensure generated content is tracked.`
+      details: `Found patterns in .gitignore that would ignore the final destination directory: ${dirIgnorePatterns.join(', ')}. Remove these entries to ensure generated content is tracked.`
     }];
   }
   
@@ -318,20 +332,21 @@ function checkOutputDirIgnorePatterns(projectRoot, normalizedPath, outputPath, d
   const isIgnored = isPathGitIgnored(projectRoot, normalizedPath);
   
   return [{
-    name: 'Check if output directory is gitignored',
+    name: 'Check if final destination directory is gitignored',
     success: !isIgnored,
     details: isIgnored 
-      ? `Output directory "${outputPath}" is being ignored by Git. This could be due to a complex pattern in .gitignore. Remove any entries that might affect this directory.`
-      : `Output directory "${outputPath}" is not being ignored by Git, which is good.`
+      ? `Final destination directory "${outputPath}" is being ignored by Git. This could be due to a complex pattern in .gitignore. Remove any entries that might affect this directory.`
+      : `Final destination directory "${outputPath}" is not being ignored by Git, which is good.`
   }];
 }
 
 /**
- * Check if the output directory is being ignored by Git
+ * Check if the final destination directory (from output_path in specs.json) is being ignored by Git
+ * This checks the directory where index.html is generated, NOT the temporary .cache directory
  * @param {string} projectRoot - Root directory of the project
  * @returns {Promise<Array>} - Array of check results
  */
-async function checkOutputDirGitIgnore(projectRoot) {
+async function checkDestinationGitIgnore(projectRoot) {
   const results = [];
   
   try {
@@ -369,7 +384,7 @@ async function checkOutputDirGitIgnore(projectRoot) {
     const relevantLines = getRelevantGitignoreLines(gitignoreContent);
     const dirName = path.basename(normalizedPath);
     
-    // Check output directory ignore patterns
+    // Check final destination directory ignore patterns
     const dirResults = checkOutputDirIgnorePatterns(
       projectRoot, normalizedPath, outputPath, dirName, relevantLines
     );
@@ -383,9 +398,9 @@ async function checkOutputDirGitIgnore(projectRoot) {
     
     return results;
   } catch (error) {
-    console.error('Error checking output directory gitignore status:', error);
+    console.error('Error checking final destination directory gitignore status:', error);
     return [{
-      name: 'Output directory gitignore check',
+      name: 'Final destination directory gitignore check',
       success: false,
       details: `Error: ${error.message}`
     }];
@@ -393,5 +408,5 @@ async function checkOutputDirGitIgnore(projectRoot) {
 }
 
 module.exports = {
-  checkOutputDirGitIgnore
+  checkDestinationGitIgnore
 };
