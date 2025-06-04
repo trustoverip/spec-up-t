@@ -11,6 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const fileOpener = require('../utils/file-opener');
 
 /**
  * Checks if a path is gitignored
@@ -23,7 +24,8 @@ function isPathGitIgnored(projectRoot, targetPath) {
     // Use git check-ignore to determine if the path is ignored
     // If command exits with status 0, path is ignored
     // If command exits with status 1, path is not ignored
-    const result = spawnSync('git', ['-C', projectRoot, 'check-ignore', '-q', targetPath], { 
+    const gitPath = fileOpener.getCommandPath('git');
+    const result = spawnSync(gitPath, ['-C', projectRoot, 'check-ignore', '-q', targetPath], { 
       stdio: 'ignore' 
     });
     return result.status === 0; // Path is ignored (command exited with status 0)
