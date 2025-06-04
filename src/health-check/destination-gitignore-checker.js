@@ -10,7 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 
 /**
  * Checks if a path is gitignored
@@ -23,8 +23,10 @@ function isPathGitIgnored(projectRoot, targetPath) {
     // Use git check-ignore to determine if the path is ignored
     // If command exits with status 0, path is ignored
     // If command exits with status 1, path is not ignored
-    execSync(`git -C "${projectRoot}" check-ignore -q "${targetPath}"`, { stdio: 'ignore' });
-    return true; // Path is ignored (command exited with status 0)
+    const result = spawnSync('git', ['-C', projectRoot, 'check-ignore', '-q', targetPath], { 
+      stdio: 'ignore' 
+    });
+    return result.status === 0; // Path is ignored (command exited with status 0)
   } catch (error) {
     console.log(`Error checking if path is gitignored: ${error.message}`);
     return false; // Path is not ignored (command exited with non-zero status)
