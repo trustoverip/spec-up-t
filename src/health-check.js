@@ -1,5 +1,47 @@
 #!/usr/bin/env node
 
+/**
+ * @fileoverview Spec-Up-T Health Check Tool
+ * 
+ * This script performs comprehensive health checks on Spec-Up-T projects,
+ * validating configuration, external references, term definitions, and more.
+ * Generates an HTML report with detailed results and actionable feedback.
+ * 
+ * @author Spec-Up-T Team
+ * @version 1.0.0
+ * @since 2025-06-06
+ */
+
+/**
+ * @typedef {Object} HealthCheckResult
+ * @property {string} name - Name of the specific check
+ * @property {boolean|string} success - Success status (true, false, or 'partial')
+ * @property {string} [status] - Status override ('warning', 'pass', 'fail')
+ * @property {string} [details] - Additional details about the check result
+ */
+
+/**
+ * @typedef {Object} HealthCheckSection
+ * @property {string} title - Title of the check section
+ * @property {HealthCheckResult[]} results - Array of individual check results
+ */
+
+/**
+ * @typedef {Object} RepositoryInfo
+ * @property {string} host - Git hosting service (e.g., 'github')
+ * @property {string} account - Account/organization name
+ * @property {string} repo - Repository name
+ * @property {string} [branch] - Branch name
+ * @property {boolean} [verified] - Whether repository existence was verified
+ */
+
+/**
+ * @typedef {Object} StatusDisplay
+ * @property {string} statusClass - CSS class for styling
+ * @property {string} statusIcon - HTML icon element
+ * @property {string} statusText - Display text for status
+ */
+
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
@@ -13,7 +55,10 @@ const termsIntroChecker = require('./health-check/terms-intro-checker');
 const destinationGitignoreChecker = require('./health-check/destination-gitignore-checker');
 const trefTermChecker = require('./health-check/tref-term-checker');
 
-// Configuration
+/**
+ * Directory where health check reports are generated
+ * @constant {string}
+ */
 const OUTPUT_DIR = path.join(process.cwd(), '.cache');
 
 // Create output directory if it doesn't exist
@@ -21,7 +66,21 @@ if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-// Helper function to read specs.json file
+/**
+ * Retrieves repository information from specs.json file
+ * 
+ * Reads the specs.json file to extract repository configuration including
+ * host, account, repo name, and branch. Falls back to default values if
+ * the file doesn't exist or is missing required fields.
+ * 
+ * @async
+ * @function getRepoInfo
+ * @returns {Promise<RepositoryInfo>} Repository information object
+ * 
+ * @example
+ * const repoInfo = await getRepoInfo();
+ * console.log(repoInfo.account); // 'blockchain-bird'
+ */
 async function getRepoInfo() {
     try {
         // Path to the default boilerplate specs.json
@@ -132,7 +191,24 @@ async function getRepoInfo() {
     };
 }
 
-// Helper function to check if a repository exists
+/**
+ * Checks if a Git repository exists and is accessible
+ * 
+ * Makes an HTTP HEAD request to verify repository existence without
+ * downloading the full repository content. Handles timeouts and errors gracefully.
+ * 
+ * @function checkRepositoryExists
+ * @param {string} host - Git hosting service (e.g., 'github')
+ * @param {string} account - Account or organization name
+ * @param {string} repo - Repository name
+ * @returns {Promise<boolean>} True if repository exists and is accessible
+ * 
+ * @example
+ * const exists = await checkRepositoryExists('github', 'blockchain-bird', 'spec-up-t');
+ * if (exists) {
+ *   console.log('Repository is accessible');
+ * }
+ */
 function checkRepositoryExists(host, account, repo) {
     return new Promise((resolve) => {
         const url = `https://${host}.com/${account}/${repo}`;
@@ -163,7 +239,19 @@ function checkRepositoryExists(host, account, repo) {
     });
 }
 
-// Helper function to format current time for the filename
+/**
+ * Formats current timestamp for use in filenames
+ * 
+ * Generates a timestamp string that is safe to use in filenames by
+ * replacing special characters with hyphens. Format: YYYY-MM-DD-HH-mm-ssZ
+ * 
+ * @function getFormattedTimestamp
+ * @returns {string} Formatted timestamp string suitable for filenames
+ * 
+ * @example
+ * const timestamp = getFormattedTimestamp();
+ * console.log(timestamp); // "2025-06-06-14-30-25Z"
+ */
 function getFormattedTimestamp() {
     const now = new Date();
     return now.toISOString()
@@ -172,12 +260,37 @@ function getFormattedTimestamp() {
         .replace(/Z/g, 'Z');
 }
 
-// Helper function to generate a human-readable timestamp for display
+/**
+ * Generates a human-readable timestamp for display in reports
+ * 
+ * Creates a localized timestamp string for display purposes,
+ * using the system's default locale and timezone.
+ * 
+ * @function getHumanReadableTimestamp
+ * @returns {string} Human-readable timestamp string
+ * 
+ * @example
+ * const readable = getHumanReadableTimestamp();
+ * console.log(readable); // "6/6/2025, 2:30:25 PM"
+ */
 function getHumanReadableTimestamp() {
     return new Date().toLocaleString();
 }
 
-// Helper function to determine status display parameters based on result
+/**
+ * Determines status display parameters based on check result
+ * 
+ * Analyzes check results to determine appropriate CSS classes,
+ * icons, and text for visual status representation in the HTML report.
+ * 
+ * @function getStatusDisplay
+ * @param {HealthCheckResult} result - Check result object
+ * @returns {StatusDisplay} Status display configuration
+ * 
+ * @example
+ * const display = getStatusDisplay({ success: true });
+ * console.log(display.statusText); // "Pass"
+ */
 function getStatusDisplay(result) {
     if (result.status === 'warning' || result.success === 'partial') {
         // Warning status
@@ -203,7 +316,34 @@ function getStatusDisplay(result) {
     }
 }
 
-// Main function to run all checks and generate the report
+/**
+ * Main function to run all health checks and generate the report
+ * 
+ * Orchestrates the execution of all available health check modules,
+ * collects results, and generates a comprehensive HTML report.
+ * Handles errors gracefully and ensures proper cleanup.
+ * 
+ * @async
+ * @function runHealthCheck
+ * @throws {Error} When health check execution fails
+ * 
+ * @description
+ * The function performs the following checks:
+ * - Term reference checks in external specs
+ * - External specs URL validation
+ * - Term references validation
+ * - specs.json configuration validation
+ * - Terms introduction file validation
+ * - .gitignore destination directory check
+ * 
+ * @example
+ * try {
+ *   await runHealthCheck();
+ *   console.log('Health check completed successfully');
+ * } catch (error) {
+ *   console.error('Health check failed:', error);
+ * }
+ */
 async function runHealthCheck() {
     console.log('Running health checks...');
 
@@ -264,7 +404,27 @@ async function runHealthCheck() {
     }
 }
 
-// Generate HTML report
+/**
+ * Generates and opens an HTML health check report
+ * 
+ * Creates a comprehensive HTML report with all health check results,
+ * saves it to the cache directory, and opens it in the default browser.
+ * The report includes interactive features like filtering and status indicators.
+ * 
+ * @async
+ * @function generateReport
+ * @param {HealthCheckSection[]} checkResults - Array of health check result objects
+ * @throws {Error} When report generation or file operations fail
+ * 
+ * @example
+ * const results = [
+ *   {
+ *     title: 'Configuration Check',
+ *     results: [{ name: 'specs.json', success: true, details: 'Valid' }]
+ *   }
+ * ];
+ * await generateReport(results);
+ */
 async function generateReport(checkResults) {
     const timestamp = getFormattedTimestamp();
     // Get repository information from specs.json
@@ -289,7 +449,26 @@ async function generateReport(checkResults) {
     }
 }
 
-// Generate HTML content
+/**
+ * Generates HTML content for the health check report
+ * 
+ * Creates a complete HTML document with Bootstrap styling, interactive features,
+ * and comprehensive health check results. Includes repository verification,
+ * status filtering, and detailed result tables.
+ * 
+ * @function generateHtmlReport
+ * @param {HealthCheckSection[]} checkResults - Array of health check result sections
+ * @param {string} timestamp - Human-readable timestamp for the report
+ * @param {RepositoryInfo} repoInfo - Repository information object
+ * @returns {string} Complete HTML document as string
+ * 
+ * @example
+ * const html = generateHtmlReport(results, '6/6/2025, 2:30:25 PM', {
+ *   host: 'github',
+ *   account: 'blockchain-bird',
+ *   repo: 'spec-up-t'
+ * });
+ */
 function generateHtmlReport(checkResults, timestamp, repoInfo) {
     let resultsHtml = '';
 
@@ -457,5 +636,15 @@ function generateHtmlReport(checkResults, timestamp, repoInfo) {
   `;
 }
 
-// Run the health check
+/**
+ * Script execution entry point
+ * 
+ * Immediately executes the health check when this script is run directly.
+ * This allows the script to be used as a standalone command-line tool.
+ * 
+ * @example
+ * // Run from command line:
+ * // node src/health-check.js
+ * // npm run healthCheck
+ */
 runHealthCheck();
