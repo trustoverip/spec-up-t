@@ -279,25 +279,18 @@ function evaluateOptionalField(field, projectSpecs, defaultSpecs) {
 
     const projectValue = projectSpecs.specs[0][field.key];
     const defaultValue = defaultSpecs.specs?.[0]?.[field.key];
-    let configured = isFieldConfigured(projectValue, defaultValue);
+    const isConfigured = field.allowDefaultValue || isFieldConfigured(projectValue, defaultValue);
     
-    if (field.allowDefaultValue) {
-        configured = true;
-    }
-
-    let details = '';
-    if (configured) {
-        details = (projectValue === defaultValue && field.allowDefaultValue)
+    const details = isConfigured
+        ? (projectValue === defaultValue && field.allowDefaultValue)
             ? `Default value for ${field.description} is acceptable`
-            : `${field.description} has been changed from default`;
-    } else {
-        details = `${field.description} is still set to default value`;
-    }
+            : `${field.description} has been changed from default`
+        : `${field.description} is still set to default value`;
 
     return {
         name: `${field.description} configuration`,
-        status: configured ? undefined : 'warning',
-        success: true, // Always true for optional fields
+        status: isConfigured ? undefined : 'warning',
+        success: true,
         details
     };
 }
