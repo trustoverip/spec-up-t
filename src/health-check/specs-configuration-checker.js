@@ -1,3 +1,32 @@
+/**
+ * @fileoverview Spec-Up-T specs.json Configuration Validator
+ * 
+ * Validates specs.json configuration files by comparing project configurations
+ * against default templates to ensure proper setup and catch common issues.
+ * 
+ * **Validation Flow:**
+ * 1. File existence check (project specs.json + default template)
+ * 2. Field categorization (required vs optional fields)
+ * 3. Required field validation (presence + configuration status)
+ * 4. Optional field validation (configuration warnings)
+ * 5. Unexpected field detection (typo prevention)
+ * 6. Summary report generation
+ * 
+ * **Field Categories:**
+ * - **Required fields**: Must be present (e.g., title, author, source)
+ * - **Optional fields**: Can be omitted (e.g., logo, external_specs)
+ * - **Must-change fields**: Cannot use default values (title, author, etc.)
+ * - **Allow-default fields**: Can keep default values (spec_directory, etc.)
+ * - **Deprecated fields**: Legacy fields ignored during validation
+ * 
+ * **Output:**
+ * Returns structured validation results with pass/fail/warning status,
+ * detailed messages, and actionable feedback for configuration improvements.
+ * 
+ * @author Spec-Up-T Team
+ * @since 2025-06-06
+ */
+
 const fs = require('fs');
 const path = require('path');
 
