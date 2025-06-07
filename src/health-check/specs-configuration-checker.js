@@ -51,8 +51,17 @@ const knownOptionalFields = [
     'external_specs',
     'logo_link',
     'favicon',
-    'katex'
+    'katex',
+    'spec_directory',
+    'spec_terms_directory',
+    'output_path',
+    'markdown_paths'
 ];
+
+/**
+ * Deprecated fields that should not be flagged as unexpected
+ */
+const deprecatedFields = [];
 
 /**
  * Check if the files needed for configuration check exist
@@ -81,6 +90,27 @@ function checkFilesExist(projectSpecsPath, defaultSpecsPath) {
 }
 
 /**
+ * Get all valid field names (required + optional + deprecated). Creates a comprehensive list of all field names that should not be flagged as "unexpected"
+ * @param {Array} defaultSpecKeys - Keys from default specs
+ * @returns {Array} - All valid field names
+ */
+function getAllValidFields(defaultSpecKeys) {
+    // Get all field names from descriptions (these are the canonical field names)
+    const canonicalFields = Object.keys(fieldDescriptions);
+    
+    // Combine with known optional fields and deprecated fields
+    const allValidFields = [
+        ...canonicalFields,
+        ...knownOptionalFields,
+        ...deprecatedFields,
+        ...defaultSpecKeys
+    ];
+    
+    // Remove duplicates
+    return [...new Set(allValidFields)];
+}
+
+/**
  * Categorize fields into required and optional
  * @param {Array} defaultSpecKeys - Keys from default specs
  * @returns {Object} - Object containing required and optional fields
@@ -104,6 +134,48 @@ function categorizeFields(defaultSpecKeys) {
         }));
 
     return { requiredFields, optionalFields };
+}
+
+/**
+ * Process field validation results. Orchestrates the validation of all fields in the specs.json
+ * @param {Object} projectSpecs - Project specs object  
+ * @param {Object} defaultSpecs - Default specs object
+ * @param {Array} defaultSpecKeys - Keys from default specs
+ * @returns {Array} - Array of check results
+ */
+function processFieldValidation(projectSpecs, defaultSpecs, defaultSpecKeys) {
+    const results = [];
+    const { requiredFields, optionalFields } = categorizeFields(defaultSpecKeys);
+    const missingRequiredKeys = [];
+    
+    // Check required fields
+    for (const field of requiredFields) {
+        const result = evaluateRequiredField(field, projectSpecs, defaultSpecs);
+        if (!result.success && result.details.includes('missing')) {
+            missingRequiredKeys.push(field.key);
+        }
+        results.push(result);
+    }
+    
+    // Check optional fields
+    for (const field of optionalFields) {
+        results.push(evaluateOptionalField(field, projectSpecs, defaultSpecs));
+    }
+    
+    return { results, missingRequiredKeys };
+}
+
+/**
+ * Check for unexpected fields in project specs
+ * @param {Object} projectSpecs - Project specs object
+ * @param {Array} defaultSpecKeys - Keys from default specs
+ * @returns {Array} - Array of unexpected field names
+ */
+function findUnexpectedFields(projectSpecs, defaultSpecKeys) {
+    const projectKeys = Object.keys(projectSpecs.specs?.[0] || {});
+    const allValidFields = getAllValidFields(defaultSpecKeys);
+    
+    return projectKeys.filter(key => !allValidFields.includes(key));
 }
 
 /**
@@ -306,30 +378,19 @@ async function checkSpecsJsonConfiguration(projectRoot) {
             details: 'Project specs.json file found'
         }];
 
-        // Define required and optional fields based on the default specs.json
+        // Get default spec keys for field categorization
         const defaultSpecKeys = Object.keys(defaultSpecs.specs?.[0] || {});
-        const { requiredFields, optionalFields } = categorizeFields(defaultSpecKeys);
-
-        // Check each required field
-        const missingRequiredKeys = [];
         
-        for (const field of requiredFields) {
-            const result = evaluateRequiredField(field, projectSpecs, defaultSpecs);
-            if (!result.success && result.details.includes('missing')) {
-                missingRequiredKeys.push(field.key);
-            }
-            results.push(result);
-        }
+        // Process field validation using helper function
+        const { results: fieldResults, missingRequiredKeys } = processFieldValidation(
+            projectSpecs, 
+            defaultSpecs, 
+            defaultSpecKeys
+        );
+        results.push(...fieldResults);
 
-        // Check optional fields
-        for (const field of optionalFields) {
-            results.push(evaluateOptionalField(field, projectSpecs, defaultSpecs));
-        }
-
-        // Check for unexpected fields
-        const allStandardKeys = [...requiredFields, ...optionalFields].map(f => f.key);
-        const unexpectedKeys = Object.keys(projectSpecs.specs?.[0] || {})
-            .filter(key => !allStandardKeys.includes(key));
+        // Check for unexpected fields using helper function
+        const unexpectedKeys = findUnexpectedFields(projectSpecs, defaultSpecKeys);
 
         // Add summary results
         const summaryResults = generateSummaryResults(results, missingRequiredKeys, unexpectedKeys);
