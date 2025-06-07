@@ -240,33 +240,16 @@ function evaluateRequiredField(field, projectSpecs, defaultSpecs) {
 
     const projectValue = projectSpecs.specs[0][field.key];
     const defaultValue = defaultSpecs.specs?.[0]?.[field.key];
-    let configured = isFieldConfigured(projectValue, defaultValue);
+    const isConfigured = field.allowDefaultValue || isFieldConfigured(projectValue, defaultValue);
     
-    // For fields that can keep their default values, mark as configured
-    if (field.allowDefaultValue) {
-        configured = true;
-    }
-
-    let status;
-    let success = true;
+    const success = field.mustChange ? isConfigured : true;
+    const status = isConfigured ? undefined : (field.mustChange ? undefined : 'warning');
     
-    if (!configured) {
-        if (field.mustChange) {
-            status = undefined; // No status means it shows as failure
-            success = false;
-        } else {
-            status = 'warning';
-        }
-    }
-
-    let details = '';
-    if (configured) {
-        details = (projectValue === defaultValue && field.allowDefaultValue)
+    const details = isConfigured
+        ? (projectValue === defaultValue && field.allowDefaultValue)
             ? `Default value for ${field.description} is acceptable`
-            : `${field.description} has been changed from default`;
-    } else {
-        details = `${field.description} is still set to default value${['title', 'author'].includes(field.key) ? `: \"${defaultValue}\"` : ''}`;
-    }
+            : `${field.description} has been changed from default`
+        : `${field.description} is still set to default value${['title', 'author'].includes(field.key) ? `: \"${defaultValue}\"` : ''}`;
 
     return {
         name: `${field.description} configuration`,
