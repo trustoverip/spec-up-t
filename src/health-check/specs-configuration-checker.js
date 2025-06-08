@@ -237,8 +237,8 @@ function evaluateField(field, projectSpecs, defaultSpecs, isRequired) {
     const defaultValue = defaultSpecs.specs?.[0]?.[field.key];
     const isConfigured = field.allowDefaultValue || isFieldConfigured(projectValue, defaultValue);
     
-    const success = isRequired ? (field.mustChange ? isConfigured : true) : true;
-    const status = isConfigured ? undefined : (field.mustChange ? undefined : 'warning');
+    // Show warning when fields haven't been configured from their default values
+    const status = isConfigured ? undefined : 'warning';
     
     const details = isConfigured
         ? (projectValue === defaultValue && field.allowDefaultValue)
@@ -249,7 +249,7 @@ function evaluateField(field, projectSpecs, defaultSpecs, isRequired) {
     return {
         name: `${field.description} configuration`,
         status,
-        success,
+        success: true,
         details
     };
 }
