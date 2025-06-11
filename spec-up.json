@@ -1,0 +1,9 @@
+{
+  "title": "Your Specification Title",
+  "spec_directory": "./",
+  "output_path": "./",
+  "markdown_paths": ["spec.md"],
+  // ...existing configuration...
+  "logo": "assets/images/your-logo.svg",
+  "logo_link": "https://your-organization.com"
+}

@@ -1,0 +1,13 @@
+# Your Specification Title
+
+## Abstract
+Write your specification abstract here...
+
+## Introduction
+...existing content...
+
+## Terminology
+Define key terms used in your specification...
+
+## Main Content Sections
+Add your specification sections here...
