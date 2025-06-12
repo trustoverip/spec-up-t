@@ -9,6 +9,9 @@
  * 2. Tag processing: Normal substitution logic (handled elsewhere)
  * 3. Post-processing: Restore escaped sequences as literals
  * 
+ * Supported escape pattern:
+ * - \[[tag: content]] → displays as literal [[tag: content]]
+ * 
  * @version 1.0.0
  */
 
@@ -23,16 +26,9 @@
  * @returns {string} - Document with escaped sequences converted to placeholders
  */
 function processEscapedTags(doc) {
-  // Handle \\[[ pattern: should become \[[ and allow normal processing
-  // Replace \\[[ with \_PRESERVE_BACKSLASH_[[
-  doc = doc.replace(/\\\\(\[\[)/g, '__SPEC_UP_PRESERVE_BACKSLASH__$1');
-  
-  // Handle \[[ pattern: should be escaped to literal [[
-  // Replace \[[ with placeholder
+  // Replace \[[ with escape placeholder for literal display
+  // In markdown: \[[def: term]] should become [[def: term]] (literal tag syntax)
   doc = doc.replace(/\\(\[\[)/g, '__SPEC_UP_ESCAPED_TAG__');
-  
-  // Restore the preserved backslashes (convert back to \[[)
-  doc = doc.replace(/__SPEC_UP_PRESERVE_BACKSLASH__(\[\[)/g, '\\$1');
   
   return doc;
 }
@@ -49,8 +45,10 @@ function processEscapedTags(doc) {
  * @returns {string} - HTML with placeholders restored to literal [[ tags
  */
 function restoreEscapedTags(renderedHtml) {
-  // Replace placeholders with literal [[ 
-  return renderedHtml.replace(/__SPEC_UP_ESCAPED_TAG__/g, '[[');
+  // Replace escaped tag placeholders with literal [[ 
+  renderedHtml = renderedHtml.replace(/__SPEC_UP_ESCAPED_TAG__/g, '[[');
+  
+  return renderedHtml;
 }
 
 module.exports = {
