@@ -35,6 +35,7 @@ module.exports = async function (options = {}) {
     createVersionsIndex(config.specs[0].output_path);
 
     const { fixMarkdownFiles } = require('./src/fix-markdown-files.js');
+    const { processEscapedTags, restoreEscapedTags } = require('./src/escape-mechanism.js');
 
     let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
     let assets = fs.readJsonSync(modulePath + '/config/asset-map.json');
@@ -229,47 +230,6 @@ module.exports = async function (options = {}) {
     }
 
     const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
-
-    /**
-     * Handles backslash escape mechanism for substitution tags
-     * 
-     * Use backslash escape sequences to allow literal [[ tags in markdown
-     * 
-     * Phase 1: Pre-processing - Convert escaped sequences to temporary placeholders
-     * 
-     * @param {string} doc - The markdown document to process
-     * @returns {string} - Document with escaped sequences converted to placeholders
-     */
-    function processEscapedTags(doc) {
-      // Handle \\[[ pattern: should become \[[ and allow normal processing
-      // Replace \\[[ with \_PRESERVE_BACKSLASH_[[
-      doc = doc.replace(/\\\\(\[\[)/g, '__SPEC_UP_PRESERVE_BACKSLASH__$1');
-      
-      // Handle \[[ pattern: should be escaped to literal [[
-      // Replace \[[ with placeholder
-      doc = doc.replace(/\\(\[\[)/g, '__SPEC_UP_ESCAPED_TAG__');
-      
-      // Restore the preserved backslashes (convert back to \[[)
-      doc = doc.replace(/__SPEC_UP_PRESERVE_BACKSLASH__(\[\[)/g, '\\$1');
-      
-      return doc;
-    }
-
-    /**
-     * Handles backslash escape mechanism for substitution tags
-     * 
-     * Use backslash escape sequences to allow literal [[ tags in markdown
-
-     * Phase 3: Post-processing - Restore escaped sequences as literals
-     * Converts placeholders back to literal [[ characters
-     * 
-     * @param {string} renderedHtml - The rendered HTML to process
-     * @returns {string} - HTML with placeholders restored to literal [[ tags
-     */
-    function restoreEscapedTags(renderedHtml) {
-      // Replace placeholders with literal [[ 
-      return renderedHtml.replace(/__SPEC_UP_ESCAPED_TAG__/g, '[[');
-    }
 
     /**
      * Processes custom tag patterns in markdown content and applies transformation functions.
