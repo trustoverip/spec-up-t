@@ -8,13 +8,18 @@ describe('Escape Mechanism Integration Tests', () => {
     const mockApplyReplacers = (doc) => {
         // Simplified version of applyReplacers for testing
         const replacerRegex = /\[\[\s*([^\s\[\]:]+)(?::(?:\s*([^\]\n]+))?)?\]\]/img;
+        
+        // Helper function to process terms consistently
+        const processTerm = (term) => (term ? term.trim() : 'unknown').replace(/\s+/g, '-').toLowerCase();
+        
         return doc.replace(replacerRegex, function (match, type, args) {
+            const term = args ? args.trim() : 'unknown';
+            const termId = processTerm(term);
+            
             if (type === 'def') {
-                const term = args ? args.trim() : 'unknown';
-                return `<span id="term:${term.replace(/\s+/g, '-').toLowerCase()}">${term}</span>`;
+                return `<span id="term:${termId}">${term}</span>`;
             } else if (type === 'ref') {
-                const term = args ? args.trim() : 'unknown';
-                return `<a class="term-reference" href="#term:${term.replace(/\s+/g, '-').toLowerCase()}">${term}</a>`;
+                return `<a class="term-reference" href="#term:${termId}">${term}</a>`;
             }
             return match; // Return unchanged for other types
         });
@@ -31,47 +36,63 @@ describe('Escape Mechanism Integration Tests', () => {
         return restoreEscapedTags(doc);
     };
 
-    it('should escape def tags correctly in full pipeline', () => {
-        const input = 'Normal [[def: test]] and escaped \\[[def: escaped]] tags.';
+    // Helper function to run standard processing and test expectations
+    const runTagTest = (testCase) => {
+        const { input, expectedContains = [], expectedNotContains = [] } = testCase;
         const result = fullProcessingPipeline(input);
         
-        expect(result).toContain('<span id="term:test">test</span>');
-        expect(result).toContain('[[def: escaped]]');
+        expectedContains.forEach(text => {
+            expect(result).toContain(text);
+        });
+        
+        expectedNotContains.forEach(text => {
+            expect(result).not.toContain(text);
+        });
+        
+        // Always ensure placeholders are removed
         expect(result).not.toContain('__SPEC_UP_ESCAPED_TAG__');
+        
+        return result;
+    };
+    
+    it('should escape def tags correctly in full pipeline', () => {
+        runTagTest({
+            input: 'Normal [[def: test]] and escaped \\[[def: escaped]] tags.',
+            expectedContains: ['<span id="term:test">test</span>', '[[def: escaped]]']
+        });
     });
 
     it('should handle mixed escaped and normal tags', () => {
-        const input = 'Text \\[[def: escaped]] and [[def: normal]] and [[ref: normal]] more text';
-        const result = fullProcessingPipeline(input);
-        
-        expect(result).toContain('[[def: escaped]]');
-        expect(result).toContain('<span id="term:normal">normal</span>');
-        expect(result).toContain('<a class="term-reference" href="#term:normal">normal</a>');
+        runTagTest({
+            input: 'Text \\[[def: escaped]] and [[def: normal]] and [[ref: normal]] more text',
+            expectedContains: [
+                '[[def: escaped]]', 
+                '<span id="term:normal">normal</span>', 
+                '<a class="term-reference" href="#term:normal">normal</a>'
+            ]
+        });
     });
 
     it('should handle multiple escaped tags in one line', () => {
-        const input = 'Multiple: \\[[def: first]] and \\[[ref: second]] tags.';
-        const result = fullProcessingPipeline(input);
-        
-        expect(result).toContain('[[def: first]]');
-        expect(result).toContain('[[ref: second]]');
-        expect(result).not.toContain('<span id="term:first">');
-        expect(result).not.toContain('<a class="term-reference"');
+        runTagTest({
+            input: 'Multiple: \\[[def: first]] and \\[[ref: second]] tags.',
+            expectedContains: ['[[def: first]]', '[[ref: second]]'],
+            expectedNotContains: ['<span id="term:first">', '<a class="term-reference"']
+        });
     });
 
     it('should not interfere with non-substitution bracket patterns', () => {
-        const input = 'Array [0] and [[not-a-substitution]] should be unchanged.';
-        const result = fullProcessingPipeline(input);
-        
-        expect(result).toContain('Array [0]');
-        expect(result).toContain('[[not-a-substitution]]');
+        runTagTest({
+            input: 'Array [0] and [[not-a-substitution]] should be unchanged.',
+            expectedContains: ['Array [0]', '[[not-a-substitution]]']
+        });
     });
 
     it('should handle edge case of escaped tag without space after colon', () => {
-        const input = 'No space \\[[def:nospace]] after colon.';
-        const result = fullProcessingPipeline(input);
-        
-        expect(result).toContain('[[def:nospace]]');
+        runTagTest({
+            input: 'No space \\[[def:nospace]] after colon.',
+            expectedContains: ['[[def:nospace]]']
+        });
     });
 
     it('should handle complex document with all escape patterns', () => {
@@ -88,21 +109,21 @@ Escaped reference: \\[[ref: escaped]]
 Mixed line: \\[[def: escaped1]] and [[def: normal2]] and \\[[ref: escaped2]]
 `;
         
-        const result = fullProcessingPipeline(markdown);
-        
-        // Check normal processing
-        expect(result).toContain('<span id="term:normal">normal</span>');
-        expect(result).toContain('<span id="term:normal2">normal2</span>');
-        expect(result).toContain('<a class="term-reference" href="#term:normal">normal</a>');
-        
-        // Check escaped tags are literal
-        expect(result).toContain('[[def: escaped]]');
-        expect(result).toContain('[[ref: escaped]]');
-        expect(result).toContain('[[def: escaped1]]');
-        expect(result).toContain('[[ref: escaped2]]');
-        
-        // Ensure no placeholders remain
-        expect(result).not.toContain('__SPEC_UP_ESCAPED_TAG__');
+        runTagTest({
+            input: markdown,
+            expectedContains: [
+                // Normal processing
+                '<span id="term:normal">normal</span>',
+                '<span id="term:normal2">normal2</span>',
+                '<a class="term-reference" href="#term:normal">normal</a>',
+                
+                // Escaped tags
+                '[[def: escaped]]',
+                '[[ref: escaped]]',
+                '[[def: escaped1]]',
+                '[[ref: escaped2]]'
+            ]
+        });
     });
 
     describe('Tref-specific escape handling', () => {
@@ -110,12 +131,12 @@ Mixed line: \\[[def: escaped1]] and [[def: normal2]] and \\[[ref: escaped2]]
         // through the replacers array, but they should still respect escaping
         
         it('should escape tref tags correctly', () => {
-            const input = 'Normal [[tref: spec, term]] and escaped \\[[tref: spec, escaped]] tags.';
-            const result = fullProcessingPipeline(input);
-            
-            expect(result).toContain('[[tref: spec, escaped]]');
-            // The normal tref would be processed by the actual tref replacer
-            // but in our mock it stays as-is since we didn't implement tref processing
+            runTagTest({
+                input: 'Normal [[tref: spec, term]] and escaped \\[[tref: spec, escaped]] tags.',
+                expectedContains: ['[[tref: spec, escaped]]']
+                // The normal tref would be processed by the actual tref replacer
+                // but in our mock it stays as-is since we didn't implement tref processing
+            });
         });
     });
 });

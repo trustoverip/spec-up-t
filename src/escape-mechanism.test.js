@@ -77,7 +77,7 @@ describe('Escape Mechanism for Substitution Tags', () => {
                 let doc = processEscapedTags(input);
                 
                 // Phase 2: Tag Processing (simplified - just remove normal tags for test)
-                doc = doc.replace(/\[\[def:\s*([^\]\n]*)\]\]/g, '<span id="term:$1">$1</span>');
+                doc = doc.replace(/\[\[def:(?:\s*)([^\]\n]*)\]\]/g, '<span id="term:$1">$1</span>');
                 
                 // Phase 3: Post-processing
                 doc = restoreEscapedTags(doc);
@@ -103,7 +103,7 @@ describe('Escape Mechanism for Substitution Tags', () => {
             const mockProcess = (input) => {
                 let doc = processEscapedTags(input);
                 // Phase 2 (simplified)
-                doc = doc.replace(/\[\[def:\s*([^\]\n]*)\]\]/g, '<processed>$1</processed>');
+                doc = doc.replace(/\[\[def:(?:\s*)([^\]\n]*)\]\]/g, '<processed>$1</processed>');
                 // Phase 3
                 doc = restoreEscapedTags(doc);
                 return doc;
