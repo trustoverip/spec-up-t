@@ -35,6 +35,7 @@ module.exports = async function (options = {}) {
     createVersionsIndex(config.specs[0].output_path);
 
     const { fixMarkdownFiles } = require('./src/fix-markdown-files.js');
+    const { processEscapedTags, restoreEscapedTags } = require('./src/escape-mechanism.js');
 
     let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
     let assets = fs.readJsonSync(modulePath + '/config/asset-map.json');
@@ -528,7 +529,12 @@ module.exports = async function (options = {}) {
 
         let doc = docs.join("\n");
 
-        // `doc` is markdown 
+        // Handles backslash escape mechanism for substitution tags
+        // Phase 1: Pre-processing - Handle escaped tags
+        doc = processEscapedTags(doc);
+
+        // Handles backslash escape mechanism for substitution tags
+        // Phase 2: Tag Processing - Apply normal substitution logic
         doc = applyReplacers(doc);
 
         md[spec.katex ? "enable" : "disable"](katexRules);
@@ -541,6 +547,10 @@ module.exports = async function (options = {}) {
 
         // Sort definition terms case-insensitively before final rendering
         renderedHtml = sortDefinitionTermsInHtml(renderedHtml);
+
+        // Handles backslash escape mechanism for substitution tags
+        // Phase 3: Post-processing - Restore escaped sequences as literals
+        renderedHtml = restoreEscapedTags(renderedHtml);
 
         // Process external references to ensure they are inserted as raw HTML, not as JSON string
         const externalReferencesHtml = Array.isArray(externalReferences) 

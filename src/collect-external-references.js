@@ -270,12 +270,16 @@ function processExternalReferences(config, GITHUB_API_TOKEN, options) {
  * 
  * @description
  * This function performs several key operations:
- * 1. Validates GitHub PAT availability and external repository configurations
+ * 1. Optionally uses GitHub PAT for better API performance and higher rate limits
  * 2. Checks validity of repository URLs
  * 3. Extracts xref/tref patterns from markdown content
  * 4. Extends references with repository metadata
  * 5. Processes references to fetch commit information
  * 6. Generates output files in both JS and JSON formats
+ * 
+ * Note: The function will run without a GitHub token but may encounter rate limits.
+ * For better performance, provide a GitHub Personal Access Token via environment
+ * variable or the options parameter.
  * 
  * @example
  * // Basic usage
@@ -289,17 +293,6 @@ function collectExternalReferences(options = {}) {
     const externalSpecsRepos = config.specs[0].external_specs;
     const GITHUB_API_TOKEN = options.pat || process.env.GITHUB_API_TOKEN;
 
-    const explanationPAT =
-`❌ No GitHub Personal Access Token (PAT) was found.
-
-   GitHub requires you to set up a PAT to retrieve external references.
-
-   There is no point in continuing without a PAT, so we stop here.
-
-   Find instructions on how to get a PAT at https://blockchainbird.github.io/spec-up-t-website/docs/getting-started/github-token
-
- `;
-
     const explanationNoExternalReferences =
 `❌ No external references were found in the specs.json file.
 
@@ -310,19 +303,13 @@ function collectExternalReferences(options = {}) {
 `;
     
     // First do some checks
-
-    // Do not run the script if the GitHub API token is not set
+    // Show informational message if no token is available
     if (!GITHUB_API_TOKEN) {
-        console.log(explanationPAT);
-        const userInput = readlineSync.question('ℹ️ Press any key');
-
-        // React to user pressing any key
-        if (userInput.trim() !== '') {
-            console.log('ℹ️ Stopping...');
-            return;
-        }
+        console.log('ℹ️ No GitHub Personal Access Token (PAT) found. Running without authentication (may hit rate limits).');
+        console.log('💡 For better performance, set up a PAT: https://blockchainbird.github.io/spec-up-t-website/docs/getting-started/github-token\n');
     }
-    else if (externalSpecsRepos.length === 0) {
+
+    if (externalSpecsRepos.length === 0) {
         // Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.
         console.log(explanationNoExternalReferences);
         const userInput = readlineSync.question('Press any key');

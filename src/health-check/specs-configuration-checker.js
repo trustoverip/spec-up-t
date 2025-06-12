@@ -1,3 +1,32 @@
+/**
+ * @fileoverview Spec-Up-T specs.json Configuration Validator
+ * 
+ * Validates specs.json configuration files by comparing project configurations
+ * against default templates to ensure proper setup and catch common issues.
+ * 
+ * **Validation Flow:**
+ * 1. File existence check (project specs.json + default template)
+ * 2. Field categorization (required vs optional fields)
+ * 3. Required field validation (presence + configuration status)
+ * 4. Optional field validation (configuration warnings)
+ * 5. Unexpected field detection (typo prevention)
+ * 6. Summary report generation
+ * 
+ * **Field Categories:**
+ * - **Required fields**: Must be present (e.g., title, author, source)
+ * - **Optional fields**: Can be omitted (e.g., logo, external_specs)
+ * - **Must-change fields**: Cannot use default values (title, author, etc.)
+ * - **Allow-default fields**: Can keep default values (spec_directory, etc.)
+ * - **Deprecated fields**: Legacy fields ignored during validation
+ * 
+ * **Output:**
+ * Returns structured validation results with pass/fail/warning status,
+ * detailed messages, and actionable feedback for configuration improvements.
+ * 
+ * @author Spec-Up-T Team
+ * @since 2025-06-06
+ */
+
 const fs = require('fs');
 const path = require('path');
 
@@ -51,8 +80,17 @@ const knownOptionalFields = [
     'external_specs',
     'logo_link',
     'favicon',
-    'katex'
+    'katex',
+    'spec_directory',
+    'spec_terms_directory',
+    'output_path',
+    'markdown_paths'
 ];
+
+/**
+ * Deprecated fields that should not be flagged as unexpected
+ */
+const deprecatedFields = [];
 
 /**
  * Check if the files needed for configuration check exist
@@ -81,29 +119,84 @@ function checkFilesExist(projectSpecsPath, defaultSpecsPath) {
 }
 
 /**
+ * Get all valid field names (required + optional + deprecated). Creates a comprehensive list of all field names that should not be flagged as "unexpected"
+ * @param {Array} defaultSpecKeys - Keys from default specs
+ * @returns {Array} - All valid field names
+ */
+function getAllValidFields(defaultSpecKeys) {
+    // Get all field names from descriptions (these are the canonical field names)
+    const canonicalFields = Object.keys(fieldDescriptions);
+    
+    // Combine with known optional fields and deprecated fields
+    const allValidFields = [
+        ...canonicalFields,
+        ...knownOptionalFields,
+        ...deprecatedFields,
+        ...defaultSpecKeys
+    ];
+    
+    // Remove duplicates
+    return [...new Set(allValidFields)];
+}
+
+/**
  * Categorize fields into required and optional
  * @param {Array} defaultSpecKeys - Keys from default specs
  * @returns {Object} - Object containing required and optional fields
  */
 function categorizeFields(defaultSpecKeys) {
+    const createFieldObject = key => ({
+        key,
+        description: fieldDescriptions[key] || `${key.replace(/_/g, ' ')} field`,
+        allowDefaultValue: allowDefaultValueFields.includes(key),
+        mustChange: mustChangeFields.includes(key)
+    });
+
     const requiredFields = defaultSpecKeys
         .filter(key => !knownOptionalFields.includes(key))
-        .map(key => ({
-            key,
-            description: fieldDescriptions[key] || `${key.replace(/_/g, ' ')} field`,
-            allowDefaultValue: allowDefaultValueFields.includes(key),
-            mustChange: mustChangeFields.includes(key)
-        }));
+        .map(createFieldObject);
 
     const optionalFields = defaultSpecKeys
         .filter(key => knownOptionalFields.includes(key))
-        .map(key => ({
-            key,
-            description: fieldDescriptions[key] || `${key.replace(/_/g, ' ')} field`,
-            allowDefaultValue: allowDefaultValueFields.includes(key)
-        }));
+        .map(createFieldObject);
 
     return { requiredFields, optionalFields };
+}
+
+/**
+ * Process field validation results. Orchestrates the validation of all fields in the specs.json
+ * @param {Object} projectSpecs - Project specs object  
+ * @param {Object} defaultSpecs - Default specs object
+ * @param {Array} defaultSpecKeys - Keys from default specs
+ * @returns {Object} - Object with results and missingRequiredKeys
+ */
+function processFieldValidation(projectSpecs, defaultSpecs, defaultSpecKeys) {
+    const { requiredFields, optionalFields } = categorizeFields(defaultSpecKeys);
+    
+    const requiredResults = requiredFields.map(field => evaluateRequiredField(field, projectSpecs, defaultSpecs));
+    const optionalResults = optionalFields.map(field => evaluateOptionalField(field, projectSpecs, defaultSpecs));
+    
+    const missingRequiredKeys = requiredResults
+        .filter(result => !result.success && result.details.includes('missing'))
+        .map((_, index) => requiredFields[index].key);
+    
+    return { 
+        results: [...requiredResults, ...optionalResults], 
+        missingRequiredKeys 
+    };
+}
+
+/**
+ * Check for unexpected fields in project specs
+ * @param {Object} projectSpecs - Project specs object
+ * @param {Array} defaultSpecKeys - Keys from default specs
+ * @returns {Array} - Array of unexpected field names
+ */
+function findUnexpectedFields(projectSpecs, defaultSpecKeys) {
+    const projectKeys = Object.keys(projectSpecs.specs?.[0] || {});
+    const allValidFields = getAllValidFields(defaultSpecKeys);
+    
+    return projectKeys.filter(key => !allValidFields.includes(key));
 }
 
 /**
@@ -120,6 +213,48 @@ function isFieldConfigured(projectValue, defaultValue) {
 }
 
 /**
+ * Evaluate a field and generate result (unified for required/optional)
+ * @param {Object} field - Field definition
+ * @param {Object} projectSpecs - Project specs object
+ * @param {Object} defaultSpecs - Default specs object
+ * @param {boolean} isRequired - Whether field is required
+ * @returns {Object} - Check result
+ */
+function evaluateField(field, projectSpecs, defaultSpecs, isRequired) {
+    const hasField = projectSpecs.specs?.[0]?.hasOwnProperty(field.key);
+    
+    if (!hasField) {
+        return {
+            name: `${field.description} configuration`,
+            success: !isRequired,
+            details: isRequired 
+                ? `Required "${field.key}" key is missing in specs.json`
+                : `Optional "${field.key}" key is not present (this is not required)`
+        };
+    }
+
+    const projectValue = projectSpecs.specs[0][field.key];
+    const defaultValue = defaultSpecs.specs?.[0]?.[field.key];
+    const isConfigured = field.allowDefaultValue || isFieldConfigured(projectValue, defaultValue);
+    
+    // Show warning when fields haven't been configured from their default values
+    const status = isConfigured ? undefined : 'warning';
+    
+    const details = isConfigured
+        ? (projectValue === defaultValue && field.allowDefaultValue)
+            ? `Default value for ${field.description} is acceptable`
+            : `${field.description} has been changed from default`
+        : `${field.description} is still set to default value${mustChangeFields.includes(field.key) ? `: \"${defaultValue}\"` : ''}`;
+
+    return {
+        name: `${field.description} configuration`,
+        status,
+        success: true,
+        details
+    };
+}
+
+/**
  * Evaluate a required field and generate result
  * @param {Object} field - Field definition
  * @param {Object} projectSpecs - Project specs object
@@ -127,52 +262,7 @@ function isFieldConfigured(projectValue, defaultValue) {
  * @returns {Object} - Check result
  */
 function evaluateRequiredField(field, projectSpecs, defaultSpecs) {
-    const hasField = projectSpecs.specs?.[0]?.hasOwnProperty(field.key);
-    
-    if (!hasField) {
-        return {
-            name: `${field.description} configuration`,
-            success: false,
-            details: `Required "${field.key}" key is missing in specs.json`
-        };
-    }
-
-    const projectValue = projectSpecs.specs[0][field.key];
-    const defaultValue = defaultSpecs.specs?.[0]?.[field.key];
-    let configured = isFieldConfigured(projectValue, defaultValue);
-    
-    // For fields that can keep their default values, mark as configured
-    if (field.allowDefaultValue) {
-        configured = true;
-    }
-
-    let status;
-    let success = true;
-    
-    if (!configured) {
-        if (field.mustChange) {
-            status = undefined; // No status means it shows as failure
-            success = false;
-        } else {
-            status = 'warning';
-        }
-    }
-
-    let details = '';
-    if (configured) {
-        details = (projectValue === defaultValue && field.allowDefaultValue)
-            ? `Default value for ${field.description} is acceptable`
-            : `${field.description} has been changed from default`;
-    } else {
-        details = `${field.description} is still set to default value${['title', 'author'].includes(field.key) ? `: \"${defaultValue}\"` : ''}`;
-    }
-
-    return {
-        name: `${field.description} configuration`,
-        status,
-        success,
-        details
-    };
+    return evaluateField(field, projectSpecs, defaultSpecs, true);
 }
 
 /**
@@ -183,39 +273,7 @@ function evaluateRequiredField(field, projectSpecs, defaultSpecs) {
  * @returns {Object} - Check result
  */
 function evaluateOptionalField(field, projectSpecs, defaultSpecs) {
-    const hasField = projectSpecs.specs?.[0]?.hasOwnProperty(field.key);
-    
-    if (!hasField) {
-        return {
-            name: `${field.description} configuration`,
-            success: true,
-            details: `Optional "${field.key}" key is not present (this is not required)`
-        };
-    }
-
-    const projectValue = projectSpecs.specs[0][field.key];
-    const defaultValue = defaultSpecs.specs?.[0]?.[field.key];
-    let configured = isFieldConfigured(projectValue, defaultValue);
-    
-    if (field.allowDefaultValue) {
-        configured = true;
-    }
-
-    let details = '';
-    if (configured) {
-        details = (projectValue === defaultValue && field.allowDefaultValue)
-            ? `Default value for ${field.description} is acceptable`
-            : `${field.description} has been changed from default`;
-    } else {
-        details = `${field.description} is still set to default value`;
-    }
-
-    return {
-        name: `${field.description} configuration`,
-        status: configured ? undefined : 'warning',
-        success: true, // Always true for optional fields
-        details
-    };
+    return evaluateField(field, projectSpecs, defaultSpecs, false);
 }
 
 /**
@@ -228,22 +286,16 @@ function evaluateOptionalField(field, projectSpecs, defaultSpecs) {
 function generateSummaryResults(results, missingRequiredKeys, unexpectedKeys) {
     const summaryResults = [];
     
-    // Add a summary of missing required fields
-    if (missingRequiredKeys.length > 0) {
-        summaryResults.push({
-            name: 'Required fields check',
-            success: false,
-            details: `Missing required fields: ${missingRequiredKeys.join(', ')}`
-        });
-    } else {
-        summaryResults.push({
-            name: 'Required fields check',
-            success: true,
-            details: 'All required fields are present'
-        });
-    }
+    // Required fields summary
+    summaryResults.push({
+        name: 'Required fields check',
+        success: missingRequiredKeys.length === 0,
+        details: missingRequiredKeys.length > 0 
+            ? `Missing required fields: ${missingRequiredKeys.join(', ')}`
+            : 'All required fields are present'
+    });
 
-    // Check for unexpected fields
+    // Unexpected fields check
     if (unexpectedKeys.length > 0) {
         summaryResults.push({
             name: 'Unexpected fields check',
@@ -253,22 +305,42 @@ function generateSummaryResults(results, missingRequiredKeys, unexpectedKeys) {
     }
 
     // Overall configuration status
-    const fieldResults = results.filter(r =>
-        r.name.includes('configuration') &&
-        !r.name.includes('Overall')
+    const fieldResults = results.filter(r => 
+        r.name.includes('configuration') && !r.name.includes('Overall')
     );
-
+    
     const configuredItemsCount = fieldResults.filter(r => r.success).length;
-    const totalItems = fieldResults.length;
-    const configurationPercentage = Math.round((configuredItemsCount / totalItems) * 100);
+    const configurationPercentage = Math.round((configuredItemsCount / fieldResults.length) * 100);
 
     summaryResults.push({
         name: 'Overall configuration status',
         success: configurationPercentage > 50 && missingRequiredKeys.length === 0,
-        details: `${configurationPercentage}% of specs.json has been configured (${configuredItemsCount}/${totalItems} items)`
+        details: `${configurationPercentage}% of specs.json has been configured (${configuredItemsCount}/${fieldResults.length} items)`
     });
 
     return summaryResults;
+}
+
+/**
+ * Load and parse configuration files
+ * @param {string} projectRoot - Root directory of the project
+ * @returns {Object} - Object containing parsed specs and file paths
+ */
+function loadConfigurationFiles(projectRoot) {
+    const projectSpecsPath = path.join(projectRoot, 'specs.json');
+    const defaultSpecsPath = path.join(
+        __dirname, '..', 'install-from-boilerplate', 'boilerplate', 'specs.json'
+    );
+
+    const fileCheckResults = checkFilesExist(projectSpecsPath, defaultSpecsPath);
+    if (fileCheckResults) {
+        return { error: fileCheckResults };
+    }
+
+    const projectSpecs = JSON.parse(fs.readFileSync(projectSpecsPath, 'utf8'));
+    const defaultSpecs = JSON.parse(fs.readFileSync(defaultSpecsPath, 'utf8'));
+    
+    return { projectSpecs, defaultSpecs };
 }
 
 /**
@@ -278,27 +350,8 @@ function generateSummaryResults(results, missingRequiredKeys, unexpectedKeys) {
  */
 async function checkSpecsJsonConfiguration(projectRoot) {
     try {
-        // Path to the project's specs.json
-        const projectSpecsPath = path.join(projectRoot, 'specs.json');
-
-        // Path to the default boilerplate specs.json
-        const defaultSpecsPath = path.join(
-            __dirname,
-            '..',
-            'install-from-boilerplate',
-            'boilerplate',
-            'specs.json'
-        );
-
-        // Check if required files exist
-        const fileCheckResults = checkFilesExist(projectSpecsPath, defaultSpecsPath);
-        if (fileCheckResults) {
-            return fileCheckResults;
-        }
-
-        // Read both files
-        const projectSpecs = JSON.parse(fs.readFileSync(projectSpecsPath, 'utf8'));
-        const defaultSpecs = JSON.parse(fs.readFileSync(defaultSpecsPath, 'utf8'));
+        const { error, projectSpecs, defaultSpecs } = loadConfigurationFiles(projectRoot);
+        if (error) return error;
 
         const results = [{
             name: 'specs.json exists',
@@ -306,36 +359,17 @@ async function checkSpecsJsonConfiguration(projectRoot) {
             details: 'Project specs.json file found'
         }];
 
-        // Define required and optional fields based on the default specs.json
         const defaultSpecKeys = Object.keys(defaultSpecs.specs?.[0] || {});
-        const { requiredFields, optionalFields } = categorizeFields(defaultSpecKeys);
-
-        // Check each required field
-        const missingRequiredKeys = [];
+        const { results: fieldResults, missingRequiredKeys } = processFieldValidation(
+            projectSpecs, defaultSpecs, defaultSpecKeys
+        );
         
-        for (const field of requiredFields) {
-            const result = evaluateRequiredField(field, projectSpecs, defaultSpecs);
-            if (!result.success && result.details.includes('missing')) {
-                missingRequiredKeys.push(field.key);
-            }
-            results.push(result);
-        }
-
-        // Check optional fields
-        for (const field of optionalFields) {
-            results.push(evaluateOptionalField(field, projectSpecs, defaultSpecs));
-        }
-
-        // Check for unexpected fields
-        const allStandardKeys = [...requiredFields, ...optionalFields].map(f => f.key);
-        const unexpectedKeys = Object.keys(projectSpecs.specs?.[0] || {})
-            .filter(key => !allStandardKeys.includes(key));
-
-        // Add summary results
+        results.push(...fieldResults);
+        
+        const unexpectedKeys = findUnexpectedFields(projectSpecs, defaultSpecKeys);
         const summaryResults = generateSummaryResults(results, missingRequiredKeys, unexpectedKeys);
-        results.push(...summaryResults);
-
-        return results;
+        
+        return [...results, ...summaryResults];
 
     } catch (error) {
         console.error('Error checking specs.json configuration:', error);
