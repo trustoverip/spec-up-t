@@ -7,7 +7,7 @@ describe('Escape Mechanism Integration Tests', () => {
 
     const mockApplyReplacers = (doc) => {
         // Simplified version of applyReplacers for testing
-        const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
+        const replacerRegex = /\[\[\s*([^\s\[\]:]+)(?::(?:\s*([^\]\n]+))?)?\]\]/img;
         return doc.replace(replacerRegex, function (match, type, args) {
             if (type === 'def') {
                 const term = args ? args.trim() : 'unknown';
