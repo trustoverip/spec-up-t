@@ -182,14 +182,7 @@ module.exports = async function (options = {}) {
           return fs.readFileSync(path, 'utf8');
         }
       },
-      {
-        test: 'spec',
-        transform: function (originalMatch, type, name) {
-          // Simply return an empty string or special marker that won't be treated as a definition term
-          // The actual rendering will be handled by the markdown-it extension
-          return `<span class="spec-marker" data-spec="${name}"></span>`;
-        }
-      },
+
       /**
        * Custom replacer for tref tags that converts them directly to HTML definition term elements.
        * 
