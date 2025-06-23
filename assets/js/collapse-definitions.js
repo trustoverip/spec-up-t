@@ -227,12 +227,6 @@ function collapseDefinitions() {
             button.style.right = `${window.innerWidth - buttonRect.right}px`;
             button.style.zIndex = '1000';
 
-            // Add highlight effect
-            dtElement.classList.add('highlight');
-            setTimeout(() => {
-                dtElement.classList.remove('highlight');
-            }, 0);
-
             // Toggle visibility which might change layout
             toggleVisibility();
 
