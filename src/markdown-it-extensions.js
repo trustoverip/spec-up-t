@@ -1,5 +1,7 @@
 'use strict';
 
+const { ESCAPED_PLACEHOLDER } = require('./escape-handler');
+
 /**
  * Configuration for custom template syntax [[example]] used throughout the markdown parsing
  * These constants define how template markers are identified and processed
@@ -64,6 +66,12 @@ module.exports = function (md, templates = {}) {
   md.inline.ruler.after('emphasis', 'templates', function templates_ruler(state, silent) {
     // Get the current parsing position
     var start = state.pos;
+    
+    // Check if we're at an escaped placeholder - if so, skip processing
+    if (state.src.slice(start, start + ESCAPED_PLACEHOLDER.length) === ESCAPED_PLACEHOLDER) {
+      return false;
+    }
+    
     // Check if we're at a template opening marker
     let prefix = state.src.slice(start, start + levels);
     if (prefix !== openString) return false;
