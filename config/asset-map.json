@@ -26,6 +26,7 @@
       "assets/css/image-full-size.css",
       "assets/css/add-bootstrap-classes-to-images.css",
       "assets/css/horizontal-scroll-hint.css",
+      "assets/css/highlight-heading-plus-sibling-nodes.css",
       "assets/css/index.css"
     ],
     "js": [
@@ -72,6 +73,7 @@
       "assets/js/horizontal-scroll-hint.js",
       "assets/js/add-bootstrap-classes-to-images.js",
       "assets/js/image-full-size.js",
+      "assets/js/highlight-heading-plus-sibling-nodes.js",
       "assets/js/bootstrap.bundle.min.js"
     ]
   }
