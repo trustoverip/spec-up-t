@@ -77,10 +77,9 @@ describe('Escape Handler', () => {
     // Mock substitution processor that simulates the actual tag processing
     const mockProcessor = (content) => {
       return content
-        // Use a non-greedy match for the tag content to avoid catastrophic backtracking
-        .replace(/\[\[def:\s*([^\]]*?)\]\]/g, '<span class="definition">$1</span>')
-        .replace(/\[\[xref:\s*([^,]+),\s*([^\]]+?)\]\]/g, '<a href="#${1}">${2}</a>')
-        .replace(/\[\[tref:\s*([^,]+),\s*([^\]]+?)\]\]/g, '<span class="tref">$2</span>');
+        .replace(/\[\[def:\s*([a-zA-Z0-9 _-]{1,100})\]\]/g, '<span class="definition">$1</span>')
+        .replace(/\[\[xref:\s*([a-zA-Z0-9 _-]{1,100}),\s*([a-zA-Z0-9 _-]{1,100})\]\]/g, (m, p1, p2) => `<a href="#${p1}">${p2}</a>`)
+        .replace(/\[\[tref:\s*([a-zA-Z0-9 _-]{1,100}),\s*([a-zA-Z0-9 _-]{1,100})\]\]/g, '<span class="tref">$2</span>');
     };
 
     it('should process normal tags while preserving escaped ones', () => {
