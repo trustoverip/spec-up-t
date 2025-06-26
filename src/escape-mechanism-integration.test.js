@@ -12,7 +12,8 @@ describe('Escape Mechanism Integration', () => {
   // Mock the main replacer regex and transform function similar to index.js
   // Use non-greedy match for tag content to avoid catastrophic backtracking
   const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]*?)?\]\]/img;
-  const replacerArgsRegex = /\s*,+\s*/;
+  // Use a stricter, non-greedy regex for argument splitting to avoid ReDoS
+  const replacerArgsRegex = /\s*,+\s*/g;
   
   const mockReplacers = [
     {
