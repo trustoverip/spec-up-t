@@ -43,6 +43,7 @@ describe('Escape Mechanism Integration', () => {
   }
 
   it('should process normal tags while preserving escaped ones', () => {
+    // eslint-disable-next-line sonar/no-unnecessary-escape
     const input = `# Test Document\n\nNormal definition: [[def: authentication]]\n\nEscaped definition: \\[[def: literal-example]]\n\nNormal xref: [[xref: spec-1, term-name]]\n\nEscaped xref: \\[[xref: spec-1, literal-term]]\n\nDouble escaped: \\\\[[def: shows-backslash]]\n\nMixed in paragraph: Normal [[def: works]] and escaped \\[[def: literal]] together.`;
     const result = mockApplyReplacers(input);
     checkContains(result, [
@@ -58,6 +59,7 @@ describe('Escape Mechanism Integration', () => {
   });
 
   it('should handle edge cases correctly', () => {
+    // eslint-disable-next-line sonar/no-unnecessary-escape
     const input = `Edge cases:\n\n1. Escaped at start: \\[[def: start-term]]\n2. Escaped at end: \\[[def: end-term]]\n3. Multiple consecutive: \\[[def: one]]\\[[def: two]]\\[[def: three]]\n4. Mixed types: \\[[def: term]] and [[xref: spec, other]] and \\[[tref: spec, transcluded]]`;
     const result = mockApplyReplacers(input);
     checkContains(result, [
@@ -72,6 +74,7 @@ describe('Escape Mechanism Integration', () => {
   });
 
   it('should handle malformed escape sequences gracefully', () => {
+    // eslint-disable-next-line sonar/no-unnecessary-escape  
     const input = `Malformed cases:\n\n1. Incomplete escape: \\[[ without closing\n2. Normal after incomplete: [[def: normal-term]]\n3. Incomplete with partial: \\[[def: incomplete\n4. Multiple backslashes: \\\\\[[def: many-backslashes]]`;
     const result = mockApplyReplacers(input);
     checkContains(result, [
@@ -85,6 +88,7 @@ describe('Escape Mechanism Integration', () => {
   it('should maintain performance with large documents', () => {
     let largeParts = [];
     for (let i = 0; i < 1000; i++) {
+      // eslint-disable-next-line sonar/no-unnecessary-escape
       largeParts.push(`Section ${i}: Normal [[def: term-${i}]] and escaped \\[[def: literal-${i}]] content.`);
     }
     const largeInput = largeParts.join('\n\n');
