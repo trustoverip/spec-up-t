@@ -10,7 +10,8 @@ describe('Escape Mechanism Integration', () => {
   const { processWithEscapes } = require('./escape-handler');
   
   // Mock the main replacer regex and transform function similar to index.js
-  const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
+  // Use non-greedy match for tag content to avoid catastrophic backtracking
+  const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]*?)?\]\]/img;
   const replacerArgsRegex = /\s*,+\s*/;
   
   const mockReplacers = [
