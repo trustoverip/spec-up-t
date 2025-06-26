@@ -9,7 +9,7 @@ const path = require('path');
 describe('Escape Mechanism Integration', () => {
   const { processWithEscapes } = require('./escape-handler');
   const replacerRegex = /\[\[\s*([a-zA-Z0-9_-]{1,100}):?\s*([a-zA-Z0-9 _,-]{0,100})?\]\]/img;
-  const replacerArgsRegex = /\s*,+\s*/g;
+  const replacerArgsRegex = /\s*,\s*/g;
 
   const mockReplacers = [
     {

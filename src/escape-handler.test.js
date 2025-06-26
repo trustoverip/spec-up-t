@@ -131,7 +131,7 @@ This should be processed: [[tref: external-spec, some-term]]`;
   });
 
   describe('Edge cases', () => {
-    const mockProcessor = (content) => content.replace(/\[\[def:\s*([^\]]*?)\]\]/g, '<def>$1</def>');
+    const mockProcessor = (content) => content.replace(/\[\[def:\s*([a-zA-Z0-9 _-]{1,100})\]\]/g, '<def>$1</def>');
 
     it('should handle escaped tags at start of text', () => {
       const input = '\\[[def: term]] at start';
