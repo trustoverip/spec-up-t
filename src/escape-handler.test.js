@@ -10,6 +10,8 @@ const {
   ESCAPED_PLACEHOLDER 
 } = require('./escape-handler');
 
+const { createMockProcessor } = require('./test-utils/escape-test-helpers');
+
 describe('Escape Handler', () => {
   describe('preProcessEscapes', () => {
     it('should handle single backslash escape', () => {
@@ -74,13 +76,7 @@ describe('Escape Handler', () => {
   });
 
   describe('processWithEscapes', () => {
-    // Mock substitution processor that simulates the actual tag processing
-    const mockProcessor = (content) => {
-      return content
-        .replace(/\[\[def:\s*([a-zA-Z0-9 _-]{1,100})\]\]/g, '<span class="definition">$1</span>')
-        .replace(/\[\[xref:\s*([a-zA-Z0-9 _-]{1,100}),\s*([a-zA-Z0-9 _-]{1,100})\]\]/g, (m, p1, p2) => `<a href="#${p1}">${p2}</a>`)
-        .replace(/\[\[tref:\s*([a-zA-Z0-9 _-]{1,100}),\s*([a-zA-Z0-9 _-]{1,100})\]\]/g, '<span class="tref">$2</span>');
-    };
+    const mockProcessor = createMockProcessor();
 
     it('should process normal tags while preserving escaped ones', () => {
       const input = 'Normal [[def: term]] and escaped \\[[def: literal]] text';
@@ -131,7 +127,7 @@ This should be processed: [[tref: external-spec, some-term]]`;
   });
 
   describe('Edge cases', () => {
-    const mockProcessor = (content) => content.replace(/\[\[def:\s*([a-zA-Z0-9 _-]{1,100})\]\]/g, '<def>$1</def>');
+    const mockProcessor = createMockProcessor();
 
     it('should handle escaped tags at start of text', () => {
       const input = '\\[[def: term]] at start';
