@@ -20,6 +20,8 @@ module.exports = async function (options = {}) {
     const { createTermIndex } = require('./src/create-term-index.js');
     createTermIndex();
 
+    const { processWithEscapes } = require('./src/escape-handler.js');
+
     const { insertTermIndex } = require('./src/insert-term-index.js');
     insertTermIndex();
 
@@ -182,14 +184,7 @@ module.exports = async function (options = {}) {
           return fs.readFileSync(path, 'utf8');
         }
       },
-      {
-        test: 'spec',
-        transform: function (originalMatch, type, name) {
-          // Simply return an empty string or special marker that won't be treated as a definition term
-          // The actual rendering will be handled by the markdown-it extension
-          return `<span class="spec-marker" data-spec="${name}"></span>`;
-        }
-      },
+
       /**
        * Custom replacer for tref tags that converts them directly to HTML definition term elements.
        * 
@@ -245,13 +240,16 @@ module.exports = async function (options = {}) {
      * @returns {string} - The processed document with tags replaced by their HTML equivalents
      */
     function applyReplacers(doc) {
-      return doc.replace(replacerRegex, function (match, type, args) {
-        let replacer = replacers.find(r => type.trim().match(r.test));
-        if (replacer) {
-          let argsArray = args ? args.trim().split(replacerArgsRegex) : [];
-          return replacer.transform(match, type, ...argsArray);
-        }
-        return match;
+      // Use the escape handler for three-phase processing
+      return processWithEscapes(doc, function(content) {
+        return content.replace(replacerRegex, function (match, type, args) {
+          let replacer = replacers.find(r => type.trim().match(r.test));
+          if (replacer) {
+            let argsArray = args ? args.trim().split(replacerArgsRegex) : [];
+            return replacer.transform(match, type, ...argsArray);
+          }
+          return match;
+        });
       });
     }
 

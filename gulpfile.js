@@ -19,9 +19,15 @@ async function fetchSpecRefs() {
   return Promise.all([
     axios.get('https://raw.githubusercontent.com/tobie/specref/master/refs/ietf.json'),
     axios.get('https://raw.githubusercontent.com/tobie/specref/master/refs/w3c.json'),
-    axios.get('https://raw.githubusercontent.com/tobie/specref/master/refs/whatwg.json')
+    axios.get('https://raw.githubusercontent.com/tobie/specref/master/refs/whatwg.json'),
+    axios.get('https://raw.githubusercontent.com/tobie/specref/master/refs/biblio.json')
   ]).then(async results => {
-    let json = Object.assign(results[0].data, results[1].data, results[2].data);
+    let json = Object.assign(
+      results[0].data,// IETF
+      results[1].data,// W3C
+      results[2].data,// WHATWG
+      results[3].data// Biblio
+    );
     return fs.outputFile(compileLocation + '/refs.json', JSON.stringify(json));
   }).catch(e => console.log(e));
 }

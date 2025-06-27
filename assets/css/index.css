@@ -3,6 +3,15 @@
   /* Matches sticky header height */
 }
 
+
+/*
+- When a URL fragment targets an element,
+the `:target` pseudo-class triggers the corresponding CSS rules.
+- If the body lacks the hashscroll attribute: 
+   - The targeted element gets highlighted with an animation (highlight-target).
+   - Its parent <dt>(if applicable) gets highlighted with a different animation (highlight-target-parent-dt).
+- These animations visually emphasize the targeted element and its parent for better user experience.
+*/
 body:not([hashscroll]) *:target {
   animation: highlight-target 3.5s 0.25s ease;
 }
