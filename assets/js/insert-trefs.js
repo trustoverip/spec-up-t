@@ -28,10 +28,8 @@ function insertTrefs(allXTrefs) {
        */
       const allTerms = [];
       document.querySelectorAll('dt span.transcluded-xref-term').forEach(termElement => {
-         const textContent = Array.from(termElement.childNodes)
-            .filter(node => node.nodeType === Node.TEXT_NODE)
-            .map(node => node.textContent.trim())
-            .join('');
+         // Get the full text content including any nested spans (for aliases)
+         const textContent = termElement.textContent.trim();
 
          // Find the dt element once outside the loop
          const dt = termElement.closest('dt');
@@ -67,7 +65,21 @@ function insertTrefs(allXTrefs) {
          }
 
          // Find the first matching xref to avoid duplicates
-         const xref = xtrefsData.xtrefs.find(x => x.term === textContent);
+         // Match by term name or by any alias in the textContent
+         const xref = xtrefsData.xtrefs.find(x => {
+            // Check if the textContent matches the main term
+            if (x.term === textContent) {
+               return true;
+            }
+            
+            // Check if the textContent matches any alias stored in the xref
+            // Note: We store the alias information when processing tref tags
+            if (x.alias && x.alias === textContent) {
+               return true;
+            }
+            
+            return false;
+         });
 
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
