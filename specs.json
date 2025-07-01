@@ -1,0 +1,32 @@
+{
+  "specs": [
+    {
+      "title": "Spec-Up Alias Test",
+      "spec_directory": "./",
+      "spec_terms_directory": "spec/terms-definitions",
+      "output_path": "./",
+      "logo": "logo.svg",
+      "logo_link": "https://github.com/trustoverip/spec-up-t",
+      "source": {
+        "host": "github",
+        "account": "trustoverip",
+        "repo": "spec-up-t-starter-pack"
+      },
+      "external_specs": [
+        {
+          "external_spec": "vlei-glossary",
+          "url": "https://github.com/henkvancann/vlei-glossary",
+          "gh_page": "https://henkvancann.github.io/vlei-glossary/",
+          "terms_dir": "spec/terms-definitions"
+        },
+        {
+          "external_spec": "test-1",
+          "url": "https://github.com/blockchainbird/spec-up-xref-test-1",
+          "gh_page": "https://blockchainbird.github.io/spec-up-xref-test-1/",
+          "terms_dir": "spec/term-definitions"
+        }
+      ],
+      "katex": false
+    }
+  ]
+}
