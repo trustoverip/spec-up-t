@@ -71,7 +71,13 @@ module.exports = async function (options = {}) {
       linkify: true,
       typographer: true
     })
+      /*
+        Configures a Markdown-it plugin by passing it an array of extension objects, each responsible for handling specific custom syntax in Markdown documents.
+      */
       .use(require('./src/markdown-it-extensions.js'), [
+        /*
+          The first extension (= the first configuration object = the first element of the array) focuses on terminology-related constructs, using a filter to match types against a regular expression (terminologyRegex).
+        */
         {
           filter: type => type.match(terminologyRegex),
           parse(token, type, primary) {
@@ -100,6 +106,9 @@ module.exports = async function (options = {}) {
             }
           }
         },
+        /*        
+          The second extension is designed for handling specification references.
+        */
         {
           filter: type => type.match(specNameRegex),
           parse(token, type, name) {
