@@ -10,7 +10,7 @@ function addAnchorsToTerms() {
             return transcludedSpan;
         }
         
-        // For regular terms, find the deepest span (original behavior)
+        // For regular terms, find the deepest span
         let currentElement = element;
         while (currentElement.querySelector('span[id^="term:"]')) {
             currentElement = currentElement.querySelector('span[id^="term:"]');
