@@ -27,7 +27,8 @@ function insertTrefs(allXTrefs) {
        * @type {Array<{element: Element, textContent: string, dt: Element, parent: Element}>}
        */
       const allTerms = [];
-      document.querySelectorAll('dt span.transcluded-xref-term').forEach(termElement => {
+
+      document.querySelectorAll('dl.terms-and-definitions-list dt span.transcluded-xref-term').forEach((termElement) => {
          // Get the full text content including any nested spans (for aliases)
          const textContent = termElement.textContent.trim();
 
@@ -65,21 +66,7 @@ function insertTrefs(allXTrefs) {
          }
 
          // Find the first matching xref to avoid duplicates
-         // Match by term name or by any alias in the textContent
-         const xref = xtrefsData.xtrefs.find(x => {
-            // Check if the textContent matches the main term
-            if (x.term === textContent) {
-               return true;
-            }
-            
-            // Check if the textContent matches any alias stored in the xref
-            // Note: We store the alias information when processing tref tags
-            if (x.alias && x.alias === textContent) {
-               return true;
-            }
-            
-            return false;
-         });
+         const xref = xtrefsData.xtrefs.find(x => x.term === textContent);
 
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
@@ -172,15 +159,15 @@ function insertTrefs(allXTrefs) {
             const { dt, parent, fragment } = change;
             parent.insertBefore(fragment, dt.nextSibling);
          });
-         
+
          // Dispatch a custom event when all DOM modifications are complete
          // This allows other scripts to know exactly when our work is done
          /**
           * Dispatches a custom event to signal that trefs insertion is complete
           * @fires trefs-inserted
           */
-         document.dispatchEvent(new CustomEvent('trefs-inserted', { 
-            detail: { count: domChanges.length } 
+         document.dispatchEvent(new CustomEvent('trefs-inserted', {
+            detail: { count: domChanges.length }
          }));
       });
    }
@@ -190,8 +177,8 @@ function insertTrefs(allXTrefs) {
    } else {
       console.error('allXTrefs is undefined or missing xtrefs property');
       // Dispatch event even when there are no xrefs, so waiting code knows we're done
-      document.dispatchEvent(new CustomEvent('trefs-inserted', { 
-         detail: { count: 0, error: 'Missing xtrefs data' } 
+      document.dispatchEvent(new CustomEvent('trefs-inserted', {
+         detail: { count: 0, error: 'Missing xtrefs data' }
       }));
    }
 }
