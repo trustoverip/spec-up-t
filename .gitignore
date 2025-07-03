@@ -113,3 +113,5 @@ dist
 
 # Default output dir for index.html
 docs
+
+.scannerwork/
