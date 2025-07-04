@@ -52,31 +52,6 @@ function normalizeParagraphSpacing(lines) {
 }
 
 /**
- * Prepends `~ ` to appropriate lines
- * @param {string[]} lines - Array of file lines
- * @returns {object} - Object containing modified lines and modification status
- */
-function prependTildeToLines(lines) {
-    const result = [...lines];
-    let modified = false;
-
-    for (let i = 0; i < result.length; i++) {
-        if (
-            !result[i].startsWith('[[def:') &&
-            !result[i].startsWith('[[tref:') &&
-            result[i].trim() !== '' &&
-            !result[i].startsWith('~ ') &&
-            !result[i].trim().startsWith('<!--')
-        ) {
-            result[i] = `~ ${result[i]}`;
-            modified = true;
-        }
-    }
-
-    return { lines: result, modified };
-}
-
-/**
  * Ensures there is exactly one blank line at the end of the file
  * @param {string[]} lines - Array of file lines
  * @returns {object} - Object containing modified lines and modification status
@@ -115,10 +90,6 @@ function processMarkdownFile(filePath, fileName) {
         const spacingResult = normalizeParagraphSpacing(lines);
         lines = spacingResult.lines;
         modified = modified || spacingResult.modified;
-
-        const tildeResult = prependTildeToLines(lines);
-        lines = tildeResult.lines;
-        modified = modified || tildeResult.modified;
 
         const newlineResult = ensureTrailingNewline(lines);
         lines = newlineResult.lines;
