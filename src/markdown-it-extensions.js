@@ -252,9 +252,51 @@ module.exports = function (md, templates = {}) {
   }
 
   /**
+   * Helper function to check if a definition list contains spec references
+   * Spec references have dt elements with id attributes starting with "ref:"
+   * 
+   * @param {Array} tokens - The token array to search through
+   * @param {Number} startIdx - The index to start searching from (after dl_open)
+   * @return {Boolean} True if the dl contains spec references, false otherwise
+   */
+  function containsSpecReferences(tokens, startIdx) {
+    for (let i = startIdx; i < tokens.length; i++) {
+      if (tokens[i].type === 'dl_close') {
+        break; // Stop when we reach the end of this definition list
+      }
+      
+      // Check if this is a dt_open token with an id attribute starting with "ref:"
+      if (tokens[i].type === 'dt_open' && tokens[i].attrs) {
+        for (let attr of tokens[i].attrs) {
+          if (attr[0] === 'id' && attr[1].startsWith('ref:')) {
+            return true;
+          }
+        }
+      }
+      
+      // Also check for HTML content that contains ref: ids (for rendered spec references)
+      if (tokens[i].type === 'html_block' || tokens[i].type === 'html_inline') {
+        if (tokens[i].content && tokens[i].content.includes('id="ref:')) {
+          return true;
+        }
+      }
+      
+      // Check inline content for rendered spec references
+      if (tokens[i].type === 'inline' && tokens[i].content && tokens[i].content.includes('id="ref:')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Custom renderer for definition list opening tags
    * Handles special styling for terminology sections and processes definition terms and descriptions
    * This function was refactored to reduce cognitive complexity by extracting helper functions
+   * 
+   * IMPORTANT FIX: This function now checks if a <dl> already has a class attribute OR contains
+   * spec references (dt elements with id="ref:...") before adding the 'terms-and-definitions-list' 
+   * class. This prevents spec reference lists from being incorrectly classified as term definition lists.
    * 
    * @param {Array} tokens - The token array being processed
    * @param {Number} idx - The index of the current token
@@ -267,8 +309,19 @@ module.exports = function (md, templates = {}) {
     const targetHtml = 'terminology-section-start';
     let targetIndex = findTargetIndex(tokens, targetHtml);
 
-    // Add class to the first <dl> only if it comes after the target HTML
-    if (targetIndex !== -1 && idx > targetIndex && !classAdded) {
+    // Check if the dl already has a class attribute (e.g., reference-list)
+    const existingClassIndex = tokens[idx].attrIndex('class');
+    const hasExistingClass = existingClassIndex >= 0;
+    
+    // Check if this dl contains spec references (dt elements with id="ref:...")
+    const hasSpecReferences = containsSpecReferences(tokens, idx + 1);
+
+    // Only add terms-and-definitions-list class if:
+    // 1. It comes after the target HTML
+    // 2. We haven't added the class yet
+    // 3. The dl doesn't already have a class (to avoid overriding reference-list)
+    // 4. The dl doesn't contain spec references
+    if (targetIndex !== -1 && idx > targetIndex && !classAdded && !hasExistingClass && !hasSpecReferences) {
       tokens[idx].attrPush(['class', 'terms-and-definitions-list']);
       classAdded = true;
     }

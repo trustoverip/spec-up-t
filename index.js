@@ -503,18 +503,31 @@ module.exports = async function (options = {}) {
         // Handle different node types
         if (currentNode.nodeType === 1) { // 1 = Element node
           if (currentNode.tagName === 'DL') {
-            // Found another definition list - move all its children to the main dl
-            while (currentNode.firstChild) {
-              mainDl.appendChild(currentNode.firstChild);
+            // Check if this is a reference list (contains dt elements with id="ref:...")
+            const hasRefIds = currentNode.innerHTML.includes('id="ref:') || 
+                              currentNode.classList.contains('reference-list');
+            
+            if (!hasRefIds) {
+              // Only move non-reference definition lists - move all its children to the main dl
+              while (currentNode.firstChild) {
+                mainDl.appendChild(currentNode.firstChild);
+              }
+              // Remove the now-empty dl element
+              currentNode.parentNode.removeChild(currentNode);
             }
-            // Remove the now-empty dl element
-            currentNode.parentNode.removeChild(currentNode);
+            // If it's a reference list, leave it alone
           }
           else if (currentNode.tagName === 'DT') {
-            // Found a standalone dt - move it into the main dl
-            const dtClone = currentNode.cloneNode(true);
-            mainDl.appendChild(dtClone);
-            currentNode.parentNode.removeChild(currentNode);
+            // Check if this dt has a ref: id (spec reference)
+            const hasRefId = currentNode.id && currentNode.id.startsWith('ref:');
+            
+            if (!hasRefId) {
+              // Only move non-reference standalone dt elements into the main dl
+              const dtClone = currentNode.cloneNode(true);
+              mainDl.appendChild(dtClone);
+              currentNode.parentNode.removeChild(currentNode);
+            }
+            // If it's a spec reference dt, leave it alone
           }
           else if (currentNode.tagName === 'P' &&
             (!currentNode.textContent || currentNode.textContent.trim() === '')) {
