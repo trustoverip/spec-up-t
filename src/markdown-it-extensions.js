@@ -254,7 +254,7 @@ module.exports = function (md, templates = {}) {
   /**
    * Helper function to check if a definition list contains spec references
    * Spec references have dt elements with id attributes starting with "ref:"
-   * 
+   *
    * @param {Array} tokens - The token array to search through
    * @param {Number} startIdx - The index to start searching from (after dl_open)
    * @return {Boolean} True if the dl contains spec references, false otherwise
@@ -264,29 +264,32 @@ module.exports = function (md, templates = {}) {
       if (tokens[i].type === 'dl_close') {
         break; // Stop when we reach the end of this definition list
       }
-      
-      // Check if this is a dt_open token with an id attribute starting with "ref:"
-      if (tokens[i].type === 'dt_open' && tokens[i].attrs) {
-        for (let attr of tokens[i].attrs) {
-          if (attr[0] === 'id' && attr[1].startsWith('ref:')) {
-            return true;
-          }
-        }
+      if (isDtRef(tokens[i])) {
+        return true;
       }
-      
-      // Also check for HTML content that contains ref: ids (for rendered spec references)
-      if (tokens[i].type === 'html_block' || tokens[i].type === 'html_inline') {
-        if (tokens[i].content && tokens[i].content.includes('id="ref:')) {
-          return true;
-        }
+      if (isHtmlRef(tokens[i])) {
+        return true;
       }
-      
-      // Check inline content for rendered spec references
-      if (tokens[i].type === 'inline' && tokens[i].content && tokens[i].content.includes('id="ref:')) {
+      if (isInlineRef(tokens[i])) {
         return true;
       }
     }
     return false;
+  }
+
+  function isDtRef(token) {
+    if (token.type !== 'dt_open' || !token.attrs) return false;
+    return token.attrs.some(attr => attr[0] === 'id' && attr[1].startsWith('ref:'));
+  }
+
+  function isHtmlRef(token) {
+    if (token.type !== 'html_block' && token.type !== 'html_inline') return false;
+    return token.content && token.content.includes('id="ref:');
+  }
+
+  function isInlineRef(token) {
+    if (token.type !== 'inline') return false;
+    return token.content && token.content.includes('id="ref:');
   }
 
   /**
