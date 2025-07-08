@@ -196,7 +196,7 @@ module.exports = async function (options = {}) {
       .use(require('@traptitech/markdown-it-katex'))
 
     const katexRules = ['math_block', 'math_inline'];
-    const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
+    const replacerRegex = /\[\[\s*([^\s[\]:]+):?\s*([^\]\n]+)?\]\]/img;
     const replacerArgsRegex = /\s*,+\s*/;
     const replacers = [
       {
