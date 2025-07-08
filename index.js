@@ -519,7 +519,7 @@ module.exports = async function (options = {}) {
           }
           else if (currentNode.tagName === 'DT') {
             // Check if this dt has a ref: id (spec reference)
-            const hasRefId = currentNode.id && currentNode.id.startsWith('ref:');
+            const hasRefId = currentNode.id?.startsWith('ref:');
             
             if (!hasRefId) {
               // Only move non-reference standalone dt elements into the main dl
