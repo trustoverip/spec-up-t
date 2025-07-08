@@ -1,1 +1,0 @@
-https://github.com/blockchainbird/spec-up-t/issues/97
