@@ -1,1 +1,0 @@
-This branch fixes the way trefs are fetched. The idea is that they are fetched from the index.html (GitHub page) which apparently was not the case yet. This branch should fix that.
