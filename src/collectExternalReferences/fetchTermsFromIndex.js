@@ -107,11 +107,11 @@ async function getFileCommitHash(token, owner, repo, filePath, headers) {
 }
 
 /**
- * Fetches all terms and definitions from a repository's index.html
+ * Fetches all terms and definitions from a repository's GitHub Pages index.html
  * @param {string} token - GitHub API Token
  * @param {string} owner - Repository owner
  * @param {string} repo - Repository name 
- * @param {object} options - Additional options
+ * @param {object} options - Additional options including ghPageUrl
  * @returns {object|null} - Object containing all terms or null if error
  */
 async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
@@ -134,48 +134,76 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
             headers['Authorization'] = `token ${token}`;
         }
 
-        // Get the specs.json content from the repository to find the output_path
-        const specsJsonUrl = `https://api.github.com/repos/${owner}/${repo}/contents/specs.json`;
-        console.log(`Fetching specs.json from: ${specsJsonUrl}`);
+        // Use GitHub Pages URL if provided in options, otherwise fallback to raw repository
+        let indexHtmlUrl;
+        let commitHash = null;
 
-        // Fetch specs.json content
-        const specsJsonResponse = await axios.get(specsJsonUrl, { headers });
-        if (specsJsonResponse.status !== 200) {
-            console.log(`❌ Could not find specs.json in repository ${owner}/${repo}`);
-            return null;
+        if (options.ghPageUrl) {
+            // Fetch from GitHub Pages (deployed HTML)
+            indexHtmlUrl = options.ghPageUrl.endsWith('/') ? 
+                `${options.ghPageUrl}index.html` : 
+                `${options.ghPageUrl}/index.html`;
+            console.log(`Fetching index.html from GitHub Pages: ${indexHtmlUrl}`);
+            
+            // For GitHub Pages, we'll try to get the commit hash from the main branch
+            try {
+                const mainBranchUrl = `https://api.github.com/repos/${owner}/${repo}/branches/main`;
+                const branchResponse = await axios.get(mainBranchUrl, { headers });
+                if (branchResponse.status === 200) {
+                    commitHash = branchResponse.data.commit.sha;
+                    console.log(`✅ Got commit hash from main branch: ${commitHash}`);
+                }
+            } catch (error) {
+                console.log(`⚠️ Could not get commit hash from main branch: ${error.message}`);
+            }
+        } else {
+            // Fallback to raw repository method
+            console.log(`⚠️ No GitHub Pages URL provided, falling back to repository method`);
+            
+            // Get the specs.json content from the repository to find the output_path
+            const specsJsonUrl = `https://api.github.com/repos/${owner}/${repo}/contents/specs.json`;
+            console.log(`Fetching specs.json from: ${specsJsonUrl}`);
+
+            // Fetch specs.json content
+            const specsJsonResponse = await axios.get(specsJsonUrl, { headers });
+            if (specsJsonResponse.status !== 200) {
+                console.log(`❌ Could not find specs.json in repository ${owner}/${repo}`);
+                return null;
+            }
+
+            // Decode specs.json content from base64
+            const specsJsonContent = Buffer.from(specsJsonResponse.data.content, 'base64').toString('utf8');
+            const specsJson = JSON.parse(specsJsonContent);
+            
+            // Get the output_path from specs.json
+            const outputPath = specsJson.specs[0].output_path;
+            if (!outputPath) {
+                console.log(`❌ No output_path found in specs.json for repository ${owner}/${repo}`);
+                return null;
+            }
+
+            // Fix: Properly normalize the output path to ensure it doesn't have leading "./" or trailing "/"
+            const normalizedOutputPath = outputPath.replace(/^\.\//, '').replace(/\/$/, '');
+            
+            // Create the path to the index.html file
+            const indexHtmlPath = `${normalizedOutputPath}/index.html`;
+            
+            // Fetch the index.html content with properly constructed URL
+            indexHtmlUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${indexHtmlPath}`;
+            console.log(`Fetching index.html from raw repository: ${indexHtmlUrl}`);
+
+            // Get the commit hash for the index.html file
+            commitHash = await getFileCommitHash(token, owner, repo, indexHtmlPath, headers);
+            if (!commitHash) {
+                console.log(`⚠️ Could not get commit hash for index.html, continuing without it`);
+            }
         }
 
-        // Decode specs.json content from base64
-        const specsJsonContent = Buffer.from(specsJsonResponse.data.content, 'base64').toString('utf8');
-        const specsJson = JSON.parse(specsJsonContent);
-        
-        // Get the output_path from specs.json
-        const outputPath = specsJson.specs[0].output_path;
-        if (!outputPath) {
-            console.log(`❌ No output_path found in specs.json for repository ${owner}/${repo}`);
-            return null;
-        }
-
-        // Fix: Properly normalize the output path to ensure it doesn't have leading "./" or trailing "/"
-        const normalizedOutputPath = outputPath.replace(/^\.\//, '').replace(/\/$/, '');
-        
-        // Create the path to the index.html file
-        const indexHtmlPath = `${normalizedOutputPath}/index.html`;
-        
-        // Fetch the index.html content with properly constructed URL
-        const indexHtmlUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${indexHtmlPath}`;
-        console.log(`Fetching index.html from: ${indexHtmlUrl}`);
-        
+        // Fetch the index.html content
         const indexHtmlResponse = await axios.get(indexHtmlUrl, { headers });
         if (indexHtmlResponse.status !== 200) {
             console.log(`❌ Could not find index.html at ${indexHtmlUrl}`);
             return null;
-        }
-
-        // Get the commit hash for the index.html file
-        const commitHash = await getFileCommitHash(token, owner, repo, indexHtmlPath, headers);
-        if (!commitHash) {
-            console.log(`⚠️ Could not get commit hash for index.html, continuing without it`);
         }
 
         const htmlContent = indexHtmlResponse.data;

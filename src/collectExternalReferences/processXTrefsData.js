@@ -51,12 +51,18 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
             const repoGroup = xrefsByRepo[repoKey];
             console.log(`Processing repository: ${repoKey} (${repoGroup.xtrefs.length} terms)`);
             
+            // Get the GitHub Pages URL from the first xtref in this repo group
+            const ghPageUrl = repoGroup.xtrefs[0]?.ghPageUrl;
+            
             // First, fetch all terms from this repository
             const allTermsData = await fetchAllTermsFromIndex(
                 GITHUB_API_TOKEN, 
                 repoGroup.owner, 
                 repoGroup.repo, 
-                options
+                { 
+                    ...options,
+                    ghPageUrl: ghPageUrl // Pass the GitHub Pages URL
+                }
             );
             
             if (!allTermsData) {

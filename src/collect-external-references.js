@@ -140,6 +140,7 @@ function extendXTrefs(config, xtrefs) {
                     xtref.owner = urlParts[1];
                     xtref.repo = urlParts[2];
                     xtref.avatarUrl = repo.avatar_url;
+                    xtref.ghPageUrl = repo.gh_page; // Add GitHub Pages URL
                 }
             });
 
