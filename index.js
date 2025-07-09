@@ -554,6 +554,13 @@ module.exports = async function (options = {}) {
           return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
         }
 
+        // Add current date in 'DD Month YYYY' format for template injection
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = date.toLocaleString('en-US', { month: 'long' });
+        const year = date.getFullYear();
+        const currentDate = `${day} ${month} ${year}`;
+
         const docs = await Promise.all(
           (spec.markdown_paths || ['spec.md']).map(_path =>
             fs.readFile(spec.spec_directory + _path, 'utf8')
@@ -619,6 +626,7 @@ module.exports = async function (options = {}) {
           specLogoLink: spec.logo_link,
           spec: JSON.stringify(spec),
           externalSpecsList: externalSpecsList,
+          currentDate: currentDate
         });
 
         const outputPath = path.join(spec.destination, 'index.html');
