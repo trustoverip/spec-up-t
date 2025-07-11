@@ -5,6 +5,9 @@ const initFlagPath = path.join(outputDir, 'init.flag');
 
 async function initialize() {
     try {
+        // Ensure the .cache directory exists
+        await fs.ensureDir(outputDir);
+        
         // Check if the init script has already run
         if (await fs.pathExists(initFlagPath)) {
             return;
