@@ -12,8 +12,7 @@ on:
           # - Edit specification
           - Render specification
           # - Develop specification
-          - Collect external references (cached)
-          - Collect external references (no cache)
+          - Collect external references
           - Convert to PDF
           - Freeze specification
           # - List references
@@ -74,20 +73,12 @@ jobs:
             # "Develop specification")
             #   node -e "require('spec-up-t')({ dev: true })"
             #   ;;
-            "Collect external references (cached)")
-              node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({cache: true})"
+            "Collect external references")
+              node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({ pat: process.env.MY_PAT })"
               git config --global user.email "actions@github.com"
               git config --global user.name "GitHub Actions"
               git add .
-              git commit -m "Collect external references (cached)" || echo "No changes to commit"
-              git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
-              ;;
-            "Collect external references (no cache)")
-              node --no-warnings -e "require('spec-up-t/src/collect-external-references.js').collectExternalReferences({cache: false, pat: process.env.MY_PAT})"
-              git config --global user.email "actions@github.com"
-              git config --global user.name "GitHub Actions"
-              git add .
-              git commit -m "Collect external references (no cache)" || echo "No changes to commit"
+              git commit -m "Collect external references" || echo "No changes to commit"
               git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
               ;;
             "Convert to PDF")

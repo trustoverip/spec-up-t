@@ -4,19 +4,12 @@ const { matchTerm } = require('./matchTerm.js');
 const { addPath, getPath, getAllPaths } = require('../../config/paths');
 const path = require('path');
 
-// Directory to store cached files
+// Directory to store fetched data files
 const CACHE_DIR = getPath('githubcache');
 
-async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped, options) {
+async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped) {
     try {
-        // Clear the cache (remove the cache directory) if the cache option is set to false
-        if (options.cache === false) {
-            if (fs.existsSync(CACHE_DIR)) {
-                fs.rmdirSync(CACHE_DIR, { recursive: true });
-            }
-        }
-        
-        // Ensure the cache directory exists, so that we can store the fetched data
+        // Ensure the directory exists, so that we can store the fetched data
         if (!fs.existsSync(CACHE_DIR)) {
             fs.mkdirSync(CACHE_DIR, { recursive: true });
         }
@@ -60,7 +53,6 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                 repoGroup.owner, 
                 repoGroup.repo, 
                 { 
-                    ...options,
                     ghPageUrl: ghPageUrl // Pass the GitHub Pages URL
                 }
             );

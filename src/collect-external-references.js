@@ -161,9 +161,8 @@ function extendXTrefs(config, xtrefs) {
  * 
  * @param {Object} config - The configuration object from specs.json
  * @param {string} GITHUB_API_TOKEN - The GitHub API token
- * @param {Object} options - Configuration options
  */
-function processExternalReferences(config, GITHUB_API_TOKEN, options) {
+function processExternalReferences(config, GITHUB_API_TOKEN) {
     const { processXTrefsData } = require('./collectExternalReferences/processXTrefsData.js');
     const { doesUrlExist } = require('./utils/doesUrlExist.js');
     const externalSpecsRepos = config.specs[0].external_specs;
@@ -269,7 +268,7 @@ function processExternalReferences(config, GITHUB_API_TOKEN, options) {
     //     }
     // ]
     
-    processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped, options);
+    processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped);
 }
 
 /**
@@ -332,7 +331,7 @@ function collectExternalReferences(options = {}) {
             return;
         }
     } else {
-        processExternalReferences(config, GITHUB_API_TOKEN, options);
+        processExternalReferences(config, GITHUB_API_TOKEN);
     }
 }
 

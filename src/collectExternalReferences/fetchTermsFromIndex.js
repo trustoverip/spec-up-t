@@ -11,67 +11,11 @@ const path = require('path');
 const { JSDOM } = require('jsdom');
 const axios = require('axios');
 const { addPath, getPath, getAllPaths } = require('../../config/paths');
-const crypto = require('crypto');
 
-// Directory to store cached files
+// Directory to store fetched data files
 const CACHE_DIR = getPath('githubcache');
 
-/**
- * Generates a cache key based on repository information
- * @param {string} owner - Repository owner
- * @param {string} repo - Repository name
- * @returns {string} - Cache key
- */
-function generateCacheKey(owner, repo) {
-    const input = `${owner}-${repo}-index`;
-    return crypto.createHash('md5').update(input).digest('hex');
-}
 
-/**
- * Checks if a cached version exists and is valid
- * @param {string} cacheKey - Cache key
- * @param {object} options - Options object
- * @param {number} options.cacheTTL - Time-to-live for cache in milliseconds (default: 24 hours)
- * @returns {object|null} - Cached data or null if not found or expired
- * @example
- * const cacheTTL = options.cacheTTL || 24 * 60 * 60 * 1000; // Default: 24 hours
- */
-function getFromCache(cacheKey, options = {}) {
-    const cachePath = path.join(CACHE_DIR, `${cacheKey}.json`);
-    const cacheTTL = 0;
-
-    if (!fs.existsSync(cachePath)) {
-        return null;
-    }
-
-    const cacheData = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
-    const cacheTime = new Date(cacheData.timestamp).getTime();
-    const currentTime = new Date().getTime();
-
-    // Check if cache is expired
-    if (currentTime - cacheTime > cacheTTL) {
-        console.log(`Cache expired for key: ${cacheKey}`);
-        return null;
-    }
-
-    console.log(`Using cached data for key: ${cacheKey}`);
-    return cacheData;
-}
-
-/**
- * Saves data to cache
- * @param {string} cacheKey - Cache key
- * @param {object} data - Data to cache
- */
-function saveToCache(cacheKey, data) {
-    const cachePath = path.join(CACHE_DIR, `${cacheKey}.json`);
-    const cacheData = {
-        timestamp: new Date().toISOString(),
-        ...data
-    };
-    fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2));
-    console.log(`Saved to cache: ${cacheKey}`);
-}
 
 /**
  * Fetches the latest commit hash for a specific file in a repository
@@ -116,18 +60,6 @@ async function getFileCommitHash(token, owner, repo, filePath, headers) {
  */
 async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
     try {
-        // Generate cache key based on repo information
-        const cacheKey = generateCacheKey(owner, repo);
-        let cachedData = null;
-
-        // Check cache first if caching is enabled
-        if (options.cache !== false) {
-            cachedData = getFromCache(cacheKey, options);
-            if (cachedData) {
-                return cachedData;
-            }
-        }
-
         // Configure headers for GitHub API
         const headers = {};
         if (token) {
@@ -284,11 +216,6 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
         // Save all terms to file
         fs.writeFileSync(outputFilePath, JSON.stringify(result, null, 2));
         console.log(`✅ Saved ${terms.length} terms to ${outputFilePath}`);
-        
-        // Save to cache if enabled
-        if (options.cache !== false) {
-            saveToCache(cacheKey, result);
-        }
         
         return result;
 
