@@ -6,6 +6,7 @@ function handle_choice() {
         "Add content" "do_add_content"
         "Render specification" "do_render"
         "Export to PDF" "do_topdf"
+        "Export to DOCX" "do_todocx"
         "Collect external references" "collect_external_references"
         "Add, remove or view xref source" "do_add_remove_xref_source"
         "Configure" "do_configure"
@@ -46,12 +47,13 @@ function display_intro() {
    [0] Add content
    [1] Render specification
    [2] Export to PDF
-   [3] Collect external references
-   [4] Add, remove or view xref source
-   [5] Configure
-   [6] Run health check
-   [7] Open documentation website
-   [8] Freeze specification
+   [3] Export to DOCX
+   [4] Collect external references
+   [5] Add, remove or view xref source
+   [6] Configure
+   [7] Run health check
+   [8] Open documentation website
+   [9] Freeze specification
    [Q] Quit
 
    An xref is a reference to another repository.
@@ -72,6 +74,7 @@ function do_add_content() {
 
 function do_render() { clear; npm run render; }
 function do_topdf() { clear; npm run topdf; }
+function do_todocx() { clear; npm run todocx; }
 function collect_external_references() { clear; npm run collectExternalReferences; }
 function do_add_remove_xref_source() { clear; npm run addremovexrefsource; }
 function do_configure() { clear; npm run configure; }
