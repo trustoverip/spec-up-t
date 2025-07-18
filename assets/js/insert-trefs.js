@@ -135,7 +135,7 @@ function insertTrefs(allXTrefs) {
                fragment.appendChild(contentEl);
             }
          } else {
-            // Handle case where xref is not found
+            // When the [[tref]] is not valid, for example `[[tref: transferable, transferable]]`, where `transferable` is not an external repo in specs.json
             metaInfoEl.innerHTML = md.render(`
 | Property | Value |
 | -------- | ----- |
