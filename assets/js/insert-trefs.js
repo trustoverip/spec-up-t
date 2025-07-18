@@ -68,7 +68,7 @@ function insertTrefs(allXTrefs) {
 
          // Find the first matching xref to avoid duplicates
          const xref = xtrefsData.xtrefs.find(x => x.term === textContent);
-
+         
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
 
@@ -93,13 +93,11 @@ function insertTrefs(allXTrefs) {
             metaInfoEl.innerHTML = md.render(metaInfo);
             fragment.appendChild(metaInfoEl);
 
-            // Clean up markdown content
+            // Clean up markdown content (the definition of a term)
             let content = xref.content
-               .replace(/\[\[def:[^\]]*?\]\]/g, '') // Remove [[def: ...]] patterns regardless of trailing chars
                .split('\n')
                .map(line => line.replace(/^\s*~\s*/, '')) // Remove leading ~ and spaces
                .join('\n')
-               .replace(/\[\[ref:/g, '') // Remove [[ref: ...]]
                .replace(/\]\]/g, '');
 
             // Parse the rendered HTML to check for dd elements
