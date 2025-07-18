@@ -30,6 +30,7 @@ function insertTrefs(allXTrefs) {
 
       document.querySelectorAll('dl.terms-and-definitions-list dt span.transcluded-xref-term').forEach((termElement) => {
          // Get the full text content including any nested spans (for aliases) of a term (dt)
+         // In case of `[[tref:toip1, agency, ag]]`, this will return `agency`
          const textContent = termElement.textContent.trim();
 
          // Find the dt element once outside the loop
