@@ -147,7 +147,7 @@ function insertTrefs(allXTrefs) {
 
             // Create not found message
             const notFoundEl = document.createElement('dd');
-            notFoundEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded', 'last-dd');
+
             notFoundEl.innerHTML = '<p>This term was not found in the external repository.</p>';
             fragment.appendChild(notFoundEl);
          }
