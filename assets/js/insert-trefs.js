@@ -108,7 +108,7 @@ function insertTrefs(allXTrefs) {
             tempDivForLinks.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
             content = tempDivForLinks.innerHTML;
 
-            // Parse the rendered HTML to check for dd elements
+            // Parse the rendered HTML to check for dd elements. xref.content is a string that contains HTML, in the form of <dd>...</dd>'s
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = md.render(content);
 
@@ -125,7 +125,10 @@ function insertTrefs(allXTrefs) {
                   fragment.appendChild(clonedDD);
                });
             } else {
-               // No dd elements found, create one to hold the content
+               /*
+                  No dd elements found, create one to hold the conten. Explanation: this is the content in case nothing was found:
+                  `"content": "This term was not found in the external repository"`
+               */
                const contentEl = document.createElement('dd');
                contentEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
                contentEl.innerHTML = tempDiv.innerHTML;
