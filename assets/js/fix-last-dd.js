@@ -22,6 +22,9 @@ function fixLastDd() {
         
         // Process each dd element
         ddElements.forEach((dd, index) => {
+            // Remove the 'last-dd' class if it exists, one of the ways it can be there is via the fetching of the external references html. We do not know what classes are in there.
+            dd.classList.remove('last-dd');
+            
             // Get the next sibling element
             let nextSibling = dd.nextElementSibling;
             
@@ -37,8 +40,8 @@ function fixLastDd() {
 }
 
 /**
- * Initializes the function when the DOM content is fully loaded.
+ * Initializes the function when the custom event "trefs-inserted" is fired.
  */
-document.addEventListener("DOMContentLoaded", function () {
-   fixLastDd();
+document.addEventListener("trefs-inserted", function () {
+    fixLastDd();
 });
