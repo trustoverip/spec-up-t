@@ -93,12 +93,20 @@ function insertTrefs(allXTrefs) {
             metaInfoEl.innerHTML = md.render(metaInfo);
             fragment.appendChild(metaInfoEl);
 
-            // Clean up markdown content (the definition of a term)
+            // Clean up the markdown content in the term definition
+            // Part A: clean up via regex
             let content = xref.content
                .split('\n')
                .map(line => line.replace(/^\s*~\s*/, '')) // Remove leading ~ and spaces
                .join('\n')
                .replace(/\]\]/g, '');
+
+            // Clean up the markdown content in the term definition
+            // Part B: Remove all <a> elements from the content via a temporary div and DOM manipulation
+            const tempDivForLinks = document.createElement('div');
+            tempDivForLinks.innerHTML = md.render(content);
+            tempDivForLinks.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+            content = tempDivForLinks.innerHTML;
 
             // Parse the rendered HTML to check for dd elements
             const tempDiv = document.createElement('div');
