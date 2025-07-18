@@ -172,15 +172,7 @@ function insertTrefs(allXTrefs) {
       });
    }
 
-   if (allXTrefs?.xtrefs) {
-      processTerms(allXTrefs);
-   } else {
-      console.error('allXTrefs is undefined or missing xtrefs property');
-      // Dispatch event even when there are no xrefs, so waiting code knows we're done
-      document.dispatchEvent(new CustomEvent('trefs-inserted', {
-         detail: { count: 0, error: 'Missing xtrefs data' }
-      }));
-   }
+   processTerms(allXTrefs);
 }
 
 /**
@@ -230,11 +222,14 @@ function initializeOnTrefsInserted(initCallback) {
  * @listens DOMContentLoaded
  */
 document.addEventListener('DOMContentLoaded', () => {
-   // Check if allXTrefs is defined in the global scope
-   if (typeof allXTrefs !== 'undefined') {
+   if (typeof allXTrefs !== 'undefined' && allXTrefs?.xtrefs) {
       insertTrefs(allXTrefs);
    } else {
-      console.warn('allXTrefs is not available in the global scope. Transcluded references will not be inserted.');
+      console.error('allXTrefs is undefined or missing xtrefs property');
+      // Dispatch event even when there are no xrefs, so waiting code knows we're done
+      document.dispatchEvent(new CustomEvent('trefs-inserted', {
+         detail: { count: 0, error: 'Missing xtrefs data' }
+      }));
    }
 });
 
