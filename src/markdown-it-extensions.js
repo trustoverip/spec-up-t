@@ -66,12 +66,12 @@ module.exports = function (md, templates = {}) {
   md.inline.ruler.after('emphasis', 'templates', function templates_ruler(state, silent) {
     // Get the current parsing position
     var start = state.pos;
-    
+
     // Check if we're at an escaped placeholder - if so, skip processing
     if (state.src.slice(start, start + ESCAPED_PLACEHOLDER.length) === ESCAPED_PLACEHOLDER) {
       return false;
     }
-    
+
     // Check if we're at a template opening marker
     let prefix = state.src.slice(start, start + levels);
     if (prefix !== openString) return false;
@@ -203,24 +203,6 @@ module.exports = function (md, templates = {}) {
     }
   }
 
-  /**
-   * Helper function to add a 'last-dd' class to a dd token
-   * This enables special styling for the last definition description in a group
-   * 
-   * @param {Array} tokens - The token array containing the dd token
-   * @param {Number} ddIndex - The index of the dd_open token to modify
-   */
-  function addLastDdClass(tokens, ddIndex) {
-    if (ddIndex === -1) return;
-
-    const ddToken = tokens[ddIndex];
-    const classIndex = ddToken.attrIndex('class');
-    if (classIndex < 0) {
-      ddToken.attrPush(['class', 'last-dd']);
-    } else {
-      ddToken.attrs[classIndex][1] += ' last-dd';
-    }
-  }
 
   /**
    * Helper function to process definition description elements
@@ -232,23 +214,6 @@ module.exports = function (md, templates = {}) {
   function processLastDdElements(tokens, startIdx) {
     let lastDdIndex = -1; // Tracks the most recent dd_open token
 
-    for (let i = startIdx; i < tokens.length; i++) {
-      if (tokens[i].type === 'dl_close') {
-        // Add class to the last <dd> before closing the entire <dl>
-        addLastDdClass(tokens, lastDdIndex);
-        break;
-      }
-
-      if (tokens[i].type === 'dt_open' && !tokens[i].isEmpty) {
-        // When we find a non-empty dt, mark the previous dd as the last one in its group
-        addLastDdClass(tokens, lastDdIndex);
-        lastDdIndex = -1; // Reset for the next group
-      }
-
-      if (tokens[i].type === 'dd_open') {
-        lastDdIndex = i; // Track the most recently seen dd_open
-      }
-    }
   }
 
   /**
@@ -315,7 +280,7 @@ module.exports = function (md, templates = {}) {
     // Check if the dl already has a class attribute (e.g., reference-list)
     const existingClassIndex = tokens[idx].attrIndex('class');
     const hasExistingClass = existingClassIndex >= 0;
-    
+
     // Check if this dl contains spec references (dt elements with id="ref:...")
     const hasSpecReferences = containsSpecReferences(tokens, idx + 1);
 
