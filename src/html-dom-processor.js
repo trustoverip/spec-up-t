@@ -78,7 +78,7 @@ function sortDefinitionTermsInHtml(html) {
  * 2. Use the dl with class 'terms-and-definitions-list' as the main/target list
  * 3. Process each subsequent node after the this main dl:
  *    - If another dl is found, merge all its children into the main dl
- *    - If a standalone dt is found, move it into the main dl
+ *    - If a standalone dt is found, move it and its associated dd elements into the main dl
  *    - Remove any empty paragraphs that might be breaking the list continuity
  * 
  * This ensures all terms appear in one continuous definition list,
@@ -137,28 +137,44 @@ function fixDefinitionListStructure(html) {
     return html; // Return the original HTML without modifications
   }
 
-  // Now process all transcluded terms and other dt elements
+  /**
+   * Helper function to collect dt/dd pairs from a node
+   * @param {Node} startNode - The node to start collecting from 
+   * @returns {Array} - Array of elements that are part of the definition group
+   */
+  function collectDtDdGroup(startNode) {
+    const group = [];
+    let currentNode = startNode;
+    
+    // Collect the dt and all following dd elements
+    while (currentNode && (currentNode.tagName === 'DT' || currentNode.tagName === 'DD')) {
+      group.push(currentNode);
+      currentNode = currentNode.nextSibling;
+      
+      // Skip text nodes (whitespace) between elements
+      while (currentNode && currentNode.nodeType === 3 && !currentNode.textContent.trim()) {
+        currentNode = currentNode.nextSibling;
+      }
+    }
+    
+    return group;
+  }
+
+  // Process all transcluded terms and move them with their dd elements
   transcludedTerms.forEach(dt => {
     // Check if this dt is not already inside our main dl
     if (dt.parentElement !== mainDl) {
-      // Move it into the main dl
-      const dtClone = dt.cloneNode(true);
-      mainDl.appendChild(dtClone);
-      dt.parentNode.removeChild(dt);
-    }
-  });
-
-  // First special case - handle transcluded-xref-term dt that comes BEFORE the main dl
-  const transcludedTermsBeforeMainDl = document.querySelectorAll('dt.transcluded-xref-term');
-
-  // Special handling for transcluded terms that appear BEFORE the main dl
-  transcludedTermsBeforeMainDl.forEach(dt => {
-    // Check if this dt is not already inside our main list
-    if (dt.parentElement !== mainDl) {
-      // This is a dt outside our main list - move it into the main dl
-      const dtClone = dt.cloneNode(true);
-      mainDl.appendChild(dtClone);
-      dt.parentNode.removeChild(dt);
+      // Collect the dt and its associated dd elements
+      const group = collectDtDdGroup(dt);
+      
+      // Move all elements in the group to the main dl
+      group.forEach(element => {
+        if (element.parentNode) {
+          const elementClone = element.cloneNode(true);
+          mainDl.appendChild(elementClone);
+          element.parentNode.removeChild(element);
+        }
+      });
     }
   });
 
@@ -198,12 +214,60 @@ function fixDefinitionListStructure(html) {
         const hasRefId = currentNode.id?.startsWith('ref:');
         
         if (!hasRefId) {
-          // Only move non-reference standalone dt elements into the main dl
-          const dtClone = currentNode.cloneNode(true);
-          mainDl.appendChild(dtClone);
-          currentNode.parentNode.removeChild(currentNode);
+          // Collect the dt and its associated dd elements
+          const group = collectDtDdGroup(currentNode);
+          
+          // Move all elements in the group to the main dl
+          group.forEach(element => {
+            if (element.parentNode) {
+              const elementClone = element.cloneNode(true);
+              mainDl.appendChild(elementClone);
+              element.parentNode.removeChild(element);
+            }
+          });
+          
+          // Skip the nodes we just processed
+          let skipNodes = group.length - 1; // -1 because currentNode will be advanced anyway
+          while (skipNodes > 0 && nextNode) {
+            const nodeToSkip = nextNode;
+            currentNode = nextNode;
+            nextNode = nextNode.nextSibling;
+            skipNodes--;
+          }
         }
         // If it's a spec reference dt, leave it alone
+      }
+      else if (currentNode.tagName === 'DD') {
+        // Handle orphaned dd elements - move them to the main dl if they don't belong to a reference
+        const dtBefore = currentNode.previousSibling;
+        let hasAssociatedDt = false;
+        
+        // Check if there's a dt before this dd (walking backwards through siblings)
+        let checkNode = currentNode.previousSibling;
+        while (checkNode) {
+          // Skip text nodes
+          if (checkNode.nodeType === 3 && !checkNode.textContent.trim()) {
+            checkNode = checkNode.previousSibling;
+            continue;
+          }
+          
+          if (checkNode.tagName === 'DT') {
+            hasAssociatedDt = true;
+            break;
+          } else if (checkNode.tagName !== 'DD') {
+            // Found a non-dt, non-dd element, so this dd is orphaned
+            break;
+          }
+          
+          checkNode = checkNode.previousSibling;
+        }
+        
+        // If this dd doesn't have an associated dt in the same context, move it to main dl
+        if (!hasAssociatedDt) {
+          const ddClone = currentNode.cloneNode(true);
+          mainDl.appendChild(ddClone);
+          currentNode.parentNode.removeChild(currentNode);
+        }
       }
       else if (currentNode.tagName === 'P' &&
         (!currentNode.textContent || currentNode.textContent.trim() === '')) {

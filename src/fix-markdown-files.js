@@ -3,7 +3,7 @@ const path = require('path');
 const { shouldProcessFile } = require('./utils/file-filter');
 
 /**
- * Handles specific functionality for `[[def:` lines
+ * Handles specific functionality for `[[def:` and `[[tref:` lines
  * @param {string[]} lines - Array of file lines
  * @returns {object} - Object containing modified lines and modification status
  */
@@ -12,8 +12,8 @@ function processDefLines(lines) {
     let modified = false;
 
     for (let i = 0; i < result.length; i++) {
-        if (result[i].startsWith('[[def:')) {
-            // Ensure a blank line immediately follows `[[def:` lines
+        if (result[i].startsWith('[[def:') || result[i].startsWith('[[tref:')) {
+            // Ensure a blank line immediately follows `[[def:` and `[[tref:` lines
             if (i + 1 < result.length && result[i + 1].trim() !== '') {
                 result.splice(i + 1, 0, ''); // Insert blank line
                 modified = true;
