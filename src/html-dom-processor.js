@@ -69,34 +69,6 @@ function sortDefinitionTermsInHtml(html) {
 }
 
 /**
- * Gets all elements that are associated with a given dt element and marks them for removal.
- * This function finds all elements that immediately follow the dt
- * until it encounters another dt or the end of the parent container.
- * 
- * @param {Element} dt - The dt element to find associated elements for
- * @returns {Array<{element: Element, originalElement: Element}>} - Array of element pairs
- */
-function getAssociatedDdsAfterDt(dt) {
-  const associatedElements = [];
-  let currentNode = dt.nextSibling;
-  
-  while (currentNode) {
-    if (currentNode.nodeType === 1) { // Element node
-      if (currentNode.tagName === 'DD') {
-        // This is an associated dd element - clone it
-        const ddClone = currentNode.cloneNode(true);
-          associatedElements.push({ element: ddClone, originalElement: currentNode });
-      } else if (currentNode.tagName === 'DT') {
-        // Found another dt, stop looking
-        break;
-    }
-    currentNode = currentNode.nextSibling;
-  }
-  
-  return associatedElements;
-}
-
-/**
  * Fixes broken definition list (dl) structures in the HTML output.
  * Specifically, it addresses the issue where transcluded terms (tref tags) break
  * out of the definition list, creating separate lists instead of a continuous one.
@@ -165,30 +137,27 @@ function fixDefinitionListStructure(html) {
     return html; // Return the original HTML without modifications
   }
 
-  // Process transcluded terms and move them with their associated content
+  // Now process all transcluded terms and other dt elements
   transcludedTerms.forEach(dt => {
     // Check if this dt is not already inside our main dl
     if (dt.parentElement !== mainDl) {
-      // Move the dt to the main dl
+      // Move it into the main dl
       const dtClone = dt.cloneNode(true);
       mainDl.appendChild(dtClone);
-      
-      // Find and move any associated elements that follow this dt
-      const associatedElements = getAssociatedDdsAfterDt(dt);
-      
-      // Add the cloned/converted elements to the main dl
-      associatedElements.forEach(pair => {
-        mainDl.appendChild(pair.element);
-      });
-      
-      // Remove the original elements (in reverse order to avoid index issues)
-      associatedElements.reverse().forEach(pair => {
-        if (pair.originalElement.parentNode) {
-          pair.originalElement.parentNode.removeChild(pair.originalElement);
-        }
-      });
-      
-      // Remove the original dt
+      dt.parentNode.removeChild(dt);
+    }
+  });
+
+  // First special case - handle transcluded-xref-term dt that comes BEFORE the main dl
+  const transcludedTermsBeforeMainDl = document.querySelectorAll('dt.transcluded-xref-term');
+
+  // Special handling for transcluded terms that appear BEFORE the main dl
+  transcludedTermsBeforeMainDl.forEach(dt => {
+    // Check if this dt is not already inside our main list
+    if (dt.parentElement !== mainDl) {
+      // This is a dt outside our main list - move it into the main dl
+      const dtClone = dt.cloneNode(true);
+      mainDl.appendChild(dtClone);
       dt.parentNode.removeChild(dt);
     }
   });
