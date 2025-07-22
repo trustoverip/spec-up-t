@@ -206,9 +206,6 @@ function collapseDefinitions() {
                 event.target :
                 event.target.closest('.collapse-all-defs-button');
 
-            // Find the parent dt and dl elements
-            const dtElement = button.closest('dt');
-
             // Get button's position in viewport and page
             const buttonRect = button.getBoundingClientRect();
 
