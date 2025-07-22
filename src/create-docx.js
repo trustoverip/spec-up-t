@@ -83,7 +83,7 @@ function processNode(node, elements = []) {
                 if (li.tagName.toLowerCase() === 'li') {
                     elements.push(new Paragraph({
                         text: li.textContent.trim(),
-                        bullet: tagName === 'ul' ? { level: 0 } : { level: 0 }
+                        bullet: { level: 0 }
                     }));
                 }
             });
