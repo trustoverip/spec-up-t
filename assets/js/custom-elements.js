@@ -7,21 +7,21 @@ customElements.define('slide-panels', class SidePanels extends HTMLElement {
   }
   constructor() {
     super();
-    
+
     this.addEventListener('pointerup', e => {
       if (e.target === this) this.close();
     })
   }
-  get active (){
+  get active() {
     return this.getAttribute('open');
   }
-  toggle(panel){
+  toggle(panel) {
     this.active === panel ? this.close() : this.open(panel)
   }
-  open (panel){
+  open(panel) {
     this.setAttribute('open', panel);
   }
-  close (){
+  close() {
     this.removeAttribute('open');
   }
 
@@ -39,12 +39,12 @@ customElements.define('detail-box', class DetailBox extends HTMLElement {
     return ['open'];
   }
   constructor() {
-    super();   
-    
+    super();
+
     this.addEventListener('pointerup', e => {
       if (e.target.hasAttribute('detail-box-toggle')) {
         e.stopPropagation();
-        this.toggle();   
+        this.toggle();
       }
     });
 
@@ -55,7 +55,7 @@ customElements.define('detail-box', class DetailBox extends HTMLElement {
       }
     });
   }
-  toggle(){
+  toggle() {
     this.toggleAttribute('open');
   }
   attributeChangedCallback(attr, last, current) {
@@ -91,24 +91,22 @@ customElements.define('tab-panels', class TabPanels extends HTMLElement {
   }
   attributeChangedCallback(attr, last, current) {
     domReady.then(() => {
-      switch(attr) {  
-        case 'selected-index':
-          let index = current || 0;
-          let nav = this.querySelector('nav');
-          if (nav.parentElement === this) {
-            let tabs = nav.children;
-            let selected = tabs[index];
-            for (let tab of tabs) tab.removeAttribute('selected');
-            if (selected) selected.setAttribute('selected', '');
-            let panel = Array.prototype.filter.call(this.children, node => {
-              if (node.tagName === 'SECTION') {
-                node.removeAttribute('selected');
-                return true;
-              }
-            })[index];
-            if (panel) panel.setAttribute('selected', '');
-          }
-          break;
+      if (attr === 'selected-index') {
+        let index = current || 0;
+        let nav = this.querySelector('nav');
+        if (nav.parentElement === this) {
+          let tabs = nav.children;
+          let selected = tabs[index];
+          for (let tab of tabs) tab.removeAttribute('selected');
+          if (selected) selected.setAttribute('selected', '');
+          let panel = Array.prototype.filter.call(this.children, node => {
+            if (node.tagName === 'SECTION') {
+              node.removeAttribute('selected');
+              return true;
+            }
+          })[index];
+          if (panel) panel.setAttribute('selected', '');
+        }
       }
     });
   }
