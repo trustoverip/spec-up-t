@@ -145,18 +145,18 @@ function fixDefinitionListStructure(html) {
   function collectDtDdGroup(startNode) {
     const group = [];
     let currentNode = startNode;
-    
+
     // Collect the dt and all following dd elements
     while (currentNode && (currentNode.tagName === 'DT' || currentNode.tagName === 'DD')) {
       group.push(currentNode);
       currentNode = currentNode.nextSibling;
-      
+
       // Skip text nodes (whitespace) between elements
       while (currentNode && currentNode.nodeType === 3 && !currentNode.textContent.trim()) {
         currentNode = currentNode.nextSibling;
       }
     }
-    
+
     return group;
   }
 
@@ -166,7 +166,7 @@ function fixDefinitionListStructure(html) {
     if (dt.parentElement !== mainDl) {
       // Collect the dt and its associated dd elements
       const group = collectDtDdGroup(dt);
-      
+
       // Move all elements in the group to the main dl
       group.forEach(element => {
         if (element.parentNode) {
@@ -190,15 +190,15 @@ function fixDefinitionListStructure(html) {
   // Process all subsequent content
   while (currentNode) {
     // Save the next node before potentially modifying the DOM
-    const nextNode = currentNode.nextSibling;
+    let nextNode = currentNode.nextSibling;
 
     // Handle different node types
     if (currentNode.nodeType === 1) { // 1 = Element node
       if (currentNode.tagName === 'DL') {
         // Check if this is a reference list (contains dt elements with id="ref:...")
-        const hasRefIds = currentNode.innerHTML.includes('id="ref:') || 
-                          currentNode.classList.contains('reference-list');
-        
+        const hasRefIds = currentNode.innerHTML.includes('id="ref:') ||
+          currentNode.classList.contains('reference-list');
+
         if (!hasRefIds) {
           // Only move non-reference definition lists - move all its children to the main dl
           while (currentNode.firstChild) {
@@ -212,11 +212,11 @@ function fixDefinitionListStructure(html) {
       else if (currentNode.tagName === 'DT') {
         // Check if this dt has a ref: id (spec reference)
         const hasRefId = currentNode.id?.startsWith('ref:');
-        
+
         if (!hasRefId) {
           // Collect the dt and its associated dd elements
           const group = collectDtDdGroup(currentNode);
-          
+
           // Move all elements in the group to the main dl
           group.forEach(element => {
             if (element.parentNode) {
@@ -225,7 +225,7 @@ function fixDefinitionListStructure(html) {
               element.parentNode.removeChild(element);
             }
           });
-          
+
           // Skip the nodes we just processed
           let skipNodes = group.length - 1; // -1 because currentNode will be advanced anyway
           while (skipNodes > 0 && nextNode) {
@@ -241,7 +241,7 @@ function fixDefinitionListStructure(html) {
         // Handle orphaned dd elements - move them to the main dl if they don't belong to a reference
         const dtBefore = currentNode.previousSibling;
         let hasAssociatedDt = false;
-        
+
         // Check if there's a dt before this dd (walking backwards through siblings)
         let checkNode = currentNode.previousSibling;
         while (checkNode) {
@@ -250,7 +250,7 @@ function fixDefinitionListStructure(html) {
             checkNode = checkNode.previousSibling;
             continue;
           }
-          
+
           if (checkNode.tagName === 'DT') {
             hasAssociatedDt = true;
             break;
@@ -258,10 +258,10 @@ function fixDefinitionListStructure(html) {
             // Found a non-dt, non-dd element, so this dd is orphaned
             break;
           }
-          
+
           checkNode = checkNode.previousSibling;
         }
-        
+
         // If this dd doesn't have an associated dt in the same context, move it to main dl
         if (!hasAssociatedDt) {
           const ddClone = currentNode.cloneNode(true);
