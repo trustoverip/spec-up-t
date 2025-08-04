@@ -6,8 +6,8 @@ function handle_choice() {
         "Add content" "do_add_content"
         "Render specification" "do_render"
         "Export to PDF" "do_topdf"
-        "Collect external references (cache, faster)" "collect_external_references_cache"
-        "Collect external references (no cache, slower)" "collect_external_references_no_cache"
+        "Export to DOCX" "do_todocx"
+        "Collect external references" "collect_external_references"
         "Add, remove or view xref source" "do_add_remove_xref_source"
         "Configure" "do_configure"
         "Run health check" "do_health_check"
@@ -47,8 +47,8 @@ function display_intro() {
    [0] Add content
    [1] Render specification
    [2] Export to PDF
-   [3] Collect external references (cache, faster)
-   [4] Collect external references (no cache, slower)
+   [3] Export to DOCX
+   [4] Collect external references
    [5] Add, remove or view xref source
    [6] Configure
    [7] Run health check
@@ -74,8 +74,8 @@ function do_add_content() {
 
 function do_render() { clear; npm run render; }
 function do_topdf() { clear; npm run topdf; }
-function collect_external_references_cache() { clear; npm run collectExternalReferencesCache; }
-function collect_external_references_no_cache() { clear; npm run collectExternalReferencesNoCache; }
+function do_todocx() { clear; npm run todocx; }
+function collect_external_references() { clear; npm run collectExternalReferences; }
 function do_add_remove_xref_source() { clear; npm run addremovexrefsource; }
 function do_configure() { clear; npm run configure; }
 function do_health_check() { clear; npm run healthCheck; }

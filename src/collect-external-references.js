@@ -54,26 +54,37 @@ const readlineSync = require('readline-sync');
  * @returns {boolean} True if the xtref is found in the content
  */
 function isXTrefInMarkdown(xtref, markdownContent) {
-    const regex = new RegExp(`\\[\\[(?:x|t)ref:${xtref.externalSpec},\\s*${xtref.term}\\]\\]`, 'g');
-    return regex.test(markdownContent);
+    // Escape special regex characters in externalSpec and term
+    const escapedSpec = xtref.externalSpec.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+    const escapedTerm = xtref.term.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+    
+    // Check for both the term and with any alias (accounting for spaces)
+    const regexTerm = new RegExp(`\\[\\[(?:x|t)ref:\\s*${escapedSpec},\\s*${escapedTerm}(?:,\\s*[^\\]]+)?\\]\\]`, 'g');
+    return regexTerm.test(markdownContent);
 }
 
 /**
  * Helper function to process an XTref string and return an object.
  * 
  * @param {string} xtref - The xtref string to process
- * @returns {Object} An object with externalSpec and term properties
+ * @returns {Object} An object with externalSpec, term, and optional alias properties
  */
 function processXTref(xtref) {
-    let [externalSpec, term] = xtref
+    const parts = xtref
         .replace(/\[\[(?:xref|tref):/, '')
         .replace(/\]\]/, '')
         .trim()
-        .split(/,/, 2);
+        .split(/,/);
+    
     const xtrefObject = {
-        externalSpec: externalSpec.trim(),
-        term: term.trim()
+        externalSpec: parts[0].trim(),
+        term: parts[1].trim()
     };
+    
+    // Add alias if provided (third parameter)
+    if (parts.length > 2 && parts[2].trim()) {
+        xtrefObject.alias = parts[2].trim();
+    }
 
     return xtrefObject;
 }
@@ -129,6 +140,7 @@ function extendXTrefs(config, xtrefs) {
                     xtref.owner = urlParts[1];
                     xtref.repo = urlParts[2];
                     xtref.avatarUrl = repo.avatar_url;
+                    xtref.ghPageUrl = repo.gh_page; // Add GitHub Pages URL
                 }
             });
 
@@ -149,9 +161,8 @@ function extendXTrefs(config, xtrefs) {
  * 
  * @param {Object} config - The configuration object from specs.json
  * @param {string} GITHUB_API_TOKEN - The GitHub API token
- * @param {Object} options - Configuration options
  */
-function processExternalReferences(config, GITHUB_API_TOKEN, options) {
+function processExternalReferences(config, GITHUB_API_TOKEN) {
     const { processXTrefsData } = require('./collectExternalReferences/processXTrefsData.js');
     const { doesUrlExist } = require('./utils/doesUrlExist.js');
     const externalSpecsRepos = config.specs[0].external_specs;
@@ -257,7 +268,7 @@ function processExternalReferences(config, GITHUB_API_TOKEN, options) {
     //     }
     // ]
     
-    processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped, options);
+    processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped);
 }
 
 /**
@@ -320,7 +331,7 @@ function collectExternalReferences(options = {}) {
             return;
         }
     } else {
-        processExternalReferences(config, GITHUB_API_TOKEN, options);
+        processExternalReferences(config, GITHUB_API_TOKEN);
     }
 }
 

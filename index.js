@@ -38,6 +38,7 @@ module.exports = async function (options = {}) {
 
     const { fixMarkdownFiles } = require('./src/fix-markdown-files.js');
     const { processEscapedTags, restoreEscapedTags } = require('./src/escape-mechanism.js');
+    const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./src/html-dom-processor.js');
 
     let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
     let assets = fs.readJsonSync(modulePath + '/config/asset-map.json');
@@ -71,7 +72,13 @@ module.exports = async function (options = {}) {
       linkify: true,
       typographer: true
     })
+      /*
+        Configures a Markdown-it plugin by passing it an array of extension objects, each responsible for handling specific custom syntax in Markdown documents.
+      */
       .use(require('./src/markdown-it-extensions.js'), [
+        /*
+          The first extension (= the first configuration object = the first element of the array) focuses on terminology-related constructs, using a filter to match types against a regular expression (terminologyRegex).
+        */
         {
           filter: type => type.match(terminologyRegex),
           parse(token, type, primary) {
@@ -92,7 +99,20 @@ module.exports = async function (options = {}) {
               href="${url}#term:${term}">${token.info.args[1]}</a>`;
             }
             else if (type === 'tref') {
-              return `<span class="transcluded-xref-term" id="term:${token.info.args[1]}">${token.info.args[1]}</span>`;
+              // Support tref with optional alias: [[tref: spec, term, alias]]
+              const termName = token.info.args[1];
+              const alias = token.info.args[2]; // Optional alias
+              
+              // Create IDs for both the original term and the alias to enable referencing by either
+              const termId = `term:${termName.replace(spaceRegex, '-').toLowerCase()}`;
+              const aliasId = alias ? `term:${alias.replace(spaceRegex, '-').toLowerCase()}` : '';
+              
+              // Return the term structure similar to def, so it can be processed by markdown-it's definition list parser
+              if (aliasId && alias !== termName) {
+                return `<span class="transcluded-xref-term" id="${termId}"><span id="${aliasId}">${termName}</span></span>`;
+              } else {
+                return `<span class="transcluded-xref-term" id="${termId}">${termName}</span>`;
+              }
             }
             else {
               references.push(primary);
@@ -100,6 +120,9 @@ module.exports = async function (options = {}) {
             }
           }
         },
+        /*        
+          The second extension is designed for handling specification references.
+        */
         {
           filter: type => type.match(specNameRegex),
           parse(token, type, name) {
@@ -174,7 +197,7 @@ module.exports = async function (options = {}) {
       .use(require('@traptitech/markdown-it-katex'))
 
     const katexRules = ['math_block', 'math_inline'];
-    const replacerRegex = /\[\[\s*([^\s\[\]:]+):?\s*([^\]\n]+)?\]\]/img;
+    const replacerRegex = /\[\[\s*([^\s[\]:]+):?\s*([^\]\n]+)?\]\]/img;
     const replacerArgsRegex = /\s*,+\s*/;
     const replacers = [
       {
@@ -182,29 +205,6 @@ module.exports = async function (options = {}) {
         transform: function (originalMatch, type, path) {
           if (!path) return '';
           return fs.readFileSync(path, 'utf8');
-        }
-      },
-
-      /**
-       * Custom replacer for tref tags that converts them directly to HTML definition term elements.
-       * 
-       * This is a critical part of our solution for fixing transcluded terms in definition lists.
-       * When a [[tref:spec,term]] tag is found in the markdown, this replacer transforms it into
-       * a proper <dt> element with the appropriate structure before the markdown parser processes it.
-       * 
-       * By directly generating the HTML structure (instead of letting the markdown-it parser
-       * handle it later), we prevent the issue where transcluded terms break the definition list.
-       * 
-       * @param {string} originalMatch - The original [[tref:spec,term]] tag found in the markdown
-       * @param {string} type - The tag type ('tref')
-       * @param {string} spec - The specification identifier (e.g., 'wot-1')
-       * @param {string} term - The term to transclude (e.g., 'DAR')
-       * @returns {string} - HTML representation of the term as a dt element
-       */
-      {
-        test: 'tref',
-        transform: function (originalMatch, type, spec, term) {
-          return `<dt class="transcluded-xref-term"><span class="transcluded-xref-term" id="term:${term.replace(/\s+/g, '-').toLowerCase()}">${term}</span></dt>`;
         }
       }
     ];
@@ -295,208 +295,6 @@ module.exports = async function (options = {}) {
       throw Error("katex distribution could not be located");
     }
 
-    function sortDefinitionTermsInHtml(html) {
-      const { JSDOM } = require('jsdom');
-      const dom = new JSDOM(html);
-      const document = dom.window.document;
-
-      // Find the terms and definitions list
-      const dlElement = document.querySelector('.terms-and-definitions-list');
-      if (!dlElement) return html; // If not found, return the original HTML
-
-      // Collect all dt/dd pairs
-      const pairs = [];
-      let currentDt = null;
-      let currentDds = [];
-
-      // Process each child of the dl element
-      Array.from(dlElement.children).forEach(child => {
-        if (child.tagName === 'DT') {
-          // If we already have a dt, save the current pair
-          if (currentDt) {
-            pairs.push({
-              dt: currentDt,
-              dds: [...currentDds],
-              text: currentDt.textContent.trim().toLowerCase() // Use lowercase for sorting
-            });
-            currentDds = []; // Reset dds for the next dt
-          }
-          currentDt = child;
-        } else if (child.tagName === 'DD' && currentDt) {
-          currentDds.push(child);
-        }
-      });
-
-      // Add the last pair if exists
-      if (currentDt) {
-        pairs.push({
-          dt: currentDt,
-          dds: [...currentDds],
-          text: currentDt.textContent.trim().toLowerCase()
-        });
-      }
-
-      // Sort pairs case-insensitively
-      pairs.sort((a, b) => a.text.localeCompare(b.text));
-
-      // Clear the dl element
-      while (dlElement.firstChild) {
-        dlElement.removeChild(dlElement.firstChild);
-      }
-
-      // Re-append elements in sorted order
-      pairs.forEach(pair => {
-        dlElement.appendChild(pair.dt);
-        pair.dds.forEach(dd => {
-          dlElement.appendChild(dd);
-        });
-      });
-
-      // Return the modified HTML
-      return dom.serialize();
-    }
-
-    // Function to fix broken definition list structures
-    /**
-     * This function repairs broken definition list (dl) structures in the HTML output.
-     * Specifically, it addresses the issue where transcluded terms (tref tags) break
-     * out of the definition list, creating separate lists instead of a continuous one.
-     * 
-     * The strategy:
-     * 1. Find all definition lists (dl elements) in the document
-     * 2. Use the dl with class 'terms-and-definitions-list' as the main/target list
-     * 3. Process each subsequent node after the this main dl:
-     *    - If another dl is found, merge all its children into the main dl
-     *    - If a standalone dt is found, move it into the main dl
-     *    - Remove any empty paragraphs that might be breaking the list continuity
-     * 
-     * This ensures all terms appear in one continuous definition list,
-     * regardless of how they were originally rendered in the markdown.
-     * 
-     * @param {string} html - The HTML content to fix
-     * @returns {string} - The fixed HTML content with merged definition lists
-     */
-    function fixDefinitionListStructure(html) {
-      const { JSDOM } = require('jsdom');
-      const dom = new JSDOM(html);
-      const document = dom.window.document;
-
-      // Find all dl elements first
-      const allDls = Array.from(document.querySelectorAll('dl'));
-
-      // Then filter to find the one with the terms-and-definitions-list class
-      const dlElements = allDls.filter(dl => {
-        return dl?.classList?.contains('terms-and-definitions-list');
-      });
-
-      // Find any transcluded term dt elements anywhere in the document
-      const transcludedTerms = document.querySelectorAll('dt.transcluded-xref-term');
-
-      let mainDl = null;
-
-      // If we have an existing dl with the terms-and-definitions-list class, use it
-      if (dlElements.length > 0) {
-        mainDl = dlElements[0]; // Use the first one
-      }
-      // If we have transcluded terms but no main dl, we need to create one
-      else if (transcludedTerms.length > 0) {
-        // Create a new dl element with the right class
-        mainDl = document.createElement('dl');
-        mainDl.className = 'terms-and-definitions-list';
-
-        // Look for the marker
-        const marker = document.getElementById('terminology-section-start');
-
-        if (marker) {
-          // Insert the new dl right after the marker
-          if (marker.nextSibling) {
-            marker.parentNode.insertBefore(mainDl, marker.nextSibling);
-          } else {
-            marker.parentNode.appendChild(mainDl);
-          }
-        } else {
-          // Fallback to the original approach if marker isn't found
-          const firstTerm = transcludedTerms[0];
-          const insertPoint = firstTerm.parentNode;
-          insertPoint.parentNode.insertBefore(mainDl, insertPoint);
-        }
-      }
-
-      // Safety check - if we still don't have a mainDl, exit early to avoid null reference errors
-      if (!mainDl) {
-        return html; // Return the original HTML without modifications
-      }
-
-      // Now process all transcluded terms and other dt elements
-      transcludedTerms.forEach(dt => {
-        // Check if this dt is not already inside our main dl
-        if (dt.parentElement !== mainDl) {
-          // Move it into the main dl
-          const dtClone = dt.cloneNode(true);
-          mainDl.appendChild(dtClone);
-          dt.parentNode.removeChild(dt);
-        }
-      });
-
-      // First special case - handle transcluded-xref-term dt that comes BEFORE the main dl
-      const transcludedTermsBeforeMainDl = document.querySelectorAll('dt.transcluded-xref-term');
-
-      // Special handling for transcluded terms that appear BEFORE the main dl
-      transcludedTermsBeforeMainDl.forEach(dt => {
-        // Check if this dt is not already inside our main list
-        if (dt.parentElement !== mainDl) {
-          // This is a dt outside our main list - move it into the main dl
-          const dtClone = dt.cloneNode(true);
-          mainDl.appendChild(dtClone);
-          dt.parentNode.removeChild(dt);
-        }
-      });
-
-      // Remove any empty dt elements that may exist
-      const emptyDts = mainDl.querySelectorAll('dt:empty');
-      emptyDts.forEach(emptyDt => {
-        emptyDt.parentNode.removeChild(emptyDt);
-      });
-
-      // Process all subsequent content after the main dl
-      let currentNode = mainDl.nextSibling;
-
-      // Process all subsequent content
-      while (currentNode) {
-        // Save the next node before potentially modifying the DOM
-        const nextNode = currentNode.nextSibling;
-
-        // Handle different node types
-        if (currentNode.nodeType === 1) { // 1 = Element node
-          if (currentNode.tagName === 'DL') {
-            // Found another definition list - move all its children to the main dl
-            while (currentNode.firstChild) {
-              mainDl.appendChild(currentNode.firstChild);
-            }
-            // Remove the now-empty dl element
-            currentNode.parentNode.removeChild(currentNode);
-          }
-          else if (currentNode.tagName === 'DT') {
-            // Found a standalone dt - move it into the main dl
-            const dtClone = currentNode.cloneNode(true);
-            mainDl.appendChild(dtClone);
-            currentNode.parentNode.removeChild(currentNode);
-          }
-          else if (currentNode.tagName === 'P' &&
-            (!currentNode.textContent || currentNode.textContent.trim() === '')) {
-            // Remove empty paragraphs - these break the list structure
-            currentNode.parentNode.removeChild(currentNode);
-          }
-        }
-
-        // Move to the next node we saved earlier
-        currentNode = nextNode;
-      }
-
-      // Return the fixed HTML
-      return dom.serialize();
-    }
-
     async function render(spec, assets) {
       try {
         noticeTitles = {};
@@ -506,6 +304,13 @@ module.exports = async function (options = {}) {
         function interpolate(template, variables) {
           return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
         }
+
+        // Add current date in 'DD Month YYYY' format for template injection
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = date.toLocaleString('en-US', { month: 'long' });
+        const year = date.getFullYear();
+        const currentDate = `${day} ${month} ${year}`;
 
         const docs = await Promise.all(
           (spec.markdown_paths || ['spec.md']).map(_path =>
@@ -572,6 +377,7 @@ module.exports = async function (options = {}) {
           specLogoLink: spec.logo_link,
           spec: JSON.stringify(spec),
           externalSpecsList: externalSpecsList,
+          currentDate: currentDate
         });
 
         const outputPath = path.join(spec.destination, 'index.html');

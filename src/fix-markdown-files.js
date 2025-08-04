@@ -3,7 +3,24 @@ const path = require('path');
 const { shouldProcessFile } = require('./utils/file-filter');
 
 /**
- * Handles specific functionality for `[[def:` lines
+ * Checks if a term has a definition starting from the given line index
+ * @param {string[]} lines - Array of file lines
+ * @param {number} startIndex - Index to start checking from
+ * @returns {boolean} - True if definition exists, false otherwise
+ */
+function hasDefinition(lines, startIndex) {
+    for (let i = startIndex; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line === '') continue; // Skip empty lines
+        if (line.startsWith('~')) return true; // Found definition
+        if (line.startsWith('[[def:') || line.startsWith('[[tref:')) return false; // Found next term
+        if (line.length > 0) return false; // Found other content
+    }
+    return false;
+}
+
+/**
+ * Handles specific functionality for `[[def:` and `[[tref:` lines
  * @param {string[]} lines - Array of file lines
  * @returns {object} - Object containing modified lines and modification status
  */
@@ -12,10 +29,19 @@ function processDefLines(lines) {
     let modified = false;
 
     for (let i = 0; i < result.length; i++) {
-        if (result[i].startsWith('[[def:')) {
-            // Ensure a blank line immediately follows `[[def:` lines
-            if (i + 1 < result.length && result[i + 1].trim() !== '') {
-                result.splice(i + 1, 0, ''); // Insert blank line
+        if (result[i].startsWith('[[def:') || result[i].startsWith('[[tref:')) {
+            let insertIndex = i + 1;
+            
+            // Ensure a blank line immediately follows `[[def:` and `[[tref:` lines
+            if (insertIndex < result.length && result[insertIndex].trim() !== '') {
+                result.splice(insertIndex, 0, ''); // Insert blank line
+                insertIndex++;
+                modified = true;
+            }
+            
+            // Check if term has a definition
+            if (!hasDefinition(result, insertIndex)) {
+                result.splice(insertIndex, 0, '', '~ No local definition found.', '');
                 modified = true;
             }
         }
@@ -49,31 +75,6 @@ function normalizeParagraphSpacing(lines) {
     }
 
     return { lines: newLines, modified };
-}
-
-/**
- * Prepends `~ ` to appropriate lines
- * @param {string[]} lines - Array of file lines
- * @returns {object} - Object containing modified lines and modification status
- */
-function prependTildeToLines(lines) {
-    const result = [...lines];
-    let modified = false;
-
-    for (let i = 0; i < result.length; i++) {
-        if (
-            !result[i].startsWith('[[def:') &&
-            !result[i].startsWith('[[tref:') &&
-            result[i].trim() !== '' &&
-            !result[i].startsWith('~ ') &&
-            !result[i].trim().startsWith('<!--')
-        ) {
-            result[i] = `~ ${result[i]}`;
-            modified = true;
-        }
-    }
-
-    return { lines: result, modified };
 }
 
 /**
@@ -115,10 +116,6 @@ function processMarkdownFile(filePath, fileName) {
         const spacingResult = normalizeParagraphSpacing(lines);
         lines = spacingResult.lines;
         modified = modified || spacingResult.modified;
-
-        const tildeResult = prependTildeToLines(lines);
-        lines = tildeResult.lines;
-        modified = modified || tildeResult.modified;
 
         const newlineResult = ensureTrailingNewline(lines);
         lines = newlineResult.lines;

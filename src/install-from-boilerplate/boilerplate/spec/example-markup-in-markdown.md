@@ -159,7 +159,6 @@ You can even insert content within more complex blocks, like the JSON object bel
 | ♙   | ♙   | ♙   | ♙   |     | ♙   | ♙   | ♙   |
 | ♖   | ♘   | ♗   | ♕   | ♔   |     |     | ♖   |
 
-
 ### Sequence Diagrams
 
 <pre>

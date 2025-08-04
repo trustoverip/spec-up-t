@@ -1,0 +1,104 @@
+/*
+ * CSS Counters for Navigation Menu Items and Content Headings
+ * Description: Adds incremental numbering to TOC menu items and corresponding content headings
+ */
+
+/* Reset and initialize counters for the table of contents */
+#toc ul.toc {
+  counter-reset: toc-section;
+}
+
+#toc ul.toc > li {
+  counter-reset: toc-subsection;
+}
+
+#toc ul.toc > li > ul > li {
+  counter-reset: toc-subsubsection;
+}
+
+/* Add numbering to first-level TOC items (h2 equivalent) */
+#toc ul.toc > li > a::before {
+  counter-increment: toc-section;
+  content: counter(toc-section) ". ";
+  font-weight: bold;
+  margin-right: 0.5em;
+}
+
+/* Add numbering to second-level TOC items (h3 equivalent) */
+#toc ul.toc > li > ul > li > a::before {
+  counter-increment: toc-subsection;
+  content: counter(toc-section) "." counter(toc-subsection) " ";
+  font-weight: bold;
+  margin-right: 0.5em;
+}
+
+/* Add numbering to third-level TOC items (h4 equivalent) */
+#toc ul.toc > li > ul > li > ul > li > a::before {
+  counter-increment: toc-subsubsection;
+  content: counter(toc-section) "." counter(toc-subsection) "." counter(toc-subsubsection) " ";
+  font-weight: bold;
+  margin-right: 0.5em;
+}
+
+/* Initialize counters for main content headings */
+main article {
+  counter-reset: main-section;
+}
+
+main article h2 {
+  counter-reset: main-subsection;
+}
+
+main article h3 {
+  counter-reset: main-subsubsection;
+}
+
+/* Add numbering to main content headings */
+main article h2::before {
+  counter-increment: main-section;
+  content: counter(main-section) ". ";
+  font-weight: bold;
+  margin-right: 0.5em;
+  color: #007bff;
+}
+
+main article h3::before {
+  counter-increment: main-subsection;
+  content: counter(main-section) "." counter(main-subsection) " ";
+  font-weight: bold;
+  margin-right: 0.5em;
+  color: #007bff;
+}
+
+main article h4::before {
+  counter-increment: main-subsubsection;
+  content: counter(main-section) "." counter(main-subsection) "." counter(main-subsubsection) " ";
+  font-weight: bold;
+  margin-right: 0.5em;
+  color: #007bff;
+}
+
+/* Optional: Style for h5 and h6 if needed */
+main article h5::before,
+main article h6::before {
+  font-weight: bold;
+  margin-right: 0.5em;
+  color: #6c757d;
+}
+
+/* Ensure numbering doesn't interfere with existing anchor links */
+.toc-anchor {
+  margin-left: 0.5em;
+}
+
+/* Print-friendly styles */
+@media print {
+  #toc ul.toc > li > a::before,
+  #toc ul.toc > li > ul > li > a::before,
+  #toc ul.toc > li > ul > li > ul > li > a::before,
+  main article h2::before,
+  main article h3::before,
+  main article h4::before {
+    color: #000 !important;
+  }
+}

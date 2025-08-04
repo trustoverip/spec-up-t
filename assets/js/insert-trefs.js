@@ -27,11 +27,11 @@ function insertTrefs(allXTrefs) {
        * @type {Array<{element: Element, textContent: string, dt: Element, parent: Element}>}
        */
       const allTerms = [];
-      document.querySelectorAll('dt span.transcluded-xref-term').forEach(termElement => {
-         const textContent = Array.from(termElement.childNodes)
-            .filter(node => node.nodeType === Node.TEXT_NODE)
-            .map(node => node.textContent.trim())
-            .join('');
+
+      document.querySelectorAll('dl.terms-and-definitions-list dt span.transcluded-xref-term').forEach((termElement) => {
+         // Get the full text content including any nested spans (for aliases) of a term (dt)
+         // In case of `[[tref:toip1, agency, ag]]`, this will return `agency`
+         const textContent = termElement.textContent.trim();
 
          // Find the dt element once outside the loop
          const dt = termElement.closest('dt');
@@ -68,7 +68,7 @@ function insertTrefs(allXTrefs) {
 
          // Find the first matching xref to avoid duplicates
          const xref = xtrefsData.xtrefs.find(x => x.term === textContent);
-
+         
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
 
@@ -93,16 +93,22 @@ function insertTrefs(allXTrefs) {
             metaInfoEl.innerHTML = md.render(metaInfo);
             fragment.appendChild(metaInfoEl);
 
-            // Clean up markdown content
+            // Clean up the markdown content in the term definition
+            // Part A: clean up via regex
             let content = xref.content
-               .replace(/\[\[def:[^\]]*?\]\]/g, '') // Remove [[def: ...]] patterns regardless of trailing chars
                .split('\n')
                .map(line => line.replace(/^\s*~\s*/, '')) // Remove leading ~ and spaces
                .join('\n')
-               .replace(/\[\[ref:/g, '') // Remove [[ref: ...]]
                .replace(/\]\]/g, '');
 
-            // Parse the rendered HTML to check for dd elements
+            // Clean up the markdown content in the term definition
+            // Part B: Remove all <a> elements from the content via a temporary div and DOM manipulation
+            const tempDivForLinks = document.createElement('div');
+            tempDivForLinks.innerHTML = md.render(content);
+            tempDivForLinks.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+            content = tempDivForLinks.innerHTML;
+
+            // Parse the rendered HTML to check for dd elements. xref.content is a string that contains HTML, in the form of <dd>...</dd>'s
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = md.render(content);
 
@@ -119,14 +125,17 @@ function insertTrefs(allXTrefs) {
                   fragment.appendChild(clonedDD);
                });
             } else {
-               // No dd elements found, create one to hold the content
+               /*
+                  No dd elements found, create one to hold the conten. Explanation: this is the content in case nothing was found:
+                  `"content": "This term was not found in the external repository"`
+               */
                const contentEl = document.createElement('dd');
                contentEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
                contentEl.innerHTML = tempDiv.innerHTML;
                fragment.appendChild(contentEl);
             }
          } else {
-            // Handle case where xref is not found
+            // When the [[tref]] is not valid, for example `[[tref: transferable, transferable]]`, where `transferable` is not an external repo in specs.json
             metaInfoEl.innerHTML = md.render(`
 | Property | Value |
 | -------- | ----- |
@@ -138,7 +147,7 @@ function insertTrefs(allXTrefs) {
 
             // Create not found message
             const notFoundEl = document.createElement('dd');
-            notFoundEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded', 'last-dd');
+
             notFoundEl.innerHTML = '<p>This term was not found in the external repository.</p>';
             fragment.appendChild(notFoundEl);
          }
@@ -160,28 +169,20 @@ function insertTrefs(allXTrefs) {
             const { dt, parent, fragment } = change;
             parent.insertBefore(fragment, dt.nextSibling);
          });
-         
+
          // Dispatch a custom event when all DOM modifications are complete
          // This allows other scripts to know exactly when our work is done
          /**
           * Dispatches a custom event to signal that trefs insertion is complete
           * @fires trefs-inserted
           */
-         document.dispatchEvent(new CustomEvent('trefs-inserted', { 
-            detail: { count: domChanges.length } 
+         document.dispatchEvent(new CustomEvent('trefs-inserted', {
+            detail: { count: domChanges.length }
          }));
       });
    }
 
-   if (allXTrefs?.xtrefs) {
-      processTerms(allXTrefs);
-   } else {
-      console.error('allXTrefs is undefined or missing xtrefs property');
-      // Dispatch event even when there are no xrefs, so waiting code knows we're done
-      document.dispatchEvent(new CustomEvent('trefs-inserted', { 
-         detail: { count: 0, error: 'Missing xtrefs data' } 
-      }));
-   }
+   processTerms(allXTrefs);
 }
 
 /**
@@ -231,11 +232,14 @@ function initializeOnTrefsInserted(initCallback) {
  * @listens DOMContentLoaded
  */
 document.addEventListener('DOMContentLoaded', () => {
-   // Check if allXTrefs is defined in the global scope
-   if (typeof allXTrefs !== 'undefined') {
+   if (typeof allXTrefs !== 'undefined' && allXTrefs?.xtrefs) {
       insertTrefs(allXTrefs);
    } else {
-      console.warn('allXTrefs is not available in the global scope. Transcluded references will not be inserted.');
+      console.error('allXTrefs is undefined or missing xtrefs property');
+      // Dispatch event even when there are no xrefs, so waiting code knows we're done
+      document.dispatchEvent(new CustomEvent('trefs-inserted', {
+         detail: { count: 0, error: 'Missing xtrefs data' }
+      }));
    }
 });
 
