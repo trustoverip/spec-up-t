@@ -35,7 +35,8 @@
                     "terms_dir": "spec/term-definitions"
                 }
             ],
-            "katex": false
+            "katex": false,
+            "anchor_symbol": "§"
         }
     ]
 }
