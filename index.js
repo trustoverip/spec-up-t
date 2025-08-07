@@ -191,7 +191,7 @@ module.exports = async function (options = {}) {
         tocFirstLevel: 2,
         tocLastLevel: 4,
         tocCallback: (_md, _tokens, html) => toc = html,
-        anchorLinkSymbol: '#', // was: §
+        anchorLinkSymbol: config.specs[0].anchor_symbol || '§',
         anchorClassName: 'toc-anchor d-print-none'
       })
       .use(require('@traptitech/markdown-it-katex'))
