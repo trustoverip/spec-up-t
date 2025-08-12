@@ -4,7 +4,7 @@
 
 ~ Refs examples: [[ref: Compost]], [[ref: Mulch]], [[ref: Fertilizer]].
 
-~ Xref example: [[xref: test-1, Aal]]
+~ Xref example: [[xref: KERISuite, composability ]]
 
 ~ This Xref example does not work: [[xref: does-not-exist, Foo]]
 
