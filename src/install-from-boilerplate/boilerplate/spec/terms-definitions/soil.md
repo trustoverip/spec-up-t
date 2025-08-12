@@ -9,5 +9,3 @@
 ~ This Xref example does not work: [[xref: does-not-exist, Foo]]
 
 ~ Soil quality affects water retention, nutrient availability, and plant health. Amending soil with compost or mulch can improve its structure and fertility. Fertilizer may be added to supplement nutrients as needed.
-
-~ Extra text for testing purposes.
