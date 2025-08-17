@@ -45,36 +45,49 @@ function findExternalSpecByKey(config, key) {
 
 async function fetchExternalSpecs(spec) {
   try {
-    let results = await Promise.all(
-      spec.external_specs.map(s => {
-        const url = s["gh_page"];
-        return axios.get(url).catch(error => ({ error, url }));
-      })
-    );
-
-    const failed = results.filter(r => r && r.error);
-    if (failed.length > 0) {
-      failed.forEach(f => {
-        const msg = f.error.response
-          ? `HTTP ${f.error.response.status} for ${f.url}`
-          : `Network error for ${f.url}: ${f.error.message}`;
-        console.error("❌ External spec fetch failed:", msg);
-      });
+    // Process external specs sequentially instead of all at once to avoid memory explosion
+    const results = [];
+    
+    console.log(`ℹ️ Processing ${spec.external_specs.length} external specs sequentially to manage memory usage...`);
+    
+    for (let i = 0; i < spec.external_specs.length; i++) {
+      const s = spec.external_specs[i];
+      const url = s["gh_page"];
+      
+      try {
+        console.log(`📥 Fetching external spec ${i + 1}/${spec.external_specs.length}: ${s.external_spec} from ${url}`);
+        
+        const response = await axios.get(url);
+        
+        if (response.status === 200) {
+          // Process immediately and discard the raw HTML to free memory
+          const processedResult = createNewDLWithTerms(s.external_spec, response.data);
+          results.push(processedResult);
+          
+          // Force garbage collection hint (response.data no longer referenced)
+          response.data = null;
+          
+          console.log(`✅ Processed external spec: ${s.external_spec}`);
+        } else {
+          console.log(`⚠️ Non-200 status for ${s.external_spec}: ${response.status}`);
+        }
+      } catch (error) {
+        const msg = error.response
+          ? `HTTP ${error.response.status} for ${url}`
+          : `Network error for ${url}: ${error.message}`;
+        console.error(`❌ External spec fetch failed: ${msg}`);
+        // Continue with next spec instead of failing completely
+      }
+      
+      // Small delay to allow garbage collection between requests
+      if (i < spec.external_specs.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
     }
 
-    // Map results to objects keyed by external_spec if status is 200, otherwise null.
-    // This ensures only successful fetches are included, and failed ones are filtered out.
-    results = results
-      .map((r, index) =>
-        r && r.status === 200
-          ? { [spec.external_specs[index].external_spec]: r.data }
-          : null
-      )
-      .filter(r => r); // Remove null values (failed fetches)
-
-    return results.map(r =>
-      createNewDLWithTerms(Object.keys(r)[0], Object.values(r)[0])
-    );
+    console.log(`✅ Successfully processed ${results.length}/${spec.external_specs.length} external specs`);
+    return results;
+    
   } catch (e) {
     console.error("❌ Unexpected error in fetchExternalSpecs:", e);
     return [];
@@ -83,27 +96,37 @@ async function fetchExternalSpecs(spec) {
 
 
 function createNewDLWithTerms(title, html) {
-  const dom = new JSDOM(html);
-  const document = dom.window.document;
+  try {
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
 
-  const newDl = document.createElement('dl');
-  newDl.setAttribute('id', title);
+    const newDl = document.createElement('dl');
+    newDl.setAttribute('id', title);
 
-  const terms = document.querySelectorAll('dt span[id^="term:"]');
+    const terms = document.querySelectorAll('dt span[id^="term:"]');
 
-  terms.forEach(term => {
-    const modifiedId = `term:${title}:${term.id.split(':')[1]}`;
-    term.id = modifiedId;
-    const dt = term.closest('dt');
-    const dd = dt.nextElementSibling;
+    terms.forEach(term => {
+      const modifiedId = `term:${title}:${term.id.split(':')[1]}`;
+      term.id = modifiedId;
+      const dt = term.closest('dt');
+      const dd = dt.nextElementSibling;
 
-    newDl.appendChild(dt.cloneNode(true));
-    if (dd && dd.tagName === 'DD') {
-      newDl.appendChild(dd.cloneNode(true));
-    }
-  });
+      newDl.appendChild(dt.cloneNode(true));
+      if (dd && dd.tagName === 'DD') {
+        newDl.appendChild(dd.cloneNode(true));
+      }
+    });
 
-  return newDl.outerHTML;
+    const result = newDl.outerHTML;
+    
+    // Explicitly cleanup DOM to help garbage collection
+    dom.window.close();
+    
+    return result;
+  } catch (error) {
+    console.error(`❌ Error processing external spec '${title}':`, error.message);
+    return `<dl id="${title}"><dt>Error loading external spec</dt><dd>Failed to process external specification</dd></dl>`;
+  }
 }
 
 module.exports = {
