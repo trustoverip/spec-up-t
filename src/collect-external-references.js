@@ -124,35 +124,57 @@ function extendXTrefs(config, xtrefs) {
         return;
     }
 
-    xtrefs.forEach(xtref => {
-        config.specs.forEach(spec => {
-            // Loop through "external_specs" to find the repository URL for each xtref
-            xtref.repoUrl = null;
-            xtref.terms_dir = null;
-            xtref.owner = null;
-            xtref.repo = null;
-
-            spec.external_specs.forEach(repo => {
-                if (repo.external_spec === xtref.externalSpec) {
-                    xtref.repoUrl = repo.url;
-                    xtref.terms_dir = repo.terms_dir;
-                    const urlParts = new URL(xtref.repoUrl).pathname.split('/');
-                    xtref.owner = urlParts[1];
-                    xtref.repo = urlParts[2];
-                    xtref.avatarUrl = repo.avatar_url;
-                    xtref.ghPageUrl = repo.gh_page; // Add GitHub Pages URL
-                }
-            });
-
-            // Loop through "external_specs" to find the site URL for each xtref
-            xtref.site = null;
-            spec?.external_specs?.forEach(externalSpec => {
-                const key = Object.keys(externalSpec)[0];
-                if (key === xtref.externalSpec) {
-                    xtref.site = externalSpec[key];
-                }
-            });
+    // Build lookup maps once instead of nested loops (O(1) vs O(n×m×k))
+    const repoLookup = new Map();
+    const siteLookup = new Map();
+    
+    config.specs.forEach(spec => {
+        spec.external_specs.forEach(repo => {
+            if (repo.external_spec) {
+                repoLookup.set(repo.external_spec, repo);
+            }
         });
+        
+        // Handle site URLs (assuming externalSpec is an object with key-value pairs)
+        spec?.external_specs?.forEach(externalSpec => {
+            if (typeof externalSpec === 'object' && externalSpec !== null) {
+                const keys = Object.keys(externalSpec);
+                if (keys.length > 0) {
+                    const key = keys[0];
+                    siteLookup.set(key, externalSpec[key]);
+                }
+            }
+        });
+    });
+
+    // Now process xtrefs with O(1) lookups
+    xtrefs.forEach(xtref => {
+        // Initialize fields
+        xtref.repoUrl = null;
+        xtref.terms_dir = null;
+        xtref.owner = null;
+        xtref.repo = null;
+        xtref.site = null;
+        
+        // Fast lookup for repo data
+        const repo = repoLookup.get(xtref.externalSpec);
+        if (repo) {
+            xtref.repoUrl = repo.url;
+            xtref.terms_dir = repo.terms_dir;
+            if (xtref.repoUrl) {
+                const urlParts = new URL(xtref.repoUrl).pathname.split('/');
+                xtref.owner = urlParts[1];
+                xtref.repo = urlParts[2];
+            }
+            xtref.avatarUrl = repo.avatar_url;
+            xtref.ghPageUrl = repo.gh_page;
+        }
+        
+        // Fast lookup for site URL
+        const site = siteLookup.get(xtref.externalSpec);
+        if (site) {
+            xtref.site = site;
+        }
     });
 }
 
