@@ -1,32 +1,32 @@
-const {JSDOM} = require("jsdom");
+const { JSDOM } = require("jsdom");
 const axios = require('axios').default;
 const fs = require('fs-extra');
-  
+
 const spaceRegex = /\s+/g;
 
 function validateReferences(references, definitions, render) {
   const unresolvedRefs = [];
   [...new Set(references)].forEach(
     ref => {
-      if(render.includes(`id="term:${ref.replace(spaceRegex, '-').toLowerCase()}"`)) {
+      if (render.includes(`id="term:${ref.replace(spaceRegex, '-').toLowerCase()}"`)) {
         // Reference is resolved
       } else {
         unresolvedRefs.push(ref);
       }
     }
   );
-  if (unresolvedRefs.length > 0 ) {
+  if (unresolvedRefs.length > 0) {
     console.log('ℹ️ Unresolved References: ', unresolvedRefs)
   }
-  
+
   const danglingDefs = [];
   definitions.forEach(defs => {
-    let found = defs.some(def => render.includes(`href="#term:${def.replace(spaceRegex, '-').toLowerCase()}"`)) 
+    let found = defs.some(def => render.includes(`href="#term:${def.replace(spaceRegex, '-').toLowerCase()}"`))
     if (!found) {
       danglingDefs.push(defs[0]);
     }
   })
-  if(danglingDefs.length > 0) {
+  if (danglingDefs.length > 0) {
     console.log('ℹ️ Dangling Definitions: ', danglingDefs)
   }
 }
@@ -65,7 +65,7 @@ async function fetchExternalSpecs(spec) {
 
     // Map results to extract terms instead of creating DOM HTML
     const extractedTerms = [];
-    
+
     results
       .map((r, index) =>
         r && r.status === 200
@@ -97,22 +97,22 @@ async function fetchExternalSpecs(spec) {
 async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPathJS) {
   try {
     let allXTrefs = { xtrefs: [] };
-    
+
     // Load existing xtrefs data if it exists
     if (fs.existsSync(outputPathJSON)) {
       allXTrefs = fs.readJsonSync(outputPathJSON);
     }
-    
+
     // Add xref terms to the allXTrefs structure
     // Mark them with source: 'xref' to distinguish from tref entries
     xrefTerms.forEach(xrefTerm => {
       // Check if this term already exists (avoid duplicates)
-      const existingIndex = allXTrefs.xtrefs.findIndex(existing => 
-        existing.externalSpec === xrefTerm.externalSpec && 
+      const existingIndex = allXTrefs.xtrefs.findIndex(existing =>
+        existing.externalSpec === xrefTerm.externalSpec &&
         existing.term === xrefTerm.term &&
         existing.source === 'xref'
       );
-      
+
       if (existingIndex >= 0) {
         // Update existing entry
         allXTrefs.xtrefs[existingIndex] = {
@@ -128,16 +128,16 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
         });
       }
     });
-    
+
     // Write the updated data back to files
     const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
     fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
-    
+
     const stringReadyForFileWrite = `const allXTrefs = ${allXTrefsStr};`;
     fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
-    
+
     console.log(`✅ Merged ${xrefTerms.length} xref terms into allXTrefs. Total entries: ${allXTrefs.xtrefs.length}`);
-    
+
   } catch (error) {
     console.error('❌ Error merging xref terms into allXTrefs:', error.message);
   }
@@ -161,10 +161,10 @@ function extractTermsFromHtml(externalSpec, html) {
     // Process terms in batches to prevent stack overflow with large datasets
     const BATCH_SIZE = 100;
     const totalElements = termElements.length;
-    
+
     for (let i = 0; i < totalElements; i += BATCH_SIZE) {
       const batch = Array.from(termElements).slice(i, i + BATCH_SIZE);
-      
+
       batch.forEach(termElement => {
         try {
           const termId = termElement.id;
@@ -182,14 +182,14 @@ function extractTermsFromHtml(externalSpec, html) {
               source: 'xref', // Distinguish from tref entries
               termId: `term:${externalSpec}:${termName}`, // Fully qualified term ID
             };
-            
+
             terms.push(termObj);
           }
         } catch (termError) {
           console.warn(`⚠️ Error processing term in ${externalSpec}:`, termError.message);
         }
       });
-      
+
       // Log progress for very large datasets
       if (totalElements > 1000 && i % (BATCH_SIZE * 10) === 0) {
         console.log(`📊 Processed ${Math.min(i + BATCH_SIZE, totalElements)}/${totalElements} terms from ${externalSpec}`);
@@ -198,7 +198,7 @@ function extractTermsFromHtml(externalSpec, html) {
 
     // Explicitly cleanup DOM to help garbage collection
     dom.window.close();
-    
+
     console.log(`✅ Extracted ${terms.length} terms from external spec: ${externalSpec}`);
     return terms;
 
@@ -232,10 +232,10 @@ function createNewDLWithTerms(title, html) {
   });
 
   const result = newDl.outerHTML;
-  
+
   // Explicitly cleanup DOM to help garbage collection
   dom.window.close();
-  
+
   return result;
 }
 
