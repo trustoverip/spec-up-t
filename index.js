@@ -11,7 +11,8 @@ module.exports = async function (options = {}) {
     const {
       fetchExternalSpecs,
       validateReferences,
-      findExternalSpecByKey
+      findExternalSpecByKey,
+      mergeXrefTermsIntoAllXTrefs
     } = require('./src/references.js');
 
     const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
@@ -93,10 +94,23 @@ module.exports = async function (options = {}) {
               // Get the URL for the external specification reference, or default to '#' if not found
               const externalSpec = findExternalSpecByKey(config, token.info.args[0]);
               const url = externalSpec?.gh_page || '#';
-
-              const term = token.info.args[1].replace(spaceRegex, '-').toLowerCase();
-              return `<a class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}"
-              href="${url}#term:${term}">${token.info.args[1]}</a>`;
+              
+              const termName = token.info.args[1];
+              const term = termName.replace(spaceRegex, '-').toLowerCase();
+              
+              // Look up the term content from allXTrefs data
+              const xrefTerm = lookupXrefTerm(token.info.args[0], term);
+              
+              // Create link with optional tooltip data from allXTrefs
+              let linkAttributes = `class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}" href="${url}#term:${term}"`;
+              
+              if (xrefTerm && xrefTerm.content) {
+                // Add tooltip data if term content is available
+                const cleanContent = xrefTerm.content.replace(/"/g, '&quot;').replace(/\n/g, ' ');
+                linkAttributes += ` title="External term definition" data-term-content="${cleanContent}"`;
+              }
+              
+              return `<a ${linkAttributes}>${termName}</a>`;
             }
             else if (type === 'tref') {
               // Support tref with optional alias: [[tref: spec, term, alias]]
@@ -227,6 +241,39 @@ module.exports = async function (options = {}) {
     const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
 
     /**
+     * Looks up an xref term from the allXTrefs data
+     * @param {string} externalSpec - The external spec identifier
+     * @param {string} termName - The term name to look up
+     * @returns {Object|null} The term object if found, null otherwise
+     */
+    function lookupXrefTerm(externalSpec, termName) {
+      try {
+        const xtrefsPath = path.join('.cache', 'xtrefs-data.json');
+        if (!fs.existsSync(xtrefsPath)) {
+          return null;
+        }
+        
+        const allXTrefs = fs.readJsonSync(xtrefsPath);
+        if (!allXTrefs || !allXTrefs.xtrefs) {
+          return null;
+        }
+        
+        // Look for xref term (source: 'xref') matching the external spec and term
+        const termKey = termName.replace(spaceRegex, '-').toLowerCase();
+        const foundTerm = allXTrefs.xtrefs.find(xtref => 
+          xtref.externalSpec === externalSpec && 
+          xtref.term === termKey &&
+          xtref.source === 'xref'
+        );
+        
+        return foundTerm || null;
+      } catch (error) {
+        console.warn(`⚠️ Error looking up xref term ${externalSpec}:${termName}:`, error.message);
+        return null;
+      }
+    }
+
+    /**
      * Processes custom tag patterns in markdown content and applies transformation functions.
      * 
      * This function scans the document for special tag patterns like [[tref:spec,term]]
@@ -320,7 +367,18 @@ module.exports = async function (options = {}) {
 
         const features = (({ source, logo }) => ({ source, logo }))(spec);
         if (spec.external_specs && !externalReferences) {
-          externalReferences = await fetchExternalSpecs(spec);
+          // Fetch xref terms and merge them into allXTrefs instead of creating DOM HTML
+          const xrefTerms = await fetchExternalSpecs(spec);
+          
+          // Define paths for the xtrefs data files
+          const outputPathJSON = path.join('.cache', 'xtrefs-data.json');
+          const outputPathJS = path.join('.cache', 'xtrefs-data.js');
+          
+          // Merge xref terms into the unified allXTrefs structure
+          await mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPathJS);
+          
+          // Set flag to indicate external references have been processed
+          externalReferences = true; // Changed from HTML array to boolean flag
         }
 
         // Find the index of the terms-and-definitions-intro.md file
@@ -355,10 +413,8 @@ module.exports = async function (options = {}) {
         // Phase 3: Post-processing - Restore escaped sequences as literals
         renderedHtml = restoreEscapedTags(renderedHtml);
 
-        // Process external references to ensure they are inserted as raw HTML, not as JSON string
-        const externalReferencesHtml = Array.isArray(externalReferences) 
-          ? externalReferences.join('') 
-          : (externalReferences || '');
+        // External references are now stored in allXTrefs instead of DOM HTML
+        // No longer need to inject external references HTML into the template
 
         const templateInterpolated = interpolate(template, {
           title: spec.title,
@@ -370,7 +426,7 @@ module.exports = async function (options = {}) {
           assetsBody: assets.body,
           assetsSvg: assets.svg,
           features: Object.keys(features).join(' '),
-          externalReferences: externalReferencesHtml,
+          externalReferences: '', // No longer inject DOM HTML - xrefs are in allXTrefs
           xtrefsData: xtrefsData,
           specLogo: spec.logo,
           specFavicon: spec.favicon,

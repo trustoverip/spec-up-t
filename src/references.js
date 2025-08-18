@@ -1,5 +1,6 @@
 const {JSDOM} = require("jsdom");
 const axios = require('axios').default;
+const fs = require('fs-extra');
   
 const spaceRegex = /\s+/g;
 
@@ -62,19 +63,23 @@ async function fetchExternalSpecs(spec) {
       });
     }
 
-    // Map results to objects keyed by external_spec if status is 200, otherwise null.
-    // This ensures only successful fetches are included, and failed ones are filtered out.
-    results = results
+    // Map results to extract terms instead of creating DOM HTML
+    const extractedTerms = [];
+    
+    results
       .map((r, index) =>
         r && r.status === 200
-          ? { [spec.external_specs[index].external_spec]: r.data }
+          ? { externalSpec: spec.external_specs[index].external_spec, data: r.data }
           : null
       )
-      .filter(r => r); // Remove null values (failed fetches)
+      .filter(r => r) // Remove null values (failed fetches)
+      .forEach(r => {
+        // Extract terms from each external spec's HTML
+        const termsFromSpec = extractTermsFromHtml(r.externalSpec, r.data);
+        extractedTerms.push(...termsFromSpec);
+      });
 
-    return results.map(r =>
-      createNewDLWithTerms(Object.keys(r)[0], Object.values(r)[0])
-    );
+    return extractedTerms;
   } catch (e) {
     console.error("❌ Unexpected error in fetchExternalSpecs:", e);
     return [];
@@ -82,7 +87,116 @@ async function fetchExternalSpecs(spec) {
 }
 
 
+/**
+ * Merges xref terms from external specs into the allXTrefs structure
+ * @param {Array} xrefTerms - Array of xref term objects from fetchExternalSpecs
+ * @param {string} outputPathJSON - Path to the xtrefs-data.json file
+ * @param {string} outputPathJS - Path to the xtrefs-data.js file
+ * @returns {Promise<void>}
+ */
+async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPathJS) {
+  try {
+    let allXTrefs = { xtrefs: [] };
+    
+    // Load existing xtrefs data if it exists
+    if (fs.existsSync(outputPathJSON)) {
+      allXTrefs = fs.readJsonSync(outputPathJSON);
+    }
+    
+    // Add xref terms to the allXTrefs structure
+    // Mark them with source: 'xref' to distinguish from tref entries
+    xrefTerms.forEach(xrefTerm => {
+      // Check if this term already exists (avoid duplicates)
+      const existingIndex = allXTrefs.xtrefs.findIndex(existing => 
+        existing.externalSpec === xrefTerm.externalSpec && 
+        existing.term === xrefTerm.term &&
+        existing.source === 'xref'
+      );
+      
+      if (existingIndex >= 0) {
+        // Update existing entry
+        allXTrefs.xtrefs[existingIndex] = {
+          ...allXTrefs.xtrefs[existingIndex],
+          ...xrefTerm,
+          lastUpdated: new Date().toISOString()
+        };
+      } else {
+        // Add new entry
+        allXTrefs.xtrefs.push({
+          ...xrefTerm,
+          lastUpdated: new Date().toISOString()
+        });
+      }
+    });
+    
+    // Write the updated data back to files
+    const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
+    fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
+    
+    const stringReadyForFileWrite = `const allXTrefs = ${allXTrefsStr};`;
+    fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
+    
+    console.log(`✅ Merged ${xrefTerms.length} xref terms into allXTrefs. Total entries: ${allXTrefs.xtrefs.length}`);
+    
+  } catch (error) {
+    console.error('❌ Error merging xref terms into allXTrefs:', error.message);
+  }
+}
+
+/**
+ * Extracts terms and their definitions from HTML and returns them as structured data
+ * @param {string} externalSpec - The external spec identifier
+ * @param {string} html - The HTML content to parse
+ * @returns {Array} Array of term objects suitable for the allXTrefs structure
+ */
+function extractTermsFromHtml(externalSpec, html) {
+  try {
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
+    const terms = [];
+
+    const termElements = document.querySelectorAll('dt span[id^="term:"]');
+
+    termElements.forEach(termElement => {
+      try {
+        const termId = termElement.id;
+        const termName = termId.replace('term:', '');
+        const dt = termElement.closest('dt');
+        const dd = dt.nextElementSibling;
+
+        if (dd && dd.tagName === 'DD') {
+          // Create term object compatible with allXTrefs structure
+          const termObj = {
+            externalSpec: externalSpec,
+            term: termName,
+            content: dd.outerHTML, // Store the complete DD content
+            // Add metadata for consistency with tref structure
+            source: 'xref', // Distinguish from tref entries
+            termId: `term:${externalSpec}:${termName}`, // Fully qualified term ID
+          };
+          
+          terms.push(termObj);
+        }
+      } catch (termError) {
+        console.warn(`⚠️ Error processing term in ${externalSpec}:`, termError.message);
+      }
+    });
+
+    // Explicitly cleanup DOM to help garbage collection
+    dom.window.close();
+    
+    console.log(`✅ Extracted ${terms.length} terms from external spec: ${externalSpec}`);
+    return terms;
+
+  } catch (error) {
+    console.error(`❌ Error extracting terms from external spec '${externalSpec}':`, error.message);
+    return [];
+  }
+}
+
 function createNewDLWithTerms(title, html) {
+  console.warn('⚠️ createNewDLWithTerms is deprecated - use extractTermsFromHtml instead');
+  // Keep this function for backward compatibility but mark as deprecated
   const dom = new JSDOM(html);
   const document = dom.window.document;
 
@@ -103,12 +217,19 @@ function createNewDLWithTerms(title, html) {
     }
   });
 
-  return newDl.outerHTML;
+  const result = newDl.outerHTML;
+  
+  // Explicitly cleanup DOM to help garbage collection
+  dom.window.close();
+  
+  return result;
 }
 
 module.exports = {
   findExternalSpecByKey,
   validateReferences,
   fetchExternalSpecs,
+  extractTermsFromHtml,
+  mergeXrefTermsIntoAllXTrefs,
   createNewDLWithTerms
 }
