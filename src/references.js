@@ -155,32 +155,46 @@ function extractTermsFromHtml(externalSpec, html) {
     const document = dom.window.document;
     const terms = [];
 
-    const termElements = document.querySelectorAll('dt span[id^="term:"]');
+    const termElements = document.querySelectorAll('dl.terms-and-definitions-list dt');
+    console.log(`🔍 Found ${termElements.length} term elements in ${externalSpec} (HTML size: ${Math.round(html.length / 1024)}KB)`);
 
-    termElements.forEach(termElement => {
-      try {
-        const termId = termElement.id;
-        const termName = termId.replace('term:', '');
-        const dt = termElement.closest('dt');
-        const dd = dt.nextElementSibling;
+    // Process terms in batches to prevent stack overflow with large datasets
+    const BATCH_SIZE = 100;
+    const totalElements = termElements.length;
+    
+    for (let i = 0; i < totalElements; i += BATCH_SIZE) {
+      const batch = Array.from(termElements).slice(i, i + BATCH_SIZE);
+      
+      batch.forEach(termElement => {
+        try {
+          const termId = termElement.id;
+          const termName = termId.replace('term:', '');
+          const dt = termElement.closest('dt');
+          const dd = dt.nextElementSibling;
 
-        if (dd && dd.tagName === 'DD') {
-          // Create term object compatible with allXTrefs structure
-          const termObj = {
-            externalSpec: externalSpec,
-            term: termName,
-            content: dd.outerHTML, // Store the complete DD content
-            // Add metadata for consistency with tref structure
-            source: 'xref', // Distinguish from tref entries
-            termId: `term:${externalSpec}:${termName}`, // Fully qualified term ID
-          };
-          
-          terms.push(termObj);
+          if (dd && dd.tagName === 'DD') {
+            // Create term object compatible with allXTrefs structure
+            const termObj = {
+              externalSpec: externalSpec,
+              term: termName,
+              content: dd.outerHTML, // Store the complete DD content
+              // Add metadata for consistency with tref structure
+              source: 'xref', // Distinguish from tref entries
+              termId: `term:${externalSpec}:${termName}`, // Fully qualified term ID
+            };
+            
+            terms.push(termObj);
+          }
+        } catch (termError) {
+          console.warn(`⚠️ Error processing term in ${externalSpec}:`, termError.message);
         }
-      } catch (termError) {
-        console.warn(`⚠️ Error processing term in ${externalSpec}:`, termError.message);
+      });
+      
+      // Log progress for very large datasets
+      if (totalElements > 1000 && i % (BATCH_SIZE * 10) === 0) {
+        console.log(`📊 Processed ${Math.min(i + BATCH_SIZE, totalElements)}/${totalElements} terms from ${externalSpec}`);
       }
-    });
+    }
 
     // Explicitly cleanup DOM to help garbage collection
     dom.window.close();
