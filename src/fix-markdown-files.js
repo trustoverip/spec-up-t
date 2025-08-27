@@ -41,7 +41,7 @@ function processDefLines(lines) {
             
             // Check if term has a definition
             if (!hasDefinition(result, insertIndex)) {
-                result.splice(insertIndex, 0, '', '~ No local definition found.', '');
+                result.splice(insertIndex, 0, '', '-', '');
                 modified = true;
             }
         }
