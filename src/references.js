@@ -208,42 +208,10 @@ function extractTermsFromHtml(externalSpec, html) {
   }
 }
 
-function createNewDLWithTerms(title, html) {
-  console.warn('⚠️ createNewDLWithTerms is deprecated - use extractTermsFromHtml instead');
-  // Keep this function for backward compatibility but mark as deprecated
-  const dom = new JSDOM(html);
-  const document = dom.window.document;
-
-  const newDl = document.createElement('dl');
-  newDl.setAttribute('id', title);
-
-  const terms = document.querySelectorAll('dt span[id^="term:"]');
-
-  terms.forEach(term => {
-    const modifiedId = `term:${title}:${term.id.split(':')[1]}`;
-    term.id = modifiedId;
-    const dt = term.closest('dt');
-    const dd = dt.nextElementSibling;
-
-    newDl.appendChild(dt.cloneNode(true));
-    if (dd && dd.tagName === 'DD') {
-      newDl.appendChild(dd.cloneNode(true));
-    }
-  });
-
-  const result = newDl.outerHTML;
-
-  // Explicitly cleanup DOM to help garbage collection
-  dom.window.close();
-
-  return result;
-}
-
 module.exports = {
   findExternalSpecByKey,
   validateReferences,
   fetchExternalSpecs,
   extractTermsFromHtml,
-  mergeXrefTermsIntoAllXTrefs,
-  createNewDLWithTerms
+  mergeXrefTermsIntoAllXTrefs
 }
