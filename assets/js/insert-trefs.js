@@ -29,9 +29,20 @@ function insertTrefs(allXTrefs) {
       const allTerms = [];
 
       document.querySelectorAll('dl.terms-and-definitions-list dt span.transcluded-xref-term').forEach((termElement) => {
+         
          // Get the full text content including any nested spans (for aliases) of a term (dt)
          // In case of `[[tref:toip1, agency, ag]]`, this will return `agency`
-         const textContent = termElement.textContent.trim();
+         // const textContent = termElement.textContent.trim();
+
+         /*
+            We used to do this: Get the full text content including any nested spans (for aliases) of a term (dt):
+            `const textContent = termElement.textContent.trim();`
+            (In case of `[[tref:toip1, agency, ag]]`, this will return `agency`)
+
+            We cannot use the textContent directly anymore because it may not match the original term, since that can be the alias. That is why we use data-original-term.
+            In case of `[[tref:toip1, agency, ag]]`, this will always return `agency`, regardless if the alias is used or not, since the original term is stored in data-original-term
+         */
+         const originalTerm = termElement.dataset.originalTerm;
 
          // Find the dt element once outside the loop
          const dt = termElement.closest('dt');
@@ -48,7 +59,7 @@ function insertTrefs(allXTrefs) {
          // Only add terms that haven't been processed yet
          allTerms.push({
             element: termElement,
-            textContent: textContent,
+            textContent: originalTerm,
             dt: dt,
             parent: dt?.parentNode
          });
@@ -60,14 +71,14 @@ function insertTrefs(allXTrefs) {
        * @type {Array<{dt: Element, parent: Element, fragment: DocumentFragment}>}
        */
       const domChanges = allTerms.map(termData => {
-         const { textContent, dt, parent } = termData;
+         const { textContent: originalTerm, dt, parent } = termData;
 
          if (!dt || !parent) {
             return null; // Skip invalid entries
          }
 
          // Find the first matching xref to avoid duplicates
-         const xref = xtrefsData.xtrefs.find(x => x.term === textContent);
+         const xref = xtrefsData.xtrefs.find(x => x.term === originalTerm);
          
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
@@ -86,6 +97,7 @@ function insertTrefs(allXTrefs) {
             const metaInfo = `
 | Property | Value |
 | -------- | ----- |
+| Original Term | ${originalTerm} |
 | Owner | ${avatar} ${owner} |
 | Repo | ${repo} |
 | Commit hash | ${commitHash} |

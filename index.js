@@ -116,16 +116,17 @@ module.exports = async function (options = {}) {
               // Support tref with optional alias: [[tref: spec, term, alias]]
               const termName = token.info.args[1];
               const alias = token.info.args[2]; // Optional alias
-              
+              const publishedTermName = alias ? alias : termName;
+
               // Create IDs for both the original term and the alias to enable referencing by either
               const termId = `term:${termName.replace(spaceRegex, '-').toLowerCase()}`;
               const aliasId = alias ? `term:${alias.replace(spaceRegex, '-').toLowerCase()}` : '';
               
               // Return the term structure similar to def, so it can be processed by markdown-it's definition list parser
               if (aliasId && alias !== termName) {
-                return `<span class="transcluded-xref-term" id="${termId}"><span id="${aliasId}">${termName}</span></span>`;
+                return `<span data-original-term="${termName}" class="transcluded-xref-term" id="${termId}"><span title="Externally defined as ${termName}" id="${aliasId}">${publishedTermName}</span></span>`;
               } else {
-                return `<span class="transcluded-xref-term" id="${termId}">${termName}</span>`;
+                return `<span title="Externally also defined as ${termName}" data-original-term="${termName}" class="transcluded-xref-term" id="${termId}">${publishedTermName}</span>`;
               }
             }
             else {
