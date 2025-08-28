@@ -1,4 +1,4 @@
-const { JSDOM } = require("jsdom");
+const cheerio = require("cheerio");
 const axios = require('axios').default;
 const fs = require('fs-extra');
 
@@ -151,11 +151,10 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
  */
 function extractTermsFromHtml(externalSpec, html) {
   try {
-    const dom = new JSDOM(html);
-    const document = dom.window.document;
+    const $ = cheerio.load(html);
     const terms = [];
 
-    const termElements = document.querySelectorAll('dl.terms-and-definitions-list dt');
+    const termElements = $('dl.terms-and-definitions-list dt');
     console.log(`🔍 Found ${termElements.length} term elements in ${externalSpec} (HTML size: ${Math.round(html.length / 1024)}KB)`);
 
     // Process terms in batches to prevent stack overflow with large datasets
@@ -163,21 +162,27 @@ function extractTermsFromHtml(externalSpec, html) {
     const totalElements = termElements.length;
 
     for (let i = 0; i < totalElements; i += BATCH_SIZE) {
-      const batch = Array.from(termElements).slice(i, i + BATCH_SIZE);
+      const batch = termElements.slice(i, i + BATCH_SIZE);
 
-      batch.forEach(termElement => {
+      batch.each((index, termElement) => {
         try {
-          const termId = termElement.id;
+          const $termElement = $(termElement);
+          const termId = $termElement.attr('id');
+          
+          // Skip elements without an id attribute or with invalid id format
+          if (!termId || !termId.includes('term:')) {
+            return;
+          }
+          
           const termName = termId.replace('term:', '');
-          const dt = termElement.closest('dt');
-          const dd = dt.nextElementSibling;
+          const dd = $termElement.next('dd');
 
-          if (dd && dd.tagName === 'DD') {
+          if (dd.length > 0) {
             // Create term object compatible with allXTrefs structure
             const termObj = {
               externalSpec: externalSpec,
               term: termName,
-              content: dd.outerHTML, // Store the complete DD content
+              content: $.html(dd), // Store the complete DD content
               // Add metadata for consistency with tref structure
               source: 'xref', // Distinguish from tref entries
               termId: `term:${externalSpec}:${termName}`, // Fully qualified term ID
@@ -195,9 +200,6 @@ function extractTermsFromHtml(externalSpec, html) {
         console.log(`📊 Processed ${Math.min(i + BATCH_SIZE, totalElements)}/${totalElements} terms from ${externalSpec}`);
       }
     }
-
-    // Explicitly cleanup DOM to help garbage collection
-    dom.window.close();
 
     console.log(`✅ Extracted ${terms.length} terms from external spec: ${externalSpec}`);
     return terms;
