@@ -41,7 +41,7 @@ function processDefLines(lines) {
             
             // Check if term has a definition
             if (!hasDefinition(result, insertIndex)) {
-                result.splice(insertIndex, 0, '', '-', '');
+                result.splice(insertIndex, 0, '', '- - -', '');
                 modified = true;
             }
         }
