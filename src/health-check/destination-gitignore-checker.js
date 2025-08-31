@@ -12,6 +12,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const fileOpener = require('../utils/file-opener');
+const Logger = require('../utils/logger');
 
 /**
  * Checks if a path is gitignored
@@ -30,7 +31,7 @@ function isPathGitIgnored(projectRoot, targetPath) {
     });
     return result.status === 0; // Path is ignored (command exited with status 0)
   } catch (error) {
-    console.log(`Error checking if path is gitignored: ${error.message}`);
+    Logger.info(`Error checking if path is gitignored: ${error.message}`);
     return false; // Path is not ignored (command exited with non-zero status)
   }
 }
@@ -398,7 +399,7 @@ async function checkDestinationGitIgnore(projectRoot) {
     
     return results;
   } catch (error) {
-    console.error('Error checking final destination directory gitignore status:', error);
+    Logger.error('Error checking final destination directory gitignore status:', error);
     return [{
       name: 'Final destination directory gitignore check',
       success: false,

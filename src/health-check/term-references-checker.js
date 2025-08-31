@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const Logger = require('../utils/logger');
 
 /**
  * Extracts the spec name from a tref tag at the beginning of a markdown file
@@ -19,7 +20,7 @@ function extractSpecNameFromTref(firstLine) {
       return match[1].trim();
     }
   } catch (error) {
-    console.error('Error extracting spec name from tref:', error);
+    Logger.error('Error extracting spec name from tref:', error);
   }
   
   return null;
@@ -254,7 +255,7 @@ async function checkTermReferences(projectRoot) {
     
     return results;
   } catch (error) {
-    console.error('Error checking term references:', error);
+    Logger.error('Error checking term references:', error);
     return [{
       name: 'Term references check',
       success: false,

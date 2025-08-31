@@ -12,9 +12,11 @@
  *         Returns a message indicating no specifications were found if the configuration is invalid or empty.
  */
 
+const Logger = require('./utils/logger');
+
 module.exports = function createExternalSpecsList(config) {
     if (!config?.specs?.length || !Array.isArray(config.specs)) {
-        console.warn('❌ Invalid config format. Expected an object with a specs array.');
+        Logger.warn('Invalid config format. Expected an object with a specs array.');
         return '<p>No external specifications found.</p>';
     }
 

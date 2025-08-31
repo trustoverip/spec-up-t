@@ -10,6 +10,7 @@
 
 const fs = require('fs');
 const readlineSync = require('readline-sync');
+const Logger = require('./utils/logger');
 
 let errorFound = false;
 
@@ -34,7 +35,7 @@ function checkKeysSync(object, expectedKeys, parentKey = '') {
         } else if (typeof object === 'object') {
             // If the key is missing from the object, log an error
             if (!(key in object)) {
-                console.error(`❌ Error: Missing key '${key}' in ${parentKey}\n   We cannot guarantee that Spec-Up-T will work properly.\n   Here is an example specs.json file:\n   https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-boilerplate/specs.json`);
+                Logger.error(`Error: Missing key '${key}' in ${parentKey}\n   We cannot guarantee that Spec-Up-T will work properly.\n   Here is an example specs.json file:\n   https://github.com/trustoverip/spec-up-t-starter-pack/blob/main/spec-up-t-boilerplate/specs.json`);
                 errorFound = true;
                 pauseForEnterSync(); // Pause synchronously to allow user to acknowledge the error
             }
@@ -85,7 +86,7 @@ function runJsonKeyValidatorSync() {
 
     // Iterate over each spec entry in the specs array from the JSON file
     for (let [index, spec] of data.specs.entries()) {
-        console.log(`ℹ️ Checking spec #${index + 1}`);
+        Logger.info(`Checking spec #${index + 1}`);
 
         // Check for keys defined in expectedKeys.specs
         checkKeysSync(spec, expectedKeys.specs, `specs[${index}]`);
@@ -108,7 +109,7 @@ function runJsonKeyValidatorSync() {
 
     // If no errors were found, print a success message
     if (!errorFound) {
-        console.log('✅ All keys are present. No errors found. Continuing…');
+        Logger.success('All keys are present. No errors found. Continuing…');
     }
 }
 

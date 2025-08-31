@@ -14,6 +14,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
+const Logger = require('./utils/logger');
 
 function createVersionsIndex(outputPath) {
     // Directory containing the version files
@@ -22,7 +23,7 @@ function createVersionsIndex(outputPath) {
     // Check if the directory that holds the versions / snapshots exists, if not create it
     if (!fs.existsSync(versionsDir)) {
         fs.mkdirSync(versionsDir, { recursive: true });
-        console.log('Directory created:', versionsDir);
+        Logger.info('Directory created:', versionsDir);
     }
     
     // Get all directories in the destination directory
@@ -71,9 +72,9 @@ function createVersionsIndex(outputPath) {
     const indexPath = path.join(versionsDir, 'index.html');
     fs.writeFile(indexPath, htmlContent, (err) => {
         if (err) {
-            console.error(`❌ Error writing index file: ${err}`);
+            Logger.error(`Error writing index file: ${err}`);
         } else {
-            console.log(`✅ Index file created at ${indexPath}`);
+            Logger.success(`Index file created at ${indexPath}`);
         }
     });
 }

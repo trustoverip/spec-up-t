@@ -1,4 +1,5 @@
 const { initialize } = require('./src/init');
+const Logger = require('./src/utils/logger');
 
 module.exports = async function (options = {}) {
   try {
@@ -269,7 +270,7 @@ module.exports = async function (options = {}) {
         
         return foundTerm || null;
       } catch (error) {
-        console.warn(`⚠️ Error looking up xref term ${externalSpec}:${termName}:`, error.message);
+        Logger.warn(`Error looking up xref term ${externalSpec}:${termName}:`, error.message);
         return null;
       }
     }
@@ -347,7 +348,7 @@ module.exports = async function (options = {}) {
       try {
         noticeTitles = {};
         specGroups = {};
-        console.log('ℹ️ Rendering: ' + spec.title);
+        Logger.info('Rendering: ' + spec.title);
 
         function interpolate(template, variables) {
           return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
@@ -438,17 +439,17 @@ module.exports = async function (options = {}) {
         });
 
         const outputPath = path.join(spec.destination, 'index.html');
-        console.log('ℹ️ Attempting to write to:', outputPath);
+        Logger.info('Attempting to write to:', outputPath);
 
         // Use promisified version instead of callback
         await fs.promises.writeFile(outputPath, templateInterpolated, 'utf8');
-        console.log(`✅ Successfully wrote ${outputPath}`);
+        Logger.success(`Successfully wrote ${outputPath}`);
 
         validateReferences(references, definitions, renderedHtml);
         references = [];
         definitions = [];
       } catch (e) {
-        console.error("❌ Render error: " + e.message);
+        Logger.error("Render error: " + e.message);
         throw e;
       }
     }
@@ -461,20 +462,20 @@ module.exports = async function (options = {}) {
         if (!fs.existsSync(spec.destination)) {
           try {
             fs.mkdirSync(spec.destination, { recursive: true });
-            console.log(`✅ Created directory: ${spec.destination}`);
+            Logger.success(`Created directory: ${spec.destination}`);
           } catch (error) {
-            console.error(`❌ Failed to create directory ${spec.destination}: ${error.message}`);
+            Logger.error(`Failed to create directory ${spec.destination}: ${error.message}`);
             throw error;
           }
         } else {
-          console.log(`ℹ️ Directory already exists: ${spec.destination}`);
+          Logger.info(`Directory already exists: ${spec.destination}`);
         }
 
         try {
           fs.ensureDirSync(spec.destination);
-          console.log(`✅ Ensured directory is ready: ${spec.destination}`);
+          Logger.success(`Ensured directory is ready: ${spec.destination}`);
         } catch (error) {
-          console.error(`❌ Failed to ensure directory ${spec.destination}: ${error.message}`);
+          Logger.error(`Failed to ensure directory ${spec.destination}: ${error.message}`);
           throw error;
         }
 
@@ -528,14 +529,14 @@ module.exports = async function (options = {}) {
         // Run render and wait for it
         render(spec, assetTags)
           .then(() => {
-            console.log('ℹ️ Render completed for:', spec.destination);
+            Logger.info('Render completed for:', spec.destination);
             if (options.nowatch) {
-              console.log('ℹ️ Exiting with nowatch');
+              Logger.info('Exiting with nowatch');
               process.exit(0);
             }
           })
           .catch((e) => {
-            console.error('❌ Render failed:', e.message);
+            Logger.error('Render failed:', e.message);
             process.exit(1);
           });
 
@@ -548,11 +549,11 @@ module.exports = async function (options = {}) {
 
       });
     } catch (error) {
-      console.error(`Error during initialization or module execution: ${error.message}`);
+      Logger.error(`Error during initialization or module execution: ${error.message}`);
       throw error; // Re-throw to let the caller handle the error
     }
   } catch (error) {
-    console.error(`Error during initialization: ${error.message}`);
+    Logger.error(`Error during initialization: ${error.message}`);
     throw error; // Re-throw to let the caller handle the error
   }
 };
