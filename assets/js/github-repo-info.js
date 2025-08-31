@@ -80,11 +80,58 @@ function getCurrentBranchUrl() {
     return `https://github.com/${repoInfo.username}/${repoInfo.repo}/tree/${repoInfo.branch}`;
 }
 
+/**
+ * Populates the repository information in the settings menu
+ * This function is called when the page loads to display repo info
+ */
+function populateRepoInfoInSettings() {
+    const repoInfo = getGithubRepoInfo();
+    
+    // Get DOM elements for repository info display
+    const accountElement = document.getElementById('repo-account');
+    const nameElement = document.getElementById('repo-name');
+    const branchElement = document.getElementById('repo-branch');
+    const urlElement = document.getElementById('repo-url');
+    
+    if (!accountElement || !nameElement || !branchElement || !urlElement) {
+        console.warn('Repository info elements not found in settings menu');
+        return;
+    }
+    
+    if (repoInfo) {
+        // Populate the information
+        accountElement.textContent = repoInfo.username;
+        nameElement.textContent = repoInfo.repo;
+        branchElement.textContent = repoInfo.branch;
+        
+        // Set up the GitHub link
+        const repoUrl = getGithubUrl();
+        if (repoUrl) {
+            urlElement.href = repoUrl;
+            urlElement.style.display = 'inline-block';
+        } else {
+            urlElement.style.display = 'none';
+        }
+    } else {
+        // Handle case where no repository info is available
+        accountElement.textContent = 'Not available';
+        nameElement.textContent = 'Not available';
+        branchElement.textContent = 'Not available';
+        urlElement.style.display = 'none';
+    }
+}
+
+// Initialize repository info when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    populateRepoInfoInSettings();
+});
+
 // Make functions available globally if not using modules
 if (typeof window !== 'undefined') {
     window.getGithubRepoInfo = getGithubRepoInfo;
     window.getGithubUrl = getGithubUrl;
     window.getCurrentBranchUrl = getCurrentBranchUrl;
+    window.populateRepoInfoInSettings = populateRepoInfoInSettings;
 }
 
 // Export for module usage

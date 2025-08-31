@@ -109,6 +109,10 @@
             <path
                 d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
         </symbol>
+        <symbol id="box-arrow-up-right" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
+            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+        </symbol>
     </svg>
 
     <header id="header" class="navbar sticky-top p-0 shadow">
@@ -258,6 +262,36 @@
             <hr>
             <p class="ps-3 pe-3">External specifications:</p>
             ${externalSpecsList}
+            <hr>
+            <div class="ps-3 pe-3">
+                <p class="mb-2 fw-bold">Repository Information:</p>
+                <div id="github-repo-info" class="small text-muted">
+                    <div class="d-flex align-items-center mb-1">
+                        <svg class="bi me-2" width="16" height="16" fill="currentColor">
+                            <use xlink:href="#person-circle"/>
+                        </svg>
+                        <span>Account: <span id="repo-account">-</span></span>
+                    </div>
+                    <div class="d-flex align-items-center mb-1">
+                        <svg class="bi me-2" width="16" height="16" fill="currentColor">
+                            <use xlink:href="#file-earmark"/>
+                        </svg>
+                        <span>Repository: <span id="repo-name">-</span></span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <svg class="bi me-2" width="16" height="16" fill="currentColor">
+                            <use xlink:href="#list"/>
+                        </svg>
+                        <span>Branch: <span id="repo-branch">-</span></span>
+                    </div>
+                    <a id="repo-url" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
+                        <svg class="bi me-1" width="14" height="14" fill="currentColor">
+                            <use xlink:href="#box-arrow-up-right"/>
+                        </svg>
+                        View on GitHub
+                    </a>
+                </div>
+            </div>
             <hr>
             <p id="w3c-state">W3C Recommendation, ${currentDate}</p>
         </div>
