@@ -30,7 +30,7 @@ class Logger {
      * Info messages - blue with info symbol
      */
     static info(message, ...args) {
-        console.log(chalk.blue('ℹ️'), chalk.blue(message), ...args);
+        console.log(chalk.blue('💡'), chalk.blue(message), ...args);
     }
 
     /**
