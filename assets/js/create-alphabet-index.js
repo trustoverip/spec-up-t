@@ -30,15 +30,30 @@ function createAlphabetIndex() {
         }
     });
 
+    // Create first row for alphabet index using Bootstrap classes
+    const alphabetRow = document.createElement("div");
+    alphabetRow.className = "row mb-2";
+    
+    const alphabetCol = document.createElement("div");
+    alphabetCol.className = "col-12";
+    
     const alphabetIndexContainer = document.createElement("div");
-    alphabetIndexContainer.className = "alphabet-index-container";
+    alphabetIndexContainer.className = "d-flex flex-wrap justify-content-center gap-2";
 
-    // Create number of terms element
-    const numberOfTerms = document.createElement("p");
-    numberOfTerms.className = "number-of-terms";
-    numberOfTerms.textContent = `– There are ${dtElements.length} terms –`;
+    // Create second row for everything else using Bootstrap classes
+    const utilityRow = document.createElement("div");
+    utilityRow.className = "row";
+    utilityRow.id = "utility-row";
+    
+    const utilityCol = document.createElement("div");
+    utilityCol.className = "col-12 d-flex flex-wrap justify-content-between align-items-center gap-2";
 
-    terminologySectionUtilityContainer.appendChild(numberOfTerms);
+    // Create number of terms element for second row
+    const numberOfTerms = document.createElement("small");
+    numberOfTerms.className = "text-muted mb-0";
+    numberOfTerms.textContent = `${dtElements.length} terms`;
+
+    utilityCol.appendChild(numberOfTerms);
 
     /*
         The key advantage of localeCompare over simple comparison operators (<, >) is that it:
@@ -50,9 +65,18 @@ function createAlphabetIndex() {
         const link = document.createElement("a");
         link.href = `#${alphabetIndex[char]}`;
         link.textContent = char;
+        link.className = "btn btn-outline-secondary btn-sm";
         alphabetIndexContainer.appendChild(link);
     });
-    terminologySectionUtilityContainer.appendChild(alphabetIndexContainer);
+    
+    // Assemble the structure
+    alphabetCol.appendChild(alphabetIndexContainer);
+    alphabetRow.appendChild(alphabetCol);
+    
+    utilityRow.appendChild(utilityCol);
+    
+    terminologySectionUtilityContainer.appendChild(alphabetRow);
+    terminologySectionUtilityContainer.appendChild(utilityRow);
 }
 
 document.addEventListener("DOMContentLoaded", function () {

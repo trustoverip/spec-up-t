@@ -18,27 +18,42 @@ function createTermFilter() {
 
     const terminologySectionUtilityContainer = document.getElementById("terminology-section-utility-container");
 
-    // Create checkboxes container
+    // Find the utility row (second row) created by alphabet index
+    let utilityRow = terminologySectionUtilityContainer.querySelector('#utility-row .col-12');
+    if (!utilityRow) {
+        // If it doesn't exist yet, create the structure
+        const row = document.createElement("div");
+        row.className = "row";
+        row.id = "utility-row";
+        
+        utilityRow = document.createElement("div");
+        utilityRow.className = "col-12 d-flex flex-wrap justify-content-between align-items-center gap-2";
+        
+        row.appendChild(utilityRow);
+        terminologySectionUtilityContainer.appendChild(row);
+    }
+
+    // Create checkboxes container with Bootstrap classes
     const checkboxesContainer = document.createElement('div');
-    checkboxesContainer.className = 'd-flex mt-0';
+    checkboxesContainer.className = 'd-flex gap-3';
     
     // Create and configure checkbox for local terms
     const localTermsCheckboxDiv = document.createElement('div');
-    localTermsCheckboxDiv.className = 'form-check me-3';
+    localTermsCheckboxDiv.className = 'form-check';
     localTermsCheckboxDiv.innerHTML = `
         <input class="form-check-input" type="checkbox" id="showLocalTermsCheckbox" checked>
         <label class="form-check-label" for="showLocalTermsCheckbox">
-            Show local terms
+            Local
         </label>
     `;
     
     // Create and configure checkbox for external terms
     const externalTermsCheckboxDiv = document.createElement('div');
-    externalTermsCheckboxDiv.className = 'form-check ms-3';
+    externalTermsCheckboxDiv.className = 'form-check';
     externalTermsCheckboxDiv.innerHTML = `
         <input class="form-check-input" type="checkbox" id="showExternalTermsCheckbox" checked>
         <label class="form-check-label" for="showExternalTermsCheckbox">
-            Show external terms
+            Remote
         </label>
     `;
     
@@ -82,8 +97,8 @@ function createTermFilter() {
         }
     });
 
-    // Add checkboxes to the terminology section utility container
-    terminologySectionUtilityContainer.appendChild(checkboxesContainer);
+    // Add checkboxes to the utility row
+    utilityRow.appendChild(checkboxesContainer);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
