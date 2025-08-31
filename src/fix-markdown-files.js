@@ -4,23 +4,6 @@ const { shouldProcessFile } = require('./utils/file-filter');
 const Logger = require('./utils/logger');
 
 /**
- * Checks if a term has a definition starting from the given line index
- * @param {string[]} lines - Array of file lines
- * @param {number} startIndex - Index to start checking from
- * @returns {boolean} - True if definition exists, false otherwise
- */
-function hasDefinition(lines, startIndex) {
-    for (let i = startIndex; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (line === '') continue; // Skip empty lines
-        if (line.startsWith('~')) return true; // Found definition
-        if (line.startsWith('[[def:') || line.startsWith('[[tref:')) return false; // Found next term
-        if (line.length > 0) return false; // Found other content
-    }
-    return false;
-}
-
-/**
  * Handles specific functionality for `[[def:` and `[[tref:` lines
  * @param {string[]} lines - Array of file lines
  * @returns {object} - Object containing modified lines and modification status
@@ -40,12 +23,8 @@ function processDefLines(lines) {
                 modified = true;
             }
             
-            // Check if term has a definition - only add separator for [[def: lines, not [[tref: lines
-            if (result[i].startsWith('[[def:') && !hasDefinition(result, insertIndex)) {
-                result.splice(insertIndex, 0, '', '- - -', '');
-                modified = true;
-            }
-            // For [[tref: lines, we don't add any content - they should be able to exist standalone
+            // No additional content needed - both [[def: and [[tref: lines can exist standalone
+            // The HTML post-processing will handle the proper structure
         }
     }
 
