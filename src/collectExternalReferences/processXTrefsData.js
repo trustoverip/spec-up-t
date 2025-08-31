@@ -3,6 +3,7 @@ const { fetchTermsFromIndex, fetchAllTermsFromIndex } = require('./fetchTermsFro
 const { matchTerm } = require('./matchTerm.js');
 const { addPath, getPath, getAllPaths } = require('../../config/paths');
 const path = require('path');
+const Logger = require('../utils/logger');
 
 // Directory to store fetched data files
 const CACHE_DIR = getPath('githubcache');
@@ -17,7 +18,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
         // Filter out incomplete xtrefs that don't have proper repository information
         allXTrefs.xtrefs = allXTrefs.xtrefs.filter(xtref => {
             if (!xtref.owner || !xtref.repo || !xtref.repoUrl) {
-                console.log(`⚠️ Removing incomplete reference: ${xtref.externalSpec}, ${xtref.term}`);
+                Logger.warn(`Removing incomplete reference: ${xtref.externalSpec}, ${xtref.term}`);
                 return false;
             }
             return true;
@@ -37,12 +38,12 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
             return groups;
         }, {});
 
-        console.log(`✅ Grouped ${allXTrefs.xtrefs.length} terms into ${Object.keys(xrefsByRepo).length} repositories`);
+        Logger.highlight(`Grouped ${allXTrefs.xtrefs.length} terms into ${Object.keys(xrefsByRepo).length} repositories`);
         
         // Process each repository once
         for (const repoKey of Object.keys(xrefsByRepo)) {
             const repoGroup = xrefsByRepo[repoKey];
-            console.log(`Processing repository: ${repoKey} (${repoGroup.xtrefs.length} terms)`);
+            Logger.process(`Processing repository: ${repoKey} (${repoGroup.xtrefs.length} terms)`);
             
             // Get the GitHub Pages URL from the first xtref in this repo group
             const ghPageUrl = repoGroup.xtrefs[0]?.ghPageUrl;
@@ -58,7 +59,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
             );
             
             if (!allTermsData) {
-                console.log(`❌ Could not fetch terms from repository ${repoKey}`);
+                Logger.error(`Could not fetch terms from repository ${repoKey}`);
                 // Mark all terms from this repo as not found
                 repoGroup.xtrefs.forEach(xtref => {
                     xtref.commitHash = "not found";
@@ -79,17 +80,17 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                     xtref.commitHash = allTermsData.sha;
                     xtref.content = foundTerm.definition;
                     xtref.avatarUrl = allTermsData.avatarUrl;
-                    console.log(`✅ Match found for term: ${xtref.term} in ${xtref.externalSpec}`);
+                    Logger.success(`Match found for term: ${xtref.term} in ${xtref.externalSpec}`);
                 } else {
                     xtref.commitHash = "not found";
                     xtref.content = "This term was not found in the external repository.";
                     xtref.avatarUrl = null;
-                    console.log(`ℹ️ No match found for term: ${xtref.term} in ${xtref.externalSpec}`);
+                    Logger.info(`No match found for term: ${xtref.term} in ${xtref.externalSpec}`);
                 }
             }
             
-            console.log(`✅ Finished processing repository: ${repoKey}`);
-            console.log("============================================\n\n");
+            Logger.success(`Finished processing repository: ${repoKey}`);
+            Logger.separator();
         }
 
         const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
@@ -101,7 +102,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
         // This will run index.js
         require('../../index.js')({ nowatch: true });
     } catch (error) {
-        console.error("An error occurred:", error);
+        Logger.error("An error occurred:", error);
     }
 }
 

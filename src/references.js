@@ -1,6 +1,7 @@
 const cheerio = require("cheerio");
 const axios = require('axios').default;
 const fs = require('fs-extra');
+const Logger = require('./utils/logger');
 
 const spaceRegex = /\s+/g;
 
@@ -16,7 +17,7 @@ function validateReferences(references, definitions, render) {
     }
   );
   if (unresolvedRefs.length > 0) {
-    console.log('ℹ️ Unresolved References: ', unresolvedRefs)
+    Logger.info('Unresolved References:', unresolvedRefs);
   }
 
   const danglingDefs = [];
@@ -27,7 +28,7 @@ function validateReferences(references, definitions, render) {
     }
   })
   if (danglingDefs.length > 0) {
-    console.log('ℹ️ Dangling Definitions: ', danglingDefs)
+    Logger.info('Dangling Definitions:', danglingDefs);
   }
 }
 
@@ -59,7 +60,7 @@ async function fetchExternalSpecs(spec) {
         const msg = f.error.response
           ? `HTTP ${f.error.response.status} for ${f.url}`
           : `Network error for ${f.url}: ${f.error.message}`;
-        console.error("❌ External spec fetch failed:", msg);
+        Logger.error("External spec fetch failed:", msg);
       });
     }
 
@@ -81,7 +82,7 @@ async function fetchExternalSpecs(spec) {
 
     return extractedTerms;
   } catch (e) {
-    console.error("❌ Unexpected error in fetchExternalSpecs:", e);
+    Logger.error("Unexpected error in fetchExternalSpecs:", e);
     return [];
   }
 }
@@ -136,10 +137,10 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
     const stringReadyForFileWrite = `const allXTrefs = ${allXTrefsStr};`;
     fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
 
-    console.log(`✅ Merged ${xrefTerms.length} xref terms into allXTrefs. Total entries: ${allXTrefs.xtrefs.length}`);
+    Logger.success(`Merged ${xrefTerms.length} xref terms into allXTrefs. Total entries: ${allXTrefs.xtrefs.length}`);
 
   } catch (error) {
-    console.error('❌ Error merging xref terms into allXTrefs:', error.message);
+    Logger.error('Error merging xref terms into allXTrefs:', error.message);
   }
 }
 
@@ -155,7 +156,7 @@ function extractTermsFromHtml(externalSpec, html) {
     const terms = [];
 
     const termElements = $('dl.terms-and-definitions-list dt');
-    console.log(`🔍 Found ${termElements.length} term elements in ${externalSpec} (HTML size: ${Math.round(html.length / 1024)}KB)`);
+    Logger.highlight(`Found ${termElements.length} term elements in ${externalSpec} (HTML size: ${Math.round(html.length / 1024)}KB)`);
 
     // Process terms in batches to prevent stack overflow with large datasets
     const BATCH_SIZE = 100;
@@ -191,21 +192,21 @@ function extractTermsFromHtml(externalSpec, html) {
             terms.push(termObj);
           }
         } catch (termError) {
-          console.warn(`⚠️ Error processing term in ${externalSpec}:`, termError.message);
+          Logger.warn(`Error processing term in ${externalSpec}:`, termError.message);
         }
       });
 
       // Log progress for very large datasets
       if (totalElements > 1000 && i % (BATCH_SIZE * 10) === 0) {
-        console.log(`📊 Processed ${Math.min(i + BATCH_SIZE, totalElements)}/${totalElements} terms from ${externalSpec}`);
+        Logger.progress(Math.min(i + BATCH_SIZE, totalElements), totalElements, `Processing terms from ${externalSpec}`);
       }
     }
 
-    console.log(`✅ Extracted ${terms.length} terms from external spec: ${externalSpec}`);
+    Logger.success(`Extracted ${terms.length} terms from external spec: ${externalSpec}`);
     return terms;
 
   } catch (error) {
-    console.error(`❌ Error extracting terms from external spec '${externalSpec}':`, error.message);
+    Logger.error(`Error extracting terms from external spec '${externalSpec}':`, error.message);
     return [];
   }
 }

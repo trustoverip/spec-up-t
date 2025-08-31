@@ -19,6 +19,7 @@
  */
 
 const { shouldProcessFile } = require('./utils/file-filter');
+const Logger = require('./utils/logger');
 
 function createTermIndex() {
     try {
@@ -28,41 +29,41 @@ function createTermIndex() {
         
         // Check if specs.json exists
         if (!fs.existsSync(configPath)) {
-            console.warn(`Config file '${configPath}' not found. Using default configuration.`);
+            Logger.warn(`Config file '${configPath}' not found. Using default configuration.`);
             var config = { specs: [] };
         } else {
             // Read config with try-catch to handle parsing errors
             try {
                 var config = fs.readJsonSync(configPath);
             } catch (readError) {
-                console.warn(`Error reading config file: ${readError.message}. Using default configuration.`);
+                Logger.warn(`Error reading config file: ${readError.message}. Using default configuration.`);
                 var config = { specs: [] };
             }
         }
         
         // Provide defaults for missing config
         if (!config) {
-            console.warn('Config file is empty or invalid. Using defaults.');
+            Logger.warn('Config file is empty or invalid. Using defaults.');
             config = { specs: [] };
         }
         
         if (!config.specs) {
-            console.warn('No specs array found in config. Creating empty specs array.');
+            Logger.warn('No specs array found in config. Creating empty specs array.');
             config.specs = [];
         } else if (!Array.isArray(config.specs)) {
-            console.warn('Config specs is not an array. Converting to array.');
+            Logger.warn('Config specs is not an array. Converting to array.');
             config.specs = [config.specs]; // Convert to array if it's an object
         }
         
         // If no valid specs, create an empty term index
         if (config.specs.length === 0) {
-            console.warn('No specs found in configuration. Creating an empty term index.');
+            Logger.warn('No specs found in configuration. Creating an empty term index.');
         }
         
         // Extract spec directories with fallback to current directory
         const specDirectories = config.specs.map((spec, index) => {
             if (!spec.spec_directory) {
-                console.warn(`Warning: spec_directory missing in specs.json entry #${index + 1}. Using current directory.`);
+                Logger.warn(`spec_directory missing in specs.json entry #${index + 1}. Using current directory.`);
                 return '.';  // Default to current directory
             }
             return spec.spec_directory;
@@ -71,7 +72,7 @@ function createTermIndex() {
         // Extract term directories with fallback to default value
         const specTermDirectoryName = config.specs.map((spec, index) => {
             if (!spec.spec_terms_directory) {
-                console.warn(`Warning: spec_terms_directory missing in specs.json entry #${index + 1}. Using default 'terms' directory.`);
+                Logger.warn(`spec_terms_directory missing in specs.json entry #${index + 1}. Using default 'terms' directory.`);
                 return 'terms'; // Default directory name for terms
             }
             return spec.spec_terms_directory;
@@ -79,7 +80,7 @@ function createTermIndex() {
         
         // Safety check - if we have no valid entries, warn and exit cleanly
         if (specDirectories.length === 0 || specTermDirectoryName.length === 0) {
-            console.log('No term directories found in configuration. Creating empty term index.');
+            Logger.info('No term directories found in configuration. Creating empty term index.');
             
             // Create an empty term index
             const outputPathJSON = path.join('.cache', 'term-index.json');
@@ -87,14 +88,14 @@ function createTermIndex() {
                 fs.mkdirSync('.cache', { recursive: true });
             }
             fs.writeJsonSync(outputPathJSON, [], { spaces: 2 });
-            console.log(`✅ Empty term index created at: ${outputPathJSON}`);
+            Logger.success(`Empty term index created at: ${outputPathJSON}`);
             return; // Exit function early
         }
         
         // Verify that the base spec directory exists
         const baseSpecDir = specDirectories[0];
         if (!baseSpecDir || !fs.existsSync(baseSpecDir)) {
-            console.warn(`Spec directory '${baseSpecDir}' does not exist. Creating empty term index.`);
+            Logger.warn(`Spec directory '${baseSpecDir}' does not exist. Creating empty term index.`);
             
             // Create an empty term index
             const outputPathJSON = path.join('.cache', 'term-index.json');
@@ -102,7 +103,7 @@ function createTermIndex() {
                 fs.mkdirSync('.cache', { recursive: true });
             }
             fs.writeJsonSync(outputPathJSON, [], { spaces: 2 });
-            console.log(`✅ Empty term index created at: ${outputPathJSON}`);
+            Logger.success(`Empty term index created at: ${outputPathJSON}`);
             return; // Exit function early
         }
         
@@ -111,14 +112,14 @@ function createTermIndex() {
         
         let files = [];
         if (!fs.existsSync(termsDir)) {
-            console.warn(`Terms directory '${termsDir}' does not exist. Creating an empty term index.`);
+            Logger.warn(`Terms directory '${termsDir}' does not exist. Creating an empty term index.`);
         } else {
             // Get list of files and filter them
             files = fs.readdirSync(termsDir).filter(shouldProcessFile);
         }
         
         if (files.length === 0) {
-            console.log('Warning: No term files found to process.');
+            Logger.warn('No term files found to process.');
         }
         
         const filePaths = files.map(file => specTermDirectoryName[0] + '/' + file);
@@ -132,12 +133,12 @@ function createTermIndex() {
         // Write the term index file
         try {
             fs.writeJsonSync(outputPathJSON, filePaths, { spaces: 2 });
-            console.log(`✅ Term index created with ${files.length} terms. Output: ${outputPathJSON}`);
+            Logger.success(`Term index created with ${files.length} terms. Output: ${outputPathJSON}`);
         } catch (writeError) {
             throw new Error(`Failed to write term index file: ${writeError.message}`);
         }
     } catch (error) {
-        console.error(`❌ Error creating term index: ${error.message}`);
+        Logger.error(`Error creating term index: ${error.message}`);
         throw error;
     }
 }

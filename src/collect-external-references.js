@@ -45,6 +45,7 @@ const { shouldProcessFile } = require('./utils/file-filter');
 const path = require('path');
 const fs = require('fs-extra');
 const readlineSync = require('readline-sync');
+const Logger = require('./utils/logger');
 
 /**
  * Checks if a specific xtref is present in the markdown content
@@ -120,7 +121,7 @@ function addNewXTrefsFromMarkdown(allMarkdownContent, allXTrefs) {
  */
 function extendXTrefs(config, xtrefs) {
     if (config.specs[0].external_specs_repos) {
-        console.log("ℹ️ PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t/blob/master/src/install-from-boilerplate/boilerplate/specs.json");
+        Logger.warn("PLEASE NOTE: Your specs.json file is outdated (not your fault, we changed something). Use this one: https://github.com/trustoverip/spec-up-t/blob/master/src/install-from-boilerplate/boilerplate/specs.json");
         return;
     }
 
@@ -204,12 +205,12 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
 
    Do you want to stop? (yes/no): `);
                 if (userInput.toLowerCase() === 'yes' || userInput.toLowerCase() === 'y') {
-                    console.log('ℹ️ Stopping...');
+                    Logger.info('Stopping...');
                     process.exit(1);
                 }
             }
         }).catch(error => {
-            console.error('❌ Error checking URL existence:', error);
+            Logger.error('Error checking URL existence:', error);
         });
     });
 
@@ -338,18 +339,18 @@ function collectExternalReferences(options = {}) {
     // First do some checks
     // Show informational message if no token is available
     if (!GITHUB_API_TOKEN) {
-        console.log('ℹ️ No GitHub Personal Access Token (PAT) found. Running without authentication (may hit rate limits).');
-        console.log('💡 For better performance, set up a PAT: https://blockchainbird.github.io/spec-up-t-website/docs/getting-started/github-token\n');
+        Logger.warn('No GitHub Personal Access Token (PAT) found. Running without authentication (may hit rate limits).');
+        Logger.info('For better performance, set up a PAT: https://blockchainbird.github.io/spec-up-t-website/docs/getting-started/github-token\n');
     }
 
     if (externalSpecsRepos.length === 0) {
         // Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.
-        console.log(explanationNoExternalReferences);
+        Logger.info(explanationNoExternalReferences);
         const userInput = readlineSync.question('Press any key');
 
         // React to user pressing any key
         if (userInput.trim() !== '') {
-            console.log('ℹ️ Stopping...');
+            Logger.info('Stopping...');
             return;
         }
     } else {

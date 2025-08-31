@@ -28,6 +28,7 @@
 
 const fs = require('fs-extra'); // Import the fs-extra module for file system operations
 const path = require('path'); // Import the path module for handling file paths
+const Logger = require('./utils/logger');
 
 // Read and parse the specs.json file
 const config = fs.readJsonSync('specs.json');
@@ -87,4 +88,4 @@ const destFile = path.join(newVersionDir, 'index.html');
 fs.copyFileSync(sourceFile, destFile);
 
 // Log a message indicating the file has been copied
-console.log(`✅ Created a freezed specification version in ${destFile}`);
+Logger.success(`Created a freezed specification version in ${destFile}`);

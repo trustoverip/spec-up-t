@@ -13,6 +13,7 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const Logger = require('./utils/logger');
 
 // Resolve the path to specs.json in the root directory
 const JSON_FILE_PATH = path.resolve(process.cwd(), 'specs.json');
@@ -22,7 +23,7 @@ const SPECS_KEY = 'specs';
 
 // Check if the JSON file exists
 if (!fs.existsSync(JSON_FILE_PATH)) {
-    console.error(`Error: ${JSON_FILE_PATH} does not exist.`);
+    Logger.error(`Error: ${JSON_FILE_PATH} does not exist.`);
     process.exit(1);
 }
 
@@ -81,7 +82,7 @@ function applySpecFieldsToJSON() {
         const data = JSON.parse(fs.readFileSync(JSON_FILE_PATH, 'utf8'));
 
         if (!data[SPECS_KEY] || !Array.isArray(data[SPECS_KEY]) || !data[SPECS_KEY][0]) {
-            console.error(`Error: Invalid JSON structure. "${SPECS_KEY}[0]" is missing.`);
+            Logger.error(`Error: Invalid JSON structure. "${SPECS_KEY}[0]" is missing.`);
             process.exit(1);
         }
 
@@ -102,9 +103,9 @@ function applySpecFieldsToJSON() {
         });
 
         fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(data, null, 2), 'utf8');
-        console.log(`Successfully updated ${JSON_FILE_PATH}.`);
+        Logger.success(`Successfully updated ${JSON_FILE_PATH}.`);
     } catch (error) {
-        console.error(`Error: Could not update ${JSON_FILE_PATH}.`, error.message);
+        Logger.error(`Error: Could not update ${JSON_FILE_PATH}.`, error.message);
         process.exit(1);
     }
 }
