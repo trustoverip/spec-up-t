@@ -101,6 +101,9 @@ function fixDefinitionListStructure(html) {
 
   // Find any transcluded term dt elements anywhere in the document
   const transcludedTerms = document.querySelectorAll('dt.transcluded-xref-term');
+  
+  // Also find any tref spans that are in paragraphs (standalone trefs)
+  const standaloneTrefSpans = document.querySelectorAll('p span.transcluded-xref-term');
 
   let mainDl = null;
 
@@ -109,7 +112,7 @@ function fixDefinitionListStructure(html) {
     mainDl = dlElements[0]; // Use the first one
   }
   // If we have transcluded terms but no main dl, we need to create one
-  else if (transcludedTerms.length > 0) {
+  else if (transcludedTerms.length > 0 || standaloneTrefSpans.length > 0) {
     // Create a new dl element with the right class
     mainDl = document.createElement('dl');
     mainDl.className = 'terms-and-definitions-list';
@@ -125,10 +128,18 @@ function fixDefinitionListStructure(html) {
         marker.parentNode.appendChild(mainDl);
       }
     } else {
-      // Fallback to the original approach if marker isn't found
-      const firstTerm = transcludedTerms[0];
-      const insertPoint = firstTerm.parentNode;
-      insertPoint.parentNode.insertBefore(mainDl, insertPoint);
+      // Fallback - insert before the first term we can find (dt or standalone span)
+      let firstTerm = transcludedTerms[0];
+      if (!firstTerm && standaloneTrefSpans.length > 0) {
+        firstTerm = standaloneTrefSpans[0].closest('p');
+      }
+      if (firstTerm) {
+        const insertPoint = firstTerm.parentNode;
+        insertPoint.parentNode.insertBefore(mainDl, insertPoint);
+      } else {
+        // Last resort - append to body
+        document.body.appendChild(mainDl);
+      }
     }
   }
 
@@ -159,6 +170,30 @@ function fixDefinitionListStructure(html) {
 
     return group;
   }
+
+  // First, process any standalone tref spans in paragraphs and convert them to dt elements
+  standaloneTrefSpans.forEach(trefSpan => {
+    const paragraph = trefSpan.closest('p');
+    if (paragraph) {
+      // Create a new dt element for this tref
+      const newDt = document.createElement('dt');
+      newDt.className = 'transcluded-xref-term';
+      
+      // Move the tref span into the dt
+      newDt.appendChild(trefSpan.cloneNode(true));
+      
+      // Create an empty dd element to satisfy definition list structure
+      const newDd = document.createElement('dd');
+      newDd.innerHTML = ''; // Truly empty, no hacks
+      
+      // Add both to the main dl
+      mainDl.appendChild(newDt);
+      mainDl.appendChild(newDd);
+      
+      // Remove the paragraph
+      paragraph.parentNode.removeChild(paragraph);
+    }
+  });
 
   // Process all transcluded terms and move them with their dd elements
   transcludedTerms.forEach(dt => {
@@ -269,10 +304,32 @@ function fixDefinitionListStructure(html) {
           currentNode.parentNode.removeChild(currentNode);
         }
       }
-      else if (currentNode.tagName === 'P' &&
-        (!currentNode.textContent || currentNode.textContent.trim() === '')) {
-        // Remove empty paragraphs - these break the list structure
-        currentNode.parentNode.removeChild(currentNode);
+      else if (currentNode.tagName === 'P') {
+        // Check if this paragraph contains a standalone tref term
+        const trefSpan = currentNode.querySelector('span.transcluded-xref-term');
+        if (trefSpan) {
+          // Create a new dt element for this tref
+          const newDt = document.createElement('dt');
+          newDt.className = 'transcluded-xref-term';
+          
+          // Move the tref span into the dt
+          newDt.appendChild(trefSpan.cloneNode(true));
+          
+          // Create an empty dd element to satisfy definition list structure
+          const newDd = document.createElement('dd');
+          newDd.innerHTML = ''; // Truly empty, no hacks
+          
+          // Add both to the main dl
+          mainDl.appendChild(newDt);
+          mainDl.appendChild(newDd);
+          
+          // Remove the paragraph
+          currentNode.parentNode.removeChild(currentNode);
+        }
+        else if (!currentNode.textContent || currentNode.textContent.trim() === '') {
+          // Remove empty paragraphs - these break the list structure
+          currentNode.parentNode.removeChild(currentNode);
+        }
       }
     }
 

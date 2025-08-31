@@ -40,11 +40,12 @@ function processDefLines(lines) {
                 modified = true;
             }
             
-            // Check if term has a definition
-            if (!hasDefinition(result, insertIndex)) {
+            // Check if term has a definition - only add separator for [[def: lines, not [[tref: lines
+            if (result[i].startsWith('[[def:') && !hasDefinition(result, insertIndex)) {
                 result.splice(insertIndex, 0, '', '- - -', '');
                 modified = true;
             }
+            // For [[tref: lines, we don't add any content - they should be able to exist standalone
         }
     }
 
