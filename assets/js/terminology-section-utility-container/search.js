@@ -119,7 +119,7 @@ function initializeSearch() {
 
     /* Helper functions */
     function setTotalMatches() {
-        totalMatches = document.querySelectorAll('.' + matchesStyleSelectorClassName).length;
+        totalMatches = document.querySelectorAll('.' + matchesClassName).length;
         totalMatchesSpan.innerHTML = `${totalMatches} ${matches}`;
     }
 
@@ -136,7 +136,7 @@ function initializeSearch() {
     }
 
     function removeHighlights() {
-        const highlighted = document.querySelectorAll('.' + matchesStyleSelectorClassName);
+        const highlighted = document.querySelectorAll('.' + matchesClassName);
         highlighted.forEach(element => {
             const parent = element.parentNode;
             parent.replaceChild(document.createTextNode(element.textContent), element);
@@ -173,7 +173,7 @@ function initializeSearch() {
                         
                         // Add highlighted match
                         const span = document.createElement('span');
-                        span.className = matchesStyleSelectorClassName;
+                        span.className = `${matchesClassName} ${matchesStyleSelectorClassName}`;
                         span.textContent = match[0];
                         fragments.appendChild(span);
                         
@@ -198,7 +198,7 @@ function initializeSearch() {
         activeMatchIndex = -1;
         
         // Scroll to first match
-        const firstHighlight = document.querySelector('.' + matchesStyleSelectorClassName);
+        const firstHighlight = document.querySelector('.' + matchesClassName);
         if (firstHighlight) {
             scrollToElementCenter(firstHighlight);
         }
@@ -212,7 +212,7 @@ function initializeSearch() {
     }
 
     function navigateMatches(direction) {
-        const allMatches = document.querySelectorAll('.' + matchesStyleSelectorClassName);
+        const allMatches = document.querySelectorAll('.' + matchesClassName);
         if (allMatches.length === 0) return;
 
         if (direction === 'next') {
@@ -222,10 +222,10 @@ function initializeSearch() {
         }
 
         // Remove previous active styling
-        allMatches.forEach(match => match.classList.remove('active-match'));
+        allMatches.forEach(match => match.classList.remove('active'));
         
         // Add active styling and scroll to current match
-        allMatches[activeMatchIndex].classList.add('active-match');
+        allMatches[activeMatchIndex].classList.add('active');
         scrollToElementCenter(allMatches[activeMatchIndex]);
     }
 
@@ -237,7 +237,21 @@ function initializeSearch() {
     goToNextMatchButton.addEventListener('click', () => navigateMatches('next'));
     goToPreviousMatchButton.addEventListener('click', () => navigateMatches('prev'));
 
-    // Keyboard navigation
+    // Global keyboard navigation (Arrow keys work anywhere on the page)
+    document.addEventListener('keyup', (event) => {
+        if (totalMatches > 0) {
+            switch (event.key) {
+                case "ArrowRight":
+                    goToNextMatchButton.click(); // Simulate a click on button
+                    break;
+                case "ArrowLeft":
+                    goToPreviousMatchButton.click(); // Simulate a click on button
+                    break;
+            }
+        }
+    });
+
+    // Keyboard navigation when search input is focused
     document.addEventListener('keydown', function(event) {
         if (document.activeElement === searchInput) {
             if (event.key === 'ArrowDown' && totalMatches > 0) {
