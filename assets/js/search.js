@@ -31,6 +31,21 @@ function inPageSearch() {
 
    const terminologySectionUtilityContainer = document.getElementById("terminology-section-utility-container");
 
+   // Find the utility row (second row) created by alphabet index
+   let utilityRow = terminologySectionUtilityContainer.querySelector('#utility-row .col-12');
+   if (!utilityRow) {
+       // If it doesn't exist yet, create the structure
+       const row = document.createElement("div");
+       row.className = "row";
+       row.id = "utility-row";
+       
+       utilityRow = document.createElement("div");
+       utilityRow.className = "col-12 d-flex flex-wrap justify-content-between align-items-center gap-2";
+       
+       row.appendChild(utilityRow);
+       terminologySectionUtilityContainer.appendChild(row);
+   }
+
    const matchesStyle = specConfig.searchHighlightStyle || 'ssi';
    const antiNameCollisions = 'search';
    const debounceTime = 600;
@@ -55,9 +70,9 @@ function inPageSearch() {
    /* Add DOM elements: search container with search bar, back and forth buttons, and results count */
    const searchContainer = document.createElement("div");
    searchContainer.setAttribute("id", `container-${antiNameCollisions}`);
-   searchContainer.classList.add("input-group", "mb-1", "d-flex", "align-items-center"); // Bootstrap 5.3 input group with margin bottom
+   searchContainer.classList.add("input-group", "input-group-sm"); // Bootstrap 5.3 input group with small size
    searchContainer.setAttribute("role", "search"); // ARIA role for search container
-   terminologySectionUtilityContainer.appendChild(searchContainer);
+   searchContainer.style.maxWidth = "300px"; // Limit width to keep it compact
 
    // Add an input element (for search)
    const searchInput = document.createElement("input");
@@ -71,7 +86,7 @@ function inPageSearch() {
 
    // Add a container for the navigation buttons and results
    const buttonGroup = document.createElement("div");
-   buttonGroup.classList.add("input-group-append"); // Bootstrap 5.3 button group styling
+   buttonGroup.classList.add("input-group-text", "p-0"); // Bootstrap 5.3 button group styling
 
    // Add a back button
    const goToPreviousMatchButton = document.createElement("button");
@@ -108,6 +123,8 @@ function inPageSearch() {
    // Add the button group to the container
    searchContainer.appendChild(buttonGroup);
 
+   // Add search container to the utility row
+   utilityRow.appendChild(searchContainer);
 
    /* END Add DOM elements */
 

@@ -14,11 +14,7 @@ h6 {
 
 /* ====== TERMINOLOGY SECTION CONTAINER ====== */
 #terminology-section-utility-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   margin: 1em auto;
-  padding: 0;
   width: 100%;
 }
 
