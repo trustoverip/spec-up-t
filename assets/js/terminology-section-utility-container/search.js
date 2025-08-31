@@ -1,16 +1,20 @@
 /**
- * @file In-page search functionality for terminology section
+ * @file Search functionality for terminology section
  * @author Kor Dwarshuis
  * @version 1.0.0
  * @since 2024-08-31
- * @description Adds instant search functionality with highlighting and navigation
+ * @description Handles search logic and highlighting (DOM is constructed in main module)
  */
 
 /**
- * Initializes the search functionality
+ * Attaches search functionality to the provided DOM elements
+ * @param {HTMLInputElement} searchInput - The search input element
+ * @param {HTMLButtonElement} goToPreviousMatchButton - Previous match button
+ * @param {HTMLButtonElement} goToNextMatchButton - Next match button
+ * @param {HTMLSpanElement} totalMatchesSpan - Matches counter element
  * @returns {void}
  */
-function initializeSearch() {
+function attachSearchFunctionality(searchInput, goToPreviousMatchButton, goToNextMatchButton, totalMatchesSpan) {
     // Check if the terms and definitions list exists
     const termsListElement = document.querySelector(".terms-and-definitions-list");
     const dtElements = termsListElement ? termsListElement.querySelectorAll("dt") : [];
@@ -19,30 +23,11 @@ function initializeSearch() {
         return;
     }
 
-    const terminologySectionUtilityContainer = document.getElementById("terminology-section-utility-container");
-
-    // Find the utility row (second row) created by alphabet index
-    let utilityRow = terminologySectionUtilityContainer.querySelector('#utility-row .col-12');
-    if (!utilityRow) {
-        // If it doesn't exist yet, create the structure
-        const row = document.createElement("div");
-        row.className = "row";
-        row.id = "utility-row";
-        
-        utilityRow = document.createElement("div");
-        utilityRow.className = "col-12 d-flex flex-wrap justify-content-between align-items-center gap-2";
-        
-        row.appendChild(utilityRow);
-        terminologySectionUtilityContainer.appendChild(row);
-    }
-
     /*****************/
     /* CONFIGURATION */
     const matchesStyle = specConfig.searchHighlightStyle || 'ssi';
-    const antiNameCollisions = 'search';
     const debounceTime = 600;
     const matches = 'matches';
-    const searchBarPlaceholder = '🔍';
     const searchableContent = document.querySelector('.terms-and-definitions-list');
 
     // Styling of search matches
@@ -55,67 +40,12 @@ function initializeSearch() {
         gleif: 'highlight-matches-GLEIF-search'
     };
 
-    const matchesClassName = "highlight-matches-" + antiNameCollisions;
+    const matchesClassName = "highlight-matches-search";
     const matchesStyleSelectorClassName = matchesStyleSelector[matchesStyle.toLowerCase()];
     
     let totalMatches = 0;
     let activeMatchIndex = -1;
     let debounceTimeout;
-
-    /* Create DOM elements */
-    const searchContainer = document.createElement("div");
-    searchContainer.setAttribute("id", `container-${antiNameCollisions}`);
-    searchContainer.classList.add("input-group", "input-group-sm");
-    searchContainer.setAttribute("role", "search");
-    searchContainer.style.maxWidth = "300px";
-
-    // Search input
-    const searchInput = document.createElement("input");
-    searchInput.setAttribute("type", "text");
-    searchInput.setAttribute("id", antiNameCollisions);
-    searchInput.classList.add("form-control");
-    searchInput.setAttribute("placeholder", searchBarPlaceholder);
-    searchInput.setAttribute("aria-label", "Search terms");
-    searchInput.setAttribute("autocomplete", "off");
-    searchContainer.appendChild(searchInput);
-
-    // Button group
-    const buttonGroup = document.createElement("div");
-    buttonGroup.classList.add("input-group-text", "p-0");
-
-    // Previous button
-    const goToPreviousMatchButton = document.createElement("button");
-    goToPreviousMatchButton.setAttribute("id", `one-match-backward-${antiNameCollisions}`);
-    goToPreviousMatchButton.classList.add("btn", "btn-outline-secondary");
-    goToPreviousMatchButton.setAttribute("type", "button");
-    goToPreviousMatchButton.setAttribute("disabled", "true");
-    goToPreviousMatchButton.setAttribute("title", "Go to previous match (Left Arrow)");
-    goToPreviousMatchButton.setAttribute("aria-label", "Go to previous match");
-    goToPreviousMatchButton.innerHTML = '<span aria-hidden="true">▲</span>';
-    buttonGroup.appendChild(goToPreviousMatchButton);
-
-    // Next button
-    const goToNextMatchButton = document.createElement("button");
-    goToNextMatchButton.setAttribute("id", `one-match-forward-${antiNameCollisions}`);
-    goToNextMatchButton.classList.add("btn", "btn-outline-secondary");
-    goToNextMatchButton.setAttribute("type", "button");
-    goToNextMatchButton.setAttribute("disabled", "true");
-    goToNextMatchButton.setAttribute("title", "Go to next match (Right Arrow)");
-    goToNextMatchButton.setAttribute("aria-label", "Go to next match");
-    goToNextMatchButton.innerHTML = '<span aria-hidden="true">▼</span>';
-    buttonGroup.appendChild(goToNextMatchButton);
-
-    // Matches counter
-    const totalMatchesSpan = document.createElement("span");
-    totalMatchesSpan.setAttribute("id", `total-matches-${antiNameCollisions}`);
-    totalMatchesSpan.classList.add("input-group-text");
-    totalMatchesSpan.innerHTML = `0 ${matches}`;
-    totalMatchesSpan.setAttribute("aria-live", "polite");
-    totalMatchesSpan.setAttribute("role", "status");
-    searchContainer.appendChild(totalMatchesSpan);
-
-    searchContainer.appendChild(buttonGroup);
-    utilityRow.appendChild(searchContainer);
 
     /* Helper functions */
     function setTotalMatches() {
