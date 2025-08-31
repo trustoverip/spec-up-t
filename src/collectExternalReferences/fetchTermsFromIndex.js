@@ -11,6 +11,7 @@ const path = require('path');
 const { JSDOM } = require('jsdom');
 const axios = require('axios');
 const { addPath, getPath, getAllPaths } = require('../../config/paths');
+const Logger = require('../utils/logger');
 
 // Directory to store fetched data files
 const CACHE_DIR = getPath('githubcache');
@@ -33,19 +34,19 @@ async function getFileCommitHash(token, owner, repo, filePath, headers) {
         
         // Construct API URL to get commits for the specific file
         const commitsUrl = `https://api.github.com/repos/${owner}/${repo}/commits?path=${normalizedPath}&per_page=1`;
-        console.log(`Fetching latest commit for file: ${commitsUrl}`);
+    Logger.process(`Fetching latest commit for file: ${commitsUrl}`);
         
         const response = await axios.get(commitsUrl, { headers });
         
         if (response.status !== 200 || !response.data || response.data.length === 0) {
-            console.log(`❌ Could not find commit information for ${filePath}`);
+            Logger.error(`Could not find commit information for ${filePath}`);
             return null;
         }
         
         // Return the SHA of the latest commit
         return response.data[0].sha;
     } catch (error) {
-        console.error(`❌ Error fetching commit hash: ${error.message}`);
+        Logger.error(`Error fetching commit hash: ${error.message}`);
         return null;
     }
 }
@@ -75,31 +76,31 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
             indexHtmlUrl = options.ghPageUrl.endsWith('/') ? 
                 `${options.ghPageUrl}index.html` : 
                 `${options.ghPageUrl}/index.html`;
-            console.log(`Fetching index.html from GitHub Pages: ${indexHtmlUrl}`);
+            Logger.process(`Fetching index.html from GitHub Pages: ${indexHtmlUrl}`);
             
             // For GitHub Pages, we'll try to get the commit hash from the main branch
             try {
                 const mainBranchUrl = `https://api.github.com/repos/${owner}/${repo}/branches/main`;
                 const branchResponse = await axios.get(mainBranchUrl, { headers });
-                if (branchResponse.status === 200) {
+                    if (branchResponse.status === 200) {
                     commitHash = branchResponse.data.commit.sha;
-                    console.log(`✅ Got commit hash from main branch: ${commitHash}`);
+                    Logger.success(`Got commit hash from main branch: ${commitHash}`);
                 }
             } catch (error) {
-                console.log(`⚠️ Could not get commit hash from main branch: ${error.message}`);
+                Logger.warn(`Could not get commit hash from main branch: ${error.message}`);
             }
         } else {
             // Fallback to raw repository method
-            console.log(`⚠️ No GitHub Pages URL provided, falling back to repository method`);
+            Logger.warn(`No GitHub Pages URL provided, falling back to repository method`);
             
             // Get the specs.json content from the repository to find the output_path
             const specsJsonUrl = `https://api.github.com/repos/${owner}/${repo}/contents/specs.json`;
-            console.log(`Fetching specs.json from: ${specsJsonUrl}`);
+            Logger.process(`Fetching specs.json from: ${specsJsonUrl}`);
 
             // Fetch specs.json content
             const specsJsonResponse = await axios.get(specsJsonUrl, { headers });
             if (specsJsonResponse.status !== 200) {
-                console.log(`❌ Could not find specs.json in repository ${owner}/${repo}`);
+                Logger.error(`Could not find specs.json in repository ${owner}/${repo}`);
                 return null;
             }
 
@@ -110,7 +111,7 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
             // Get the output_path from specs.json
             const outputPath = specsJson.specs[0].output_path;
             if (!outputPath) {
-                console.log(`❌ No output_path found in specs.json for repository ${owner}/${repo}`);
+                Logger.error(`No output_path found in specs.json for repository ${owner}/${repo}`);
                 return null;
             }
 
@@ -122,19 +123,19 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
             
             // Fetch the index.html content with properly constructed URL
             indexHtmlUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${indexHtmlPath}`;
-            console.log(`Fetching index.html from raw repository: ${indexHtmlUrl}`);
+            Logger.process(`Fetching index.html from raw repository: ${indexHtmlUrl}`);
 
             // Get the commit hash for the index.html file
             commitHash = await getFileCommitHash(token, owner, repo, indexHtmlPath, headers);
             if (!commitHash) {
-                console.log(`⚠️ Could not get commit hash for index.html, continuing without it`);
+                Logger.warn(`Could not get commit hash for index.html, continuing without it`);
             }
         }
 
         // Fetch the index.html content
         const indexHtmlResponse = await axios.get(indexHtmlUrl, { headers });
         if (indexHtmlResponse.status !== 200) {
-            console.log(`❌ Could not find index.html at ${indexHtmlUrl}`);
+            Logger.error(`Could not find index.html at ${indexHtmlUrl}`);
             return null;
         }
 
@@ -147,7 +148,7 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
         // Find all term definition lists with class "terms-and-definitions-list"
         const termDlList = document.querySelector('dl.terms-and-definitions-list');
         if (!termDlList) {
-            console.log(`❌ No terms-and-definitions-list found in ${indexHtmlUrl}`);
+            Logger.error(`No terms-and-definitions-list found in ${indexHtmlUrl}`);
             return null;
         }
 
@@ -214,23 +215,23 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
         };
         
         // Save all terms to file
-        fs.writeFileSync(outputFilePath, JSON.stringify(result, null, 2));
-        console.log(`✅ Saved ${terms.length} terms to ${outputFilePath}`);
+    fs.writeFileSync(outputFilePath, JSON.stringify(result, null, 2));
+    Logger.success(`Saved ${terms.length} terms to ${outputFilePath}`);
         
         return result;
 
     } catch (error) {
         if (error.response) {
             if (error.response.status === 404) {
-                console.log(`❌ Resource not found: ${error.config.url}`);
+                Logger.error(`Resource not found: ${error.config.url}`);
             } else if (error.response.status === 403 && error.response.headers['x-ratelimit-remaining'] === '0') {
                 const resetTime = new Date(parseInt(error.response.headers['x-ratelimit-reset']) * 1000);
-                console.error(`❌ GitHub API rate limit exceeded. Try again after ${resetTime.toLocaleString()}`);
+                Logger.error(`GitHub API rate limit exceeded. Try again after ${resetTime.toLocaleString()}`);
             } else {
-                console.error(`❌ Error fetching data: ${error.response.status} ${error.response.statusText}`);
+                Logger.error(`Error fetching data: ${error.response.status} ${error.response.statusText}`);
             }
         } else {
-            console.error(`❌ Error fetching term: ${error.message}`);
+            Logger.error(`Error fetching term: ${error.message}`);
         }
         return null;
     }
@@ -259,7 +260,7 @@ async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options =
     const foundTerm = allTermsData.terms.find(t => t.term.toLowerCase() === term.toLowerCase());
     
     if (foundTerm) {
-        console.log(`Found term '${term}' in repository ${owner}/${repo}`);
+        Logger.success(`Found term '${term}' in repository ${owner}/${repo}`);
         return {
             term: foundTerm.term,
             content: foundTerm.definition,
@@ -273,7 +274,7 @@ async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options =
             }
         };
     } else {
-        console.log(`❌ Term "${term}" not found in repository ${owner}/${repo}`);
+        Logger.error(`Term "${term}" not found in repository ${owner}/${repo}`);
         return null;
     }
 }

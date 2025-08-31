@@ -1,15 +1,16 @@
 const isLineWithDefinition = require('../utils/isLineWithDefinition').isLineWithDefinition;
+const Logger = require('../utils/logger');
 
 function matchTerm(text, term) {
     if (!text || typeof text !== 'string') {
-        console.log('Nothing to match for term:', term);
+        Logger.warn('Nothing to match for term:', term);
         return false;
     }
 
     const firstLine = text.split('\n')[0].trim();
 
     if (isLineWithDefinition(firstLine) === false) {
-        console.log('String does not start with `[[def:` or end with `]]`');
+        Logger.warn('String does not start with `[[def:` or end with `]]`');
         return false;
     };
 

@@ -1,4 +1,5 @@
 const axios = require('axios');
+const Logger = require('./logger');
 
 /**
  * Checks if a URL returns a 200 status code.
@@ -12,11 +13,11 @@ async function doesUrlExist(url) {
     } catch (error) {
         // Handle specific error cases for better logging/debugging
         if (error.response && error.response.status === 404) {
-            console.debug('URL does not exist:', url);
+            Logger.debug('URL does not exist:', url);
         } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNABORTED') {
-            console.debug('Network issues with URL:', url);
+            Logger.debug('Network issues with URL:', url);
         } else {
-            console.debug('Failed to check URL:', url, error.message);
+            Logger.debug('Failed to check URL:', url, error.message);
         }
         return false;
     }

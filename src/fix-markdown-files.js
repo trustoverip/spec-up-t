@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { shouldProcessFile } = require('./utils/file-filter');
+const Logger = require('./utils/logger');
 
 /**
  * Checks if a term has a definition starting from the given line index
@@ -156,7 +157,7 @@ function processMarkdownFile(filePath, fileName) {
             fs.writeFileSync(filePath, newData, 'utf8');
         }
     } catch (err) {
-        console.error(`❌ Error while trying to fix the markdown in file ${fileName}: ${err}`);
+        Logger.error('Error while trying to fix the markdown in file %s: %o', fileName, err);
     }
 }
 
@@ -181,7 +182,7 @@ function fixMarkdownFiles(directory) {
             }
         });
     } catch (err) {
-        console.error(`❌ Error reading directory: ${err}`);
+        Logger.error('Error reading directory: %o', err);
     }
 }
 

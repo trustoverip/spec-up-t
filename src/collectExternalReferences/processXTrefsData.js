@@ -85,7 +85,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                     xtref.commitHash = "not found";
                     xtref.content = "This term was not found in the external repository.";
                     xtref.avatarUrl = null;
-                    Logger.info(`No match found for term: ${xtref.term} in ${xtref.externalSpec}`);
+                    Logger.error(`No match found for term: ${xtref.term} in ${xtref.externalSpec}`);
                 }
             }
             
