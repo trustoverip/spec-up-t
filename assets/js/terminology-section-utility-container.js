@@ -67,14 +67,15 @@ function initializeTerminologyUtilityContainer() {
     utilityRow.className = "row";
     utilityRow.id = "utility-row";
     
-    const utilityCol = document.createElement("div");
-    utilityCol.className = "col-12 d-flex flex-wrap justify-content-between align-items-center gap-2";
+    // Left column: Term count and filters
+    const leftCol = document.createElement("div");
+    leftCol.className = "col-md-6 d-flex flex-wrap align-items-center gap-3";
 
     // Term count
     const numberOfTerms = document.createElement("small");
     numberOfTerms.className = "text-muted mb-0";
     numberOfTerms.textContent = `${dtElements.length} terms`;
-    utilityCol.appendChild(numberOfTerms);
+    leftCol.appendChild(numberOfTerms);
 
     // Filter checkboxes container
     const checkboxesContainer = document.createElement('div');
@@ -102,14 +103,17 @@ function initializeTerminologyUtilityContainer() {
     
     checkboxesContainer.appendChild(localTermsCheckboxDiv);
     checkboxesContainer.appendChild(externalTermsCheckboxDiv);
-    utilityCol.appendChild(checkboxesContainer);
+    leftCol.appendChild(checkboxesContainer);
+
+    // Right column: Search
+    const rightCol = document.createElement("div");
+    rightCol.className = "col-md-6 d-flex justify-content-end";
 
     // Search container
     const searchContainer = document.createElement("div");
     searchContainer.setAttribute("id", "container-search");
     searchContainer.classList.add("input-group", "input-group-sm");
     searchContainer.setAttribute("role", "search");
-    searchContainer.style.maxWidth = "300px";
 
     // Search input
     const searchInput = document.createElement("input");
@@ -157,9 +161,10 @@ function initializeTerminologyUtilityContainer() {
     searchContainer.appendChild(totalMatchesSpan);
 
     searchContainer.appendChild(buttonGroup);
-    utilityCol.appendChild(searchContainer);
+    rightCol.appendChild(searchContainer);
 
-    utilityRow.appendChild(utilityCol);
+    utilityRow.appendChild(leftCol);
+    utilityRow.appendChild(rightCol);
 
     /* ===== ASSEMBLE COMPLETE STRUCTURE ===== */
     terminologySectionUtilityContainer.appendChild(alphabetRow);
