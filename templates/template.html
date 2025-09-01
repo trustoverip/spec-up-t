@@ -217,8 +217,15 @@
                     </div>
                     <div id="toc" class="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto">
                         ${toc}
-                        <a class="powered-by mx-auto p-2" href="https://github.com/trustoverip/spec-up-t"
-                            target="_blank" rel="noopener">Powered By Spec-Up-T</a>
+                        <div class="spec-footer mt-3">
+                            <a class="mx-auto p-2" href="https://github.com/trustoverip/spec-up-t"
+                                target="_blank" rel="noopener">Powered By Spec-Up-T</a>
+                            <small>
+                                <time class="timestamp mx-auto p-2 text-muted" datetime="${universalTimestamp}">
+                                    Generated: ${universalTimestamp}
+                                </time>
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -265,7 +272,7 @@
             <!-- href added via JS -->
             <a id="snapshotLink" class="btn btn-menu-item m-0 mb-1 border-start-0 border-end-0" href="#">Snapshots</a>
             <hr>
-                        <div class="ps-3 pe-3">
+            <div class="ps-3 pe-3">
                 <p class="mb-2 fw-bold">Repository Information:</p>
                 <div id="github-repo-info" class="small text-muted">
                     <div class="d-flex align-items-center mb-1">
@@ -280,7 +287,8 @@
                         <i class="bi bi-tree me-2"></i>
                         <span>Branch: <span id="repo-branch">Loading...</span></span>
                     </div>
-                    <a id="repo-url" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary ms-0">
+                    <a id="repo-url" href="#" target="_blank" rel="noopener"
+                        class="btn btn-sm btn-outline-secondary ms-0">
                         <i class="bi bi-github me-1"></i>
                         View on GitHub
                     </a>

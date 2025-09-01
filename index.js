@@ -362,6 +362,9 @@ module.exports = async function (options = {}) {
         const year = date.getFullYear();
         const currentDate = `${day} ${month} ${year}`;
 
+        // Add universal timestamp in ISO 8601 format for template injection
+        const universalTimestamp = date.toISOString();
+
         const docs = await Promise.all(
           (spec.markdown_paths || ['spec.md']).map(_path =>
             fs.readFile(spec.spec_directory + _path, 'utf8')
@@ -437,6 +440,7 @@ module.exports = async function (options = {}) {
           spec: JSON.stringify(spec),
           externalSpecsList: externalSpecsList,
           currentDate: currentDate,
+          universalTimestamp: universalTimestamp,
           githubRepoInfo: getGithubRepoInfo(spec)
         });
 
