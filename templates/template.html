@@ -265,38 +265,32 @@
             <!-- href added via JS -->
             <a id="snapshotLink" class="btn btn-menu-item m-0 mb-1 border-start-0 border-end-0" href="#">Snapshots</a>
             <hr>
-            <div class="ps-3 pe-3">
+                        <div class="ps-3 pe-3">
                 <p class="mb-2 fw-bold">Repository Information:</p>
                 <div id="github-repo-info" class="small text-muted">
                     <div class="d-flex align-items-center mb-1">
-                        <svg class="bi me-2" width="16" height="16" fill="currentColor">
-                            <use xlink:href="#person-circle" />
-                        </svg>
-                        <span>Account: <span id="repo-account">-</span></span>
+                        <i class="bi bi-person-circle me-2"></i>
+                        <span>Account: <span id="repo-account">Loading...</span></span>
                     </div>
                     <div class="d-flex align-items-center mb-1">
-                        <svg class="bi me-2" width="16" height="16" fill="currentColor">
-                            <use xlink:href="#file-earmark" />
-                        </svg>
-                        <span>Repository: <span id="repo-name">-</span></span>
+                        <i class="bi bi-git me-2"></i>
+                        <span>Repository: <span id="repo-name">Loading...</span></span>
                     </div>
                     <div class="d-flex align-items-center mb-2">
-                        <svg class="bi me-2" width="16" height="16" fill="currentColor">
-                            <use xlink:href="#list" />
-                        </svg>
-                        <span>Branch: <span id="repo-branch">-</span></span>
+                        <i class="bi bi-tree me-2"></i>
+                        <span>Branch: <span id="repo-branch">Loading...</span></span>
                     </div>
-                    <a id="repo-url" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
-                        <svg class="bi me-1" width="14" height="14" fill="currentColor">
-                            <use xlink:href="#box-arrow-up-right" />
-                        </svg>
+                    <a id="repo-url" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary ms-0">
+                        <i class="bi bi-github me-1"></i>
                         View on GitHub
                     </a>
                 </div>
             </div>
             <hr>
-            <p class="ps-3 pe-3">External specifications:</p>
-            ${externalSpecsList}
+            <div class="ps-3 pe-3">
+                <p class="mb-2 fw-bold">External Specifications:</p>
+                ${externalSpecsList}
+            </div>
             <hr>
             <p class="ps-3 pe-3" id="w3c-state">W3C Recommendation, ${currentDate}</p>
         </div>

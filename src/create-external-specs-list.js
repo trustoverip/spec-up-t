@@ -31,19 +31,23 @@ module.exports = function createExternalSpecsList(config) {
         return '<p>No external specifications found.</p>';
     }
 
-    let html = '<table class="table table-striped">';
-    html += '<thead><tr><th>Specification</th><th>GitHub Page</th></tr></thead>';
-    html += '<tbody>';
+    let html = '<div class="external-specs-list">';
+    html += '<ul class="list-unstyled">';
 
     externalSpecs.forEach(spec => {
         html += `
-      <tr>
-        <td><a href="${spec.url}" target="_blank">${spec.external_spec}</a></td>
-        <td><a href="${spec.gh_page}" target="_blank"><i class="fa fa-github"></i> GitHub Page</a></td>
-      </tr>
+      <li class="mb-2">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-diagram-3 me-2"></i>
+          <a href="${spec.url}" target="_blank" class="text-decoration-none">${spec.external_spec}</a>
+          <a href="${spec.gh_page}" target="_blank" class="ms-2 btn btn-sm btn-light">
+            <i class="bi bi-github"></i>
+          </a>
+        </div>
+      </li>
     `;
     });
 
-    html += '</tbody></table>';
+    html += '</ul></div>';
     return html;
 };
