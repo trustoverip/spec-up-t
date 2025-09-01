@@ -301,3 +301,120 @@ describe('processXTref', () => {
         expect(result.alias).toBeUndefined();
     });
 });
+
+describe('addNewXTrefsFromMarkdown with filename tracking', () => {
+    const addNewXTrefsFromMarkdown = require('./collect-external-references').addNewXTrefsFromMarkdown;
+
+    it('should add sourceFile property when filename is provided', () => {
+        const markdownContent = "Some text [[xref:specA, termA]] more text";
+        const allXTrefs = { xtrefs: [] };
+        const filename = 'test-file.md';
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename);
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0]).toEqual({
+            externalSpec: 'specA',
+            term: 'termA',
+            sourceFile: 'test-file.md'
+        });
+    });
+
+    it('should not add sourceFile property when filename is not provided', () => {
+        const markdownContent = "Some text [[xref:specA, termA]] more text";
+        const allXTrefs = { xtrefs: [] };
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs);
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0]).toEqual({
+            externalSpec: 'specA',
+            term: 'termA'
+        });
+        expect(updatedXTrefs.xtrefs[0].sourceFile).toBeUndefined();
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toBeUndefined();
+    });
+
+    it('should create sourceFiles array when same xtref found in multiple files', () => {
+        const markdownContent1 = "Some text [[xref:specA, termA]] more text";
+        const markdownContent2 = "Different text [[xref:specA, termA]] here";
+        const allXTrefs = { xtrefs: [] };
+
+        // Add from first file
+        addNewXTrefsFromMarkdown(markdownContent1, allXTrefs, 'file1.md');
+        // Add from second file - should create sourceFiles array
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent2, allXTrefs, 'file2.md');
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].externalSpec).toBe('specA');
+        expect(updatedXTrefs.xtrefs[0].term).toBe('termA');
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual(['file1.md', 'file2.md']);
+        expect(updatedXTrefs.xtrefs[0].sourceFile).toBeUndefined();
+    });
+
+    it('should not duplicate filenames in sourceFiles array', () => {
+        const markdownContent = "Some text [[xref:specA, termA]] and again [[xref:specA, termA]]";
+        const allXTrefs = { xtrefs: [] };
+
+        // Process same file twice
+        addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'file1.md');
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'file1.md');
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].sourceFile).toBe('file1.md');
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toBeUndefined();
+    });
+
+    it('should handle conversion from sourceFile to sourceFiles array', () => {
+        const allXTrefs = { 
+            xtrefs: [
+                {
+                    externalSpec: 'specA',
+                    term: 'termA',
+                    sourceFile: 'existing-file.md'
+                }
+            ] 
+        };
+        const markdownContent = "Text [[xref:specA, termA]] here";
+        
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'new-file.md');
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual(['existing-file.md', 'new-file.md']);
+        expect(updatedXTrefs.xtrefs[0].sourceFile).toBeUndefined();
+    });
+});
+
+describe('isXTrefInAnyFile', () => {
+    const isXTrefInAnyFile = require('./collect-external-references').isXTrefInAnyFile;
+
+    it('should return true when xtref is found in at least one file', () => {
+        const xtref = { externalSpec: 'specA', term: 'termA' };
+        const fileContents = new Map([
+            ['file1.md', 'Some content without xrefs'],
+            ['file2.md', 'Content with [[xref:specA,termA]] reference'],
+            ['file3.md', 'More content without xrefs']
+        ]);
+
+        const result = isXTrefInAnyFile(xtref, fileContents);
+        expect(result).toBe(true);
+    });
+
+    it('should return false when xtref is not found in any file', () => {
+        const xtref = { externalSpec: 'specA', term: 'termA' };
+        const fileContents = new Map([
+            ['file1.md', 'Some content without xrefs'],
+            ['file2.md', 'Content with [[xref:specB,termB]] reference'],
+            ['file3.md', 'More content without xrefs']
+        ]);
+
+        const result = isXTrefInAnyFile(xtref, fileContents);
+        expect(result).toBe(false);
+    });
+
+    it('should handle empty file contents map', () => {
+        const xtref = { externalSpec: 'specA', term: 'termA' };
+        const fileContents = new Map();
+
+        const result = isXTrefInAnyFile(xtref, fileContents);
+        expect(result).toBe(false);
+    });
+});

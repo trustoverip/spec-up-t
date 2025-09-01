@@ -18,7 +18,8 @@
         "repo": "ctwg-main-glossary",
         "site": null,
         "commitHash": "not found",
-        "content": "This term was not found in the external repository."
+        "content": "This term was not found in the external repository.",
+        "sourceFiles": ["governance.md"]
         },
         {
         "externalSpec": "vlei1",
@@ -30,7 +31,8 @@
         "avatarUrl": "https://avatars.githubusercontent.com/u/479356?v=4",
         "site": null,
         "commitHash": "5e36b16e58984eeaccae22116a2bf058ab01a0e9",
-        "content": "[[def: vlei-ecosystem-governance-framework, vlei ecosystem governance framework]]\n\n~ The Verifiable LEI (vLEI) Ecosystem [[ref: governance-framework]] Information Trust Policies. It's a **document** that defines the … etc"
+        "content": "[[def: vlei-ecosystem-governance-framework, vlei ecosystem governance framework]]\n\n~ The Verifiable LEI (vLEI) Ecosystem [[ref: governance-framework]] Information Trust Policies. It's a **document** that defines the … etc",
+        "sourceFiles": ["vlei-terms.md", "ecosystem.md"]
         }
     ]
   };
@@ -65,6 +67,22 @@ function isXTrefInMarkdown(xtref, markdownContent) {
 }
 
 /**
+ * Checks if a specific xtref is present in any of the provided file contents
+ * 
+ * @param {Object} xtref - The xtref object to check for
+ * @param {Map} fileContents - Map of filename to file content
+ * @returns {boolean} True if the xtref is found in any file
+ */
+function isXTrefInAnyFile(xtref, fileContents) {
+    for (const [filename, content] of fileContents) {
+        if (isXTrefInMarkdown(xtref, content)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Helper function to process an XTref string and return an object.
  * 
  * @param {string} xtref - The xtref string to process
@@ -93,20 +111,45 @@ function processXTref(xtref) {
 /**
  * Adds new xtrefs found in markdown content to the existing collection
  * 
- * @param {string} allMarkdownContent - The content to search for XTrefs
+ * @param {string} markdownContent - The content to search for XTrefs
  * @param {Object} allXTrefs - An object with an array property "xtrefs" to which new entries will be added
+ * @param {string} [filename] - Optional filename where the xtref was found
  * @returns {Object} The updated allXTrefs object
  */
-function addNewXTrefsFromMarkdown(allMarkdownContent, allXTrefs) {
+function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null) {
     const regex = /\[\[(?:xref|tref):.*?\]\]/g;
-    if (regex.test(allMarkdownContent)) {
-        const xtrefs = allMarkdownContent.match(regex);
+    if (regex.test(markdownContent)) {
+        const xtrefs = markdownContent.match(regex);
         xtrefs.forEach(xtref => {
             const newXTrefObj = processXTref(xtref);
-            if (!allXTrefs?.xtrefs?.some(existingXTref =>
+            
+            // Check if this exact xtref already exists
+            const existingIndex = allXTrefs?.xtrefs?.findIndex(existingXTref =>
                 existingXTref.term === newXTrefObj.term &&
-                existingXTref.externalSpec === newXTrefObj.externalSpec)) {
+                existingXTref.externalSpec === newXTrefObj.externalSpec);
+            
+            if (existingIndex === -1) {
+                // New xtref, add it with filename if provided
+                if (filename) {
+                    newXTrefObj.sourceFile = filename;
+                }
                 allXTrefs.xtrefs.push(newXTrefObj);
+            } else if (filename) {
+                // Existing xtref, handle filename tracking
+                const existingXTref = allXTrefs.xtrefs[existingIndex];
+                
+                if (!existingXTref.sourceFiles && !existingXTref.sourceFile) {
+                    // No file tracking yet, add as single sourceFile
+                    existingXTref.sourceFile = filename;
+                } else if (existingXTref.sourceFile && existingXTref.sourceFile !== filename) {
+                    // Converting from single sourceFile to sourceFiles array
+                    existingXTref.sourceFiles = [existingXTref.sourceFile, filename];
+                    delete existingXTref.sourceFile;
+                } else if (existingXTref.sourceFiles && !existingXTref.sourceFiles.includes(filename)) {
+                    // Adding to existing sourceFiles array
+                    existingXTref.sourceFiles.push(filename);
+                }
+                // If filename already exists in sourceFile or sourceFiles, do nothing
             }
         });
     }
@@ -249,30 +292,39 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
         }
     }
 
-    // Collect all markdown content
+    // Collect all markdown content and track file information
     let allMarkdownContent = '';
+    const fileContents = new Map(); // filename -> content mapping
 
-    // Read all main repo Markdown files from a list of directories and concatenate their content into a single string.
+    // Read all main repo Markdown files from a list of directories and store both concatenated content and individual files.
     specTermsDirectories.forEach(specDirectory => {
         fs.readdirSync(specDirectory).forEach(file => {
             if (shouldProcessFile(file)) {
                 const filePath = path.join(specDirectory, file);
                 const markdown = fs.readFileSync(filePath, 'utf8');
                 allMarkdownContent += markdown;
+                fileContents.set(file, markdown);
             }
         });
     });
 
-    // Remove existing entries if not in the combined markdown content
+    // Remove existing entries if not found in any file
     allXTrefs.xtrefs = allXTrefs.xtrefs.filter(existingXTref => {
-        return isXTrefInMarkdown(existingXTref, allMarkdownContent);
+        return isXTrefInAnyFile(existingXTref, fileContents);
     });
 
-    addNewXTrefsFromMarkdown(allMarkdownContent, allXTrefs);
+    // Process each file individually to track source files
+    fileContents.forEach((content, filename) => {
+        addNewXTrefsFromMarkdown(content, allXTrefs, filename);
+    });
 
     // Example at this point:
     // allXTrefs.xtrefs: [
-    //     { externalSpec: 'kmg-1', term: 'authentic-chained-data-container' },
+    //     { 
+    //         externalSpec: 'kmg-1', 
+    //         term: 'authentic-chained-data-container',
+    //         sourceFiles: ['term1.md', 'term2.md']  // Files where this xtref was found
+    //     },
     // ]
 
     // Extend each xref with additional data and fetch commit information from GitHub.
@@ -361,6 +413,7 @@ function collectExternalReferences(options = {}) {
 module.exports = {
     collectExternalReferences,
     isXTrefInMarkdown,
+    isXTrefInAnyFile,
     addNewXTrefsFromMarkdown,
     processXTref
 };
