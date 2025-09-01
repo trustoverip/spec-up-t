@@ -7,3 +7,4 @@
 - When using the term `tref` we mean this construction: `[[tref: externalreference, term, alias]]`
 - When using the term `xref` we mean this construction: `[[tref: externalreference, term]]`
 - When using the term `def` we mean this construction: `[[def: term, alias]]`
+- Be generous with writing explanations for each block of code
