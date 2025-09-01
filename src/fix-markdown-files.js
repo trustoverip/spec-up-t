@@ -15,14 +15,14 @@ function processDefLines(lines) {
     for (let i = 0; i < result.length; i++) {
         if (result[i].startsWith('[[def:') || result[i].startsWith('[[tref:')) {
             let insertIndex = i + 1;
-            
+
             // Ensure a blank line immediately follows `[[def:` and `[[tref:` lines
             if (insertIndex < result.length && result[insertIndex].trim() !== '') {
                 result.splice(insertIndex, 0, ''); // Insert blank line
                 insertIndex++;
                 modified = true;
             }
-            
+
             // No additional content needed - both [[def: and [[tref: lines can exist standalone
             // The HTML post-processing will handle the proper structure
         }
