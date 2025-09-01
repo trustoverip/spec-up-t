@@ -41,6 +41,7 @@ module.exports = async function (options = {}) {
     const { fixMarkdownFiles } = require('./src/fix-markdown-files.js');
     const { processEscapedTags, restoreEscapedTags } = require('./src/escape-mechanism.js');
     const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./src/html-dom-processor.js');
+    const { getGithubRepoInfo } = require('./src/utils/git-info.js');
 
     let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
     let assets = fs.readJsonSync(modulePath + '/config/asset-map.json');
@@ -435,7 +436,8 @@ module.exports = async function (options = {}) {
           specLogoLink: spec.logo_link,
           spec: JSON.stringify(spec),
           externalSpecsList: externalSpecsList,
-          currentDate: currentDate
+          currentDate: currentDate,
+          githubRepoInfo: getGithubRepoInfo(spec)
         });
 
         const outputPath = path.join(spec.destination, 'index.html');
