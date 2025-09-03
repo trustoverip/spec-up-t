@@ -223,12 +223,12 @@ html.dense-info dl.terms-and-definitions-list>dt>span {
 
 /* ====== TRANSCLUSIONS STYLING ====== */
 /* Base transclusion styles */
-.transcluded-xref-term {
+.term-external {
   position: relative;
 }
 
-dl.terms-and-definitions-list>dt.transcluded-xref-term,
-dl.terms-and-definitions-list>dd.transcluded-xref-term {
+dl.terms-and-definitions-list>dt.term-external,
+dl.terms-and-definitions-list>dd.term-external {
   background: #a9dde03b;
 }
 
@@ -262,7 +262,7 @@ dl.terms-and-definitions-list>dd.term-local {
 }
 
 /* Embedded transclusions in definition lists */
-dl.terms-and-definitions-list>dd.transcluded-xref-term-embedded {
+dl.terms-and-definitions-list>dd.term-external-embedded {
   position: relative;
   padding-left: 2.5rem;
   padding-top: 0.3rem;
@@ -270,7 +270,7 @@ dl.terms-and-definitions-list>dd.transcluded-xref-term-embedded {
 }
 
 /* Arrow styling for transclusions */
-dl.terms-and-definitions-list span.transcluded-xref-term::after {
+dl.terms-and-definitions-list span.term-external::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -285,7 +285,7 @@ dl.terms-and-definitions-list span.transcluded-xref-term::after {
 }
 
 /* Inline span styling for transclusions */
-dl.terms-and-definitions-list span.transcluded-xref-term {
+dl.terms-and-definitions-list span.term-external {
   padding-left: 1.5rem;
   display: inline-block;
 }

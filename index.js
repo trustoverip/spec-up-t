@@ -126,9 +126,9 @@ module.exports = async function (options = {}) {
               
               // Return the term structure similar to def, so it can be processed by markdown-it's definition list parser
               if (aliasId && alias !== termName) {
-                return `<span data-original-term="${termName}" class="transcluded-xref-term" id="${termId}"><span title="Externally defined as ${termName}" id="${aliasId}">${publishedTermName}</span></span>`;
+                return `<span data-original-term="${termName}" class="term-external" id="${termId}"><span title="Externally defined as ${termName}" id="${aliasId}">${publishedTermName}</span></span>`;
               } else {
-                return `<span title="Externally also defined as ${termName}" data-original-term="${termName}" class="transcluded-xref-term" id="${termId}">${publishedTermName}</span>`;
+                return `<span title="Externally also defined as ${termName}" data-original-term="${termName}" class="term-external" id="${termId}">${publishedTermName}</span>`;
               }
             }
             else {

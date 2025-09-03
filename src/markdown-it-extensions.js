@@ -358,9 +358,9 @@ module.exports = function (md, templates = {}) {
     if (isTermTranscluded(tokens, idx)) {
       const classIndex = tokens[idx].attrIndex('class');
       if (classIndex < 0) {
-        tokens[idx].attrPush(['class', 'transcluded-xref-term']);
+        tokens[idx].attrPush(['class', 'term-external']);
       } else {
-        tokens[idx].attrs[classIndex][1] += ' transcluded-xref-term';
+        tokens[idx].attrs[classIndex][1] += ' term-external';
       }
     } else {
       // For local terms (defs), add the term-local class

@@ -378,7 +378,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
             });
 
             // Special handling for ALL transcluded terms with blue background - no class restrictions
-            document.querySelectorAll('.transcluded-xref-term, .term-local').forEach(el => {
+            document.querySelectorAll('.term-external, .term-local').forEach(el => {
                 // Use the most aggressive approach possible to override the blue background
                 el.setAttribute('style', el.getAttribute('style') + '; background: transparent !important; background-color: transparent !important; background-image: none !important;');
 
@@ -391,10 +391,10 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
             // Remove any inline styles that might be setting backgrounds
             document.querySelectorAll('style').forEach(styleTag => {
                 let cssText = styleTag.textContent;
-                // If the style tag contains transcluded-xref-term styles, modify them
-                if (cssText.includes('transcluded-xref-term') && cssText.includes('background')) {
-                    cssText = cssText.replace(/dt\.transcluded-xref-term[^}]+}/g,
-                        'dt.transcluded-xref-term, dd.transcluded-xref-term, dt.term-local, dd.term-local { background: transparent !important; background-color: transparent !important; background-image: none !important; }');
+                // If the style tag contains term-external styles, modify them
+                if (cssText.includes('term-external') && cssText.includes('background')) {
+                    cssText = cssText.replace(/dt\.term-external[^}]+}/g,
+                        'dt.term-external, dd.term-external, dt.term-local, dd.term-local { background: transparent !important; background-color: transparent !important; background-image: none !important; }');
                     styleTag.textContent = cssText;
                 }
             });            // Format Table of Contents for book-like layout

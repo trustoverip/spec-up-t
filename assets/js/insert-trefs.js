@@ -7,7 +7,7 @@
 /**
  * Inserts transcluded external references (trefs) into the document.
  * This function processes the allXTrefs data and inserts definition content into the document
- * for terms marked with the 'transcluded-xref-term' class.
+ * for terms marked with the 'term-external' class.
  * @param {Object} allXTrefs - The object containing all external references data
  * @param {Array} allXTrefs.xtrefs - Array of external reference objects, each containing term definitions
  */
@@ -28,7 +28,7 @@ function insertTrefs(allXTrefs) {
        */
       const allTerms = [];
 
-      document.querySelectorAll('dl.terms-and-definitions-list dt span.transcluded-xref-term').forEach((termElement) => {
+      document.querySelectorAll('dl.terms-and-definitions-list dt span.term-external').forEach((termElement) => {
          
          // Get the full text content including any nested spans (for aliases) of a term (dt)
          // In case of `[[tref:toip1, agency, ag]]`, this will return `agency`
@@ -50,7 +50,7 @@ function insertTrefs(allXTrefs) {
          // Skip if the term has already been processed
          if (dt) {
             const nextElement = dt.nextElementSibling;
-            if (nextElement?.classList.contains('transcluded-xref-term') &&
+            if (nextElement?.classList.contains('term-external') &&
                nextElement.classList.contains('meta-info-content-wrapper')) {
                return; // Already processed
             }
@@ -85,7 +85,7 @@ function insertTrefs(allXTrefs) {
 
          // Create meta info element
          const metaInfoEl = document.createElement('dd');
-         metaInfoEl.classList.add('transcluded-xref-term', 'meta-info-content-wrapper', 'collapsed');
+         metaInfoEl.classList.add('term-external', 'meta-info-content-wrapper', 'collapsed');
 
          if (xref) {
             // Generate meta info content
@@ -132,7 +132,7 @@ function insertTrefs(allXTrefs) {
                   // Clone the node to avoid removing it from tempDiv during insertion
                   const clonedDD = dd.cloneNode(true);
                   // Add necessary classes
-                  clonedDD.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
+                  clonedDD.classList.add('term-external', 'term-external-embedded');
                   // Add to fragment
                   fragment.appendChild(clonedDD);
                });
@@ -142,7 +142,7 @@ function insertTrefs(allXTrefs) {
                   `"content": "This term was not found in the external repository"`
                */
                const contentEl = document.createElement('dd');
-               contentEl.classList.add('transcluded-xref-term', 'transcluded-xref-term-embedded');
+               contentEl.classList.add('term-external', 'term-external-embedded');
                contentEl.innerHTML = tempDiv.innerHTML;
                fragment.appendChild(contentEl);
             }

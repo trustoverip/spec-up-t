@@ -100,10 +100,10 @@ function fixDefinitionListStructure(html) {
   });
 
   // Find any transcluded term dt elements anywhere in the document
-  const transcludedTerms = document.querySelectorAll('dt.transcluded-xref-term, dt.term-local');
+  const transcludedTerms = document.querySelectorAll('dt.term-external, dt.term-local');
   
   // Also find any tref spans that are in paragraphs (standalone trefs)
-  const standaloneTrefSpans = document.querySelectorAll('p span.transcluded-xref-term');
+  const standaloneTrefSpans = document.querySelectorAll('p span.term-external');
 
   let mainDl = null;
 
@@ -177,7 +177,7 @@ function fixDefinitionListStructure(html) {
     if (paragraph) {
       // Create a new dt element for this tref
       const newDt = document.createElement('dt');
-      newDt.className = 'transcluded-xref-term';
+      newDt.className = 'term-external';
       
       // Move the tref span into the dt
       newDt.appendChild(trefSpan.cloneNode(true));
@@ -306,11 +306,11 @@ function fixDefinitionListStructure(html) {
       }
       else if (currentNode.tagName === 'P') {
         // Check if this paragraph contains a standalone tref term
-        const trefSpan = currentNode.querySelector('span.transcluded-xref-term');
+        const trefSpan = currentNode.querySelector('span.term-external');
         if (trefSpan) {
           // Create a new dt element for this tref
           const newDt = document.createElement('dt');
-          newDt.className = 'transcluded-xref-term';
+          newDt.className = 'term-external';
           
           // Move the tref span into the dt
           newDt.appendChild(trefSpan.cloneNode(true));
