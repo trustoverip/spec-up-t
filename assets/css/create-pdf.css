@@ -304,7 +304,9 @@ body.pdf-document {
 
 /* Clean styling for transclusion */
 .pdf-document dt.transcluded-xref-term,
-.pdf-document dd.transcluded-xref-term {
+.pdf-document dd.transcluded-xref-term,
+.pdf-document dt.term-local,
+.pdf-document dd.term-local {
   background: transparent !important;
 }
 

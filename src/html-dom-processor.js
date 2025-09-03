@@ -100,7 +100,7 @@ function fixDefinitionListStructure(html) {
   });
 
   // Find any transcluded term dt elements anywhere in the document
-  const transcludedTerms = document.querySelectorAll('dt.transcluded-xref-term');
+  const transcludedTerms = document.querySelectorAll('dt.transcluded-xref-term, dt.term-local');
   
   // Also find any tref spans that are in paragraphs (standalone trefs)
   const standaloneTrefSpans = document.querySelectorAll('p span.transcluded-xref-term');

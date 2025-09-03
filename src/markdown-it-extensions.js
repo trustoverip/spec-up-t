@@ -362,6 +362,14 @@ module.exports = function (md, templates = {}) {
       } else {
         tokens[idx].attrs[classIndex][1] += ' transcluded-xref-term';
       }
+    } else {
+      // For local terms (defs), add the term-local class
+      const classIndex = tokens[idx].attrIndex('class');
+      if (classIndex < 0) {
+        tokens[idx].attrPush(['class', 'term-local']);
+      } else {
+        tokens[idx].attrs[classIndex][1] += ' term-local';
+      }
     }
 
     return originalDtRender(tokens, idx, options, env, self);

@@ -232,6 +232,16 @@ dl.terms-and-definitions-list>dd.transcluded-xref-term {
   background: #a9dde03b;
 }
 
+/* Local term styling */
+.term-local {
+  position: relative;
+}
+
+dl.terms-and-definitions-list>dt.term-local,
+dl.terms-and-definitions-list>dd.term-local {
+  background: #f0f8ff;
+}
+
 /* Fix for all buttons */
 .btn {
   font-variant: small-caps;

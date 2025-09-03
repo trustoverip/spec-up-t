@@ -378,7 +378,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
             });
 
             // Special handling for ALL transcluded terms with blue background - no class restrictions
-            document.querySelectorAll('.transcluded-xref-term').forEach(el => {
+            document.querySelectorAll('.transcluded-xref-term, .term-local').forEach(el => {
                 // Use the most aggressive approach possible to override the blue background
                 el.setAttribute('style', el.getAttribute('style') + '; background: transparent !important; background-color: transparent !important; background-image: none !important;');
 
@@ -394,7 +394,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                 // If the style tag contains transcluded-xref-term styles, modify them
                 if (cssText.includes('transcluded-xref-term') && cssText.includes('background')) {
                     cssText = cssText.replace(/dt\.transcluded-xref-term[^}]+}/g,
-                        'dt.transcluded-xref-term, dd.transcluded-xref-term { background: transparent !important; background-color: transparent !important; background-image: none !important; }');
+                        'dt.transcluded-xref-term, dd.transcluded-xref-term, dt.term-local, dd.term-local { background: transparent !important; background-color: transparent !important; background-image: none !important; }');
                     styleTag.textContent = cssText;
                 }
             });            // Format Table of Contents for book-like layout
