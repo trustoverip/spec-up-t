@@ -184,6 +184,18 @@ describe('addNewXTrefsFromMarkdown', () => {
         );
     });
 
+    it('should not add duplicate xtrefs with same spec and term but different aliases', () => {
+        const markdownContent = "Content [[xref:specA, termA]] and again [[xref:specA, termA, aliasA]]";
+        const allXTrefs = { xtrefs: [] };
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs);
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].term).toBe('termA');
+        expect(updatedXTrefs.xtrefs[0].externalSpec).toBe('specA');
+        expect(updatedXTrefs.xtrefs[0].externalSpec).toBe('specA');
+        // The first one found will be used (without alias in this case)
+    });
+
     it('should not change xtrefs when no xtrefs are found in markdown content', () => {
         const markdownContent = "This is markdown without any reference links.";
         const initialXTrefs = { xtrefs: [] };
@@ -243,7 +255,8 @@ describe('processXTref', () => {
         
         expect(result).toEqual({
             externalSpec: 'specA',
-            term: 'termA'
+            term: 'termA',
+            referenceType: 'xref'
         });
     });
 
@@ -253,7 +266,8 @@ describe('processXTref', () => {
         
         expect(result).toEqual({
             externalSpec: 'specA',
-            term: 'termA'
+            term: 'termA',
+            referenceType: 'tref'
         });
     });
 
@@ -264,7 +278,8 @@ describe('processXTref', () => {
         expect(result).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            alias: 'aliasA'
+            alias: 'aliasA',
+            referenceType: 'tref'
         });
     });
 
@@ -275,7 +290,8 @@ describe('processXTref', () => {
         expect(result).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            alias: 'aliasA'
+            alias: 'aliasA',
+            referenceType: 'xref'
         });
     });
 
@@ -286,7 +302,8 @@ describe('processXTref', () => {
         expect(result).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            alias: 'aliasA'
+            alias: 'aliasA',
+            referenceType: 'tref'
         });
     });
 
@@ -296,7 +313,8 @@ describe('processXTref', () => {
         
         expect(result).toEqual({
             externalSpec: 'specA',
-            term: 'termA'
+            term: 'termA',
+            referenceType: 'tref'
         });
         expect(result.alias).toBeUndefined();
     });
@@ -305,7 +323,7 @@ describe('processXTref', () => {
 describe('addNewXTrefsFromMarkdown with filename tracking', () => {
     const addNewXTrefsFromMarkdown = require('./collect-external-references').addNewXTrefsFromMarkdown;
 
-    it('should add sourceFile property when filename is provided', () => {
+    it('should add sourceFiles property when filename is provided', () => {
         const markdownContent = "Some text [[xref:specA, termA]] more text";
         const allXTrefs = { xtrefs: [] };
         const filename = 'test-file.md';
@@ -315,11 +333,11 @@ describe('addNewXTrefsFromMarkdown with filename tracking', () => {
         expect(updatedXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            sourceFile: 'test-file.md'
+            sourceFiles: [{ file: 'test-file.md', type: 'xref' }]
         });
     });
 
-    it('should not add sourceFile property when filename is not provided', () => {
+    it('should not add sourceFiles property when filename is not provided', () => {
         const markdownContent = "Some text [[xref:specA, termA]] more text";
         const allXTrefs = { xtrefs: [] };
         const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs);
@@ -329,7 +347,6 @@ describe('addNewXTrefsFromMarkdown with filename tracking', () => {
             externalSpec: 'specA',
             term: 'termA'
         });
-        expect(updatedXTrefs.xtrefs[0].sourceFile).toBeUndefined();
         expect(updatedXTrefs.xtrefs[0].sourceFiles).toBeUndefined();
     });
 
@@ -346,8 +363,12 @@ describe('addNewXTrefsFromMarkdown with filename tracking', () => {
         expect(updatedXTrefs.xtrefs.length).toBe(1);
         expect(updatedXTrefs.xtrefs[0].externalSpec).toBe('specA');
         expect(updatedXTrefs.xtrefs[0].term).toBe('termA');
-        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual(['file1.md', 'file2.md']);
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'file1.md', type: 'xref'},
+            {file: 'file2.md', type: 'xref'}
+        ]);
         expect(updatedXTrefs.xtrefs[0].sourceFile).toBeUndefined();
+        expect(updatedXTrefs.xtrefs[0].referenceType).toBeUndefined();
     });
 
     it('should not duplicate filenames in sourceFiles array', () => {
@@ -359,17 +380,18 @@ describe('addNewXTrefsFromMarkdown with filename tracking', () => {
         const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'file1.md');
 
         expect(updatedXTrefs.xtrefs.length).toBe(1);
-        expect(updatedXTrefs.xtrefs[0].sourceFile).toBe('file1.md');
-        expect(updatedXTrefs.xtrefs[0].sourceFiles).toBeUndefined();
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'file1.md', type: 'xref'}
+        ]);
     });
 
-    it('should handle conversion from sourceFile to sourceFiles array', () => {
+    it('should add to existing sourceFiles array when finding duplicate reference', () => {
         const allXTrefs = { 
             xtrefs: [
                 {
                     externalSpec: 'specA',
                     term: 'termA',
-                    sourceFile: 'existing-file.md'
+                    sourceFiles: [{file: 'existing-file.md', type: 'tref'}]
                 }
             ] 
         };
@@ -378,8 +400,12 @@ describe('addNewXTrefsFromMarkdown with filename tracking', () => {
         const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'new-file.md');
 
         expect(updatedXTrefs.xtrefs.length).toBe(1);
-        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual(['existing-file.md', 'new-file.md']);
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'existing-file.md', type: 'tref'},
+            {file: 'new-file.md', type: 'xref'}
+        ]);
         expect(updatedXTrefs.xtrefs[0].sourceFile).toBeUndefined();
+        expect(updatedXTrefs.xtrefs[0].referenceType).toBeUndefined();
     });
 });
 
@@ -416,5 +442,129 @@ describe('isXTrefInAnyFile', () => {
 
         const result = isXTrefInAnyFile(xtref, fileContents);
         expect(result).toBe(false);
+    });
+});
+
+describe('Reference type tracking', () => {
+    const addNewXTrefsFromMarkdown = require('./collect-external-references').addNewXTrefsFromMarkdown;
+
+    it('should track xref reference type in sourceFiles when filename provided', () => {
+        const markdownContent = "Some text [[xref:specA, termA]] more text";
+        const allXTrefs = { xtrefs: [] };
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'test.md');
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'test.md', type: 'xref'}
+        ]);
+    });
+
+    it('should track tref reference type in sourceFiles when filename provided', () => {
+        const markdownContent = "Some text [[tref:specA, termA]] more text";
+        const allXTrefs = { xtrefs: [] };
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'test.md');
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'test.md', type: 'tref'}
+        ]);
+    });
+
+    it('should convert to sourceFiles array when same term found as both xref and tref in different files', () => {
+        const markdownContent1 = "Text with [[xref:specA, termA]] reference";
+        const markdownContent2 = "Text with [[tref:specA, termA]] reference";
+        const allXTrefs = { xtrefs: [] };
+
+        // Add xref first
+        addNewXTrefsFromMarkdown(markdownContent1, allXTrefs, 'file1.md');
+        expect(allXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'file1.md', type: 'xref'}
+        ]);
+
+        // Add tref for same term in different file - should expand sourceFiles array
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent2, allXTrefs, 'file2.md');
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'file1.md', type: 'xref'},
+            {file: 'file2.md', type: 'tref'}
+        ]);
+        expect(updatedXTrefs.xtrefs[0].referenceType).toBeUndefined();
+        expect(updatedXTrefs.xtrefs[0].sourceFile).toBeUndefined();
+    });
+
+    it('should not duplicate reference types in same file', () => {
+        const markdownContent = "Text [[xref:specA, termA]] and again [[xref:specA, termA]]";
+        const allXTrefs = { xtrefs: [] };
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'file1.md');
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'file1.md', type: 'xref'}
+        ]);
+    });
+
+    it('should handle same term with different reference types in same file', () => {
+        const markdownContent = "Text [[xref:specA, termA]] and [[tref:specA, termA]]";
+        const allXTrefs = { xtrefs: [] };
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'file1.md');
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'file1.md', type: 'xref'},
+            {file: 'file1.md', type: 'tref'}
+        ]);
+        expect(updatedXTrefs.xtrefs[0].referenceType).toBeUndefined();
+        expect(updatedXTrefs.xtrefs[0].sourceFile).toBeUndefined();
+    });
+
+    it('should add new file/type combination to existing sourceFiles array', () => {
+        const allXTrefs = { 
+            xtrefs: [
+                {
+                    externalSpec: 'specA',
+                    term: 'termA',
+                    sourceFiles: [
+                        {file: 'file1.md', type: 'xref'}
+                    ]
+                }
+            ] 
+        };
+        const markdownContent = "Text with [[tref:specA, termA]] reference";
+        
+        const updatedXTrefs = addNewXTrefsFromMarkdown(markdownContent, allXTrefs, 'file2.md');
+
+        expect(updatedXTrefs.xtrefs.length).toBe(1);
+        expect(updatedXTrefs.xtrefs[0].sourceFiles).toEqual([
+            {file: 'file1.md', type: 'xref'},
+            {file: 'file2.md', type: 'tref'}
+        ]);
+    });
+
+    it('should handle complex scenario with both filename and reference type tracking', () => {
+        const allXTrefs = { xtrefs: [] };
+        
+        // Add xref from file1
+        addNewXTrefsFromMarkdown("[[xref:specA, termA]]", allXTrefs, 'file1.md');
+        expect(allXTrefs.xtrefs[0]).toEqual({
+            externalSpec: 'specA',
+            term: 'termA',
+            sourceFiles: [{ file: 'file1.md', type: 'xref' }]
+        });
+        
+        // Add tref from file2 - should convert to sourceFiles array with detailed tracking
+        addNewXTrefsFromMarkdown("[[tref:specA, termA]]", allXTrefs, 'file2.md');
+        
+        expect(allXTrefs.xtrefs.length).toBe(1);
+        expect(allXTrefs.xtrefs[0]).toEqual({
+            externalSpec: 'specA',
+            term: 'termA',
+            sourceFiles: [
+                {file: 'file1.md', type: 'xref'},
+                {file: 'file2.md', type: 'tref'}
+            ]
+        });
+        expect(allXTrefs.xtrefs[0].referenceType).toBeUndefined();
+        expect(allXTrefs.xtrefs[0].sourceFile).toBeUndefined();
     });
 });

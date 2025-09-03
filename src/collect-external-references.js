@@ -12,18 +12,24 @@
         {
         "externalSpec": "toip1",
         "term": "SSI",
+        "sourceFiles": [
+            {"file": "governance.md", "type": "xref"}
+        ],
         "repoUrl": "https://github.com/henkvancann/ctwg-main-glossary",
         "terms_dir": "spec/terms-definitions",
         "owner": "henkvancann",
         "repo": "ctwg-main-glossary",
         "site": null,
         "commitHash": "not found",
-        "content": "This term was not found in the external repository.",
-        "sourceFiles": ["governance.md"]
+        "content": "This term was not found in the external repository."
         },
         {
         "externalSpec": "vlei1",
         "term": "vlei-ecosystem-governance-framework",
+        "sourceFiles": [
+            {"file": "vlei-terms.md", "type": "xref"},
+            {"file": "ecosystem.md", "type": "tref"}
+        ],
         "repoUrl": "https://github.com/henkvancann/vlei-glossary",
         "terms_dir": "spec/terms-definitions",
         "owner": "henkvancann",
@@ -31,8 +37,7 @@
         "avatarUrl": "https://avatars.githubusercontent.com/u/479356?v=4",
         "site": null,
         "commitHash": "5e36b16e58984eeaccae22116a2bf058ab01a0e9",
-        "content": "[[def: vlei-ecosystem-governance-framework, vlei ecosystem governance framework]]\n\n~ The Verifiable LEI (vLEI) Ecosystem [[ref: governance-framework]] Information Trust Policies. It's a **document** that defines the … etc",
-        "sourceFiles": ["vlei-terms.md", "ecosystem.md"]
+        "content": "[[def: vlei-ecosystem-governance-framework, vlei ecosystem governance framework]]\n\n~ The Verifiable LEI (vLEI) Ecosystem [[ref: governance-framework]] Information Trust Policies. It's a **document** that defines the … etc"
         }
     ]
   };
@@ -101,13 +106,17 @@ function isXTrefInAnyFile(xtref, fileContents) {
  * into a structured object with separate properties for each component.
  * 
  * Examples:
- * - "[[xref:keri-1,authentic-data]]" -> {externalSpec: "keri-1", term: "authentic-data"}
- * - "[[tref:vlei-1,legal-entity,LEI]]" -> {externalSpec: "vlei-1", term: "legal-entity", alias: "LEI"}
+ * - "[[xref:keri-1,authentic-data]]" -> {externalSpec: "keri-1", term: "authentic-data", referenceType: "xref"}
+ * - "[[tref:vlei-1,legal-entity,LEI]]" -> {externalSpec: "vlei-1", term: "legal-entity", alias: "LEI", referenceType: "tref"}
  * 
  * @param {string} xtref - The xtref string to process (includes the full [[...]] syntax)
- * @returns {Object} An object with externalSpec, term, and optional alias properties
+ * @returns {Object} An object with externalSpec, term, referenceType, and optional alias properties
  */
 function processXTref(xtref) {
+    // Extract the reference type (xref or tref) before removing it
+    const referenceTypeMatch = xtref.match(/\[\[(xref|tref):/);
+    const referenceType = referenceTypeMatch ? referenceTypeMatch[1] : 'unknown';
+    
     // Remove the surrounding [[xref: or [[tref: and ]] parts, then split by commas
     const parts = xtref
         .replace(/\[\[(?:xref|tref):/, '') // Remove opening [[xref: or [[tref:
@@ -118,7 +127,8 @@ function processXTref(xtref) {
     // Build the basic object with required fields
     const xtrefObject = {
         externalSpec: parts[0].trim(),  // First part: external specification identifier
-        term: parts[1].trim()           // Second part: the term being referenced
+        term: parts[1].trim(),          // Second part: the term being referenced
+        referenceType: referenceType    // NEW: Track whether this was xref or tref
     };
     
     // Add alias if provided (third parameter) and not empty
@@ -133,13 +143,13 @@ function processXTref(xtref) {
  * Adds new xtrefs found in markdown content to the existing collection
  * 
  * This is the core function that handles filename tracking for external references.
- * It intelligently manages whether to use a single `sourceFile` property or 
- * an array `sourceFiles` property based on how many files contain the same reference.
+ * It always uses the `sourceFiles` array format for consistent data structure.
+ * Each entry in the array tracks exactly which reference type was used in which file.
  * 
- * Filename tracking strategy:
- * 1. New xtref in one file -> add `sourceFile: "filename.md"`
- * 2. Same xtref found in another file -> convert to `sourceFiles: ["file1.md", "file2.md"]`
- * 3. Same xtref processed again from same file -> no duplicate filenames
+ * Filename and reference type tracking strategy:
+ * 1. New xtref -> add `sourceFiles: [{file: "filename.md", type: "xref"}]`
+ * 2. Same xtref found elsewhere -> add to array: `sourceFiles: [{file: "file1.md", type: "xref"}, {file: "file2.md", type: "tref"}]`
+ * 3. Same xtref processed again from same file with same type -> no duplicate entries
  * 
  * @param {string} markdownContent - The content to search for XTrefs
  * @param {Object} allXTrefs - An object with an array property "xtrefs" to which new entries will be added
@@ -160,6 +170,10 @@ function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null) {
             // Convert the raw string into a structured object
             const newXTrefObj = processXTref(xtref);
             
+            // Extract reference type for sourceFiles tracking, then remove from object to avoid pollution
+            const referenceType = newXTrefObj.referenceType;
+            delete newXTrefObj.referenceType;
+            
             // Check if this exact xtref already exists in our collection
             // We match on both externalSpec and term to identify duplicates
             const existingIndex = allXTrefs?.xtrefs?.findIndex(existingXTref =>
@@ -169,31 +183,24 @@ function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null) {
             if (existingIndex === -1) {
                 // Case 1: This is a completely new xtref
                 if (filename) {
-                    // Add filename tracking as a single file reference
-                    newXTrefObj.sourceFile = filename;
+                    newXTrefObj.sourceFiles = [{ file: filename, type: referenceType }];
                 }
                 allXTrefs.xtrefs.push(newXTrefObj);
                 
             } else if (filename) {
-                // Case 2: This xtref already exists, we need to handle filename tracking
+                // Case 2: This xtref already exists, add to sourceFiles array
                 const existingXTref = allXTrefs.xtrefs[existingIndex];
                 
-                if (!existingXTref.sourceFiles && !existingXTref.sourceFile) {
-                    // Case 2a: No file tracking yet (legacy data), start tracking with current file
-                    existingXTref.sourceFile = filename;
-                    
-                } else if (existingXTref.sourceFile && existingXTref.sourceFile !== filename) {
-                    // Case 2b: Single file tracked, but now found in a different file
-                    // Convert from single sourceFile to sourceFiles array
-                    existingXTref.sourceFiles = [existingXTref.sourceFile, filename];
-                    delete existingXTref.sourceFile; // Remove old single-file property
-                    
-                } else if (existingXTref.sourceFiles && !existingXTref.sourceFiles.includes(filename)) {
-                    // Case 2c: Multiple files already tracked, add this new file to the array
-                    existingXTref.sourceFiles.push(filename);
+                // Ensure sourceFiles array exists
+                if (!existingXTref.sourceFiles) {
+                    existingXTref.sourceFiles = [];
                 }
-                // Case 2d: If filename already exists in sourceFile or sourceFiles, do nothing
-                // This prevents duplicate entries when the same file is processed multiple times
+                
+                // Add the new file/type combination if it doesn't already exist
+                const newEntry = { file: filename, type: referenceType };
+                if (!existingXTref.sourceFiles.some(entry => entry.file === filename && entry.type === referenceType)) {
+                    existingXTref.sourceFiles.push(newEntry);
+                }
             }
         });
     }
@@ -363,19 +370,16 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
     const fileContents = new Map(); // filename -> content mapping for efficient lookup
 
     // Read all main repo Markdown files from a list of directories and store both concatenated content and individual files.
-    // This dual approach allows us to:
-    // 1. Maintain backward compatibility with existing filtering logic
-    // 2. Enable new filename tracking capabilities
     specTermsDirectories.forEach(specDirectory => {
         fs.readdirSync(specDirectory).forEach(file => {
             if (shouldProcessFile(file)) {
                 const filePath = path.join(specDirectory, file);
                 const markdown = fs.readFileSync(filePath, 'utf8');
                 
-                // Add to concatenated content (legacy approach)
+                // Add to concatenated content for cleanup filtering
                 allMarkdownContent += markdown;
                 
-                // Store individual file content with filename as key (new approach)
+                // Store individual file content with filename as key for per-file tracking
                 // This enables us to track which specific files contain each external reference
                 fileContents.set(file, markdown);
             }
@@ -384,7 +388,6 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
 
     // Remove existing entries if not found in any file
     // This cleanup step ensures we don't keep references to external terms that are no longer used
-    // We use the new isXTrefInAnyFile function which checks individual files instead of concatenated content
     allXTrefs.xtrefs = allXTrefs.xtrefs.filter(existingXTref => {
         return isXTrefInAnyFile(existingXTref, fileContents);
     });
@@ -396,24 +399,28 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
         addNewXTrefsFromMarkdown(content, allXTrefs, filename);
     });
 
-    // Example at this point - showing the filename tracking in action:
+    // Example at this point - showing the filename tracking and reference type tracking per file:
     // allXTrefs.xtrefs: [
     //     { 
     //         externalSpec: 'kmg-1', 
     //         term: 'authentic-chained-data-container',
-    //         sourceFile: 'security.md'  // Single file reference
+    //         sourceFiles: [
+    //             {file: 'security.md', type: 'xref'}
+    //         ]
     //     },
     //     { 
     //         externalSpec: 'vlei-1', 
     //         term: 'legal-entity-identifier',
-    //         sourceFiles: ['governance.md', 'identity.md']  // Multiple file references
+    //         sourceFiles: [                      // Multiple file references with reference type per file
+    //             {file: 'governance.md', type: 'tref'},
+    //             {file: 'identity.md', type: 'xref'}
+    //         ]
     //     }
     // ]
     //
     // Data structure explanation:
-    // - sourceFile: Used when an external reference is found in only one file
-    // - sourceFiles: Used when the same external reference is found in multiple files
-    // - The system automatically converts from sourceFile to sourceFiles when needed
+    // - sourceFiles: Array of {file, type} objects showing exactly which reference type was used in which file
+    // - This allows precise tracking of whether a term was referenced as xref or tref in each specific file
 
     // Extend each xref with additional data and fetch commit information from GitHub.
     extendXTrefs(config, allXTrefs.xtrefs);
@@ -423,13 +430,25 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
     //     {
     //         externalSpec: 'kmg-1',
     //         term: 'authentic-chained-data-container',
-    //         sourceFile: 'security.md',                                           // Filename tracking (NEW)
+    //         sourceFiles: [                                                       // Per-file reference type tracking
+    //             {file: 'security.md', type: 'xref'}
+    //         ],
     //         repoUrl: 'https://github.com/henkvancann/keri-main-glossary',        // Repository URL
     //         terms_dir: 'spec/terms-definitions',                                 // Directory containing terms
     //         owner: 'henkvancann',                                                // GitHub owner
     //         repo: 'keri-main-glossary',                                          // Repository name
     //         avatarUrl: 'https://avatars.githubusercontent.com/u/479356?v=4',     // Owner's avatar
     //         site: null                                                           // Published site URL (if any)
+    //     },
+    //     {
+    //         externalSpec: 'vlei-1',
+    //         term: 'legal-entity-identifier',
+    //         sourceFiles: [                                                       // Per-file reference type tracking
+    //             {file: 'governance.md', type: 'tref'},
+    //             {file: 'identity.md', type: 'xref'}
+    //         ],
+    //         repoUrl: 'https://github.com/henkvancann/vlei-glossary',
+    //         // ... other repository metadata
     //     }
     // ]
     //
