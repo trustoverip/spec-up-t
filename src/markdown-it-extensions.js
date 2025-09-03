@@ -332,6 +332,33 @@ module.exports = function (md, templates = {}) {
     return false;
   }
 
+  /**
+   * Checks if a definition term is a legitimate local term (created by [[def:]])
+   * @param {Array} tokens - The token array to process
+   * @param {Number} dtOpenIndex - The index of the dt_open token to check
+   * @return {Boolean} True if the term is a local definition, false otherwise
+   */
+  function isLocalTerm(tokens, dtOpenIndex) {
+    for (let i = dtOpenIndex + 1; i < tokens.length; i++) {
+      if (tokens[i].type === 'dt_close') {
+        break; // Only examine tokens within this definition term
+      }
+
+      // Look for inline content that contains template tokens of type 'def'
+      // These are local definition terms
+      if (tokens[i].type === 'inline' && tokens[i].children) {
+        for (let child of tokens[i].children) {
+          if (child.type === 'template' &&
+            child.info &&
+            child.info.type === 'def') {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   // Override the rendering of dt elements to properly handle transcluded terms
   const originalDtRender = md.renderer.rules.dt_open || function (tokens, idx, options, env, self) {
     return self.renderToken(tokens, idx, options);
@@ -362,7 +389,7 @@ module.exports = function (md, templates = {}) {
       } else {
         tokens[idx].attrs[classIndex][1] += ' term-external';
       }
-    } else {
+    } else if (isLocalTerm(tokens, idx)) {
       // For local terms (defs), add the term-local class
       const classIndex = tokens[idx].attrIndex('class');
       if (classIndex < 0) {
@@ -371,6 +398,7 @@ module.exports = function (md, templates = {}) {
         tokens[idx].attrs[classIndex][1] += ' term-local';
       }
     }
+    // If neither transcluded nor a local term, don't add any special classes
 
     return originalDtRender(tokens, idx, options, env, self);
   };
