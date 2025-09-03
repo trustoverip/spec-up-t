@@ -44,8 +44,6 @@ function editTermButtons() {
       return;
    }
 
-   // Find all definition terms that have spans with the id of "term:...". These are the definitions we are looking for.
-   // document.querySelectorAll('dt:has(> span[id^="term:"])').forEach(item => {
    document.querySelectorAll('dt.term-external').forEach(item => {
       const term = findDeepestSpan(item);
       const url = term.getAttribute('id');
