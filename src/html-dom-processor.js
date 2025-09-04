@@ -326,8 +326,10 @@ function fixDefinitionListStructure(html) {
           // Remove the paragraph
           currentNode.parentNode.removeChild(currentNode);
         }
-        else if (!currentNode.textContent || currentNode.textContent.trim() === '') {
-          // Remove empty paragraphs - these break the list structure
+        else if ((!currentNode.textContent || currentNode.textContent.trim() === '') && 
+                 currentNode.children.length === 0) {
+          // Remove truly empty paragraphs (no text and no child elements) - these break the list structure
+          // This prevents removal of paragraphs containing only images or other elements
           currentNode.parentNode.removeChild(currentNode);
         }
       }
