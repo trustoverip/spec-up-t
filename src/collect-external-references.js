@@ -21,6 +21,7 @@
         "repo": "ctwg-main-glossary",
         "site": null,
         "commitHash": "not found",
+        "branch": "main",
         "content": "This term was not found in the external repository."
         },
         {
@@ -37,6 +38,7 @@
         "avatarUrl": "https://avatars.githubusercontent.com/u/479356?v=4",
         "site": null,
         "commitHash": "5e36b16e58984eeaccae22116a2bf058ab01a0e9",
+        "branch": "main",
         "content": "[[def: vlei-ecosystem-governance-framework, vlei ecosystem governance framework]]\n\n~ The Verifiable LEI (vLEI) Ecosystem [[ref: governance-framework]] Information Trust Policies. It's a **document** that defines the … etc"
         }
     ]
@@ -53,6 +55,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const readlineSync = require('readline-sync');
 const Logger = require('./utils/logger');
+const { getCurrentBranch } = require('./utils/git-info');
 
 /**
  * Checks if a specific xtref is present in the markdown content
@@ -221,6 +224,7 @@ function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null) {
  * - site: Website URL if the spec has a published site
  * - avatarUrl: GitHub avatar URL for the repository owner
  * - ghPageUrl: GitHub Pages URL if available
+ * - branch: Current branch of the local repository (from meta tag property="spec-up-t:github-repo-info")
  * 
  * @param {Object} config - The configuration object from specs.json
  * @param {Array} xtrefs - Array of xtref objects to extend with additional metadata
@@ -266,6 +270,7 @@ function extendXTrefs(config, xtrefs) {
         xtref.owner = null;
         xtref.repo = null;
         xtref.site = null;
+        xtref.branch = null;
         
         // Fast lookup for repository data using the externalSpec as key
         const repo = repoLookup.get(xtref.externalSpec);
@@ -290,6 +295,15 @@ function extendXTrefs(config, xtrefs) {
         const site = siteLookup.get(xtref.externalSpec);
         if (site) {
             xtref.site = site;
+        }
+        
+        // Add current branch information from the local repository
+        // This comes from the meta tag property="spec-up-t:github-repo-info"
+        try {
+            xtref.branch = getCurrentBranch();
+        } catch (error) {
+            Logger.warn(`Could not get current branch for xtref ${xtref.externalSpec}:${xtref.term}: ${error.message}`);
+            xtref.branch = 'main'; // fallback to main branch
         }
     });
 }
@@ -438,7 +452,8 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
     //         owner: 'henkvancann',                                                // GitHub owner
     //         repo: 'keri-main-glossary',                                          // Repository name
     //         avatarUrl: 'https://avatars.githubusercontent.com/u/479356?v=4',     // Owner's avatar
-    //         site: null                                                           // Published site URL (if any)
+    //         site: null,                                                          // Published site URL (if any)
+    //         branch: 'main'                                                       // Current branch from local repo
     //     },
     //     {
     //         externalSpec: 'vlei-1',
@@ -449,6 +464,7 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
     //         ],
     //         repoUrl: 'https://github.com/henkvancann/vlei-glossary',
     //         // ... other repository metadata
+    //         branch: 'main'                                                       // Current branch from local repo
     //     }
     // ]
     //
