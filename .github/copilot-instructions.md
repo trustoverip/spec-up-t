@@ -8,3 +8,4 @@
 - When using the term `xref` we mean this construction: `[[tref: externalreference, term]]`
 - When using the term `def` we mean this construction: `[[def: term, alias]]`
 - Be generous with writing explanations for each block of code
+- Please remind me to test it on a separate testmachine
