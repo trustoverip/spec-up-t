@@ -1,11 +1,13 @@
 const fs = require('fs-extra');
 const path = require('path');
-const outputDir = path.join(process.cwd(), 'output');
+const outputDir = path.join(process.cwd(), '.cache');
 const initFlagPath = path.join(outputDir, 'init.flag');
-const collectExternalReferences = require('./collect-external-references.js').collectExternalReferences;
 
 async function initialize() {
     try {
+        // Ensure the .cache directory exists
+        await fs.ensureDir(outputDir);
+        
         // Check if the init script has already run
         if (await fs.pathExists(initFlagPath)) {
             return;
@@ -13,8 +15,6 @@ async function initialize() {
 
         // Place the init script here
         
-        // prepareTref(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
-
         // End of the init script
 
         // Create the init flag file

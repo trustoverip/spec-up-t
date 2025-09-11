@@ -11,6 +11,47 @@
   display: block;
 }
 
+/* Styles to help with smooth transitions when toggling definitions */
+html.definitions-transitioning dl.terms-and-definitions-list {
+  transition: none !important;
+}
+
+html.definitions-transitioning #content {
+  position: relative;
+}
+
+/* We keep the button positioned in place visually during transitions */
+.collapse-all-defs-button[style*="position: fixed"] {
+  margin: 0;
+  padding: 0;
+  will-change: transform;
+}
+
 .collapse-all-defs-button {
   float: right;
+  display: flex;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.collapse-all-defs-button .state-indicator {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-color: #ccc !important;
+  color: #ccc !important;
+}
+
+.collapse-all-defs-button .state-indicator.active {
+  border-color: #999 !important;
+  color: #999 !important;
+}
+
+dl.terms-and-definitions-list>dd.terms-def-extra-info {
+  background-color: #edf3f4;
 }

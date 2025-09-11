@@ -4,12 +4,11 @@ const axios = require('axios').default;
 const spaceRegex = /\s+/g;
 
 function validateReferences(references, definitions, render) {
-  const resolvedRefs = [];
   const unresolvedRefs = [];
   [...new Set(references)].forEach(
     ref => {
       if(render.includes(`id="term:${ref.replace(spaceRegex, '-').toLowerCase()}"`)) {
-        resolvedRefs.push(ref);
+        // Reference is resolved
       } else {
         unresolvedRefs.push(ref);
       }
@@ -48,25 +47,37 @@ async function fetchExternalSpecs(spec) {
   try {
     let results = await Promise.all(
       spec.external_specs.map(s => {
-        const url = s["gh_page"]; // Access the "gh_page" URL directly
-        return axios.get(url);
+        const url = s["gh_page"];
+        return axios.get(url).catch(error => ({ error, url }));
       })
     );
 
+    const failed = results.filter(r => r && r.error);
+    if (failed.length > 0) {
+      failed.forEach(f => {
+        const msg = f.error.response
+          ? `HTTP ${f.error.response.status} for ${f.url}`
+          : `Network error for ${f.url}: ${f.error.message}`;
+        console.error("❌ External spec fetch failed:", msg);
+      });
+    }
+
+    // Map results to objects keyed by external_spec if status is 200, otherwise null.
+    // This ensures only successful fetches are included, and failed ones are filtered out.
     results = results
       .map((r, index) =>
-        r.status === 200
+        r && r.status === 200
           ? { [spec.external_specs[index].external_spec]: r.data }
           : null
       )
-      .filter(r => r); // Remove null values
+      .filter(r => r); // Remove null values (failed fetches)
 
     return results.map(r =>
       createNewDLWithTerms(Object.keys(r)[0], Object.values(r)[0])
     );
   } catch (e) {
-    console.log("❌ " + e);
-    return []; // Return an empty array in case of errors
+    console.error("❌ Unexpected error in fetchExternalSpecs:", e);
+    return [];
   }
 }
 

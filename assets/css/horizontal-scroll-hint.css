@@ -1,0 +1,6 @@
+#content .figure:has(.scrollHintImage) {
+    padding: 0;
+    margin: 0;
+    width: auto;
+    height: auto;
+}

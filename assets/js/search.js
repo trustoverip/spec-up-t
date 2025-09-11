@@ -14,13 +14,25 @@
 */
 
 function inPageSearch() {
+   // Check if the terms and definitions list exists
+   // If it doesn't exist, exit the function
+   // This prevents errors when the script is run on pages without the terms and definitions list
+   // and ensures that the script only runs when necessary
+   const termsListElement = document.querySelector(".terms-and-definitions-list");
+   const dtElements = termsListElement ? termsListElement.querySelectorAll("dt") : [];
+
+   if (dtElements.length === 0) {
+      return;
+   }
+
+
    /*****************/
    /* CONFIGURATION */
 
    const terminologySectionUtilityContainer = document.getElementById("terminology-section-utility-container");
 
    const matchesStyle = specConfig.searchHighlightStyle || 'ssi';
-   const antiNameCollisions = 'search-h7vc6omi2hr2880';// random string to be added to classes, id's etc, to prevent name collisions in the global space
+   const antiNameCollisions = 'search';
    const debounceTime = 600;
    const matches = 'matches';// What text to display after the number of matches
    const searchBarPlaceholder = '🔍';
@@ -31,19 +43,19 @@ function inPageSearch() {
 
    // Styling of search matches. See styles in /assets/css/search.css
    const matchesStyleSelector = {
-      dif: 'highlight-matches-DIF-search-h7vc6omi2hr2880',
-      toip: 'highlight-matches-ToIP-search-h7vc6omi2hr2880',
-      btc: 'highlight-matches-BTC-search-h7vc6omi2hr2880',
-      keri: 'highlight-matches-KERI-search-h7vc6omi2hr2880',
-      ssi: 'highlight-matches-SSI-search-h7vc6omi2hr2880',
-      gleif: 'highlight-matches-GLEIF-search-h7vc6omi2hr2880'
+      dif: 'highlight-matches-DIF-search',
+      toip: 'highlight-matches-ToIP-search',
+      btc: 'highlight-matches-BTC-search',
+      keri: 'highlight-matches-KERI-search',
+      ssi: 'highlight-matches-SSI-search',
+      gleif: 'highlight-matches-GLEIF-search'
    };
 
 
    /* Add DOM elements: search container with search bar, back and forth buttons, and results count */
    const searchContainer = document.createElement("div");
    searchContainer.setAttribute("id", `container-${antiNameCollisions}`);
-   searchContainer.classList.add("input-group", "mb-3", "d-flex", "align-items-center"); // Bootstrap 5.3 input group with margin bottom
+   searchContainer.classList.add("input-group", "mb-1", "d-flex", "align-items-center"); // Bootstrap 5.3 input group with margin bottom
    searchContainer.setAttribute("role", "search"); // ARIA role for search container
    terminologySectionUtilityContainer.appendChild(searchContainer);
 
@@ -101,13 +113,15 @@ function inPageSearch() {
 
    // Add an event listener to the input element
    searchInput.addEventListener("input", function () {
-      debouncedSearchAndHighlight(searchInput.value);
+      const shouldScrollToFirstMatch = true; // Scroll to first match when user is actively searching
+      debouncedSearchAndHighlight(searchInput.value, shouldScrollToFirstMatch);
    });
 
    // The search will run when the user clicks the collapse button, so the search results are updated when the terms are collapsed or expanded. If the definitions are collapsed, the search results in the definitions will be removed.
    document.addEventListener('click', event => {
       if (event.target.classList.contains('collapse-all-defs-button')) {
-         debouncedSearchAndHighlight(searchInput.value);
+         const shouldScrollToFirstMatch = true; // Scroll when updating after collapse/expand
+         debouncedSearchAndHighlight(searchInput.value, shouldScrollToFirstMatch);
       }
    });
 
@@ -180,7 +194,11 @@ function inPageSearch() {
       totalMatchesSpan.innerHTML = `${totalMatches} ${matches}`;
    }
 
-   // Debounce search input. Prepare the debounced function outside the event listener
+   // Debounce search input to improve performance. This creates a function that will only execute
+   // after the user has stopped typing for the specified debounceTime.
+   // The function takes two parameters:
+   // - searchString: The text to search for
+   // - scrollToFirstMatch: Whether to automatically scroll to the first match after highlighting
    const debouncedSearchAndHighlight = debounce(search, debounceTime);
 
    goToPreviousMatchButton.addEventListener("click", function () {
@@ -231,17 +249,32 @@ function inPageSearch() {
    });
 
    // Runs after every search input (debounced)
-   function search(searchString) {
+   /**
+    * Performs search and highlighting of matches in the document
+    * @param {string} searchString - The text to search for
+    * @param {boolean} scrollToFirstMatch - Whether to automatically scroll to the first match after highlighting
+    */
+   function search(searchString, scrollToFirstMatch) {
       // Start clean
       removeAllSpans();
-
       totalMatches = 0;
       activeMatchIndex = -1;
+
+      // Remove outer quotes if present
+      if (searchString.length >= 2) {
+         if (
+            (searchString.startsWith('"') && searchString.endsWith('"')) ||
+            (searchString.startsWith("'") && searchString.endsWith("'"))
+         ) {
+            searchString = searchString.substring(1, searchString.length - 1);
+         }
+      }
+
       // If the search string is empty, return
       if (searchString === '') {
          setTotalMatches();
-         return
-      };
+         return;
+      }
 
       let uniqueId = 0;
 
@@ -285,16 +318,15 @@ function inPageSearch() {
          */
          function hasHiddenAncestor(node) {
             while (node) {
-               if (node.classList && node.classList.contains('hidden')) {
-                  return true;
-               }
+                  if (node?.classList?.contains('hidden')) {
+                    return true;
+                  }
                node = node.parentNode;
             }
             return false;
          }
 
          if (node.nodeType === 3 && !hasHiddenAncestor(node)) { // Node.TEXT_NODE
-            
             const fragments = markAndCountMatches(node);
             if (fragments.childNodes.length > 1) {
                // Replace the text node with the fragments if there were matches
@@ -307,13 +339,6 @@ function inPageSearch() {
 
       searchNodes(searchableContent);
 
-      // Scroll to the first match
-      // Using querySelector instead of querySelectorAll because we only want to select the first element
-      let firstHighlight = document.querySelector('.' + matchesStyleSelectorClassName);
-      if (firstHighlight !== null) {
-         scrollToElementCenter(firstHighlight);
-      }
-
       // Update the total matches counter
       setTotalMatches();
 
@@ -322,6 +347,16 @@ function inPageSearch() {
 
       // Update the active match index
       activeMatchIndex = -1;
+
+      // Scroll to the first match
+      // Using querySelector instead of querySelectorAll because we only want to select the first element
+      if (scrollToFirstMatch) {
+         let firstHighlight = document.querySelector('.' + matchesStyleSelectorClassName);
+         if (firstHighlight !== null) {
+            scrollToElementCenter(firstHighlight);
+      }
+   
+}
    }
 }
 

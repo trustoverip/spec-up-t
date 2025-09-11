@@ -19,6 +19,9 @@
 </head>
 
 <body features="${features}">
+    <!-- Skip to content link for accessibility -->
+    <a href="#content" class="screen-reader-text">Skip to content</a>
+    
     ${assetsSvg}
 
     <!-- Icons for hamburger menu, dark/light buttons  -->
@@ -109,7 +112,7 @@
 
     <header id="header" class="navbar sticky-top p-0 shadow">
         <!-- Left-aligned elements -->
-        <button class="nav-link px-3 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
+        <button class="nav-link d-print-none px-3 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
             aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
             <svg class="bi">
                 <use xlink:href="#list" />
@@ -117,24 +120,26 @@
         </button>
 
         <a id="logo" href="${specLogoLink}">
-            <img class="m-1" src="${specLogo}" alt="" />
+            <img class="d-print-none m-1" src="${specLogo}" alt="" />
         </a>
-        <!-- <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="#">Spec-Up-T</a> -->
-
+        
         <!-- Spacer to push the following elements to the right -->
         <div class="flex-grow-1"></div>
 
         <!-- Right-aligned elements -->
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center service-menu d-print-none">
 
-            <!-- Issues side menu -->
-            <button id="repo_issues" issue-count animate class="btn btn-sm btn-outline-secondary ms-2" type="button"
-                data-bs-toggle="offcanvas" data-bs-target="#offcanvasIssues" aria-controls="offcanvasIssues">
-                Issues
+            <!-- Settings side menu -->
+            <button id="repo_settings" animate class="btn btn-sm btn-outline-secondary ms-2" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings" aria-controls="offcanvasSettings">
+                <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                    <use href="#gear-wide-connected"></use>
+                </svg>
+                <span class="visually-hidden">Settings</span>
             </button>
 
             <!-- Dark / Light theme selector -->
-            <div class="dropdown bd-mode-toggle me-2">
+            <div class="dropdown bd-mode-toggle">
                 <button
                     class="btn btn-bd-primary btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center"
                     id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown"
@@ -172,15 +177,20 @@
                 </ul>
             </div>
 
+            <!-- Container width toggle -->
+            <button id="container_toggle" title="Toggle wide/narrow layout" type="button" class="btn btn-sm btn-outline-secondary me-2">
+                <span class="visually-hidden">Toggle wide/narrow layout</span>
+                <i class="bi bi-arrows-angle-expand"></i>
+            </button>
+
             <!-- Font size -->
             <div class="adjust-font-size btn-group me-2" role="group">
                 <button title="Decrease font size" type="button"
-                    class="btn btn-sm btn-outline-secondary m-0 p-3 border-end-0" id="decreaseBtn"><span
+                    class="btn btn-outline-secondary m-0 border-end-0" id="decreaseBtn"><span
                         class="visually-hidden">Decrease font size</span>
                 </button>
-                <!-- <button type="button" class="btn btn-sm btn-outline-secondary m-0 px-2" id="resetBtn">0</button> -->
                 <button title="Increase font size" type="button"
-                    class="btn btn-sm btn-outline-secondary m-0 p-3 border-start-0" id="increaseBtn">
+                    class="btn btn-outline-secondary m-0 border-start-0" id="increaseBtn">
                     <span class="visually-hidden">Increase font size</span>
                 </button>
             </div>
@@ -189,7 +199,7 @@
 
     <div class="container">
         <div class="row">
-            <div class="sidebar border border-right col-md-4 col-lg-3 bg-body-tertiary">
+            <div class="sidebar d-print-none border border-right col-md-4 col-lg-3 bg-body-tertiary">
                 <div class="offcanvas-md offcanvas-start bg-body-tertiary p-2 pt-5" tabindex="-1" id="sidebarMenu"
                     aria-labelledby="sidebarMenuLabel">
                     <div class="offcanvas-header">
@@ -199,8 +209,6 @@
                     </div>
                     <div id="toc" class="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto">
                         ${toc}
-                        <!-- href added via JS -->
-                        <a class="btn btn-outline-secondary mt-5" href="#">Snapshots</a>
                         <a class="powered-by mx-auto p-2" href="https://github.com/trustoverip/spec-up-t"
                             target="_blank" rel="noopener">Powered By Spec-Up-T</a>
                     </div>
@@ -209,6 +217,7 @@
 
             <main class="col-md-8 ms-sm-auto col-lg-9 px-md-4 pt-5">
                 <article id="content" class="">
+                    <div id="terminology-section-utility-container" class="d-print-none alert alert-primary p-3"></div>
                     ${render}
                 </article>
 
@@ -218,7 +227,7 @@
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasIssues" aria-labelledby="offcanvasIssuesLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasIssuesLabel">Issues</h5>
+            <h5 class="offcanvas-title mt-0" id="offcanvasIssuesLabel">Issues</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -227,6 +236,32 @@
             </div>
         </div>
     </div>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettingsLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title mt-0" id="offcanvasSettings">Settings</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <a target="_blank" rel="noopener" class="btn btn-menu-item m-0 mb-1 border-start-0 border-end-0"
+                href="https://blockchainbird.github.io/spec-up-t-website/docs/user-interface-overview/specification/#explanation-of-the-buttons-in-the-specification">Help</a>
+            <button class="button-token-input btn btn-menu-item m-0 mb-1 border-start-0 border-end-0" type="button" aria-label="Enter GitHub Token">
+                Enter GitHub Token
+            </button>
+            <button id="repo_issues" issue-count animate class="btn btn-menu-item m-0 mb-1 border-start-0 border-end-0" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#offcanvasIssues" aria-controls="offcanvasIssues">
+                Issues
+            </button>
+            <!-- href added via JS -->
+            <a id="snapshotLink" class="btn btn-menu-item m-0 mb-1 border-start-0 border-end-0" href="#">Snapshots</a>
+            <hr>
+            <p class="ps-3 pe-3">External specifications:</p>
+            ${externalSpecsList}
+            <hr>
+            <p id="w3c-state">W3C Recommendation, ${currentDate}</p>
+        </div>
+    </div>
+
     <div style="display: none;">
         ${externalReferences}
     </div>

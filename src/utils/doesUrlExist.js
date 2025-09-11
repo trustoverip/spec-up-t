@@ -10,13 +10,15 @@ async function doesUrlExist(url) {
         const response = await axios.head(url, { timeout: 5000 });
         return response.status === 200;
     } catch (error) {
+        // Handle specific error cases for better logging/debugging
         if (error.response && error.response.status === 404) {
-            return false; // URL does not exist
+            console.debug('URL does not exist:', url);
+        } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNABORTED') {
+            console.debug('Network issues with URL:', url);
+        } else {
+            console.debug('Failed to check URL:', url, error.message);
         }
-        if (error.code === 'ENOTFOUND' || error.code === 'ECONNABORTED') {
-            return false; // Network issues
-        }
-        return false; // Fail-safe return
+        return false;
     }
 }
 

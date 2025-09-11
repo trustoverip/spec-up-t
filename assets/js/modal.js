@@ -2,19 +2,22 @@
  * Displays a modal with the given content.
  *
  * @param {string} content - The HTML content to display inside the modal.
+ *
+ * Example usage:
+ * showModal('<h2>This is a Modal</h2><p>You can put any content here.</p>');
  */
 function showModal(content) {
    // Create the modal overlay
    const overlay = document.createElement('div');
-   overlay.className = 'modal-overlay';
+   overlay.className = 'spec-up-t-modal-overlay';
 
    // Create the modal container
    const modal = document.createElement('div');
-   modal.className = 'modal';
+   modal.className = 'spec-up-t-modal';
 
    // Create the close button
    const closeButton = document.createElement('button');
-   closeButton.className = 'modal-close';
+   closeButton.className = 'spec-up-t-modal-close';
    closeButton.innerHTML = '&times;';
    closeButton.onclick = closeModal;
 
@@ -47,6 +50,3 @@ function showModal(content) {
       }
    }, { once: true });
 }
-
-// // Example usage:
-// showModal('<h2>This is a Modal</h2><p>You can put any content here.</p>');

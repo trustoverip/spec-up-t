@@ -6,15 +6,16 @@ function handle_choice() {
         "Add content" "do_add_content"
         "Render specification" "do_render"
         "Export to PDF" "do_topdf"
-        "Collect external references (cache, faster)" "collect_external_references_cache"
-        "Collect external references (no cache, slower)" "collect_external_references_no_cache"
+        "Export to DOCX" "do_todocx"
+        "Collect external references" "collect_external_references"
         "Add, remove or view xref source" "do_add_remove_xref_source"
         "Configure" "do_configure"
+        "Run health check" "do_health_check"
         "Open documentation website" "do_help"
         "Freeze specification" "do_freeze"
     )
 
-    if [[ "$choice" =~ ^[0-8]$ ]]; then
+    if [[ "$choice" =~ ^[0-9]$ ]]; then
         local index=$((choice * 2))
         echo -e "\n\n  ************************************"
         echo "  ${options[index]}"
@@ -46,12 +47,13 @@ function display_intro() {
    [0] Add content
    [1] Render specification
    [2] Export to PDF
-   [3] Collect external references (cache, faster)
-   [4] Collect external references (no cache, slower)
+   [3] Export to DOCX
+   [4] Collect external references
    [5] Add, remove or view xref source
    [6] Configure
-   [7] Open documentation website
-   [8] Freeze specification
+   [7] Run health check
+   [8] Open documentation website
+   [9] Freeze specification
    [Q] Quit
 
    An xref is a reference to another repository.
@@ -67,27 +69,28 @@ function prompt_input() {
 
 function do_add_content() {
     clear
-    echo -e "\n\n\n   ********************\n\n\n   You can start adding your content to the markdown files in the "spec" directory.\n\n   You can do this by editing local files in an editor or by going to your repository on GitHub.\n\n   More info: https://trustoverip.github.io/spec-up-t-website/docs/various-roles/content-authors-guide/introduction\n\n\n   ********************"  
+    echo -e "\n\n\n   ********************\n\n\n   You can start adding your content to the markdown files in the "spec" directory.\n\n   You can do this by editing local files in an editor or by going to your repository on GitHub.\n\n   More info: https://blockchainbird.github.io/spec-up-t-website/docs/various-roles/content-authors-guide/introduction\n\n\n   ********************"  
 }
 
 function do_render() { clear; npm run render; }
 function do_topdf() { clear; npm run topdf; }
-function collect_external_references_cache() { clear; npm run collectExternalReferencesCache; }
-function collect_external_references_no_cache() { clear; npm run collectExternalReferencesNoCache; }
+function do_todocx() { clear; npm run todocx; }
+function collect_external_references() { clear; npm run collectExternalReferences; }
 function do_add_remove_xref_source() { clear; npm run addremovexrefsource; }
 function do_configure() { clear; npm run configure; }
+function do_health_check() { clear; npm run healthCheck; }
 function do_freeze() { clear; npm run freeze; }
 
 function do_help() {
     clear
-    echo -e "\n\n\n   You will be redirected to the documentation website\n\n   (https://trustoverip.github.io/spec-up-t-website/)."
+    echo -e "\n\n\n   You will be redirected to the documentation website\n\n   (https://blockchainbird.github.io/spec-up-t-website/)."
     sleep 2
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        open "https://trustoverip.github.io/spec-up-t-website/"
+        open "https://blockchainbird.github.io/spec-up-t-website/"
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        xdg-open "https://trustoverip.github.io/spec-up-t-website/"
+        xdg-open "https://blockchainbird.github.io/spec-up-t-website/"
     elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-        start "https://trustoverip.github.io/spec-up-t-website/"
+        start "https://blockchainbird.github.io/spec-up-t-website/"
     else
         echo "Unsupported OS."
     fi
@@ -98,6 +101,20 @@ function show_progress() {
 }
 
 # Main script
-display_intro
-prompt_input
-handle_choice
+if [[ -n "$1" && "$1" =~ ^[0-9]$ ]]; then
+    choice="$1"
+    handle_choice
+else
+    display_intro
+    prompt_input
+    # Allow user to quit with Q/q
+    if [[ "$choice" =~ ^[Qq]$ ]]; then
+        clear
+        echo -e "\n\n  ************************************"
+        echo "  Goodbye! You chose to exit."
+        echo -e "  ************************************\n\n"
+        echo -e "\n\n\nℹ️ Type 'npm run menu' to return to the main menu.\n"
+        exit 0
+    fi
+    handle_choice
+fi

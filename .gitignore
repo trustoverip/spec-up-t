@@ -11,6 +11,9 @@ yarn-error.log*
 lerna-debug.log*
 .vscode/*
 
+# VS Code extensions
+.history
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -110,3 +113,5 @@ dist
 
 # Default output dir for index.html
 docs
+
+.scannerwork/

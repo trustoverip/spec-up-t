@@ -20,7 +20,7 @@ function copySystemFiles() {
             fs.cpSync(srcPath, destPath, { recursive: true });
             console.log(`✅ Copied ${item} to ${destPath}`);
         } catch (error) {
-            console.error(`❌ Failed to copy ${item} to ${destPath}:`);
+            console.error(`❌ Failed to copy ${item} to ${destPath}:`, error);
         }
     });
 

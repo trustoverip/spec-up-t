@@ -1,0 +1,5 @@
+- All code will have to pass SonarQube analysis
+- Cognitive complexity should be kept ideally below 15
+- Remove code if possible, instead of adding code
+- If you create files, explain why they are not deleted, why they should stay, and how to use them
+- This repository runs as an npm package in other repos that have this package installed via `package.json`; these other repos thus are the consuming projects

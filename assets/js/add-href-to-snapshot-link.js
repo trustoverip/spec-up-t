@@ -7,13 +7,14 @@
  */
 
 function addHrefToSnapshotLink() {
-   const snapshotLink = document.querySelector('.snapshots a');
+   const snapshotLink = document.querySelector('#snapshotLink');
 
    // Get the current URL of the page
    const currentUrl = window.location.href;
 
    // Regex to match up to and including the 'versions/' directory (if it exists)
-   const versionsMatch = currentUrl.match(/^(https?:\/\/[^\/]+(?:\/[^\/]+)*)\/versions\/(?:[^\/]+\/)?/);
+   const versionsRegex = new RegExp('^(https?://[^/]+(?:/[^/]+)*)/versions/(?:[^/]+/)?');
+   const versionsMatch = versionsRegex.exec(currentUrl);
 
    // If we are already in the 'versions' directory or deeper, strip down to 'versions/'
    // Otherwise, append '/versions/' to the current directory

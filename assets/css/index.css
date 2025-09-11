@@ -1,15 +1,28 @@
 *:target {
-  /* scroll-margin-top: 160px; */
   scroll-margin-top: calc(50vh);
   /* Matches sticky header height */
 }
 
+
+/*
+- When a URL fragment targets an element,
+the `:target` pseudo-class triggers the corresponding CSS rules.
+- If the body lacks the hashscroll attribute: 
+   - The targeted element gets highlighted with an animation (highlight-target).
+   - Its parent <dt>(if applicable) gets highlighted with a different animation (highlight-target-parent-dt).
+- These animations visually emphasize the targeted element and its parent for better user experience.
+*/
 body:not([hashscroll]) *:target {
   animation: highlight-target 3.5s 0.25s ease;
 }
 
 body:not([hashscroll]) dt:has(:target) {
   animation: highlight-target-parent-dt 3.5s 0.25s ease;
+}
+
+dl.terms-and-definitions-list>.highlight {
+  background-color: yellow !important;
+  transition: background-color 0.3s ease-in-out;
 }
 
 svg[icon] {
@@ -35,13 +48,26 @@ svg[icon] {
   display: none;
 }
 
-
 main * {
-  word-break: break-all;
-  /* Breaks at any character */
-  /* OR */
-  overflow-wrap: break-word;
-  /* Breaks only at allowed break points, more browser support */
+  overflow-wrap: anywhere;
+  /* Breaks long URLs at any point without distorting column width */
+  word-break: normal;
+  /* Breaks words at logical places according to the language */
+}
+
+/* Fix for Bootstrap's responsive tables */
+.table-responsive {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Override the overflow-wrap property for table-responsive content */
+.table-responsive * {
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  white-space: nowrap !important;
 }
 
 dd td img {
@@ -104,7 +130,7 @@ dd td img {
   display: block;
   color: inherit;
   font-size: 1.1em;
-  font-family: Heebo, san-serif;
+  font-family: Heebo, sans-serif;
 }
 
 .example pre[class*="language-"] {
@@ -123,3 +149,199 @@ dd td img {
 }
 
 /* End Notices */
+
+
+/* Custom styles for Bootstrap alerts */
+
+/* Override default alert colors */
+.alert-primary {
+  background-color: #f9fcff;
+  /* Light cyan */
+  border-color: #b2ebf2;
+  color: #00838f;
+}
+
+.alert-secondary {
+  background-color: #f5f5f5;
+  /* Light gray */
+  border-color: #e0e0e0;
+  color: #616161;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  /* Light green */
+  border-color: #c8e6c9;
+  color: #388e3c;
+}
+
+.alert-danger {
+  background-color: #ffebee;
+  /* Light red */
+  border-color: #ef9a9a;
+  color: #d32f2f;
+}
+
+.alert-warning {
+  background-color: #fffde7;
+  /* Light yellow */
+  border-color: #fff9c4;
+  color: #f9a825;
+}
+
+.alert-info {
+  background-color: #e1f5fe;
+  /* Light blue */
+  border-color: #b3e5fc;
+  color: #0288d1;
+}
+
+.alert-light {
+  background-color: #f9f9f9;
+  border-color: #eeeeee;
+  color: #424242;
+}
+
+.alert-dark {
+  background-color: #e0e0e0;
+  border-color: #bdbdbd;
+  color: #212121;
+}
+
+/* Optional: Override link colors within alerts */
+.alert a {
+  color: inherit;
+  /* Inherit the alert's text color */
+  font-weight: bold;
+}
+
+.alert-primary a {
+  color: #006064;
+}
+
+.alert-success a {
+  color: #2e7d32;
+}
+
+.alert-danger a {
+  color: #b71c1c;
+}
+
+.alert-warning a {
+  color: #f57f17;
+}
+
+.alert-info a {
+  color: #01579b;
+}
+
+.alert-dark a {
+  color: #000000;
+}
+
+
+/* Dark theme styles for Bootstrap alerts */
+[data-bs-theme="dark"] .alert-primary {
+  background-color: #004d40;
+  /* Dark cyan */
+  border-color: #00695c;
+  color: #b2dfdb;
+}
+
+[data-bs-theme="dark"] .alert-secondary {
+  background-color: #424242;
+  /* Dark gray */
+  border-color: #616161;
+  color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .alert-success {
+  background-color: #1b5e20;
+  /* Dark green */
+  border-color: #2e7d32;
+  color: #a5d6a7;
+}
+
+[data-bs-theme="dark"] .alert-danger {
+  background-color: #b71c1c;
+  /* Dark red */
+  border-color: #c62828;
+  color: #ef9a9a;
+}
+
+[data-bs-theme="dark"] .alert-warning {
+  background-color: #f57f17;
+  /* Dark yellow */
+  border-color: #ffb300;
+  color: #ffe082;
+}
+
+[data-bs-theme="dark"] .alert-info {
+  background-color: #01579b;
+  /* Dark blue */
+  border-color: #0277bd;
+  color: #81d4fa;
+}
+
+[data-bs-theme="dark"] .alert-light {
+  background-color: #303030;
+  border-color: #424242;
+  color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .alert-dark {
+  background-color: #212121;
+  border-color: #424242;
+  color: #bdbdbd;
+}
+
+/* Optional: Override link colors within dark theme alerts */
+[data-bs-theme="dark"] .alert a {
+  color: inherit;
+  font-weight: bold;
+}
+
+[data-bs-theme="dark"] .alert-primary a {
+  color: #80cbc4;
+}
+
+[data-bs-theme="dark"] .alert-success a {
+  color: #81c784;
+}
+
+[data-bs-theme="dark"] .alert-danger a {
+  color: #ef5350;
+}
+
+[data-bs-theme="dark"] .alert-warning a {
+  color: #ffca28;
+}
+
+[data-bs-theme="dark"] .alert-info a {
+  color: #4fc3f7;
+}
+
+[data-bs-theme="dark"] .alert-dark a {
+  color: #9e9e9e;
+}
+/* End Custom styles for Bootstrap alerts */
+
+/* Custom menu button styles */
+#offcanvasSettings .btn-menu-item {
+  border-radius: unset;
+  width: 100%;
+  text-align: left;
+  border: 1px solid #dee2e6;
+  /* Subtle border */
+  background-color: var(--card-bg);
+  color: var(--card-text);
+  /* Subtle background color */
+  padding: 10px 15px;
+  margin-bottom: 5px;
+  transition: background-color 0.2s ease;
+}
+
+#offcanvasSettings .btn-menu-item:hover {
+  background-color: #e9ecef;
+  /* Slightly darker background on hover */
+}

@@ -19,8 +19,8 @@ function insertTermIndex() {
     const fs = require('fs-extra');
     const path = require('path');
     const config = fs.readJsonSync(path.join('specs.json'));
-    const terms = fs.readJsonSync(path.join('output', 'term-index.json'));
-    const outputPathJSON = path.join('output', 'specs-generated.json');
+    const terms = fs.readJsonSync(path.join('.cache', 'term-index.json'));
+    const outputPathJSON = path.join('.cache', 'specs-generated.json');
     let specGenerated = config;
     let markdownPaths = specGenerated.specs[0].markdown_paths;
 
@@ -36,9 +36,9 @@ function insertTermIndex() {
     // Save the updated specGenerated object back to the JSON file
     fs.writeJsonSync(outputPathJSON, specGenerated, { spaces: 2 });
 
-    // Create directory named “output” in the project root if it does not yet exist
-    if (!fs.existsSync('output')) {
-        fs.mkdirSync('output');
+    // Create directory named “.cache” in the project root if it does not yet exist
+    if (!fs.existsSync('.cache')) {
+        fs.mkdirSync('.cache');
     }
 
     fs.writeJsonSync(outputPathJSON, specGenerated, { spaces: 2 });
