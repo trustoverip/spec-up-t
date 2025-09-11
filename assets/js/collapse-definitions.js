@@ -58,6 +58,12 @@ function collapseDefinitions() {
             "See more on",
             "See more at",
             "More:",
+            "Note:",
+            "Paraphrased by",
+            "Beware:",
+            "eSSIF-Lab: ",
+            "W3C VC:",
+            "NIST:",
             "Supporting definitions:"
         ];
         return definitionHidePrefixes.some(prefix => content.startsWith(prefix));
