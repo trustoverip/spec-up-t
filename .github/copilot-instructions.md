@@ -9,3 +9,4 @@
 - When using the term `def` we mean this construction: `[[def: term, alias]]`
 - Be generous with writing explanations for each block of code
 - Please remind me to test on a separate testmachine
+- Never commit on your own. Always ask before
