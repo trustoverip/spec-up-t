@@ -29,7 +29,7 @@ Our extensions override default renderer rules and add custom inline parsing rul
 
 **How it works**: Overrides `table_open` and `table_close` renderer rules.
 
-### 2. `template-syntax.js`
+### 2. `template-tag-syntax.js`
 
 **Purpose**: Processes custom template syntax like `[[def:term]]`, `[[tref:spec,term]]`, etc.
 
@@ -109,13 +109,13 @@ const html = md.render('[[def:example-term]]');
 
 ```javascript
 const applyTableEnhancements = require('./markdown-it/table-enhancement');
-const applyTemplateSyntax = require('./markdown-it/template-syntax');
+const applyTemplateTagSyntax = require('./markdown-it/template-tag-syntax');
 
 // Apply only table enhancements
 applyTableEnhancements(md);
 
 // Apply only template syntax with custom handlers
-applyTemplateSyntax(md, templates);
+applyTemplateTagSyntax(md, templates);
 ```
 
 ## Template System

@@ -43,7 +43,7 @@ const contentRegex = /\s*([^\s\[\]:]+):?\s*([^\]\n]+)?/i;
  * - parse(token, type, ...args): optional preprocessing function
  * - render(token, type, ...args): function that returns HTML string
  */
-function applyTemplateSyntax(md, templates = []) {
+function applyTemplateTagSyntax(md, templates = []) {
   
   /**
    * Custom inline parsing rule for template syntax
@@ -147,4 +147,4 @@ function applyTemplateSyntax(md, templates = []) {
   };
 }
 
-module.exports = applyTemplateSyntax;
+module.exports = applyTemplateTagSyntax;

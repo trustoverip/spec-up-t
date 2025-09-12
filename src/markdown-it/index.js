@@ -21,7 +21,7 @@
 
 // Import all the specialized enhancement modules
 const applyTableEnhancements = require('./table-enhancement');
-const applyTemplateSyntax = require('./template-syntax');
+const applyTemplateTagSyntax = require('./template-tag-syntax');
 const applyLinkEnhancements = require('./link-enhancement');
 const applyDefinitionListEnhancements = require('./definition-lists');
 
@@ -62,7 +62,7 @@ function applyMarkdownItExtensions(md, templates = []) {
   applyTableEnhancements(md);
   
   // 2. Template syntax - should be applied early as other modules may depend on it
-  applyTemplateSyntax(md, templates);
+  applyTemplateTagSyntax(md, templates);
   
   // 3. Link enhancements - independent, can be applied anytime
   applyLinkEnhancements(md);
@@ -78,6 +78,6 @@ module.exports = applyMarkdownItExtensions;
 
 // Also export individual modules for fine-grained control if needed
 module.exports.tableEnhancements = applyTableEnhancements;
-module.exports.templateSyntax = applyTemplateSyntax;
+module.exports.templateTagSyntax = applyTemplateTagSyntax;
 module.exports.linkEnhancements = applyLinkEnhancements;
 module.exports.definitionLists = applyDefinitionListEnhancements;
