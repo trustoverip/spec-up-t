@@ -4,6 +4,8 @@ const Logger = require('./src/utils/logger');
 module.exports = async function (options = {}) {
   try {
     const { initializeConfig } = require('./src/config-init');
+    let toc;
+    const setToc = (html) => { toc = html; };
     let {
       config,
       externalSpecsList,
@@ -12,7 +14,6 @@ module.exports = async function (options = {}) {
       externalReferences,
       references,
       definitions,
-      toc,
       specGroups,
       noticeTitles
     } = await initializeConfig(options);
@@ -163,7 +164,7 @@ module.exports = async function (options = {}) {
       ])
     ;
 
-    md = configurePlugins(md, config, containers, noticeTypes, noticeTitles);
+    md = configurePlugins(md, config, containers, noticeTypes, noticeTitles, setToc);
 
     const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
 

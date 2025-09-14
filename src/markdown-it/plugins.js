@@ -10,7 +10,7 @@
  * @param {Object} noticeTitles - Object to track notice titles (passed to maintain state)
  * @returns {Object} The configured markdown-it instance
  */
-function configurePlugins(md, config, containers, noticeTypes, noticeTitles) {
+function configurePlugins(md, config, containers, noticeTypes, noticeTitles, setToc) {
   // Apply attribute support for elements (e.g., {.class} syntax)
   // This enables adding CSS classes or IDs to markdown elements without HTML.
   md.use(require('markdown-it-attrs'));
@@ -103,7 +103,7 @@ function configurePlugins(md, config, containers, noticeTypes, noticeTitles) {
     tocClassName: 'toc',
     tocFirstLevel: 2,
     tocLastLevel: 4,
-    tocCallback: (_md, _tokens, html) => toc = html,  // Note: 'toc' is assumed global; pass as param if needed
+    tocCallback: (_md, _tokens, html) => setToc(html),
     anchorLinkSymbol: config.specs[0].anchor_symbol || '§',
     anchorClassName: 'toc-anchor d-print-none'
   });

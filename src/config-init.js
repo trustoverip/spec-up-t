@@ -64,7 +64,6 @@ async function initializeConfig(options = {}) {
       externalReferences,
       references,
       definitions,
-      toc,
       specGroups,
       noticeTitles
     };
