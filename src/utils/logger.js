@@ -23,7 +23,7 @@ class Logger {
      * Warning messages - yellow with warning symbol
      */
     static warn(message, ...args) {
-        console.log(chalk.yellow('⚠️'), chalk.yellow(message), ...args);
+        console.log(chalk.yellow('🟡'), chalk.yellow(message), ...args);
     }
 
     /**
@@ -51,7 +51,7 @@ class Logger {
      * Highlight important data - magenta
      */
     static highlight(message, ...args) {
-        console.log(chalk.magenta('🖌️'), chalk.magenta(message), ...args);
+        console.log(chalk.magenta('✨'), chalk.magenta(message), ...args);
     }
 
     /**
