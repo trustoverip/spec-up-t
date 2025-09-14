@@ -11,7 +11,7 @@
  * aspect of markdown processing:
  * 
  * - TABLE ENHANCEMENT: Bootstrap styling and responsive wrappers
- * - TEMPLATE SYNTAX: Custom [[template:args]] syntax processing
+ * - TEMPLATE-TAG SYNTAX: Custom [[template-tag:args]] syntax processing
  * - LINK ENHANCEMENT: Path-based attributes for links
  * - DEFINITION LISTS: Advanced terminology and reference list handling
  * 
@@ -32,8 +32,8 @@ const applyDefinitionListEnhancements = require('./definition-lists');
  * the application of all enhancement modules in the correct order.
  * 
  * @param {Object} md - The markdown-it instance to enhance
- * @param {Array} templates - Array of template handler objects for custom syntax
- *                            Each template handler should have:
+ * @param {Array} templates - Array of template-tag handler objects for custom syntax
+ *                            Each template-tag handler should have:
  *                            - filter(type): function returning true if handler processes this type
  *                            - parse(token, type, ...args): optional preprocessing function
  *                            - render(token, type, ...args): function returning HTML string
@@ -61,13 +61,13 @@ function applyMarkdownItExtensions(md, templates = []) {
   // 1. Table enhancements - independent, can be applied first
   applyTableEnhancements(md);
   
-  // 2. Template syntax - should be applied early as other modules may depend on it
+  // 2. Template-tag syntax - should be applied early as other modules may depend on it
   applyTemplateTagSyntax(md, templates);
   
   // 3. Link enhancements - independent, can be applied anytime
   applyLinkEnhancements(md);
   
-  // 4. Definition lists - depends on template syntax for term type detection
+  // 4. Definition lists - depends on template-tag syntax for term type detection
   applyDefinitionListEnhancements(md);
   
   // The markdown-it instance is now fully enhanced and ready for use

@@ -31,18 +31,18 @@ Our extensions override default renderer rules and add custom inline parsing rul
 
 ### 2. `template-tag-syntax.js`
 
-**Purpose**: Processes custom template syntax like `[[def:term]]`, `[[tref:spec,term]]`, etc.
+**Purpose**: Processes custom template-tag syntax like `[[def:term]]`, `[[tref:spec,term]]`, etc.
 
 **Features**:
 
 - Parses `[[type:arg1,arg2]]` syntax during markdown processing
 - Creates template tokens for later rendering
-- Supports extensible template handlers
+- Supports extensible template-tag handlers
 - Integrates with the escape mechanism
 
 **How it works**:
 
-- Adds an inline ruler (`templates_ruler`) to detect and parse template syntax
+- Adds an inline ruler (`templates_ruler`) to detect and parse template-tag syntax
 - Creates template tokens with parsed information
 - Provides a renderer rule to convert template tokens to HTML
 
@@ -114,19 +114,19 @@ const applyTemplateTagSyntax = require('./markdown-it/template-tag-syntax');
 // Apply only table enhancements
 applyTableEnhancements(md);
 
-// Apply only template syntax with custom handlers
+// Apply only template-tag syntax with custom handlers
 applyTemplateTagSyntax(md, templates);
 ```
 
 ## Template System
 
-The template system processes custom syntax like `[[type:args]]` in markdown. Templates are defined as objects with:
+The template-tag system processes custom syntax like `[[type:args]]` in markdown. Template-tags are defined as objects with:
 
 - `filter(type)`: Function that returns true if this handler processes the given type
 - `parse(token, type, ...args)`: Optional preprocessing function called during parsing
 - `render(token, type, ...args)`: Function that returns HTML string for rendering
 
-### Example Template Handler
+### Example Template-Tag Handler
 
 ```javascript
 {

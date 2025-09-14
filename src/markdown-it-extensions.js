@@ -9,7 +9,7 @@
  * 
  * The modular approach breaks down the functionality into:
  * - Table enhancements (Bootstrap styling, responsive wrappers)
- * - Template syntax processing ([[def:term]], [[tref:spec,term]], etc.)
+ * - Template-tag syntax processing ([[def:term]], [[tref:spec,term]], etc.)
  * - Link enhancements (path-based attributes)
  * - Definition list processing (terminology vs references, term classification)
  * 
@@ -24,7 +24,7 @@ const applyMarkdownItExtensions = require('./markdown-it');
  * Legacy interface function that maintains compatibility with existing code
  * 
  * @param {Object} md - The markdown-it instance to enhance
- * @param {Array} templates - Array of template handler objects for custom syntax
+ * @param {Array} templates - Array of template-tag handler objects for custom syntax
  * 
  * This function simply delegates to the new modular system while maintaining
  * the same interface that consuming code expects.
