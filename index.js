@@ -19,6 +19,11 @@ module.exports = async function (options = {}) {
       noticeTitles
     } = await initializeConfig(options);
 
+    global.definitions = definitions;
+    global.references = references;
+    global.specGroups = specGroups;
+    global.noticeTitles = noticeTitles;
+
     const fs = require('fs-extra');
     const path = require('path');
     const gulp = require('gulp');
@@ -35,20 +40,8 @@ module.exports = async function (options = {}) {
     const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./src/html-dom-processor.js');
     const { getGithubRepoInfo } = require('./src/utils/git-info.js');
 
-    const noticeTypes = {
-      note: 1,
-      issue: 1,
-      example: 1,
-      warning: 1,
-      todo: 1
-    };
-    const spaceRegex = /\s+/g;
-    const specNameRegex = /^spec$|^spec-*\w+$/i;
-    const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
     const findPkgDir = require('find-pkg-dir');
     const modulePath = findPkgDir(__dirname);
-    const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
-    const containers = require('markdown-it-container');
     const { configurePlugins } = require('./src/markdown-it/plugins');
     const {
       katexRules,
@@ -63,109 +56,8 @@ module.exports = async function (options = {}) {
       findKatexDist
     } = require('./src/render-utils');
 
-    /* 
-    `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
-    
-    The md function (which is an instance of the markdown-it parser) takes a Markdown string as its primary argument. It is called elsewhere as follows: `md.render(doc)`
-    */
-    let md = require('markdown-it')({
-      html: true,
-      linkify: true,
-      typographer: true
-    })
-      /*
-        Configures a Markdown-it plugin by passing it an array of extension objects, each responsible for handling specific custom syntax in Markdown documents.
-      */
-      .use(require('./src/markdown-it-extensions.js'), [
-        /*
-          The first extension (= the first configuration object = the first element of the array) focuses on terminology-related constructs, using a filter to match types against a regular expression (terminologyRegex).
-        */
-        {
-          filter: type => type.match(terminologyRegex),
-          parse(token, type, primary) {
-            if (!primary) return;
-            if (type === 'def') {
-              definitions.push(token.info.args);
-              return token.info.args.reduce((acc, syn) => {
-                return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}">${acc}</span>`;
-              }, primary);
-            }
-            else if (type === 'xref') {
-              // Get the URL for the external specification reference, or default to '#' if not found
-              const externalSpec = findExternalSpecByKey(config, token.info.args[0]);
-              const url = externalSpec?.gh_page || '#';
-              
-              const termName = token.info.args[1];
-              const term = termName.replace(spaceRegex, '-').toLowerCase();
-              
-              // Look up the term content from allXTrefs data
-              const xrefTerm = lookupXrefTerm(token.info.args[0], term);
-              
-              // Create link with optional tooltip data from allXTrefs
-              let linkAttributes = `class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}" href="${url}#term:${term}"`;
-              
-              if (xrefTerm && xrefTerm.content) {
-                // Add tooltip data if term content is available
-                const cleanContent = xrefTerm.content.replace(/"/g, '&quot;').replace(/\n/g, ' ');
-                linkAttributes += ` title="External term definition" data-term-content="${cleanContent}"`;
-              }
-              
-              return `<a ${linkAttributes}>${termName}</a>`;
-            }
-            else if (type === 'tref') {
-              // Support tref with optional alias: [[tref: spec, term, alias]]
-              const termName = token.info.args[1];
-              const alias = token.info.args[2]; // Optional alias
-              const publishedTermName = alias ? alias : termName;
-
-              // Create IDs for both the original term and the alias to enable referencing by either
-              const termId = `term:${termName.replace(spaceRegex, '-').toLowerCase()}`;
-              const aliasId = alias ? `term:${alias.replace(spaceRegex, '-').toLowerCase()}` : '';
-              
-              // Return the term structure similar to def, so it can be processed by markdown-it's definition list parser
-              if (aliasId && alias !== termName) {
-                return `<span data-original-term="${termName}" class="term-external" id="${termId}"><span title="Externally defined as ${termName}" id="${aliasId}">${publishedTermName}</span></span>`;
-              } else {
-                return `<span title="Externally also defined as ${termName}" data-original-term="${termName}" class="term-external" id="${termId}">${publishedTermName}</span>`;
-              }
-            }
-            else {
-              references.push(primary);
-              return `<a class="term-reference" href="#term:${primary.replace(spaceRegex, '-').toLowerCase()}">${primary}</a>`;
-            }
-          }
-        },
-        /*        
-          The second extension is designed for handling specification references.
-        */
-        {
-          filter: type => type.match(specNameRegex),
-          parse(token, type, name) {
-            if (name) {
-              let _name = name.replace(spaceRegex, '-').toUpperCase();
-              let spec = specCorpus[_name] ||
-                specCorpus[_name.toLowerCase()] ||
-                specCorpus[name.toLowerCase()] ||
-                specCorpus[name];
-              if (spec) {
-                spec._name = _name;
-                let group = specGroups[type] = specGroups[type] || {};
-                token.info.spec = group[_name] = spec;
-              }
-            }
-          },
-          render(token, type, name) {
-            if (name) {
-              let spec = token.info.spec;
-              if (spec) return `[<a class="spec-reference" href="#ref:${spec._name}">${spec._name}</a>]`;
-            }
-            else return renderRefGroup(type, specGroups);
-          }
-        }
-      ])
-    ;
-
-    md = configurePlugins(md, config, containers, noticeTypes, noticeTitles, setToc);
+    const { createMarkdownParser } = require('./src/markdown-parser');
+    let md = createMarkdownParser(config, setToc);
 
     const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
 

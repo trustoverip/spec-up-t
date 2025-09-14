@@ -16,11 +16,11 @@ const { getGithubRepoInfo } = require('./utils/git-info.js');
 const { createScriptElementWithXTrefDataForEmbeddingInHtml, lookupXrefTerm, applyReplacers, normalizePath, renderRefGroup, findKatexDist } = require('./render-utils.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
-  let { externalReferences, references, definitions, specGroups, noticeTitles } = sharedVars;
+  let { externalReferences } = sharedVars;
 
   try {
-    noticeTitles = {};
-    specGroups = {};
+    global.noticeTitles = {};
+    global.specGroups = {};
     Logger.info('Rendering: ' + spec.title);
 
     function interpolate(template, variables) {
@@ -125,9 +125,9 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     await fs.promises.writeFile(outputPath, templateInterpolated, 'utf8');
     Logger.success(`Successfully wrote ${outputPath}`);
 
-    validateReferences(references, definitions, renderedHtml);
-    references = [];
-    definitions = [];
+    validateReferences(global.references, global.definitions, renderedHtml);
+    global.references = [];
+    global.definitions = [];
   } catch (e) {
     Logger.error("Render error: " + e.message);
     throw e;
@@ -135,10 +135,6 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
 
   // Update sharedVars
   sharedVars.externalReferences = externalReferences;
-  sharedVars.references = references;
-  sharedVars.definitions = definitions;
-  sharedVars.specGroups = specGroups;
-  sharedVars.noticeTitles = noticeTitles;
 }
 
 module.exports = { render };
