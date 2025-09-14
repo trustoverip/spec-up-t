@@ -66,7 +66,7 @@ function createMarkdownParser(config, setToc) {
             global.definitions.push({ term: token.info.args[0], alias: token.info.args[1], source: currentFile });
             // Store source file directly in the rendered HTML as a data attribute
             return token.info.args.reduce((acc, syn) => {
-              return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}" data-source-file="${currentFile}">${acc}</span>`;
+              return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}">${acc}</span>`;
             }, primary);
           }
           else if (type === 'xref') {
