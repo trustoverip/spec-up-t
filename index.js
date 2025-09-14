@@ -365,6 +365,7 @@ module.exports = async function (options = {}) {
         // Add universal timestamp in ISO 8601 format for template injection
         const universalTimestamp = date.toISOString();
 
+        // Read all markdown files into an array
         const docs = await Promise.all(
           (spec.markdown_paths || ['spec.md']).map(_path =>
             fs.readFile(spec.spec_directory + _path, 'utf8')
@@ -394,6 +395,7 @@ module.exports = async function (options = {}) {
           docs[termsIndex] += '\n\n<div id="terminology-section-start"></div>\n\n';
         }
 
+        // Concatenate all file contents into one string, separated by newlines
         let doc = docs.join("\n");
 
         // Handles backslash escape mechanism for substitution tags
