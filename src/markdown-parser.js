@@ -56,10 +56,17 @@ function createMarkdownParser(config, setToc) {
         filter: type => type.match(terminologyRegex),
         parse(token, type, primary) {
           if (!primary) return;
+          
+          // Extract current file from HTML comments in the content
+          const content = token.map ? token.map[0] : '';
+          const fileMatch = content && content.match && content.match(/<!-- file: (.+?) -->/);
+          const currentFile = fileMatch ? fileMatch[1] : global.currentFile || 'unknown';
+          
           if (type === 'def') {
-            global.definitions.push(token.info.args);
+            global.definitions.push({ term: token.info.args[0], alias: token.info.args[1], source: currentFile });
+            // Store source file directly in the rendered HTML as a data attribute
             return token.info.args.reduce((acc, syn) => {
-              return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}">${acc}</span>`;
+              return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}" data-source-file="${currentFile}">${acc}</span>`;
             }, primary);
           }
           else if (type === 'xref') {

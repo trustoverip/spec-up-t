@@ -1,6 +1,6 @@
 /**
  * Handles the core rendering logic for a single spec.
- * This module processes markdown files, renders HTML, applies fixes, and writes output.
+ * Processes markdown files, renders HTML, applies fixes, and writes output.
  * It takes shared variables and config as parameters to maintain modularity.
  */
 
@@ -14,6 +14,7 @@ const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./htm
 const { getGithubRepoInfo } = require('./utils/git-info.js');
 
 const { createScriptElementWithXTrefDataForEmbeddingInHtml, lookupXrefTerm, applyReplacers, normalizePath, renderRefGroup, findKatexDist } = require('./render-utils.js');
+const { createMarkdownParser } = require('./markdown-parser.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
   let { externalReferences } = sharedVars;
@@ -65,6 +66,12 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     if (termsIndex !== -1) {
       // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to create a div that is used to insert an alphabet index, and a div that is used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
       docs[termsIndex] += '\n\n<div id="terminology-section-start"></div>\n\n';
+    }
+
+    // Set up file tracking for definitions before rendering
+    for (let i = 0; i < docs.length; i++) {
+      global.currentFile = spec.markdown_paths[i] || 'unknown';
+      docs[i] = `<!-- file: ${global.currentFile} -->\n${docs[i]}`;
     }
 
     // Concatenate all file contents into one string, separated by newlines

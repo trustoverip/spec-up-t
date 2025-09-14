@@ -327,6 +327,25 @@ function applyDefinitionListEnhancements(md) {
       return '';
     }
 
+    // Look for the most recent file comment before this dt element
+    let sourceFile = null;
+    
+    // Search backwards through all tokens to find the most recent HTML comment with file info
+    for (let i = idx - 1; i >= 0; i--) {
+      if (tokens[i].type === 'html_block' && tokens[i].content) {
+        const fileMatch = tokens[i].content.match(/<!-- file: (.+?) -->/);
+        if (fileMatch) {
+          sourceFile = fileMatch[1];
+          break; // Use the most recent file comment
+        }
+      }
+    }
+
+    // Add data-sourcefile attribute to the dt element if source file was found
+    if (sourceFile) {
+      tokens[idx].attrPush(['data-sourcefile', sourceFile]);
+    }
+
     // Determine term type and add appropriate CSS class
     if (isTermTranscluded(tokens, idx)) {
       // External/transcluded term - add or append 'term-external' class

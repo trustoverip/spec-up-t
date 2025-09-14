@@ -21,10 +21,20 @@ function validateReferences(references, definitions, render) {
   }
 
   const danglingDefs = [];
-  definitions.forEach(defs => {
-    let found = defs.some(def => render.includes(`href="#term:${def.replace(spaceRegex, '-').toLowerCase()}"`))
-    if (!found) {
-      danglingDefs.push(defs[0]);
+  definitions.forEach(def => {
+    // Handle both old array format and new object format
+    if (Array.isArray(def)) {
+      let found = def.some(term => render.includes(`href="#term:${term.replace(spaceRegex, '-').toLowerCase()}"`))
+      if (!found) {
+        danglingDefs.push(def[0]);
+      }
+    } else if (def.term) {
+      // New object format
+      const terms = [def.term, def.alias].filter(Boolean);
+      let found = terms.some(term => render.includes(`href="#term:${term.replace(spaceRegex, '-').toLowerCase()}"`))
+      if (!found) {
+        danglingDefs.push(def.term);
+      }
     }
   })
   if (danglingDefs.length > 0) {
@@ -33,6 +43,7 @@ function validateReferences(references, definitions, render) {
 }
 
 function findExternalSpecByKey(config, key) {
+  if (!config || !config.specs) return null;
   for (const spec of config.specs) {
     if (spec.external_specs) {
       for (const externalSpec of spec.external_specs) {
