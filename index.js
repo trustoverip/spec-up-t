@@ -3,7 +3,19 @@ const Logger = require('./src/utils/logger');
 
 module.exports = async function (options = {}) {
   try {
-    await initialize();
+    const { initializeConfig } = require('./src/config-init');
+    let {
+      config,
+      externalSpecsList,
+      template,
+      assets,
+      externalReferences,
+      references,
+      definitions,
+      toc,
+      specGroups,
+      noticeTitles
+    } = await initializeConfig(options);
 
     const fs = require('fs-extra');
     const path = require('path');
@@ -16,41 +28,10 @@ module.exports = async function (options = {}) {
       mergeXrefTermsIntoAllXTrefs
     } = require('./src/references.js');
 
-    const { runJsonKeyValidatorSync } = require('./src/json-key-validator.js');
-    runJsonKeyValidatorSync();
-
-    const { createTermIndex } = require('./src/create-term-index.js');
-    createTermIndex();
-
     const { processWithEscapes } = require('./src/escape-handler.js');
-
-    const { insertTermIndex } = require('./src/insert-term-index.js');
-    insertTermIndex();
-
-    const findPkgDir = require('find-pkg-dir');
-    const modulePath = findPkgDir(__dirname);
-    let config = fs.readJsonSync('./.cache/specs-generated.json');
-
-    const createExternalSpecsList = require('./src/create-external-specs-list.js');
-
-    const externalSpecsList = createExternalSpecsList(config);
-
-    const createVersionsIndex = require('./src/create-versions-index.js');
-    createVersionsIndex(config.specs[0].output_path);
-
-    const { fixMarkdownFiles } = require('./src/fix-markdown-files.js');
     const { processEscapedTags, restoreEscapedTags } = require('./src/escape-mechanism.js');
     const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./src/html-dom-processor.js');
     const { getGithubRepoInfo } = require('./src/utils/git-info.js');
-
-    let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
-    let assets = fs.readJsonSync(modulePath + '/config/asset-map.json');
-    let externalReferences;
-    let references = [];
-    let definitions = [];
-    let toc;
-    let specGroups = {};
-    let noticeTitles = {};
 
     const noticeTypes = {
       note: 1,
@@ -62,6 +43,8 @@ module.exports = async function (options = {}) {
     const spaceRegex = /\s+/g;
     const specNameRegex = /^spec$|^spec-*\w+$/i;
     const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
+    const findPkgDir = require('find-pkg-dir');
+    const modulePath = findPkgDir(__dirname);
     const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
     const containers = require('markdown-it-container');
     const { configurePlugins } = require('./src/markdown-it/plugins');
@@ -181,9 +164,6 @@ module.exports = async function (options = {}) {
     ;
 
     md = configurePlugins(md, config, containers, noticeTypes, noticeTitles);
-
-    // Synchronously process markdown files
-    fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
     const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
 
