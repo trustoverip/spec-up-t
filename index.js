@@ -64,13 +64,14 @@ module.exports = async function (options = {}) {
     const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
     const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
     const containers = require('markdown-it-container');
+    const { configurePlugins } = require('./src/markdown-it/plugins');
 
     /* 
     `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
     
     The md function (which is an instance of the markdown-it parser) takes a Markdown string as its primary argument. It is called elsewhere as follows: `md.render(doc)`
     */
-    const md = require('markdown-it')({
+    let md = require('markdown-it')({
       html: true,
       linkify: true,
       typographer: true
@@ -165,53 +166,9 @@ module.exports = async function (options = {}) {
           }
         }
       ])
-      .use(require('markdown-it-attrs'))
-      .use(require('markdown-it-chart').default)
-      .use(require('markdown-it-deflist'))
-      .use(require('markdown-it-references'))
-      .use(require('markdown-it-icons').default, 'font-awesome')
-      .use(require('markdown-it-ins'))
-      .use(require('markdown-it-mark'))
-      .use(require('markdown-it-textual-uml'))
-      .use(require('markdown-it-sub'))
-      .use(require('markdown-it-sup'))
-      .use(require('markdown-it-task-lists'))
-      .use(require('markdown-it-multimd-table'), {
-        multiline: true,
-        rowspan: true,
-        headerless: true
-      })
-      .use(containers, 'notice', {
-        validate: function (params) {
-          let matches = params.match(/(\w+)\s?(.*)?/);
-          return matches && noticeTypes[matches[1]];
-        },
-        render: function (tokens, idx) {
-          let matches = tokens[idx].info.match(/(\w+)\s?(.*)?/);
-          if (matches && tokens[idx].nesting === 1) {
-            let id;
-            let type = matches[1];
-            if (matches[2]) {
-              id = matches[2].trim().replace(/\s+/g, '-').toLowerCase();
-              if (noticeTitles[id]) id += '-' + noticeTitles[id]++;
-              else noticeTitles[id] = 1;
-            }
-            else id = type + '-' + noticeTypes[type]++;
-            return `<div id="${id}" class="notice ${type}"><a class="notice-link" href="#${id}">${type.toUpperCase()}</a>`;
-          }
-          else return '</div>\n';
-        }
-      })
-      .use(require('markdown-it-prism'))
-      .use(require('markdown-it-toc-and-anchor').default, {
-        tocClassName: 'toc',
-        tocFirstLevel: 2,
-        tocLastLevel: 4,
-        tocCallback: (_md, _tokens, html) => toc = html,
-        anchorLinkSymbol: config.specs[0].anchor_symbol || '§',
-        anchorClassName: 'toc-anchor d-print-none'
-      })
-      .use(require('@traptitech/markdown-it-katex'))
+    ;
+
+    md = configurePlugins(md, config, containers, noticeTypes, noticeTitles);
 
     const katexRules = ['math_block', 'math_inline'];
     const replacerRegex = /\[\[\s*([^\s[\]:]+):?\s*([^\]\n]+)?\]\]/img;
