@@ -65,6 +65,18 @@ module.exports = async function (options = {}) {
     const specCorpus = fs.readJsonSync(modulePath + '/assets/compiled/refs.json');
     const containers = require('markdown-it-container');
     const { configurePlugins } = require('./src/markdown-it/plugins');
+    const {
+      katexRules,
+      replacerRegex,
+      replacerArgsRegex,
+      replacers,
+      createScriptElementWithXTrefDataForEmbeddingInHtml,
+      lookupXrefTerm,
+      applyReplacers,
+      normalizePath,
+      renderRefGroup,
+      findKatexDist
+    } = require('./src/render-utils');
 
     /* 
     `const md` is assigned an instance of the markdown-it parser configured with various plugins and extensions. This instance (md) is intended to be used later to parse and render Markdown strings.
@@ -162,7 +174,7 @@ module.exports = async function (options = {}) {
               let spec = token.info.spec;
               if (spec) return `[<a class="spec-reference" href="#ref:${spec._name}">${spec._name}</a>]`;
             }
-            else return renderRefGroup(type);
+            else return renderRefGroup(type, specGroups);
           }
         }
       ])
@@ -170,137 +182,10 @@ module.exports = async function (options = {}) {
 
     md = configurePlugins(md, config, containers, noticeTypes, noticeTitles);
 
-    const katexRules = ['math_block', 'math_inline'];
-    const replacerRegex = /\[\[\s*([^\s[\]:]+):?\s*([^\]\n]+)?\]\]/img;
-    const replacerArgsRegex = /\s*,+\s*/;
-    const replacers = [
-      {
-        test: 'insert',
-        transform: function (originalMatch, type, path) {
-          if (!path) return '';
-          return fs.readFileSync(path, 'utf8');
-        }
-      }
-    ];
-
     // Synchronously process markdown files
     fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
-    function createScriptElementWithXTrefDataForEmbeddingInHtml() {
-      // Test if xtrefs-data.js exists, else make it an empty string
-      const inputPath = path.join('.cache', 'xtrefs-data.js');
-
-      let xtrefsData = '';
-      if (fs.existsSync(inputPath)) {
-        xtrefsData = '<script>' + fs.readFileSync(inputPath, 'utf8') + '</script>';
-      }
-
-      return xtrefsData;
-    }
-
     const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
-
-    /**
-     * Looks up an xref term from the allXTrefs data
-     * @param {string} externalSpec - The external spec identifier
-     * @param {string} termName - The term name to look up
-     * @returns {Object|null} The term object if found, null otherwise
-     */
-    function lookupXrefTerm(externalSpec, termName) {
-      try {
-        const xtrefsPath = path.join('.cache', 'xtrefs-data.json');
-        if (!fs.existsSync(xtrefsPath)) {
-          return null;
-        }
-        
-        const allXTrefs = fs.readJsonSync(xtrefsPath);
-        if (!allXTrefs || !allXTrefs.xtrefs) {
-          return null;
-        }
-        
-        // Look for xref term (source: 'xref') matching the external spec and term
-        const termKey = termName.replace(spaceRegex, '-').toLowerCase();
-        const foundTerm = allXTrefs.xtrefs.find(xtref => 
-          xtref.externalSpec === externalSpec && 
-          xtref.term === termKey &&
-          xtref.source === 'xref'
-        );
-        
-        return foundTerm || null;
-      } catch (error) {
-        Logger.warn(`Error looking up xref term ${externalSpec}:${termName}:`, error.message);
-        return null;
-      }
-    }
-
-    /**
-     * Processes custom tag patterns in markdown content and applies transformation functions.
-     * 
-     * This function scans the document for special tag patterns like [[tref:spec,term]]
-     * and replaces them with the appropriate HTML using the matching replacer.
-     * 
-     * For tref tags, this is where the magic happens - we intercept them before
-     * the markdown parser even sees them, and convert them directly to HTML structure
-     * that will integrate properly with definition lists.
-     * 
-     * @param {string} doc - The markdown document to process
-     * @returns {string} - The processed document with tags replaced by their HTML equivalents
-     */
-    function applyReplacers(doc) {
-      // Use the escape handler for three-phase processing
-      return processWithEscapes(doc, function(content) {
-        return content.replace(replacerRegex, function (match, type, args) {
-          let replacer = replacers.find(r => type.trim().match(r.test));
-          if (replacer) {
-            let argsArray = args ? args.trim().split(replacerArgsRegex) : [];
-            return replacer.transform(match, type, ...argsArray);
-          }
-          return match;
-        });
-      });
-    }
-
-    function normalizePath(path) {
-      return path.trim().replace(/\/$/g, '') + '/';
-    }
-
-    function renderRefGroup(type) {
-      let group = specGroups[type];
-      if (!group) return '';
-
-      /*
-        The key advantage of localeCompare over simple comparison operators (<, >) is that it:
-
-        - Properly handles language-specific sorting rules (via locale settings)
-        - Correctly compares strings containing special characters or accents
-        - Can be configured to be case-insensitive
-      */
-      let html = Object.keys(group).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).reduce((html, name) => {
-        let ref = group[name];
-        return html += `
-        <dt id="ref:${name}">${name}</dt>
-        <dd>
-          <cite><a href="${ref.href}">${ref.title}</a></cite>. 
-          ${ref.authors.join('; ')}; ${ref.rawDate}. <span class="reference-status">Status: ${ref.status}</span>.
-        </dd>
-      `;
-      }, '<dl class="reference-list">');
-      return `\n${html}\n</dl>\n`;
-    }
-
-    function findKatexDist() {
-      const relpath = "node_modules/katex/dist";
-      const paths = [
-        path.join(process.cwd(), relpath),
-        path.join(__dirname, relpath),
-      ];
-      for (const abspath of paths) {
-        if (fs.existsSync(abspath)) {
-          return abspath
-        }
-      }
-      throw Error("katex distribution could not be located");
-    }
 
     async function render(spec, assets) {
       try {
