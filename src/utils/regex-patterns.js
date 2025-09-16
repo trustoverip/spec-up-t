@@ -240,31 +240,7 @@ const versions = {
   pattern: /^v(\d+)$/
 };
 
-/**
- * Regular expressions for search and text highlighting
- * Used in client-side search functionality
- */
-const search = {
-  /**
-   * Creates a regex for case-insensitive text search with word boundaries
-   * 
-   * Note: This is a template - actual regex is constructed dynamically
-   * by escaping the search term and wrapping in appropriate pattern
-   * 
-   * Pattern template for search term highlighting:
-   * - Escapes special characters in search term
-   * - Adds global and case-insensitive flags
-   * 
-   * Flags used:
-   * - g: global matching
-   * - i: case-insensitive
-   * 
-   * Example construction:
-   * searchTerm = "test"
-   * regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')})`, 'gi')
-   */
-  highlightTemplate: 'DYNAMIC_PATTERN' // Constructed at runtime
-};
+
 
 /**
  * Regular expressions for gitignore pattern matching
@@ -302,32 +278,12 @@ const whitespace = {
    * Flags:
    * - g: global to replace all whitespace sequences
    */
-  oneOrMore: /\s+/g,
-
-  /**
-   * Matches whitespace at the beginning of a string
-   * Used for trimming leading whitespace
-   * 
-   * Examples:
-   * - "  text" → "text" (after removal)
-   * - "\t\ntext" → "text" (after removal)
-   */
-  leading: /^\s*/,
-
-  /**
-   * Matches whitespace at the end of a string
-   * Used for trimming trailing whitespace
-   * 
-   * Examples:
-   * - "text  " → "text" (after removal)
-   * - "text\n\t" → "text" (after removal)
-   */
-  trailing: /\s*$/
+  oneOrMore: /\s+/g
 };
 
 /**
  * Regular expressions for URL and link processing
- * Used in snapshot link processing and external references
+ * Used in server-side URL manipulation and external references
  */
 const urls = {
   /**
@@ -336,7 +292,7 @@ const urls = {
    * Groups:
    * - Group 1: base URL (protocol + domain + path up to /versions/)
    * 
-   * Used in add-href-to-snapshot-link functionality
+   * Used for processing versioned URLs in server-side context
    * 
    * Examples:
    * - "https://example.com/spec/versions/v1/" → base: "https://example.com/spec"
@@ -358,7 +314,6 @@ module.exports = {
   escaping,
   paths,
   versions,
-  search,
   gitignore,
   whitespace,
   urls
@@ -396,20 +351,6 @@ const utils = {
     const escapedSpec = this.escapeRegexChars(spec);
     const escapedTerm = this.escapeRegexChars(term);
     return new RegExp(`\\[\\[(?:x|t)ref:\\s*${escapedSpec},\\s*${escapedTerm}(?:,\\s*[^\\]]+)?\\]\\]`, 'g');
-  },
-
-  /**
-   * Creates a regex for case-insensitive search highlighting
-   * 
-   * @param {string} searchTerm - Term to search for
-   * @returns {RegExp} Compiled regex for highlighting search matches
-   * 
-   * Example:
-   * createSearchHighlightRegex("test") → /(test)/gi
-   */
-  createSearchHighlightRegex: function(searchTerm) {
-    const escaped = this.escapeRegexChars(searchTerm);
-    return new RegExp(`(${escaped})`, 'gi');
   },
 
   /**

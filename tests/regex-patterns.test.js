@@ -128,18 +128,6 @@ describe('Centralized Regex Patterns Test Suite', () => {
       const result = input.replace(whitespace.oneOrMore, ' ');
       expect(result).toBe('text with spaces');
     });
-
-    test('leading removes leading whitespace', () => {
-      const input = '   text';
-      const result = input.replace(whitespace.leading, '');
-      expect(result).toBe('text');
-    });
-
-    test('trailing removes trailing whitespace', () => {
-      const input = 'text   ';
-      const result = input.replace(whitespace.trailing, '');
-      expect(result).toBe('text');
-    });
   });
 
   describe('URL Patterns', () => {
@@ -164,16 +152,6 @@ describe('Centralized Regex Patterns Test Suite', () => {
       expect(regex.test('[[xref: spec1, term1]]')).toBe(true);
       regex.lastIndex = 0; // Reset state
       expect(regex.test('[[tref: spec1, term1, alias]]')).toBe(true);
-    });
-
-    test('createSearchHighlightRegex creates case-insensitive regex', () => {
-      const regex = utils.createSearchHighlightRegex('test');
-      regex.lastIndex = 0; // Reset state
-      expect(regex.test('TEST')).toBe(true);
-      regex.lastIndex = 0; // Reset state
-      expect(regex.test('Test')).toBe(true);
-      regex.lastIndex = 0; // Reset state
-      expect(regex.test('test')).toBe(true);
     });
 
     test('createGitignoreRegex converts globs to regex', () => {
@@ -231,29 +209,6 @@ describe('Centralized Regex Patterns Test Suite', () => {
       
       expect(matches).toBeTruthy();
       expect(endTime - startTime).toBeLessThan(100); // Should be fast
-    });
-  });
-
-  describe('Client-Side Pattern Compatibility', () => {
-    
-    test('search pattern matches client-side equivalent', () => {
-      // This verifies that our centralized pattern works the same as the client-side one
-      const searchTerm = 'test';
-      const centralizedRegex = utils.createSearchHighlightRegex(searchTerm);
-      const clientSideRegex = new RegExp(searchTerm, 'gi'); // From assets/js/search.js
-      
-      const testText = 'This is a TEST of the search functionality';
-      expect(centralizedRegex.test(testText)).toBe(clientSideRegex.test(testText));
-    });
-
-    test('versions URL pattern matches client-side equivalent', () => {
-      // This verifies compatibility with assets/js/add-href-to-snapshot-link.js
-      const testUrl = 'https://example.com/spec/versions/v1/';
-      const centralizedMatch = testUrl.match(urls.versionsBase);
-      const clientSideRegex = new RegExp('^(https?://[^/]+(?:/[^/]+)*)/versions/(?:[^/]+/)?');
-      const clientSideMatch = testUrl.match(clientSideRegex);
-      
-      expect(centralizedMatch[1]).toBe(clientSideMatch[1]);
     });
   });
 
