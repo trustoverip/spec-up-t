@@ -78,7 +78,7 @@ function insertTrefs(allXTrefs) {
          }
 
          // Find the first matching tref to avoid duplicates
-         const tref = xtrefsData.xtrefs.find(x => x.term === originalTerm);
+         const tref = xtrefsData.xtrefs.find(xtref => xtref.term === originalTerm);
          
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
