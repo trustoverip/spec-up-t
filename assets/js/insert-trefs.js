@@ -77,8 +77,8 @@ function insertTrefs(allXTrefs) {
             return null; // Skip invalid entries
          }
 
-         // Find the first matching xref to avoid duplicates
-         const xref = xtrefsData.xtrefs.find(x => x.term === originalTerm);
+         // Find the first matching tref to avoid duplicates
+         const tref = xtrefsData.xtrefs.find(x => x.term === originalTerm);
          
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
@@ -87,12 +87,12 @@ function insertTrefs(allXTrefs) {
          const metaInfoEl = document.createElement('dd');
          metaInfoEl.classList.add('term-external', 'meta-info-content-wrapper', 'collapsed');
 
-         if (xref) {
+         if (tref) {
             // Generate meta info content
-            const avatar = xref.avatarUrl ? `![avatar](${xref.avatarUrl})` : '';
-            const owner = xref.owner || 'Unknown';
-            const repo = xref.repo && xref.repoUrl ? `[${xref.repo}](${xref.repoUrl})` : 'Unknown';
-            const commitHash = xref.commitHash || 'Unknown';
+            const avatar = tref.avatarUrl ? `![avatar](${tref.avatarUrl})` : '';
+            const owner = tref.owner || 'Unknown';
+            const repo = tref.repo && tref.repoUrl ? `[${tref.repo}](${tref.repoUrl})` : 'Unknown';
+            const commitHash = tref.commitHash || 'Unknown';
 
             const metaInfo = `
 | Property | Value |
@@ -107,7 +107,7 @@ function insertTrefs(allXTrefs) {
 
             // Clean up the markdown content in the term definition
             // Part A: clean up via regex
-            let content = xref.content
+            let content = tref.content
                .split('\n')
                .map(line => line.replace(/^\s*~\s*/, '')) // Remove leading ~ and spaces
                .join('\n')
@@ -120,7 +120,7 @@ function insertTrefs(allXTrefs) {
             tempDivForLinks.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
             content = tempDivForLinks.innerHTML;
 
-            // Parse the rendered HTML to check for dd elements. xref.content is a string that contains HTML, in the form of <dd>...</dd>'s
+            // Parse the rendered HTML to check for dd elements. tref.content is a string that contains HTML, in the form of <dd>...</dd>'s
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = md.render(content);
 
