@@ -23,6 +23,8 @@ const { ESCAPED_PLACEHOLDER } = require('../escape-handler');
  * Configuration constants for template-tag syntax
  * These define the delimiters and parsing rules for template-tag markers
  */
+const { templateTags } = require('../utils/regex-patterns');
+
 const levels = 2;                         // Number of bracket characters (e.g., 2 = [[]])
 const openString = '['.repeat(levels);    // Opening delimiter: '[['
 const closeString = ']'.repeat(levels);   // Closing delimiter: ']]'
@@ -30,7 +32,7 @@ const closeString = ']'.repeat(levels);   // Closing delimiter: ']]'
 // Regular expression to extract template-tag components from [[type:args]] syntax
 // Group 1: template-tag type (e.g., 'ref', 'tref', 'def')
 // Group 2: arguments (everything after the colon, comma-separated)
-const contentRegex = /\s*([^\s\[\]:]+):?\s*([^\]\n]+)?/i;
+const contentRegex = templateTags.content;
 
 /**
  * Applies template-tag syntax support to a markdown-it instance

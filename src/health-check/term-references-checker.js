@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Logger = require('../utils/logger');
+const { externalReferences } = require('../utils/regex-patterns');
 
 /**
  * Extracts the spec name from a tref tag at the beginning of a markdown file
@@ -14,7 +15,7 @@ function extractSpecNameFromTref(firstLine) {
   
   try {
     // Extract content between [[tref: and the next comma
-    const match = firstLine.match(/\[\[tref:([^,]+)/);
+    const match = firstLine.match(externalReferences.trefSpecExtractor);
     if (match && match[1]) {
       // Trim whitespace
       return match[1].trim();

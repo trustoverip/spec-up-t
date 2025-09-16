@@ -1,7 +1,16 @@
 /**
  * @file Collects and processes external reference information for cross-specification linking.
  * 
- * This script fetches the latest commit hash of term files from GitHub repositories
+ * This    // Extract the reference type (xref or tref) from the string
+    const referenceTypeMatch = xtref.match(externalReferences.referenceType);
+    const referenceType = referenceTypeMatch ? referenceTypeMatch[1] : 'unknown';
+    
+    // Remove the surrounding [[xref: or [[tref: and ]] parts, then split by commas
+    const parts = xtref
+        .replace(externalReferences.openingTag, '') // Remove opening [[xref: or [[tref:
+        .replace(externalReferences.closingTag, '')  // Remove closing ]]
+        .trim()                                      // Remove any extra whitespace
+        .split(externalReferences.argsSeparator);    // Split into parts by commatches the latest commit hash of term files from GitHub repositories
  * configured in specs.json, then generates both JavaScript and JSON files containing
  * cross-reference (xref/tref) data for use in specifications.
  * 
@@ -56,6 +65,7 @@ const fs = require('fs-extra');
 const readlineSync = require('readline-sync');
 const Logger = require('./utils/logger');
 const { getCurrentBranch } = require('./utils/git-info');
+const { externalReferences, utils } = require('./utils/regex-patterns');
 
 /**
  * Checks if a specific xtref is present in the markdown content
@@ -68,16 +78,8 @@ const { getCurrentBranch } = require('./utils/git-info');
  * @returns {boolean} True if the xtref is found in the content
  */
 function isXTrefInMarkdown(xtref, markdownContent) {
-    // Escape special regex characters in externalSpec and term to prevent regex injection
-    // This ensures that characters like ".", "*", "+", etc. are treated as literal characters
-    const escapedSpec = xtref.externalSpec.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
-    const escapedTerm = xtref.term.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
-    
-    // Build regex pattern to match both xref and tref formats:
-    // - (?:x|t)ref: matches either "xref:" or "tref:"
-    // - \\s* allows for optional whitespace
-    // - (?:,\\s*[^\\]]+)? optionally matches an alias (third parameter)
-    const regexTerm = new RegExp(`\\[\\[(?:x|t)ref:\\s*${escapedSpec},\\s*${escapedTerm}(?:,\\s*[^\\]]+)?\\]\\]`, 'g');
+    // Use the utility function to create the regex pattern for this specific xtref
+    const regexTerm = utils.createXTrefRegex(xtref.externalSpec, xtref.term);
     return regexTerm.test(markdownContent);
 }
 
@@ -117,15 +119,15 @@ function isXTrefInAnyFile(xtref, fileContents) {
  */
 function processXTref(xtref) {
     // Extract the reference type (xref or tref) before removing it
-    const referenceTypeMatch = xtref.match(/\[\[(xref|tref):/);
+    const referenceTypeMatch = xtref.match(externalReferences.referenceType);
     const referenceType = referenceTypeMatch ? referenceTypeMatch[1] : 'unknown';
     
     // Remove the surrounding [[xref: or [[tref: and ]] parts, then split by commas
     const parts = xtref
-        .replace(/\[\[(?:xref|tref):/, '') // Remove opening [[xref: or [[tref:
-        .replace(/\]\]/, '')               // Remove closing ]]
+        .replace(externalReferences.openingTag, '') // Remove opening [[xref: or [[tref:
+        .replace(externalReferences.closingTag, '')               // Remove closing ]]
         .trim()                            // Remove any extra whitespace
-        .split(/,/);                       // Split into parts by comma
+        .split(externalReferences.argsSeparator);                       // Split into parts by comma
     
     // Build the basic object with required fields
     const xtrefObject = {
@@ -161,7 +163,7 @@ function processXTref(xtref) {
  */
 function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null) {
     // Regex to find all external references: [[xref:...]] or [[tref:...]]
-    const regex = /\[\[(?:xref|tref):.*?\]\]/g;
+    const regex = externalReferences.allXTrefs;
     
     // First check if there are any matches to avoid unnecessary processing
     if (regex.test(markdownContent)) {

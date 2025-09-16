@@ -13,6 +13,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const fileOpener = require('../utils/file-opener');
 const Logger = require('../utils/logger');
+const { utils } = require('../utils/regex-patterns');
 
 /**
  * Checks if a path is gitignored
@@ -209,7 +210,7 @@ function findOutputDirIgnorePatterns(lines, normalizedPath, dirName) {
       // Check for wildcards covering all directories
       trimmedLine === '*/' ||
       // Check for wildcards that might match our path using regex
-      (trimmedLine.includes('*') && new RegExp('^' + trimmedLine.replace(/\*/g, '.*').replace(/\//g, '\\/') + '$').test(normalizedPath))
+      (trimmedLine.includes('*') && utils.createGitignoreRegex(trimmedLine).test(normalizedPath))
     ) {
       dirIgnorePatterns.push(trimmedLine);
     }

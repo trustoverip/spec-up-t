@@ -29,6 +29,7 @@
 const fs = require('fs-extra'); // Import the fs-extra module for file system operations
 const path = require('path'); // Import the path module for handling file paths
 const Logger = require('./utils/logger');
+const { versions } = require('./utils/regex-patterns');
 
 // Read and parse the specs.json file
 const config = fs.readJsonSync('specs.json');
@@ -54,7 +55,7 @@ const dirs = fs.readdirSync(destDir).filter(file => fs.statSync(path.join(destDi
 let highestVersion = 0;
 
 // Define the pattern to match versioned directories
-const versionPattern = /^v(\d+)$/;
+const versionPattern = versions.pattern;
 
 // Iterate over each directory in the destination directory
 dirs.forEach(dir => {
