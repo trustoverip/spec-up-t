@@ -111,11 +111,12 @@ function isXTrefInAnyFile(xtref, fileContents) {
  * into a structured object with separate properties for each component.
  * 
  * Examples:
- * - "[[xref:keri-1,authentic-data]]" -> {externalSpec: "keri-1", term: "authentic-data", referenceType: "xref"}
- * - "[[tref:vlei-1,legal-entity,LEI]]" -> {externalSpec: "vlei-1", term: "legal-entity", alias: "LEI", referenceType: "tref"}
+ * - "[[xref:keri-1,authentic-data]]" -> {externalSpec: "keri-1", term: "authentic-data", referenceType: "xref", aliases: []}
+ * - "[[tref:vlei-1,legal-entity,LEI]]" -> {externalSpec: "vlei-1", term: "legal-entity", aliases: ["LEI"], referenceType: "tref"}
+ * - "[[tref:spec,term,alias1,alias2]]" -> {externalSpec: "spec", term: "term", aliases: ["alias1", "alias2"], referenceType: "tref"}
  * 
  * @param {string} xtref - The xtref string to process (includes the full [[...]] syntax)
- * @returns {Object} An object with externalSpec, term, referenceType, and optional alias properties
+ * @returns {Object} An object with externalSpec, term, referenceType, and optional aliases array
  */
 function processXTref(xtref) {
     // Extract the reference type (xref or tref) before removing it
@@ -136,10 +137,8 @@ function processXTref(xtref) {
         referenceType: referenceType    // NEW: Track whether this was xref or tref
     };
     
-    // Add alias if provided (third parameter) and not empty
-    if (parts.length > 2 && parts[2].trim()) {
-        xtrefObject.alias = parts[2].trim();
-    }
+    // Collect all aliases from parts after the term (index 1), trim and filter empties
+    xtrefObject.aliases = parts.slice(2).map(p => p.trim()).filter(Boolean);
 
     return xtrefObject;
 }

@@ -29,7 +29,7 @@ function insertTrefs(allXTrefs) {
       const allTerms = [];
 
       document.querySelectorAll('dl.terms-and-definitions-list dt span.term-external').forEach((termElement) => {
-         
+
          // Get the full text content including any nested spans (for aliases) of a term (dt)
          // In case of `[[tref:toip1, agency, ag]]`, this will return `agency`
          // const textContent = termElement.textContent.trim();
@@ -79,7 +79,7 @@ function insertTrefs(allXTrefs) {
 
          // Find the first matching tref to avoid duplicates
          const tref = xtrefsData.xtrefs.find(xtref => xtref.term === originalTerm);
-         
+
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
 
@@ -88,6 +88,19 @@ function insertTrefs(allXTrefs) {
          metaInfoEl.classList.add('term-external', 'meta-info-content-wrapper', 'collapsed');
 
          if (tref) {
+            // Add spans for each alias in the aliases array
+            // Supports multiple aliases: e.g., [[tref:spec,term,alias1,alias2]]
+            if (tref.aliases && tref.aliases.length > 0) {
+               tref.aliases.forEach(alias => {
+                  const aliasSpan = document.createElement('span');
+                  aliasSpan.classList.add('tref-alias');
+                  // add id to alias span for easier styling
+                  aliasSpan.id = `tref-alias-${alias.toLowerCase()}`;
+                  aliasSpan.textContent = alias;
+                  termData.element.appendChild(aliasSpan);
+               });
+            }
+
             // Generate meta info content
             const avatar = tref.avatarUrl ? `![avatar](${tref.avatarUrl})` : '';
             const owner = tref.owner || 'Unknown';

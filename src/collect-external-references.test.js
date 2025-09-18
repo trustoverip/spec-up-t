@@ -155,7 +155,8 @@ describe('addNewXTrefsFromMarkdown', () => {
         expect(updatedXTrefs.xtrefs.length).toBe(1);
         expect(updatedXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
-            term: 'termA'
+            term: 'termA',
+            aliases: []
         });
     });
 
@@ -178,8 +179,8 @@ describe('addNewXTrefsFromMarkdown', () => {
         expect(updatedXTrefs.xtrefs.length).toBe(2);
         expect(updatedXTrefs.xtrefs).toEqual(
             expect.arrayContaining([
-                { externalSpec: 'specA', term: 'termA' },
-                { externalSpec: 'specB', term: 'termB' }
+                { externalSpec: 'specA', term: 'termA', aliases: [] },
+                { externalSpec: 'specB', term: 'termB', aliases: [] }
             ])
         );
     });
@@ -213,7 +214,7 @@ describe('addNewXTrefsFromMarkdown', () => {
         expect(updatedXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            alias: 'aliasA'
+            aliases: ['aliasA']
         });
     });
 
@@ -226,7 +227,7 @@ describe('addNewXTrefsFromMarkdown', () => {
         expect(updatedXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            alias: 'aliasA'
+            aliases: ['aliasA']
         });
     });
 
@@ -238,9 +239,9 @@ describe('addNewXTrefsFromMarkdown', () => {
         expect(updatedXTrefs.xtrefs.length).toBe(1);
         expect(updatedXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
-            term: 'termA'
+            term: 'termA',
+            aliases: []
         });
-        expect(updatedXTrefs.xtrefs[0].alias).toBeUndefined();
     });
 
 });
@@ -256,7 +257,8 @@ describe('processXTref', () => {
         expect(result).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            referenceType: 'xref'
+            referenceType: 'xref',
+            aliases: []
         });
     });
 
@@ -267,31 +269,44 @@ describe('processXTref', () => {
         expect(result).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            referenceType: 'tref'
+            referenceType: 'tref',
+            aliases: []
         });
     });
 
-    it('should process tref with alias', () => {
+    it('should process tref with single alias', () => {
         const xtref = '[[tref:specA,termA,aliasA]]';
         const result = processXTref(xtref);
         
         expect(result).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            alias: 'aliasA',
+            aliases: ['aliasA'],
             referenceType: 'tref'
         });
     });
 
-    it('should process xref with alias', () => {
+    it('should process xref with single alias', () => {
         const xtref = '[[xref:specA,termA,aliasA]]';
         const result = processXTref(xtref);
         
         expect(result).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            alias: 'aliasA',
+            aliases: ['aliasA'],
             referenceType: 'xref'
+        });
+    });
+
+    it('should process tref with multiple aliases', () => {
+        const xtref = '[[tref:specA,termA,aliasA,aliasB]]';
+        const result = processXTref(xtref);
+        
+        expect(result).toEqual({
+            externalSpec: 'specA',
+            term: 'termA',
+            aliases: ['aliasA', 'aliasB'],
+            referenceType: 'tref'
         });
     });
 
@@ -302,7 +317,7 @@ describe('processXTref', () => {
         expect(result).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            alias: 'aliasA',
+            aliases: ['aliasA'],
             referenceType: 'tref'
         });
     });
@@ -314,9 +329,9 @@ describe('processXTref', () => {
         expect(result).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            referenceType: 'tref'
+            referenceType: 'tref',
+            aliases: []
         });
-        expect(result.alias).toBeUndefined();
     });
 });
 
@@ -333,6 +348,7 @@ describe('addNewXTrefsFromMarkdown with filename tracking', () => {
         expect(updatedXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
             term: 'termA',
+            aliases: [],
             sourceFiles: [{ file: 'test-file.md', type: 'xref' }]
         });
     });
@@ -345,7 +361,8 @@ describe('addNewXTrefsFromMarkdown with filename tracking', () => {
         expect(updatedXTrefs.xtrefs.length).toBe(1);
         expect(updatedXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
-            term: 'termA'
+            term: 'termA',
+            aliases: []
         });
         expect(updatedXTrefs.xtrefs[0].sourceFiles).toBeUndefined();
     });
@@ -549,6 +566,7 @@ describe('Reference type tracking', () => {
         expect(allXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
             term: 'termA',
+            aliases: [],
             sourceFiles: [{ file: 'file1.md', type: 'xref' }]
         });
         
@@ -559,6 +577,7 @@ describe('Reference type tracking', () => {
         expect(allXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
             term: 'termA',
+            aliases: [],
             sourceFiles: [
                 {file: 'file1.md', type: 'xref'},
                 {file: 'file2.md', type: 'tref'}
