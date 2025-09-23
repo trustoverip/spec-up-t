@@ -64,6 +64,7 @@
     "prismjs": "^1.24.0",
     "puppeteer": "^23.2.1",
     "readline-sync": "^1.4.10",
+    "spec-up-t-healthcheck": "^1.0.2",
     "yargs": "^17.7.2"
   },
   "overrides": {
@@ -75,6 +76,7 @@
   },
   "scripts": {
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "healthCheck2": "node --no-warnings healthcheck-test.js"
   }
 }
