@@ -10,3 +10,4 @@
 - Be generous with writing explanations for each block of code
 - Please remind me to test on a separate testmachine
 - Never commit on your own. Always ask before
+- A very modular approach is preferred, the overhead is acceptable
