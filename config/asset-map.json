@@ -28,6 +28,7 @@
       "assets/css/horizontal-scroll-hint.css",
       "assets/css/highlight-heading-plus-sibling-nodes.css",
       "assets/css/counter.css",
+      "assets/css/snapshots.css",
       "assets/css/index.css"
     ],
     "js": [

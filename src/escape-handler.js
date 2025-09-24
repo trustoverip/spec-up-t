@@ -8,6 +8,8 @@
  * 3. Post-processing: Restore escaped sequences as literals
  */
 
+const { escaping } = require('./utils/regex-patterns');
+
 const ESCAPED_PLACEHOLDER = '__SPEC_UP_ESCAPED_TAG__';
 
 /**
@@ -40,7 +42,7 @@ function postProcessEscapes(text) {
   }
   
   // Restore placeholders to literal [[
-  return text.replace(new RegExp(ESCAPED_PLACEHOLDER, 'g'), '[[');
+  return text.replace(escaping.placeholderRegex, '[[');
 }
 
 /**

@@ -12,6 +12,7 @@ const { processWithEscapes } = require('./escape-handler.js');
 const { processEscapedTags, restoreEscapedTags } = require('./escape-mechanism.js');
 const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./html-dom-processor.js');
 const { getGithubRepoInfo } = require('./utils/git-info.js');
+const { templateTags } = require('./utils/regex-patterns');
 
 const { createScriptElementWithXTrefDataForEmbeddingInHtml, lookupXrefTerm, applyReplacers, normalizePath, renderRefGroup, findKatexDist } = require('./render-utils.js');
 const { createMarkdownParser } = require('./markdown-parser.js');
@@ -25,7 +26,7 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     Logger.info('Rendering: ' + spec.title);
 
     function interpolate(template, variables) {
-      return template.replace(/\${(.*?)}/g, (match, p1) => variables[p1.trim()]);
+      return template.replace(templateTags.variableInterpolation, (match, p1) => variables[p1.trim()]);
     }
 
     // Add current date in 'DD Month YYYY' format for template injection
@@ -100,6 +101,8 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     // Phase 3: Post-processing - Restore escaped sequences as literals
     renderedHtml = restoreEscapedTags(renderedHtml);
 
+    renderedHtml = `<a id="snapshotLinkInContent" class="btn btn-outline-primary d-block mb-5" href="./versions/">Versions of this document (snapshots)</a>` + renderedHtml;
+
     // External references are now stored in allXTrefs instead of DOM HTML
     // No longer need to inject external references HTML into the template
 
@@ -107,7 +110,7 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
       title: spec.title,
       description: spec.description,
       author: spec.author,
-                toc: global.toc,
+      toc: global.toc,
       render: renderedHtml,
       assetsHead: assets.head,
       assetsBody: assets.body,

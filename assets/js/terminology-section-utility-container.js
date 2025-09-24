@@ -120,7 +120,7 @@ function initializeTerminologyUtilityContainer() {
     searchInput.setAttribute("type", "text");
     searchInput.setAttribute("id", "search");
     searchInput.classList.add("form-control");
-    searchInput.setAttribute("placeholder", "🔍");
+    searchInput.setAttribute("placeholder", "🔍 (terms only)");
     searchInput.setAttribute("aria-label", "Search terms");
     searchInput.setAttribute("autocomplete", "off");
     searchContainer.appendChild(searchInput);
