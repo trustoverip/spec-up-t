@@ -76,7 +76,7 @@ function lookupXrefTerm(externalSpec, termName) {
  */
 function applyReplacers(doc) {
   const { processWithEscapes } = require('./escape-handler.js');
-  return processWithEscapes(doc, function(content) {
+  return processWithEscapes(doc, function (content) {
     return content.replace(replacerRegex, function (match, type, args) {
       let replacer = replacers.find(r => type.trim().match(r.test));
       if (replacer) {
