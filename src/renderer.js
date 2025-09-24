@@ -101,6 +101,8 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     // Phase 3: Post-processing - Restore escaped sequences as literals
     renderedHtml = restoreEscapedTags(renderedHtml);
 
+    renderedHtml = `<a id="snapshotLinkInContent" class="btn btn-outline-primary d-block mb-5" href="./versions/">Versions of this document (snapshots)</a>` + renderedHtml;
+
     // External references are now stored in allXTrefs instead of DOM HTML
     // No longer need to inject external references HTML into the template
 
