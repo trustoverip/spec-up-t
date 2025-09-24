@@ -50,7 +50,7 @@ function inPageSearch() {
    const antiNameCollisions = 'search';
    const debounceTime = 600;
    const matches = 'matches';// What text to display after the number of matches
-   const searchBarPlaceholder = '🔍';
+   const searchBarPlaceholder = '🔍 (terms only)';
    const searchableContent = document.querySelector('.terms-and-definitions-list');
 
    /* END CONFIGURATION */
