@@ -1,5 +1,13 @@
-describe('matchTerm legacy placeholder', () => {
-	test('tests relocated to src/pipeline/references/match-term.test.js', () => {
-		expect(true).toBe(true);
+describe('Legacy collectExternalReferences modules', () => {
+	test('fetchTermsFromIndex old path throws informative error', () => {
+		expect(() => require('./fetchTermsFromIndex')).toThrow(/removed/);
+	});
+
+	test('matchTerm old path throws informative error', () => {
+		expect(() => require('./matchTerm')).toThrow(/removed/);
+	});
+
+	test('processXTrefsData old path throws informative error', () => {
+		expect(() => require('./processXTrefsData')).toThrow(/removed/);
 	});
 });

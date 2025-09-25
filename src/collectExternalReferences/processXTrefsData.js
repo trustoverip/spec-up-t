@@ -1,5 +1,9 @@
 /**
- * Compatibility layer - the implementation moved to pipeline/references.
+ * Deprecated entrypoint: this module has been removed.
+ *
+ * Use `src/pipeline/references/process-xtrefs-data.js` instead.
  */
 
-module.exports = require('../pipeline/references/process-xtrefs-data');
+throw new Error(
+	'processXTrefsData.js has been removed. Import from src/pipeline/references/process-xtrefs-data.js instead.'
+);

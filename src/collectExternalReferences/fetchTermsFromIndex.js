@@ -1,5 +1,9 @@
 /**
- * Compatibility layer - the implementation moved to pipeline/references.
+ * Deprecated entrypoint: this module has been removed.
+ *
+ * Use `src/pipeline/references/fetch-terms-from-index.js` instead.
  */
 
-module.exports = require('../pipeline/references/fetch-terms-from-index');
+throw new Error(
+	'fetchTermsFromIndex.js has been removed. Import from src/pipeline/references/fetch-terms-from-index.js instead.'
+);

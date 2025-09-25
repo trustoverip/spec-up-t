@@ -1,5 +1,9 @@
 /**
- * Compatibility layer - the implementation moved to pipeline/references.
+ * Deprecated entrypoint: this module has been removed.
+ *
+ * Use `src/pipeline/references/match-term.js` instead.
  */
 
-module.exports = require('../pipeline/references/match-term');
+throw new Error(
+	'matchTerm.js has been removed. Import from src/pipeline/references/match-term.js instead.'
+);
