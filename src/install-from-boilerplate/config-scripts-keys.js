@@ -2,7 +2,7 @@ const configScriptsKeys = {
     "edit": "node -e \"require('spec-up-t')()\"",
     "render": "node --no-warnings -e \"require('spec-up-t/index.js')({ nowatch: true })\"",
     "dev": "node -e \"require('spec-up-t')({ dev: true })\"",
-    "collectExternalReferences": "node --no-warnings -e \"require('spec-up-t/src/collect-external-references.js').collectExternalReferences()\"",
+    "collectExternalReferences": "node --no-warnings -e \"require('spec-up-t/src/pipeline/references/collect-external-references.js').collectExternalReferences()\"",
     "topdf": "node -e \"require('spec-up-t/src/create-pdf.js')\"",
     "todocx": "node -e \"require('spec-up-t/src/create-docx.js')\"",
     "freeze": "node -e \"require('spec-up-t/src/freeze-spec-data.js')\"",

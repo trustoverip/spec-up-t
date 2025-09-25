@@ -1,5 +1,16 @@
+const {
+    collectExternalReferences,
+    extendXTrefs,
+    processExternalReferences
+} = require('./pipeline/references/collect-external-references');
+const {
+    isXTrefInMarkdown,
+    isXTrefInAnyFile,
+    addNewXTrefsFromMarkdown,
+    processXTref
+} = require('./pipeline/references/xtref-utils');
+
 describe('isXTrefInMarkdown function', () => {
-    const isXTrefInMarkdown = require('./collect-external-references').isXTrefInMarkdown;
 
     const testCases = [
         {
@@ -145,7 +156,6 @@ That's all about these references.`,
 
 
 describe('addNewXTrefsFromMarkdown', () => {
-    const addNewXTrefsFromMarkdown = require('./collect-external-references').addNewXTrefsFromMarkdown;
 
     it('should add a new xtref from markdown content', () => {
         const markdownContent = "Some text [[xref:specA, termA]] more text";
@@ -247,7 +257,6 @@ describe('addNewXTrefsFromMarkdown', () => {
 
 
 describe('processXTref', () => {
-    const processXTref = require('./collect-external-references').processXTref;
 
     it('should process basic xref without alias', () => {
         const xtref = '[[xref:specA,termA]]';
@@ -321,7 +330,6 @@ describe('processXTref', () => {
 });
 
 describe('addNewXTrefsFromMarkdown with filename tracking', () => {
-    const addNewXTrefsFromMarkdown = require('./collect-external-references').addNewXTrefsFromMarkdown;
 
     it('should add sourceFiles property when filename is provided', () => {
         const markdownContent = "Some text [[xref:specA, termA]] more text";
@@ -410,7 +418,6 @@ describe('addNewXTrefsFromMarkdown with filename tracking', () => {
 });
 
 describe('isXTrefInAnyFile', () => {
-    const isXTrefInAnyFile = require('./collect-external-references').isXTrefInAnyFile;
 
     it('should return true when xtref is found in at least one file', () => {
         const xtref = { externalSpec: 'specA', term: 'termA' };
@@ -446,7 +453,6 @@ describe('isXTrefInAnyFile', () => {
 });
 
 describe('Reference type tracking', () => {
-    const addNewXTrefsFromMarkdown = require('./collect-external-references').addNewXTrefsFromMarkdown;
 
     it('should track xref reference type in sourceFiles when filename provided', () => {
         const markdownContent = "Some text [[xref:specA, termA]] more text";
