@@ -12,7 +12,7 @@
  *         Returns a message indicating no specifications were found if the configuration is invalid or empty.
  */
 
-const Logger = require('./utils/logger');
+const Logger = require('../../utils/logger.js');
 
 module.exports = function createExternalSpecsList(config) {
     if (!config?.specs?.length || !Array.isArray(config.specs)) {

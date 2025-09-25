@@ -9,7 +9,7 @@
  * reducing cognitive complexity and improving maintainability through pure functions.
  */
 
-const { renderRefGroup } = require('../render-utils');
+const { renderRefGroup } = require('../pipeline/rendering/render-utils.js');
 const { whitespace } = require('../utils/regex-patterns');
 
 /**

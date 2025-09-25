@@ -54,7 +54,7 @@ module.exports = async function (options = {}) {
       normalizePath,
       renderRefGroup,
       findKatexDist
-    } = require('./src/render-utils');
+  } = require('./src/pipeline/rendering/render-utils.js');
 
   const { createMarkdownParser } = require('./src/pipeline/parsing/create-markdown-parser.js');
     let md = createMarkdownParser(config, setToc);

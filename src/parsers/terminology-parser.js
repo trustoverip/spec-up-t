@@ -12,7 +12,7 @@
  */
 
 const { findExternalSpecByKey } = require('../pipeline/references/external-references-service.js');
-const { lookupXrefTerm } = require('../render-utils');
+const { lookupXrefTerm } = require('../pipeline/rendering/render-utils.js');
 const { whitespace, htmlComments, contentCleaning } = require('../utils/regex-patterns');
 
 /**

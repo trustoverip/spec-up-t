@@ -13,7 +13,7 @@ const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('../po
 const { getGithubRepoInfo } = require('../../utils/git-info.js');
 const { templateTags } = require('../../utils/regex-patterns.js');
 
-const { createScriptElementWithXTrefDataForEmbeddingInHtml, applyReplacers } = require('../../render-utils.js');
+const { createScriptElementWithXTrefDataForEmbeddingInHtml, applyReplacers } = require('./render-utils.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
   let { externalReferences } = sharedVars;

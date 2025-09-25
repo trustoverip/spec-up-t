@@ -9,7 +9,7 @@
  * @function
  * @name insertTermIndex
  * @returns {void}
- * @file src/insert-term-index.js
+ * @file src/pipeline/configuration/insert-term-index.js
  * @author Kor Dwarshuis
  * @version 1.0.0
  * @since 2024-09-02

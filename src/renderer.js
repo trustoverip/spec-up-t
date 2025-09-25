@@ -14,7 +14,7 @@ const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./pip
 const { getGithubRepoInfo } = require('./utils/git-info.js');
 const { templateTags } = require('./utils/regex-patterns');
 
-const { createScriptElementWithXTrefDataForEmbeddingInHtml, lookupXrefTerm, applyReplacers, normalizePath, renderRefGroup, findKatexDist } = require('./render-utils.js');
+const { createScriptElementWithXTrefDataForEmbeddingInHtml, lookupXrefTerm, applyReplacers, normalizePath, renderRefGroup, findKatexDist } = require('./pipeline/rendering/render-utils.js');
 const { createMarkdownParser } = require('./pipeline/parsing/create-markdown-parser.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {

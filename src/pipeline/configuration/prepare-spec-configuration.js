@@ -15,7 +15,7 @@ const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXref
 const { runJsonKeyValidatorSync } = require('../../json-key-validator.js');
 const { createTermIndex } = require('./create-term-index.js');
 const { processWithEscapes } = require('../preprocessing/escape-processor.js');
-const { insertTermIndex } = require('../../insert-term-index.js');
+const { insertTermIndex } = require('./insert-term-index.js');
 const { normalizeTerminologyMarkdown } = require('../preprocessing/normalize-terminology-markdown.js');
 const { processEscapedTags, restoreEscapedTags } = require('../preprocessing/escape-placeholder-utils.js');
 const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('../postprocessing/definition-list-postprocessor.js');
@@ -37,10 +37,10 @@ async function initializeConfig(options = {}) {
     const modulePath = findPkgDir(__dirname);
     let config = fs.readJsonSync('./.cache/specs-generated.json');
 
-  const createExternalSpecsList = require('../../create-external-specs-list.js');
+    const createExternalSpecsList = require('./create-external-specs-list.js');
     const externalSpecsList = createExternalSpecsList(config);
 
-  const createVersionsIndex = require('../../create-versions-index.js');
+    const createVersionsIndex = require('./create-versions-index.js');
     createVersionsIndex(config.specs[0].output_path);
 
     normalizeTerminologyMarkdown(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
