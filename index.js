@@ -56,12 +56,12 @@ module.exports = async function (options = {}) {
       findKatexDist
     } = require('./src/render-utils');
 
-  const { createMarkdownParser } = require('./src/create-markdown-parser');
+  const { createMarkdownParser } = require('./src/pipeline/parsing/create-markdown-parser.js');
     let md = createMarkdownParser(config, setToc);
 
     const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
 
-  const { render } = require('./src/render-spec-document');
+  const { render } = require('./src/pipeline/rendering/render-spec-document.js');
 
     try {
       config.specs.forEach(spec => {

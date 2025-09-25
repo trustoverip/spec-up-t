@@ -10,10 +10,9 @@ const path = require('path');
 const fs = require('fs-extra');
 const findPkgDir = require('find-pkg-dir');
 
-const { configurePlugins } = require('./markdown-it/plugins');
-const { createTerminologyParser, createSpecParser } = require('./parsers');
-const { renderRefGroup } = require('./render-utils');
-const { whitespace, templateTags } = require('./utils/regex-patterns');
+const { configurePlugins } = require('../../markdown-it/plugins');
+const { createTerminologyParser, createSpecParser } = require('../../parsers');
+const { whitespace, templateTags } = require('../../utils/regex-patterns.js');
 
 // Constants used in markdown parsing
 const noticeTypes = {

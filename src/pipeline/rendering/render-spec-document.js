@@ -7,15 +7,13 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('./external-references-service.js');
-const { processWithEscapes } = require('./escape-processor.js');
-const { processEscapedTags, restoreEscapedTags } = require('./escape-placeholder-utils.js');
-const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./definition-list-postprocessor.js');
-const { getGithubRepoInfo } = require('./utils/git-info.js');
-const { templateTags } = require('./utils/regex-patterns');
+const { fetchExternalSpecs, validateReferences, mergeXrefTermsIntoAllXTrefs } = require('../../external-references-service.js');
+const { processEscapedTags, restoreEscapedTags } = require('../../escape-placeholder-utils.js');
+const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('../../definition-list-postprocessor.js');
+const { getGithubRepoInfo } = require('../../utils/git-info.js');
+const { templateTags } = require('../../utils/regex-patterns.js');
 
-const { createScriptElementWithXTrefDataForEmbeddingInHtml, lookupXrefTerm, applyReplacers, normalizePath, renderRefGroup, findKatexDist } = require('./render-utils.js');
-const { createMarkdownParser } = require('./create-markdown-parser.js');
+const { createScriptElementWithXTrefDataForEmbeddingInHtml, applyReplacers } = require('../../render-utils.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
   let { externalReferences } = sharedVars;
