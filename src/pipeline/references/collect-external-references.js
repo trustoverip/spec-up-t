@@ -91,7 +91,7 @@ function extendXTrefs(config, xtrefs) {
  * @param {string} GITHUB_API_TOKEN - GitHub PAT used for API calls.
  */
 function processExternalReferences(config, GITHUB_API_TOKEN) {
-    const { processXTrefsData } = require('../../collectExternalReferences/processXTrefsData');
+    const { processXTrefsData } = require('./process-xtrefs-data');
     const { doesUrlExist } = require('../../utils/does-url-exist');
 
     const externalSpecsRepos = config.specs[0].external_specs;

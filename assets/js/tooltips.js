@@ -170,7 +170,7 @@
        * -------------------------
        * The allXTrefs global variable is created during the build process by:
    * 1. src/pipeline/references/external-references-service.js - Orchestrates external reference collection
-       * 2. src/collectExternalReferences/ - Fetches content from external GitHub specs
+  * 2. src/pipeline/references/ - Fetches content from external GitHub specs
        * 3. The data is written to a JavaScript file and included in the page
        * 
        * DATA STRUCTURE:

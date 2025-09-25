@@ -19,7 +19,7 @@
 
 #### ✅ **Fully Updated Files:**
 
-- `src/collectExternalReferences/processXTrefsData.js` - All console statements converted
+- `src/pipeline/references/process-xtrefs-data.js` - All console statements converted
 - `src/references.js` - All console statements converted
 - `src/pipeline/references/collect-external-references.js` - Major console statements converted
 - `src/create-term-index.js` - All console statements converted
