@@ -9,17 +9,17 @@ const path = require('path');
 const gulp = require('gulp');
 const findPkgDir = require('find-pkg-dir');
 
-const { initialize } = require('./init');
-const Logger = require('./utils/logger');
-const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('./external-references-service.js');
-const { runJsonKeyValidatorSync } = require('./json-key-validator.js');
+const { initialize } = require('../../init.js');
+const Logger = require('../../utils/logger.js');
+const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('../../external-references-service.js');
+const { runJsonKeyValidatorSync } = require('../../json-key-validator.js');
 const { createTermIndex } = require('./create-term-index.js');
-const { processWithEscapes } = require('./escape-processor.js');
-const { insertTermIndex } = require('./insert-term-index.js');
-const { normalizeTerminologyMarkdown } = require('./normalize-terminology-markdown.js');
-const { processEscapedTags, restoreEscapedTags } = require('./escape-placeholder-utils.js');
-const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./definition-list-postprocessor.js');
-const { getGithubRepoInfo } = require('./utils/git-info.js');
+const { processWithEscapes } = require('../../escape-processor.js');
+const { insertTermIndex } = require('../../insert-term-index.js');
+const { normalizeTerminologyMarkdown } = require('../../normalize-terminology-markdown.js');
+const { processEscapedTags, restoreEscapedTags } = require('../../escape-placeholder-utils.js');
+const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('../../definition-list-postprocessor.js');
+const { getGithubRepoInfo } = require('../../utils/git-info.js');
 
 /**
  * Initializes configuration and shared variables for spec processing.
@@ -37,10 +37,10 @@ async function initializeConfig(options = {}) {
     const modulePath = findPkgDir(__dirname);
     let config = fs.readJsonSync('./.cache/specs-generated.json');
 
-    const createExternalSpecsList = require('./create-external-specs-list.js');
+  const createExternalSpecsList = require('../../create-external-specs-list.js');
     const externalSpecsList = createExternalSpecsList(config);
 
-    const createVersionsIndex = require('./create-versions-index.js');
+  const createVersionsIndex = require('../../create-versions-index.js');
     createVersionsIndex(config.specs[0].output_path);
 
     normalizeTerminologyMarkdown(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));

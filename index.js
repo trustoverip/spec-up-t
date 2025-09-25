@@ -3,7 +3,7 @@ const Logger = require('./src/utils/logger');
 
 module.exports = async function (options = {}) {
   try {
-  const { initializeConfig } = require('./src/prepare-spec-configuration');
+  const { initializeConfig } = require('./src/pipeline/configuration/prepare-spec-configuration.js');
     let toc = '';
     global.toc = '';
     const setToc = (html) => { toc = html || ''; global.toc = toc; };
