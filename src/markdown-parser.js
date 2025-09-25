@@ -11,8 +11,9 @@ const fs = require('fs-extra');
 const findPkgDir = require('find-pkg-dir');
 
 const { configurePlugins } = require('./markdown-it/plugins');
-const { findExternalSpecByKey } = require('./references');
-const { lookupXrefTerm, renderRefGroup } = require('./render-utils');
+const { createTerminologyParser, createSpecParser } = require('./parsers');
+const { renderRefGroup } = require('./render-utils');
+const { whitespace } = require('./utils/regex-patterns');
 
 // Constants used in markdown parsing
 const noticeTypes = {
@@ -22,7 +23,7 @@ const noticeTypes = {
   warning: 1,
   todo: 1
 };
-const spaceRegex = /\s+/g;
+// Domain-specific regex patterns for markdown parsing
 const specNameRegex = /^spec$|^spec-*\w+$/i;
 const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
 
@@ -43,6 +44,10 @@ let noticeTitles = global.noticeTitles;
  * @returns {Object} The configured markdown-it instance.
  */
 function createMarkdownParser(config, setToc) {
+  // Create parser functions with bound dependencies - cleaner than classes
+  const terminologyParser = createTerminologyParser(config, global);
+  const specParser = createSpecParser(specCorpus, global);
+
   let md = MarkdownIt({
     html: true,
     linkify: true,
@@ -51,81 +56,20 @@ function createMarkdownParser(config, setToc) {
     .use(require('./markdown-it-extensions.js'), [
       /*
         The first extension focuses on terminology-related constructs.
+        All complex logic is now delegated to pure functions.
       */
       {
         filter: type => type.match(terminologyRegex),
-        parse(token, type, primary) {
-          if (!primary) return;
-          
-          // Extract current file from HTML comments in the content
-          const content = token.map ? token.map[0] : '';
-          const fileMatch = content && content.match && content.match(/<!-- file: (.+?) -->/);
-          const currentFile = fileMatch ? fileMatch[1] : global.currentFile || 'unknown';
-          
-          if (type === 'def') {
-            global.definitions.push({ term: token.info.args[0], alias: token.info.args[1], source: currentFile });
-            // Store source file directly in the rendered HTML as a data attribute
-            return token.info.args.reduce((acc, syn) => {
-              return `<span id="term:${syn.replace(spaceRegex, '-').toLowerCase()}">${acc}</span>`;
-            }, primary);
-          }
-          else if (type === 'xref') {
-            const externalSpec = findExternalSpecByKey(config, token.info.args[0]);
-            const url = externalSpec?.gh_page || '#';
-            const termName = token.info.args[1];
-            const term = termName.replace(spaceRegex, '-').toLowerCase();
-            const xrefTerm = lookupXrefTerm(token.info.args[0], term);
-            let linkAttributes = `class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}" href="${url}#term:${term}"`;
-            if (xrefTerm && xrefTerm.content) {
-              const cleanContent = xrefTerm.content.replace(/"/g, '&quot;').replace(/\n/g, ' ');
-              linkAttributes += ` title="External term definition" data-term-content="${cleanContent}"`;
-            }
-            return `<a ${linkAttributes}>${termName}</a>`;
-          }
-          else if (type === 'tref') {
-            const termName = token.info.args[1];
-            const alias = token.info.args[2];
-            const publishedTermName = alias ? alias : termName;
-            const termId = `term:${termName.replace(spaceRegex, '-').toLowerCase()}`;
-            const aliasId = alias ? `term:${alias.replace(spaceRegex, '-').toLowerCase()}` : '';
-            if (aliasId && alias !== termName) {
-              return `<span data-original-term="${termName}" class="term-external" id="${termId}"><span title="Externally defined as ${termName}" id="${aliasId}">${publishedTermName}</span></span>`;
-            } else {
-              return `<span title="Externally also defined as ${termName}" data-original-term="${termName}" class="term-external" id="${termId}">${publishedTermName}</span>`;
-            }
-          }
-          else {
-            global.references.push(primary);
-            return `<a class="term-reference" href="#term:${primary.replace(spaceRegex, '-').toLowerCase()}">${primary}</a>`;
-          }
-        }
+        parse: (token, type, primary) => terminologyParser(token, type, primary)
       },
       /*
         The second extension handles specification references.
+        All complex logic is now delegated to pure functions.
       */
       {
         filter: type => type.match(specNameRegex),
-        parse(token, type, name) {
-          if (name) {
-            let _name = name.replace(spaceRegex, '-').toUpperCase();
-            let spec = specCorpus[_name] ||
-              specCorpus[_name.toLowerCase()] ||
-              specCorpus[name.toLowerCase()] ||
-              specCorpus[name];
-            if (spec) {
-              spec._name = _name;
-              let group = global.specGroups[type] = global.specGroups[type] || {};
-              token.info.spec = group[_name] = spec;
-            }
-          }
-        },
-        render(token, type, name) {
-          if (name) {
-            let spec = token.info.spec;
-            if (spec) return `[<a class="spec-reference" href="#ref:${spec._name}">${spec._name}</a>]`;
-          }
-          else return renderRefGroup(type, global.specGroups);
-        }
+        parse: (token, type, name) => specParser.parseSpecReference(token, type, name),
+        render: (token, type, name) => specParser.renderSpecReference(token, type, name)
       }
     ]);
 
@@ -134,4 +78,18 @@ function createMarkdownParser(config, setToc) {
   return md;
 }
 
-module.exports = { createMarkdownParser, noticeTypes, spaceRegex, specNameRegex, terminologyRegex, specCorpus, definitions, references, specGroups, noticeTitles };
+module.exports = { 
+  createMarkdownParser, 
+  noticeTypes, 
+  spaceRegex: whitespace.oneOrMore, 
+  specNameRegex, 
+  terminologyRegex, 
+  specCorpus, 
+  definitions, 
+  references, 
+  specGroups, 
+  noticeTitles,
+  // Export parsers for direct access if needed
+  createTerminologyParser,
+  createSpecParser
+};

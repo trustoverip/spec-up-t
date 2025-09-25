@@ -302,6 +302,61 @@ const urls = {
 };
 
 /**
+ * Regular expressions for parsing HTML comments and metadata
+ * Used in source tracking and content processing
+ */
+const htmlComments = {
+  /**
+   * Matches HTML file tracking comments inserted by the renderer
+   * 
+   * Groups:
+   * - Group 1: filename (path to the source file)
+   * 
+   * Used to extract the source file name from HTML comments for tracking purposes
+   * 
+   * Examples:
+   * - "<!-- file: src/example.md -->" → filename: "src/example.md"
+   * - "<!-- file: docs/spec.md -->" → filename: "docs/spec.md"
+   * 
+   * Pattern breakdown:
+   * - <!-- file: → Literal HTML comment start with "file: "
+   * - (.+?) → Capture group 1: filename (non-greedy)
+   * - --> → Literal HTML comment end
+   */
+  fileTracker: /<!-- file: (.+?) -->/
+};
+
+/**
+ * Regular expressions for content cleaning and sanitization
+ * Used in tooltip generation and safe HTML output
+ */
+const contentCleaning = {
+  /**
+   * Matches double quotes for escaping in HTML attributes
+   * Used to prevent HTML attribute injection and ensure safe tooltip content
+   * 
+   * Examples:
+   * - 'text with "quotes"' → 'text with &quot;quotes&quot;'
+   * 
+   * Flags:
+   * - g: global to replace all quotes
+   */
+  quotes: /"/g,
+
+  /**
+   * Matches newline characters for content normalization
+   * Used to convert multiline content to single line for tooltips
+   * 
+   * Examples:
+   * - "line1\nline2\nline3" → "line1 line2 line3" (when replaced with ' ')
+   * 
+   * Flags:
+   * - g: global to replace all newlines
+   */
+  newlines: /\n/g
+};
+
+/**
  * Export object containing all regex categories
  * 
  * Usage:
@@ -316,7 +371,9 @@ module.exports = {
   versions,
   gitignore,
   whitespace,
-  urls
+  urls,
+  htmlComments,
+  contentCleaning
 };
 
 /**
