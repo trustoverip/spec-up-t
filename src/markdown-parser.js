@@ -13,7 +13,7 @@ const findPkgDir = require('find-pkg-dir');
 const { configurePlugins } = require('./markdown-it/plugins');
 const { createTerminologyParser, createSpecParser } = require('./parsers');
 const { renderRefGroup } = require('./render-utils');
-const { whitespace } = require('./utils/regex-patterns');
+const { whitespace, templateTags } = require('./utils/regex-patterns');
 
 // Constants used in markdown parsing
 const noticeTypes = {
@@ -23,9 +23,9 @@ const noticeTypes = {
   warning: 1,
   todo: 1
 };
-// Domain-specific regex patterns for markdown parsing
-const specNameRegex = /^spec$|^spec-*\w+$/i;
-const terminologyRegex = /^def$|^ref$|^xref|^tref$/i;
+// Domain-specific regex patterns for markdown parsing (now centralized)
+const specNameRegex = templateTags.specName;
+const terminologyRegex = templateTags.terminology;
 
 // Load spec corpus
 const modulePath = findPkgDir(__dirname);

@@ -80,7 +80,49 @@ const templateTags = {
    * Flags:
    * - g: global to replace all variables in template
    */
-  variableInterpolation: /\${(.*?)}/g
+  variableInterpolation: /\${(.*?)}/g,
+
+  /**
+   * Matches specification name patterns for markdown-it extension filtering
+   * Used to determine which markdown-it extension should handle spec references
+   * 
+   * Pattern breakdown:
+   * - ^spec$ → Exact match for "spec"
+   * - | → OR operator
+   * - ^spec-*\w+$ → "spec" followed by optional dashes and word characters
+   * 
+   * Examples:
+   * - "spec" → matches
+   * - "spec-name" → matches  
+   * - "spec-test-123" → matches
+   * - "myspec" → doesn't match (must start with "spec")
+   * 
+   * Flags:
+   * - i: case-insensitive matching
+   */
+  specName: /^spec$|^spec-*\w+$/i,
+
+  /**
+   * Matches terminology reference patterns for markdown-it extension filtering
+   * Used to determine which markdown-it extension should handle term references
+   * 
+   * Pattern breakdown:
+   * - ^def$ → Exact match for "def" (definition)
+   * - ^ref$ → Exact match for "ref" (reference)
+   * - ^xref → Starts with "xref" (external reference)
+   * - ^tref → Starts with "tref" (typed reference)
+   * 
+   * Examples:
+   * - "def" → matches
+   * - "ref" → matches
+   * - "xref" → matches
+   * - "tref" → matches
+   * - "xref:spec,term" → matches (starts with xref)
+   * 
+   * Flags:
+   * - i: case-insensitive matching
+   */
+  terminology: /^def$|^ref$|^xref|^tref$/i
 };
 
 /**
