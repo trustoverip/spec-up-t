@@ -11,7 +11,7 @@
  * as they are pure functions with clear inputs and outputs.
  */
 
-const { findExternalSpecByKey } = require('../external-references-service');
+const { findExternalSpecByKey } = require('../pipeline/references/external-references-service.js');
 const { lookupXrefTerm } = require('../render-utils');
 const { whitespace, htmlComments, contentCleaning } = require('../utils/regex-patterns');
 

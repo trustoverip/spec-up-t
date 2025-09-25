@@ -6,7 +6,7 @@ const configScriptsKeys = {
     "topdf": "node -e \"require('spec-up-t/src/create-pdf.js')\"",
     "todocx": "node -e \"require('spec-up-t/src/create-docx.js')\"",
     "freeze": "node -e \"require('spec-up-t/src/freeze-spec-data.js')\"",
-    "references": "node -e \"require('spec-up-t/src/external-references-service.js')\"",
+    "references": "node -e \"require('spec-up-t/src/pipeline/references/external-references-service.js')\"",
     "help": "cat ./node_modules/spec-up-t/src/install-from-boilerplate/help.txt",
     "menu": "bash ./node_modules/spec-up-t/src/install-from-boilerplate/menu.sh",
     "addremovexrefsource": "node --no-warnings -e \"require('spec-up-t/src/add-remove-xref-source.js')\"",

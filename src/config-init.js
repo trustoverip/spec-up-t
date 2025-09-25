@@ -11,14 +11,14 @@ const findPkgDir = require('find-pkg-dir');
 
 const { initialize } = require('./init');
 const Logger = require('./utils/logger');
-const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('./external-references-service.js');
+const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('./pipeline/references/external-references-service.js');
 const { runJsonKeyValidatorSync } = require('./json-key-validator.js');
 const { createTermIndex } = require('./pipeline/configuration/create-term-index.js');
-const { processWithEscapes } = require('./escape-processor.js');
+const { processWithEscapes } = require('./pipeline/preprocessing/escape-processor.js');
 const { insertTermIndex } = require('./insert-term-index.js');
-const { normalizeTerminologyMarkdown } = require('./normalize-terminology-markdown.js');
-const { processEscapedTags, restoreEscapedTags } = require('./escape-placeholder-utils.js');
-const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./definition-list-postprocessor.js');
+const { normalizeTerminologyMarkdown } = require('./pipeline/preprocessing/normalize-terminology-markdown.js');
+const { processEscapedTags, restoreEscapedTags } = require('./pipeline/preprocessing/escape-placeholder-utils.js');
+const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./pipeline/postprocessing/definition-list-postprocessor.js');
 const { getGithubRepoInfo } = require('./utils/git-info.js');
 
 /**

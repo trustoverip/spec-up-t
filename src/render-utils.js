@@ -75,7 +75,7 @@ function lookupXrefTerm(externalSpec, termName) {
  * @returns {string} The processed document with tags replaced.
  */
 function applyReplacers(doc) {
-  const { processWithEscapes } = require('./escape-processor.js');
+  const { processWithEscapes } = require('./pipeline/preprocessing/escape-processor.js');
   return processWithEscapes(doc, function (content) {
     return content.replace(replacerRegex, function (match, type, args) {
       let replacer = replacers.find(r => type.trim().match(r.test));

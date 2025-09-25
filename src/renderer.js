@@ -7,10 +7,10 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('./external-references-service.js');
-const { processWithEscapes } = require('./escape-processor.js');
-const { processEscapedTags, restoreEscapedTags } = require('./escape-placeholder-utils.js');
-const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./definition-list-postprocessor.js');
+const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('./pipeline/references/external-references-service.js');
+const { processWithEscapes } = require('./pipeline/preprocessing/escape-processor.js');
+const { processEscapedTags, restoreEscapedTags } = require('./pipeline/preprocessing/escape-placeholder-utils.js');
+const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./pipeline/postprocessing/definition-list-postprocessor.js');
 const { getGithubRepoInfo } = require('./utils/git-info.js');
 const { templateTags } = require('./utils/regex-patterns');
 

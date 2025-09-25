@@ -1,6 +1,6 @@
 'use strict';
 
-const { ESCAPED_PLACEHOLDER } = require('../escape-processor');
+const { ESCAPED_PLACEHOLDER } = require('../pipeline/preprocessing/escape-processor.js');
 
 /**
  * Markdown-it Template-Tag Syntax Module

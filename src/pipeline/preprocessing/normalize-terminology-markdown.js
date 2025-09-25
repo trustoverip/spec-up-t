@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { shouldProcessFile } = require('./utils/file-filter');
-const Logger = require('./utils/logger');
+const { shouldProcessFile } = require('../../utils/file-filter.js');
+const Logger = require('../../utils/logger.js');
 
 /**
  * Handles specific functionality for `[[def:` and `[[tref:` lines

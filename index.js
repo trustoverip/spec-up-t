@@ -33,11 +33,11 @@ module.exports = async function (options = {}) {
       validateReferences,
       findExternalSpecByKey,
       mergeXrefTermsIntoAllXTrefs
-  } = require('./src/external-references-service.js');
+  } = require('./src/pipeline/references/external-references-service.js');
 
-  const { processWithEscapes } = require('./src/escape-processor.js');
-  const { processEscapedTags, restoreEscapedTags } = require('./src/escape-placeholder-utils.js');
-  const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./src/definition-list-postprocessor.js');
+  const { processWithEscapes } = require('./src/pipeline/preprocessing/escape-processor.js');
+  const { processEscapedTags, restoreEscapedTags } = require('./src/pipeline/preprocessing/escape-placeholder-utils.js');
+  const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./src/pipeline/postprocessing/definition-list-postprocessor.js');
     const { getGithubRepoInfo } = require('./src/utils/git-info.js');
 
     const findPkgDir = require('find-pkg-dir');
