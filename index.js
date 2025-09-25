@@ -3,7 +3,7 @@ const Logger = require('./src/utils/logger');
 
 module.exports = async function (options = {}) {
   try {
-    const { initializeConfig } = require('./src/config-init');
+  const { initializeConfig } = require('./src/prepare-spec-configuration');
     let toc = '';
     global.toc = '';
     const setToc = (html) => { toc = html || ''; global.toc = toc; };
@@ -33,11 +33,11 @@ module.exports = async function (options = {}) {
       validateReferences,
       findExternalSpecByKey,
       mergeXrefTermsIntoAllXTrefs
-    } = require('./src/references.js');
+  } = require('./src/external-references-service.js');
 
-    const { processWithEscapes } = require('./src/escape-handler.js');
-    const { processEscapedTags, restoreEscapedTags } = require('./src/escape-mechanism.js');
-    const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./src/html-dom-processor.js');
+  const { processWithEscapes } = require('./src/escape-processor.js');
+  const { processEscapedTags, restoreEscapedTags } = require('./src/escape-placeholder-utils.js');
+  const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./src/definition-list-postprocessor.js');
     const { getGithubRepoInfo } = require('./src/utils/git-info.js');
 
     const findPkgDir = require('find-pkg-dir');
@@ -56,12 +56,12 @@ module.exports = async function (options = {}) {
       findKatexDist
     } = require('./src/render-utils');
 
-    const { createMarkdownParser } = require('./src/markdown-parser');
+  const { createMarkdownParser } = require('./src/create-markdown-parser');
     let md = createMarkdownParser(config, setToc);
 
     const xtrefsData = createScriptElementWithXTrefDataForEmbeddingInHtml();
 
-    const { render } = require('./src/renderer');
+  const { render } = require('./src/render-spec-document');
 
     try {
       config.specs.forEach(spec => {

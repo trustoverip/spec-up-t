@@ -15,7 +15,7 @@
    * 2. EXTERNAL TERMS (xref): Content from external specifications
    *    - These come from the global allXTrefs data structure
    *    - Example: [[tref: externalreference, term]] references an external term
-   *    - The allXTrefs data is populated by src/references.js during build time
+  *    - The allXTrefs data is populated by src/external-references-service.js during build time
    *    - External content is fetched from other GitHub-hosted specifications
    */
 
@@ -169,7 +169,7 @@
        * THE allXTrefs DATA SOURCE:
        * -------------------------
        * The allXTrefs global variable is created during the build process by:
-       * 1. src/references.js - Orchestrates external reference collection
+  * 1. src/external-references-service.js - Orchestrates external reference collection
        * 2. src/collectExternalReferences/ - Fetches content from external GitHub specs
        * 3. The data is written to a JavaScript file and included in the page
        * 

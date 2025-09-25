@@ -65,7 +65,7 @@ const templateTags = {
 
   /**
    * Template variable interpolation pattern for processing ${variable} syntax
-   * Used in renderer.js for injecting dynamic values into templates
+  * Used in render-spec-document.js for injecting dynamic values into templates
    * 
    * Pattern breakdown:
    * - \${ → Literal ${
@@ -229,7 +229,7 @@ const escaping = {
   
   /**
    * Placeholder pattern for escaped template tags
-   * Used in escape-handler.js to replace escaped placeholders with literal [[
+  * Used in escape-processor.js to replace escaped placeholders with literal [[
    * 
    * Flags:
    * - g: global to replace all placeholders

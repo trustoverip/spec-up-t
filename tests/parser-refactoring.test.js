@@ -9,7 +9,7 @@ const {
   createTerminologyParser,
   createSpecParser, 
   createMarkdownParser 
-} = require('../src/markdown-parser');
+} = require('../src/create-markdown-parser');
 
 // Import functions directly from their modules since they're not exported through index
 const {

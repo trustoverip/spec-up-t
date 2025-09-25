@@ -53,7 +53,7 @@ function createMarkdownParser(config, setToc) {
     linkify: true,
     typographer: true
   })
-    .use(require('./markdown-it-extensions.js'), [
+  .use(require('./apply-markdown-it-extensions.js'), [
       /*
         The first extension focuses on terminology-related constructs.
         All complex logic is now delegated to pure functions.

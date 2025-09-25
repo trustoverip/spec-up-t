@@ -43,7 +43,7 @@ async function initializeConfig(options = {}) {
     const createVersionsIndex = require('./create-versions-index.js');
     createVersionsIndex(config.specs[0].output_path);
 
-  normalizeTerminologyMarkdown(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
+    normalizeTerminologyMarkdown(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
     let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
     let assets = fs.readJsonSync(modulePath + '/config/asset-map.json');

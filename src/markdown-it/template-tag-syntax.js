@@ -1,6 +1,6 @@
 'use strict';
 
-const { ESCAPED_PLACEHOLDER } = require('../escape-handler');
+const { ESCAPED_PLACEHOLDER } = require('../escape-processor');
 
 /**
  * Markdown-it Template-Tag Syntax Module
