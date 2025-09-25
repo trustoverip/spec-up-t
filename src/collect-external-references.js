@@ -317,7 +317,7 @@ function extendXTrefs(config, xtrefs) {
  */
 function processExternalReferences(config, GITHUB_API_TOKEN) {
     const { processXTrefsData } = require('./collectExternalReferences/processXTrefsData.js');
-    const { doesUrlExist } = require('./utils/doesUrlExist.js');
+    const { doesUrlExist } = require('./utils/does-url-exist.js');
     const externalSpecsRepos = config.specs[0].external_specs;
 
     // Check if the URLs for the external specs repositories are valid, and prompt the user to abort if they are not.

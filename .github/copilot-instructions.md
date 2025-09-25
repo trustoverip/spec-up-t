@@ -11,3 +11,5 @@
 - Please remind me to test on a separate testmachine
 - Never commit on your own. Always ask before
 - A very modular approach is preferred, the overhead is acceptable
+- Write code in a functional programming style, avoiding the use of classes
+- Use Kebab Case (kebab-case) for file names

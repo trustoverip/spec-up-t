@@ -1,4 +1,4 @@
-const isLineWithDefinition = require('../utils/isLineWithDefinition').isLineWithDefinition;
+const isLineWithDefinition = require('../utils/is-line-with-definition').isLineWithDefinition;
 const Logger = require('../utils/logger');
 
 function matchTerm(text, term) {
