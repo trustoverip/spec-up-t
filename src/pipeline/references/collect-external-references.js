@@ -18,6 +18,33 @@ const { getCurrentBranch } = require('../../utils/git-info');
 const { addNewXTrefsFromMarkdown, isXTrefInAnyFile } = require('./xtref-utils');
 
 /**
+ * Normalizes the specs structure pulled from specs.json so callers can rely on predictable shapes.
+ *
+ * The helper guarantees:
+ * - the returned `specs` array is always an array;
+ * - callers get the first spec entry (or an empty object) as `primarySpec`;
+ * - callers receive a safe `externalSpecsRepos` array for follow-up validation or iteration;
+ * - when the specs array is empty, an explanatory error is logged and `null` is returned to signal abortion.
+ *
+ * @param {object} config - Parsed specs configuration.
+ * @param {{ noSpecsMessage: string }} options - Allows callers to tailor the abort message for their context.
+ * @returns {{ specs: Array<object>, primarySpec: object, externalSpecsRepos: Array<object> } | null}
+ */
+function normalizeSpecConfiguration(config, { noSpecsMessage }) {
+    const specs = Array.isArray(config?.specs) ? config.specs : [];
+
+    if (specs.length === 0) {
+        Logger.error(noSpecsMessage);
+        return null;
+    }
+
+    const primarySpec = specs[0] ?? {};
+    const externalSpecsRepos = Array.isArray(primarySpec.external_specs) ? primarySpec.external_specs : [];
+
+    return { specs, primarySpec, externalSpecsRepos };
+}
+
+/**
  * Augments reference records with repository metadata pulled from `specs.json`.
  *
  * @param {object} config - Parsed specs configuration.
@@ -94,7 +121,17 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
     const { processXTrefsData } = require('./process-xtrefs-data');
     const { doesUrlExist } = require('../../utils/does-url-exist');
 
-    const externalSpecsRepos = config.specs[0].external_specs;
+    const normalizedConfig = normalizeSpecConfiguration(config, {
+        noSpecsMessage: 'No specs defined in specs.json. Skipping external reference collection.'
+    });
+
+    // Abort collection when the configuration is missing mandatory specs definitions.
+    if (!normalizedConfig) {
+        console.log('KORKORKOR No specs defined in specs.json. Skipping external reference collection.');
+        return;
+    }
+
+    const { specs, externalSpecsRepos } = normalizedConfig;
 
     externalSpecsRepos.forEach(repo => {
         doesUrlExist(repo.url)
@@ -124,10 +161,6 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
             });
     });
 
-    const specTermsDirectories = config.specs.map(spec =>
-        path.join(spec.spec_directory, spec.spec_terms_directory)
-    );
-
     const outputDir = '.cache';
     const xtrefsHistoryDir = path.join(outputDir, 'xtrefs-history');
     const outputPathJSON = path.join(outputDir, 'xtrefs-data.json');
@@ -143,6 +176,31 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
         if (existingXTrefs?.xtrefs) {
             allXTrefs = existingXTrefs;
         }
+    }
+
+    const specTermsDirectories = specs.reduce((directories, spec) => {
+        const specDir = spec?.spec_directory;
+        const termsDir = spec?.spec_terms_directory;
+
+        if (!specDir || !termsDir) {
+            Logger.warn(`Spec entry is missing spec_directory or spec_terms_directory: ${JSON.stringify(spec)}`);
+            return directories;
+        }
+
+        const resolvedDir = path.join(specDir, termsDir);
+
+        if (!fs.existsSync(resolvedDir)) {
+            Logger.warn(`Spec terms directory does not exist: ${resolvedDir}`);
+            return directories;
+        }
+
+        directories.push(resolvedDir);
+        return directories;
+    }, []);
+
+    if (specTermsDirectories.length === 0) {
+        Logger.warn('No spec terms directories found. Skipping external reference collection.');
+        return;
     }
 
     const fileContents = new Map();
@@ -178,7 +236,16 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
  */
 function collectExternalReferences(options = {}) {
     const config = fs.readJsonSync('specs.json');
-    const externalSpecsRepos = config.specs[0].external_specs;
+    const normalizedConfig = normalizeSpecConfiguration(config, {
+        noSpecsMessage: 'No specs defined in specs.json. Nothing to collect.'
+    });
+
+    // Bail out immediately if the specs.json file lacks the required specs collection.
+    if (!normalizedConfig) {
+        return;
+    }
+
+    const { externalSpecsRepos } = normalizedConfig;
     const GITHUB_API_TOKEN = options.pat || process.env.GITHUB_API_TOKEN;
 
     if (!GITHUB_API_TOKEN) {
