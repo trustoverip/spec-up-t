@@ -26,6 +26,11 @@ function loadData() {
 
 // This function recursively checks if the required keys are present in the object
 function checkKeysSync(object, expectedKeys, parentKey = '') {
+    // Guard against undefined or non-iterable expected key definitions so the validator fails gracefully instead of throwing.
+    if (!Array.isArray(expectedKeys)) {
+        return;
+    }
+
     for (let key of expectedKeys) {
         if (Array.isArray(object)) {
             // If the object is an array, check each item within the array
@@ -97,7 +102,7 @@ function runJsonKeyValidatorSync() {
         }
 
         // Check for keys inside the 'external_specs' array, if present
-        if (spec.external_specs) {
+        if (spec.external_specs && Array.isArray(expectedKeys.external_specs)) {
             checkKeysSync(spec.external_specs, expectedKeys.external_specs, `specs[${index}].external_specs`);
         }
 
