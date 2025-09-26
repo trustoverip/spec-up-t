@@ -26,7 +26,7 @@ function insertTermIndex() {
 
     // Find the index of the "terms-and-definitions-intro.md" file in the markdown paths
     const index = markdownPaths.indexOf('terms-and-definitions-intro.md');
-    
+
     // 
     if (index !== -1) {
         // Insert the items of the "terms" array after the found index
