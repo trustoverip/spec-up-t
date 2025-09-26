@@ -24,7 +24,8 @@
 - `src/pipeline/references/collect-external-references.js` - Major console statements converted
 - `src/create-term-index.js` - All console statements converted
 - `src/freeze.js` - Console statements converted
-- `src/configure.js` - Critical console statements converted
+- `src/configure.js` - Delegates to the pipeline configurator for backwards compatibility
+- `src/pipeline/configuration/configure-starterpack.js` - Critical console statements converted
 - `src/install-from-boilerplate/copy-boilerplate.js` - Updated
 - `src/install-from-boilerplate/custom-update.js` - Updated
 
