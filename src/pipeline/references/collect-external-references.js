@@ -267,6 +267,7 @@ function collectExternalReferences(options = {}) {
         Logger.info(
             'No external_specs array found on the first spec entry in specs.json. External reference collection is skipped.'
         );
+        renderSpecification();
         return;
     }
 
@@ -275,13 +276,15 @@ function collectExternalReferences(options = {}) {
         Logger.info(
             'The external_specs array in specs.json is empty. Add external repositories to collect external references.'
         );
+        renderSpecification();
         return;
     }
 
     const pipeline = processExternalReferences(config, GITHUB_API_TOKEN);
 
-    // If the pipeline short-circuited (e.g. missing configuration), skip the render step.
+    // If the pipeline short-circuited (e.g. missing configuration), render immediately and return its value.
     if (!pipeline || typeof pipeline.then !== 'function') {
+        renderSpecification();
         return pipeline;
     }
 
