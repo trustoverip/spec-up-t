@@ -18,6 +18,15 @@ const { getCurrentBranch } = require('../../utils/git-info');
 const { addNewXTrefsFromMarkdown, isXTrefInAnyFile } = require('./xtref-utils');
 
 /**
+ * Reuses the main rendering entry point once reference collection has refreshed the cache.
+ * Keeping this invocation on the Node side (instead of the menu script) guarantees that
+ * automated callers of `collectExternalReferences` continue to receive a fully rendered spec.
+ */
+function renderSpecification() {
+    require('../../../index.js')({ nowatch: true });
+}
+
+/**
  * Normalizes the specs structure pulled from specs.json so callers can rely on predictable shapes.
  *
  * The helper guarantees:
@@ -226,7 +235,7 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
     });
 
     extendXTrefs(config, allXTrefs.xtrefs);
-    processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped);
+    return processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, outputPathJS, outputPathJSTimeStamped);
 }
 
 /**
@@ -269,7 +278,22 @@ function collectExternalReferences(options = {}) {
         return;
     }
 
-    processExternalReferences(config, GITHUB_API_TOKEN);
+    const pipeline = processExternalReferences(config, GITHUB_API_TOKEN);
+
+    // If the pipeline short-circuited (e.g. missing configuration), skip the render step.
+    if (!pipeline || typeof pipeline.then !== 'function') {
+        return pipeline;
+    }
+
+    return pipeline
+        .then(result => {
+            renderSpecification();
+            return result;
+        })
+        .catch(error => {
+            Logger.error('Rendering failed after collecting external references.', error);
+            throw error;
+        });
 }
 
 module.exports = {

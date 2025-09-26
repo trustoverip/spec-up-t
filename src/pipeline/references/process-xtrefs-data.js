@@ -82,10 +82,8 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
         const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
         fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
         const jsPayload = `const allXTrefs = ${allXTrefsStr};`;
-        fs.writeFileSync(outputPathJS, jsPayload, 'utf8');
-        fs.writeFileSync(outputPathJSTimeStamped, jsPayload, 'utf8');
-
-        require('../../../index.js')({ nowatch: true });
+    fs.writeFileSync(outputPathJS, jsPayload, 'utf8');
+    fs.writeFileSync(outputPathJSTimeStamped, jsPayload, 'utf8');
     } catch (error) {
         Logger.error('An error occurred:', error);
     }
