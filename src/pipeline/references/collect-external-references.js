@@ -28,7 +28,7 @@ const { addNewXTrefsFromMarkdown, isXTrefInAnyFile } = require('./xtref-utils');
  *
  * @param {object} config - Parsed specs configuration.
  * @param {{ noSpecsMessage: string }} options - Allows callers to tailor the abort message for their context.
- * @returns {{ specs: Array<object>, primarySpec: object, externalSpecsRepos: Array<object> } | null}
+ * @returns {{ specs: Array<object>, primarySpec: object, externalSpecsRepos: Array<object>, hasExternalSpecsField: boolean } | null}
  */
 function normalizeSpecConfiguration(config, { noSpecsMessage }) {
     const specs = Array.isArray(config?.specs) ? config.specs : [];
@@ -39,9 +39,10 @@ function normalizeSpecConfiguration(config, { noSpecsMessage }) {
     }
 
     const primarySpec = specs[0] ?? {};
-    const externalSpecsRepos = Array.isArray(primarySpec.external_specs) ? primarySpec.external_specs : [];
+    const hasExternalSpecsField = Array.isArray(primarySpec.external_specs);
+    const externalSpecsRepos = hasExternalSpecsField ? primarySpec.external_specs : [];
 
-    return { specs, primarySpec, externalSpecsRepos };
+    return { specs, primarySpec, externalSpecsRepos, hasExternalSpecsField };
 }
 
 /**
@@ -127,7 +128,6 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
 
     // Abort collection when the configuration is missing mandatory specs definitions.
     if (!normalizedConfig) {
-        console.log('KORKORKOR No specs defined in specs.json. Skipping external reference collection.');
         return;
     }
 
@@ -245,7 +245,7 @@ function collectExternalReferences(options = {}) {
         return;
     }
 
-    const { externalSpecsRepos } = normalizedConfig;
+    const { externalSpecsRepos, hasExternalSpecsField } = normalizedConfig;
     const GITHUB_API_TOKEN = options.pat || process.env.GITHUB_API_TOKEN;
 
     if (!GITHUB_API_TOKEN) {
@@ -253,21 +253,19 @@ function collectExternalReferences(options = {}) {
         Logger.info('For better performance, set up a PAT: https://blockchainbird.github.io/spec-up-t-website/docs/getting-started/github-token\n');
     }
 
+    // Communicate that the expected external_specs array is missing entirely.
+    if (!hasExternalSpecsField) {
+        Logger.info(
+            'No external_specs array found on the first spec entry in specs.json. External reference collection is skipped.'
+        );
+        return;
+    }
+
+    // Let the user know the array exists but contains no repositories, making collection pointless.
     if (externalSpecsRepos.length === 0) {
-        const explanationNoExternalReferences =
-`❌ No external references were found in the specs.json file.
-
-   There is no point in continuing without external references, so we stop here.
-
-   Please add external references to the specs.json file that you will find at the root of your project.
-
-`;
-        Logger.info(explanationNoExternalReferences);
-        const userInput = readlineSync.question('Press any key');
-
-        if (userInput.trim() !== '') {
-            Logger.info('Stopping...');
-        }
+        Logger.info(
+            'The external_specs array in specs.json is empty. Add external repositories to collect external references.'
+        );
         return;
     }
 
