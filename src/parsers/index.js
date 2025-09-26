@@ -6,11 +6,11 @@
  * The functional approach provides better tree-shaking and simpler testing.
  */
 
-const terminologyParser = require('./terminology-parser');
+const templateTagParser = require('./template-tag-parser');
 const specParser = require('./spec-parser');
 
 module.exports = {
   // Parser factory functions
-  createTerminologyParser: terminologyParser.createTerminologyParser,
+  createTemplateTagParser: templateTagParser.createTemplateTagParser,
   createSpecParser: specParser.createSpecParser
 };

@@ -11,7 +11,7 @@ const fs = require('fs-extra');
 const findPkgDir = require('find-pkg-dir');
 
 const { configurePlugins } = require('../../markdown-it/plugins');
-const { createTerminologyParser, createSpecParser } = require('../../parsers');
+const { createTemplateTagParser, createSpecParser } = require('../../parsers');
 const { whitespace, templateTags } = require('../../utils/regex-patterns.js');
 
 // Constants used in markdown parsing
@@ -24,7 +24,7 @@ const noticeTypes = {
 };
 // Domain-specific regex patterns for markdown parsing (now centralized)
 const specNameRegex = templateTags.specName;
-const terminologyRegex = templateTags.terminology;
+const templateTagRegex = templateTags.terminology;
 
 // Load spec corpus
 const modulePath = findPkgDir(__dirname);
@@ -44,7 +44,7 @@ let noticeTitles = global.noticeTitles;
  */
 function createMarkdownParser(config, setToc) {
   // Create parser functions with bound dependencies - cleaner than classes
-  const terminologyParser = createTerminologyParser(config, global);
+  const templateTagParser = createTemplateTagParser(config, global);
   const specParser = createSpecParser(specCorpus, global);
 
   let md = MarkdownIt({
@@ -54,12 +54,12 @@ function createMarkdownParser(config, setToc) {
   })
   .use(require('./apply-markdown-it-extensions.js'), [
       /*
-        The first extension focuses on terminology-related constructs.
+        The first extension focuses on template-tag constructs.
         All complex logic is now delegated to pure functions.
       */
       {
-        filter: type => type.match(terminologyRegex),
-        parse: (token, type, primary) => terminologyParser(token, type, primary)
+        filter: type => type.match(templateTagRegex),
+        parse: (token, type, primary) => templateTagParser(token, type, primary)
       },
       /*
         The second extension handles specification references.
@@ -82,13 +82,13 @@ module.exports = {
   noticeTypes, 
   spaceRegex: whitespace.oneOrMore, 
   specNameRegex, 
-  terminologyRegex, 
+  templateTagRegex, 
   specCorpus, 
   definitions, 
   references, 
   specGroups, 
   noticeTitles,
   // Export parsers for direct access if needed
-  createTerminologyParser,
+  createTemplateTagParser,
   createSpecParser
 };

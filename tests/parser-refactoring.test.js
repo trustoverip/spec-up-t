@@ -6,7 +6,7 @@
  */
 
 const {
-  createTerminologyParser,
+  createTemplateTagParser,
   createSpecParser, 
   createMarkdownParser 
 } = require('../src/pipeline/parsing/create-markdown-parser.js');
@@ -15,13 +15,15 @@ const {
 const {
   parseDefinition,
   parseReference
-} = require('../src/parsers/terminology-parser');
+} = require('../src/parsers/template-tag-parser');
 
 const {
   parseSpecReference,
   renderIndividualSpec,
   hasSpec
-} = require('../src/parsers/spec-parser');describe('Functional Parser Integration Tests', () => {
+} = require('../src/parsers/spec-parser');
+
+describe('Functional Parser Integration Tests', () => {
   let mockConfig, mockGlobal, mockSpecCorpus;
 
   beforeEach(() => {
@@ -56,7 +58,7 @@ const {
     global.noticeTitles = mockGlobal.noticeTitles;
   });
 
-  describe('Terminology Parsing Functions', () => {
+  describe('Template Tag Parsing Functions', () => {
     test('should parse definition correctly', () => {
       const mockToken = {
         info: { args: ['test-term', 'alias'] }
@@ -82,16 +84,16 @@ const {
       expect(mockGlobal.references).toContain('test-term');
     });
 
-    test('createTerminologyParser should return a working function', () => {
-      const terminologyParser = createTerminologyParser(mockConfig, mockGlobal);
+    test('createTemplateTagParser should return a working function', () => {
+      const templateTagParser = createTemplateTagParser(mockConfig, mockGlobal);
       
-      expect(typeof terminologyParser).toBe('function');
+      expect(typeof templateTagParser).toBe('function');
       
       const mockToken = {
         info: { args: ['test-term'] }
       };
       
-      const result = terminologyParser(mockToken, 'def', 'Test Term');
+      const result = templateTagParser(mockToken, 'def', 'Test Term');
       expect(result).toContain('id="term:test-term"');
     });
   });
@@ -178,11 +180,11 @@ const {
 
     test('functions should compose well', () => {
       // Test that functions can be used in different combinations
-      const terminologyParser = createTerminologyParser(mockConfig, mockGlobal);
+      const templateTagParser = createTemplateTagParser(mockConfig, mockGlobal);
       const specParser = createSpecParser(mockSpecCorpus, mockGlobal);
       
       // Both should be independent functions
-      expect(typeof terminologyParser).toBe('function');
+      expect(typeof templateTagParser).toBe('function');
       expect(typeof specParser).toBe('object');
       expect(typeof specParser.parseSpecReference).toBe('function');
     });
