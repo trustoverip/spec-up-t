@@ -13,7 +13,7 @@
 
 const { findExternalSpecByKey } = require('../pipeline/references/external-references-service.js');
 const { lookupXrefTerm } = require('../pipeline/rendering/render-utils.js');
-const { whitespace, htmlComments, contentCleaning } = require('../utils/regex-patterns');
+const { whitespace, htmlComments, contentCleaning, externalReferences } = require('../utils/regex-patterns');
 
 /**
  * Extracts the current file from token content for source tracking
@@ -142,6 +142,38 @@ function parseReference(globalState, primary) {
 }
 
 /**
+ * Parses an `[[xref:...]]` or `[[tref:...]]` string into a structured object.
+ * This function was moved from xtref-utils.js to consolidate parsing logic
+ * and prevent cross-module object mutation.
+ *
+ * @param {string} xtref - Raw reference markup including brackets and prefix.
+ * @returns {{ externalSpec: string, term: string, referenceType: string, alias?: string }}
+ */
+function processXTref(xtref) {
+  const referenceTypeMatch = xtref.match(externalReferences.referenceType);
+  const referenceType = referenceTypeMatch ? referenceTypeMatch[1] : 'unknown';
+
+  const parts = xtref
+    .replace(externalReferences.openingTag, '')
+    .replace(externalReferences.closingTag, '')
+    .trim()
+    .split(externalReferences.argsSeparator);
+
+  const xtrefObject = {
+    externalSpec: parts[0].trim(),
+    term: parts[1].trim(),
+    referenceType
+  };
+
+  // Add alias if present and not empty
+  if (parts.length > 2 && parts[2].trim()) {
+    xtrefObject.alias = parts[2].trim();
+  }
+
+  return xtrefObject;
+}
+
+/**
  * Creates a template-tag parser function with bound configuration and global state.
  * This provides a clean interface similar to the class-based approach but with functional benefits.
  * @param {Object} config - Configuration object
@@ -160,7 +192,5 @@ module.exports = {
   parseTref,
   parseReference,
   parseTemplateTag,
-  // Legacy aliases retained for backward compatibility
-  createTerminologyParser: createTemplateTagParser,
-  parseTerminology: parseTemplateTag
+  processXTref
 };

@@ -16,6 +16,7 @@ const Logger = require('../../utils/logger');
 const { shouldProcessFile } = require('../../utils/file-filter');
 const { getCurrentBranch } = require('../../utils/git-info');
 const { addNewXTrefsFromMarkdown, isXTrefInAnyFile } = require('./xtref-utils');
+const { processXTref } = require('../../parsers/template-tag-parser');
 
 /**
  * Reuses the main rendering entry point once reference collection has refreshed the cache.
@@ -231,7 +232,7 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
     );
 
     fileContents.forEach((content, filename) => {
-        addNewXTrefsFromMarkdown(content, allXTrefs, filename);
+        addNewXTrefsFromMarkdown(content, allXTrefs, filename, processXTref);
     });
 
     extendXTrefs(config, allXTrefs.xtrefs);

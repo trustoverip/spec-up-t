@@ -37,43 +37,69 @@ function isXTrefInAnyFile(xtref, fileContents) {
 }
 
 /**
- * Parses an `[[xref:...]]` or `[[tref:...]]` string into a structured object.
+ * Adds a pre-parsed xtref object to the aggregated collection.
+ * This function handles deduplication and source file tracking.
  *
- * @param {string} xtref - Raw reference markup including brackets and prefix.
- * @returns {{ externalSpec: string, term: string, referenceType: string, alias?: string }}
+ * @param {object} xtrefObject - Pre-parsed xtref object from template-tag-parser
+ * @param {{ xtrefs: Array<object> }} allXTrefs - Aggregated reference collection
+ * @param {string|null} filename - Originating filename for bookkeeping
+ * @returns {{ xtrefs: Array<object> }} Updated reference collection
  */
-function processXTref(xtref) {
-    const referenceTypeMatch = xtref.match(externalReferences.referenceType);
-    const referenceType = referenceTypeMatch ? referenceTypeMatch[1] : 'unknown';
+function addXtrefToCollection(xtrefObject, allXTrefs, filename = null) {
+    const referenceType = xtrefObject.referenceType;
+    const cleanXTrefObj = { ...xtrefObject };
+    delete cleanXTrefObj.referenceType;
 
-    const parts = xtref
-        .replace(externalReferences.openingTag, '')
-        .replace(externalReferences.closingTag, '')
-        .trim()
-        .split(externalReferences.argsSeparator);
+    const existingIndex = allXTrefs?.xtrefs?.findIndex(existingXTref =>
+        existingXTref.term === cleanXTrefObj.term &&
+        existingXTref.externalSpec === cleanXTrefObj.externalSpec
+    );
 
-    const xtrefObject = {
-        externalSpec: parts[0].trim(),
-        term: parts[1].trim(),
-        referenceType
-    };
-
-    if (parts.length > 2 && parts[2].trim()) {
-        xtrefObject.alias = parts[2].trim();
+    if (existingIndex === -1) {
+        if (filename) {
+            cleanXTrefObj.sourceFiles = [{ file: filename, type: referenceType }];
+        }
+        allXTrefs.xtrefs.push(cleanXTrefObj);
+        return allXTrefs;
     }
 
-    return xtrefObject;
+    if (!filename) {
+        return allXTrefs;
+    }
+
+    const existingXTref = allXTrefs.xtrefs[existingIndex];
+    if (!existingXTref.sourceFiles) {
+        existingXTref.sourceFiles = [];
+    }
+
+    const newEntry = { file: filename, type: referenceType };
+    const alreadyTracked = existingXTref.sourceFiles.some(entry =>
+        entry.file === filename && entry.type === referenceType
+    );
+
+    if (!alreadyTracked) {
+        existingXTref.sourceFiles.push(newEntry);
+    }
+
+    return allXTrefs;
 }
 
 /**
  * Adds new references discovered in markdown to an aggregated collection.
+ * This function uses external parsing to maintain separation of concerns
+ * between parsing and collection logic.
  *
  * @param {string} markdownContent - Markdown text to scan.
  * @param {{ xtrefs: Array<object> }} allXTrefs - Aggregated reference collection.
  * @param {string|null} filename - Originating filename for bookkeeping.
- * @returns {{ xtrefs: Array<object> }} Mutated reference collection.
+ * @param {function} processXTref - Parsing function for xtref strings.
+ * @returns {{ xtrefs: Array<object> }} Updated reference collection.
  */
-function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null) {
+function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null, processXTref) {
+    if (!processXTref) {
+        throw new Error('processXTref function is required. Import from template-tag-parser.');
+    }
+
     const regex = externalReferences.allXTrefs;
 
     if (!regex.test(markdownContent)) {
@@ -83,40 +109,8 @@ function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null) {
     const xtrefs = markdownContent.match(regex) || [];
 
     xtrefs.forEach(rawXtref => {
-        const newXTrefObj = processXTref(rawXtref);
-        const referenceType = newXTrefObj.referenceType;
-        delete newXTrefObj.referenceType;
-
-        const existingIndex = allXTrefs?.xtrefs?.findIndex(existingXTref =>
-            existingXTref.term === newXTrefObj.term &&
-            existingXTref.externalSpec === newXTrefObj.externalSpec
-        );
-
-        if (existingIndex === -1) {
-            if (filename) {
-                newXTrefObj.sourceFiles = [{ file: filename, type: referenceType }];
-            }
-            allXTrefs.xtrefs.push(newXTrefObj);
-            return;
-        }
-
-        if (!filename) {
-            return;
-        }
-
-        const existingXTref = allXTrefs.xtrefs[existingIndex];
-        if (!existingXTref.sourceFiles) {
-            existingXTref.sourceFiles = [];
-        }
-
-        const newEntry = { file: filename, type: referenceType };
-        const alreadyTracked = existingXTref.sourceFiles.some(entry =>
-            entry.file === filename && entry.type === referenceType
-        );
-
-        if (!alreadyTracked) {
-            existingXTref.sourceFiles.push(newEntry);
-        }
+        const xtrefObject = processXTref(rawXtref);
+        addXtrefToCollection(xtrefObject, allXTrefs, filename);
     });
 
     return allXTrefs;
@@ -125,6 +119,6 @@ function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null) {
 module.exports = {
     isXTrefInMarkdown,
     isXTrefInAnyFile,
-    processXTref,
+    addXtrefToCollection,
     addNewXTrefsFromMarkdown
 };
