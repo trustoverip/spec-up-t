@@ -165,10 +165,8 @@ function processXTref(xtref) {
     referenceType
   };
 
-  // Add alias if present and not empty
-  if (parts.length > 2 && parts[2].trim()) {
-    xtrefObject.alias = parts[2].trim();
-  }
+  // Collect all aliases from parts after the term (index 1), trim and filter empties
+  xtrefObject.aliases = parts.slice(2).map(p => p.trim()).filter(Boolean);
 
   return xtrefObject;
 }
