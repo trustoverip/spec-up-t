@@ -92,12 +92,12 @@ function addXtrefToCollection(xtrefObject, allXTrefs, filename = null) {
  * @param {string} markdownContent - Markdown text to scan.
  * @param {{ xtrefs: Array<object> }} allXTrefs - Aggregated reference collection.
  * @param {string|null} filename - Originating filename for bookkeeping.
- * @param {function} processXTref - Parsing function for xtref strings.
+ * @param {function} processXTrefObject - Parsing function for xtref strings.
  * @returns {{ xtrefs: Array<object> }} Updated reference collection.
  */
-function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null, processXTref) {
-    if (!processXTref) {
-        throw new Error('processXTref function is required. Import from template-tag-parser.');
+function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null, processXTrefObject) {
+    if (!processXTrefObject) {
+        throw new Error('processXTrefObject function is required. Import from template-tag-parser.');
     }
 
     const regex = externalReferences.allXTrefs;
@@ -109,7 +109,7 @@ function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null, p
     const xtrefs = markdownContent.match(regex) || [];
 
     xtrefs.forEach(rawXtref => {
-        const xtrefObject = processXTref(rawXtref);
+        const xtrefObject = processXTrefObject(rawXtref);
         addXtrefToCollection(xtrefObject, allXTrefs, filename);
     });
 

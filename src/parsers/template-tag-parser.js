@@ -149,7 +149,7 @@ function parseRef(globalState, primary) {
  * @param {string} xtref - Raw reference markup including brackets and prefix.
  * @returns {{ externalSpec: string, term: string, referenceType: string, alias?: string }}
  */
-function processXTref(xtref) {
+function processXTrefObject(xtref) {
   const referenceTypeMatch = xtref.match(externalReferences.referenceType);
   const referenceType = referenceTypeMatch ? referenceTypeMatch[1] : 'unknown';
 
@@ -190,5 +190,5 @@ module.exports = {
   parseTref,
   parseRef,
   parseTemplateTag,
-  processXTref
+  processXTrefObject
 };
