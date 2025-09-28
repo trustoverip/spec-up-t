@@ -43,13 +43,13 @@ function parseTemplateTag(config, globalState, token, type, primary) {
   
   switch (type) {
     case 'def':
-      return parseDefinition(globalState, token, primary, currentFile);
+      return parseDef(globalState, token, primary, currentFile);
     case 'xref':
       return parseXref(config, token);
     case 'tref':
       return parseTref(token);
     default:
-      return parseReference(globalState, primary);
+      return parseRef(globalState, primary);
   }
 }
 
@@ -62,7 +62,7 @@ function parseTemplateTag(config, globalState, token, type, primary) {
  * @param {string} currentFile - The source file containing this definition
  * @returns {string} HTML span elements with term IDs
  */
-function parseDefinition(globalState, token, primary, currentFile) {
+function parseDef(globalState, token, primary, currentFile) {
   // Store definition in global state for validation and cross-referencing
   globalState.definitions.push({ 
     term: token.info.args[0], 
@@ -132,7 +132,7 @@ function parseTref(token) {
  * @param {string} primary - The term to reference
  * @returns {string} HTML anchor element linking to local term
  */
-function parseReference(globalState, primary) {
+function parseRef(globalState, primary) {
   // Track this reference for validation purposes
   globalState.references.push(primary);
   
@@ -185,10 +185,10 @@ function createTemplateTagParser(config, globalState) {
 module.exports = {
   createTemplateTagParser,
   // Export individual functions for testing purposes
-  parseDefinition,
+  parseDef,
   parseXref,
   parseTref,
-  parseReference,
+  parseRef,
   parseTemplateTag,
   processXTref
 };
