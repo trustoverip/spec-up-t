@@ -83,7 +83,7 @@ const refactoredPatterns = require('./refactored-regex-patterns.js');
 
 const testCases = [
   '[[def: simple-term]]',
-  '[[tref: spec, term, alias]]', 
+  '[[tref: spec, term, alias1, alias2]]', 
   'path/with/trailing/',
   'v123',
   'text   with    spaces'
