@@ -9,17 +9,17 @@ const path = require('path');
 const gulp = require('gulp');
 const findPkgDir = require('find-pkg-dir');
 
-const { initialize } = require('./init');
-const Logger = require('./utils/logger');
-const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('./references.js');
-const { runJsonKeyValidatorSync } = require('./json-key-validator.js');
+const { initialize } = require('../../init.js');
+const Logger = require('../../utils/logger.js');
+const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('../references/external-references-service.js');
+const { runJsonKeyValidatorSync } = require('../../json-key-validator.js');
 const { createTermIndex } = require('./create-term-index.js');
-const { processWithEscapes } = require('./escape-handler.js');
+const { processWithEscapes } = require('../preprocessing/escape-processor.js');
 const { insertTermIndex } = require('./insert-term-index.js');
-const { fixMarkdownFiles } = require('./fix-markdown-files.js');
-const { processEscapedTags, restoreEscapedTags } = require('./escape-mechanism.js');
-const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./html-dom-processor.js');
-const { getGithubRepoInfo } = require('./utils/git-info.js');
+const { normalizeTerminologyMarkdown } = require('../preprocessing/normalize-terminology-markdown.js');
+const { processEscapedTags, restoreEscapedTags } = require('../preprocessing/escape-placeholder-utils.js');
+const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('../postprocessing/definition-list-postprocessor.js');
+const { getGithubRepoInfo } = require('../../utils/git-info.js');
 
 /**
  * Initializes configuration and shared variables for spec processing.
@@ -43,7 +43,7 @@ async function initializeConfig(options = {}) {
     const createVersionsIndex = require('./create-versions-index.js');
     createVersionsIndex(config.specs[0].output_path);
 
-    fixMarkdownFiles(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
+    normalizeTerminologyMarkdown(path.join(config.specs[0].spec_directory, config.specs[0].spec_terms_directory));
 
     let template = fs.readFileSync(path.join(modulePath, 'templates/template.html'), 'utf8');
     let assets = fs.readJsonSync(modulePath + '/config/asset-map.json');

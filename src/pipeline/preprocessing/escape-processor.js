@@ -8,7 +8,7 @@
  * 3. Post-processing: Restore escaped sequences as literals
  */
 
-const { escaping } = require('./utils/regex-patterns');
+const { escaping } = require('../../utils/regex-patterns.js');
 
 const ESCAPED_PLACEHOLDER = '__SPEC_UP_ESCAPED_TAG__';
 

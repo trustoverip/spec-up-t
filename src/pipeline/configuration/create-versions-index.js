@@ -14,7 +14,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const Logger = require('./utils/logger');
+const Logger = require('../../utils/logger.js');
 
 function createVersionsIndex(outputPath) {
     // Directory containing the version files

@@ -7,15 +7,13 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('./pipeline/references/external-references-service.js');
-const { processWithEscapes } = require('./pipeline/preprocessing/escape-processor.js');
-const { processEscapedTags, restoreEscapedTags } = require('./pipeline/preprocessing/escape-placeholder-utils.js');
-const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('./pipeline/postprocessing/definition-list-postprocessor.js');
-const { getGithubRepoInfo } = require('./utils/git-info.js');
-const { templateTags } = require('./utils/regex-patterns');
+const { fetchExternalSpecs, validateReferences, mergeXrefTermsIntoAllXTrefs } = require('../references/external-references-service.js');
+const { processEscapedTags, restoreEscapedTags } = require('../preprocessing/escape-placeholder-utils.js');
+const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('../postprocessing/definition-list-postprocessor.js');
+const { getGithubRepoInfo } = require('../../utils/git-info.js');
+const { templateTags } = require('../../utils/regex-patterns.js');
 
-const { createScriptElementWithXTrefDataForEmbeddingInHtml, lookupXrefTerm, applyReplacers, normalizePath, renderRefGroup, findKatexDist } = require('./pipeline/rendering/render-utils.js');
-const { createMarkdownParser } = require('./pipeline/parsing/create-markdown-parser.js');
+const { createScriptElementWithXTrefDataForEmbeddingInHtml, applyReplacers } = require('./render-utils.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
   let { externalReferences } = sharedVars;

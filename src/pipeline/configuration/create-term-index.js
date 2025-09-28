@@ -12,14 +12,14 @@
  *
  * @requires fs-extra - File system operations with extra methods.
  * @requires path - Utilities for working with file and directory paths.
- * @file src/create-term-index.js
+ * @file src/pipeline/configuration/create-term-index.js
  * @author Kor Dwarshuis
  * @version 1.1.0
  * @since 2024-09-02
  */
 
-const { shouldProcessFile } = require('./utils/file-filter');
-const Logger = require('./utils/logger');
+const { shouldProcessFile } = require('../../utils/file-filter.js');
+const Logger = require('../../utils/logger.js');
 
 function createTermIndex() {
     try {

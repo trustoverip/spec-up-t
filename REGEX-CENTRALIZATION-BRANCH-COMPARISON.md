@@ -11,7 +11,7 @@ All regex patterns have been successfully centralized from scattered inline patt
 ### Files Refactored
 
 1. **`/src/render-utils.js`** - Template tag processing, path normalization, whitespace handling
-2. **`/src/collect-external-references.js`** - External reference extraction and parsing
+2. **`/src/pipeline/references/collect-external-references.js`** - External reference extraction and parsing
 3. **`/src/freeze.js`** - Version pattern matching for freeze functionality  
 4. **`/src/markdown-it/template-tag-syntax.js`** - Template tag content parsing
 5. **`/src/escape-handler.js`** - Placeholder pattern matching
@@ -55,7 +55,7 @@ git checkout to-be-merged-1.3.2-beta
 
 # Copy original files for analysis
 cp src/render-utils.js original-render-utils.js
-cp src/collect-external-references.js original-collect-external-references.js
+cp src/pipeline/references/collect-external-references.js original-collect-external-references.js
 cp src/freeze.js original-freeze.js
 # ... copy other relevant files
 ```

@@ -9,7 +9,7 @@
  * @function
  * @name insertTermIndex
  * @returns {void}
- * @file src/insert-term-index.js
+ * @file src/pipeline/configuration/insert-term-index.js
  * @author Kor Dwarshuis
  * @version 1.0.0
  * @since 2024-09-02
@@ -26,7 +26,7 @@ function insertTermIndex() {
 
     // Find the index of the "terms-and-definitions-intro.md" file in the markdown paths
     const index = markdownPaths.indexOf('terms-and-definitions-intro.md');
-    
+
     // 
     if (index !== -1) {
         // Insert the items of the "terms" array after the found index
