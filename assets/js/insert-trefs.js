@@ -87,20 +87,7 @@ function insertTrefs(allXTrefs) {
          const metaInfoEl = document.createElement('dd');
          metaInfoEl.classList.add('term-external', 'meta-info-content-wrapper', 'collapsed');
 
-         if (tref) {
-            // Add spans for each alias in the aliases array
-            // Supports multiple aliases: e.g., [[tref:spec,term,alias1,alias2]]
-            if (tref.aliases && tref.aliases.length > 0) {
-               tref.aliases.forEach(alias => {
-                  const aliasSpan = document.createElement('span');
-                  aliasSpan.classList.add('tref-alias');
-                  // add id to alias span for easier styling
-                  aliasSpan.id = `tref-alias-${alias.toLowerCase()}`;
-                  aliasSpan.textContent = alias;
-                  termData.element.appendChild(aliasSpan);
-               });
-            }
-
+         if (xref) {
             // Generate meta info content
             const avatar = xref.avatarUrl ? `![avatar](${xref.avatarUrl})` : '';
             const owner = xref.owner || 'Unknown';
@@ -122,7 +109,7 @@ function insertTrefs(allXTrefs) {
 
             // Clean up the markdown content in the term definition
             // Part A: clean up via regex
-            let content = tref.content
+            let content = xref.content
                .split('\n')
                .map(line => line.replace(/^\s*~\s*/, '')) // Remove leading ~ and spaces
                .join('\n')
@@ -135,7 +122,7 @@ function insertTrefs(allXTrefs) {
             tempDivForLinks.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
             content = tempDivForLinks.innerHTML;
 
-            // Parse the rendered HTML to check for dd elements. tref.content is a string that contains HTML, in the form of <dd>...</dd>'s
+            // Parse the rendered HTML to check for dd elements. xref.content is a string that contains HTML, in the form of <dd>...</dd>'s
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = md.render(content);
 
