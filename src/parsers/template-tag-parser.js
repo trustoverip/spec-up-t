@@ -79,6 +79,22 @@ function parseDef(globalState, token, primary, currentFile) {
 }
 
 /**
+ * Processes [[ref: term]] constructs
+ * Creates internal links to locally defined terms
+ * @param {Object} globalState - Global state to track references
+ * @param {string} primary - The term to reference
+ * @returns {string} HTML anchor element linking to local term
+ */
+function parseRef(globalState, primary) {
+  // Track this reference for validation purposes
+  globalState.references.push(primary);
+
+  // Create internal link to the term definition
+  const termId = primary.replace(whitespace.oneOrMore, '-').toLowerCase();
+  return `<a class="term-reference" href="#term:${termId}">${primary}</a>`;
+}
+
+/**
  * Processes [[xref: spec, term]] constructs
  * Creates links to external specification terms with tooltips
  * @param {Object} config - Configuration containing external specs
@@ -123,22 +139,6 @@ function parseTref(token) {
   } else {
     return `<span title="Externally also defined as ${termName}" data-original-term="${termName}" class="term-external" id="${termId}">${publishedTermName}</span>`;
   }
-}
-
-/**
- * Processes [[ref: term]] constructs
- * Creates internal links to locally defined terms
- * @param {Object} globalState - Global state to track references
- * @param {string} primary - The term to reference
- * @returns {string} HTML anchor element linking to local term
- */
-function parseRef(globalState, primary) {
-  // Track this reference for validation purposes
-  globalState.references.push(primary);
-  
-  // Create internal link to the term definition
-  const termId = primary.replace(whitespace.oneOrMore, '-').toLowerCase();
-  return `<a class="term-reference" href="#term:${termId}">${primary}</a>`;
 }
 
 /**
