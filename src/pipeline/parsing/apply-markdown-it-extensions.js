@@ -18,7 +18,7 @@
  */
 
 // Import the new modular markdown-it extensions
-const applyMarkdownItExtensions = require('./markdown-it');
+const applyMarkdownItExtensions = require('../../markdown-it');
 
 /**
  * Legacy interface function that maintains compatibility with existing code

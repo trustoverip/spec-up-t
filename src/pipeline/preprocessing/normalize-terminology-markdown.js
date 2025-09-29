@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { shouldProcessFile } = require('./utils/file-filter');
-const Logger = require('./utils/logger');
+const { shouldProcessFile } = require('../../utils/file-filter.js');
+const Logger = require('../../utils/logger.js');
 
 /**
  * Handles specific functionality for `[[def:` and `[[tref:` lines
@@ -146,7 +146,7 @@ function processMarkdownFile(filePath, fileName) {
  * @param {string} directory - The directory to process
  * @returns {void}
  */
-function fixMarkdownFiles(directory) {
+function normalizeTerminologyMarkdown(directory) {
     try {
         // Read the contents of the directory synchronously
         const items = fs.readdirSync(directory, { withFileTypes: true });
@@ -155,8 +155,8 @@ function fixMarkdownFiles(directory) {
         items.forEach(item => {
             const itemPath = path.join(directory, item.name);
             if (item.isDirectory()) {
-                // If the item is a directory, call fixMarkdownFiles recursively
-                fixMarkdownFiles(itemPath);
+                // If the item is a directory, call normalizeTerminologyMarkdown recursively
+                normalizeTerminologyMarkdown(itemPath);
             } else if (item.isFile() && shouldProcessFile(item.name)) {
                 processMarkdownFile(itemPath, item.name);
             }
@@ -167,5 +167,5 @@ function fixMarkdownFiles(directory) {
 }
 
 module.exports = {
-    fixMarkdownFiles
+    normalizeTerminologyMarkdown
 };

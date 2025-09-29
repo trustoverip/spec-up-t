@@ -29,7 +29,7 @@ function insertTrefs(allXTrefs) {
       const allTerms = [];
 
       document.querySelectorAll('dl.terms-and-definitions-list dt span.term-external').forEach((termElement) => {
-         
+
          // Get the full text content including any nested spans (for aliases) of a term (dt)
          // In case of `[[tref:toip1, agency, ag]]`, this will return `agency`
          // const textContent = termElement.textContent.trim();
@@ -79,7 +79,7 @@ function insertTrefs(allXTrefs) {
 
          // Find the first matching xref to avoid duplicates
          const xref = xtrefsData.xtrefs.find(x => x.term === originalTerm);
-         
+
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
 
@@ -93,11 +93,13 @@ function insertTrefs(allXTrefs) {
             const owner = xref.owner || 'Unknown';
             const repo = xref.repo && xref.repoUrl ? `[${xref.repo}](${xref.repoUrl})` : 'Unknown';
             const commitHash = xref.commitHash || 'Unknown';
+            const linkToOriginalTerm = xref.ghPageUrl ? new URL(`#term:${xref.term}`, xref.ghPageUrl).href : 'Unknown';
 
             const metaInfo = `
 | Property | Value |
 | -------- | ----- |
 | Original Term | ${originalTerm} |
+| Link | ${linkToOriginalTerm} |
 | Owner | ${avatar} ${owner} |
 | Repo | ${repo} |
 | Commit hash | ${commitHash} |

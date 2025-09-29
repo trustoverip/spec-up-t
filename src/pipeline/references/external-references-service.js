@@ -1,7 +1,7 @@
 const cheerio = require("cheerio");
 const axios = require('axios').default;
 const fs = require('fs-extra');
-const Logger = require('./utils/logger');
+const Logger = require('../../utils/logger.js');
 
 const spaceRegex = /\s+/g;
 
