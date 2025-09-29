@@ -73,6 +73,7 @@ function parseDef(globalState, token, primary, currentFile) {
   // Generate HTML spans for each term/alias combination
   // This creates anchor points that can be referenced by links
   return token.info.args.reduce((acc, syn) => {
+    // Generate a unique term ID by normalizing the synonym: replace whitespace with hyphens and convert to lowercase. The ID is used for fragment identifier (hash) in the URL, which in turn can be used for an anchor in a web page.
     const termId = `term:${syn.replace(whitespace.oneOrMore, '-').toLowerCase()}`;
     return `<span id="${termId}">${acc}</span>`;
   }, primary);
