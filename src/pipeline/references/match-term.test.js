@@ -1,4 +1,4 @@
-const { matchTerm } = require('./matchTerm');
+const { matchTerm } = require('./match-term');
 
 describe('matchTerm', () => {
     test('returns true when the term is found in a correctly formatted definition', () => {

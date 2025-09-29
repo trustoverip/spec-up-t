@@ -1,5 +1,7 @@
 'use strict';
 
+const { htmlComments } = require('../utils/regex-patterns');
+
 /**
  * Markdown-it Definition Lists Enhancement Module
  * 
@@ -333,7 +335,7 @@ function applyDefinitionListEnhancements(md) {
     // Search backwards through all tokens to find the most recent HTML comment with file info
     for (let i = idx - 1; i >= 0; i--) {
       if (tokens[i].type === 'html_block' && tokens[i].content) {
-        const fileMatch = tokens[i].content.match(/<!-- file: (.+?) -->/);
+        const fileMatch = tokens[i].content.match(htmlComments.fileTracker);
         if (fileMatch) {
           sourceFile = fileMatch[1];
           break; // Use the most recent file comment

@@ -6,7 +6,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const { templateTags, paths, whitespace } = require('./utils/regex-patterns');
+const { templateTags, paths, whitespace } = require('../../utils/regex-patterns.js');
 
 // Constants used in rendering and processing
 const katexRules = ['math_block', 'math_inline'];
@@ -75,7 +75,7 @@ function lookupXrefTerm(externalSpec, termName) {
  * @returns {string} The processed document with tags replaced.
  */
 function applyReplacers(doc) {
-  const { processWithEscapes } = require('./escape-handler.js');
+  const { processWithEscapes } = require('../preprocessing/escape-processor.js');
   return processWithEscapes(doc, function (content) {
     return content.replace(replacerRegex, function (match, type, args) {
       let replacer = replacers.find(r => type.trim().match(r.test));
