@@ -77,8 +77,8 @@ function insertTrefs(allXTrefs) {
             return null; // Skip invalid entries
          }
 
-         // Find the first matching tref to avoid duplicates
-         const tref = xtrefsData.xtrefs.find(xtref => xtref.term === originalTerm);
+         // Find the first matching xref to avoid duplicates
+         const xref = xtrefsData.xtrefs.find(x => x.term === originalTerm);
 
          // Create a DocumentFragment to hold all new elements for this term
          const fragment = document.createDocumentFragment();
@@ -102,15 +102,17 @@ function insertTrefs(allXTrefs) {
             }
 
             // Generate meta info content
-            const avatar = tref.avatarUrl ? `![avatar](${tref.avatarUrl})` : '';
-            const owner = tref.owner || 'Unknown';
-            const repo = tref.repo && tref.repoUrl ? `[${tref.repo}](${tref.repoUrl})` : 'Unknown';
-            const commitHash = tref.commitHash || 'Unknown';
+            const avatar = xref.avatarUrl ? `![avatar](${xref.avatarUrl})` : '';
+            const owner = xref.owner || 'Unknown';
+            const repo = xref.repo && xref.repoUrl ? `[${xref.repo}](${xref.repoUrl})` : 'Unknown';
+            const commitHash = xref.commitHash || 'Unknown';
+            const linkToOriginalTerm = xref.ghPageUrl ? new URL(`#term:${xref.term}`, xref.ghPageUrl).href : 'Unknown';
 
             const metaInfo = `
 | Property | Value |
 | -------- | ----- |
 | Original Term | ${originalTerm} |
+| Link | ${linkToOriginalTerm} |
 | Owner | ${avatar} ${owner} |
 | Repo | ${repo} |
 | Commit hash | ${commitHash} |

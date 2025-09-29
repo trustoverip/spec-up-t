@@ -260,7 +260,7 @@ function collectExternalReferences(options = {}) {
 
     if (!GITHUB_API_TOKEN) {
         Logger.warn('No GitHub Personal Access Token (PAT) found. Running without authentication (may hit rate limits).');
-        Logger.info('For better performance, set up a PAT: https://blockchainbird.github.io/spec-up-t-website/docs/getting-started/github-token\n');
+        Logger.info('For better performance, set up a PAT: https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token\n');
     }
 
     // Communicate that the expected external_specs array is missing entirely.
