@@ -225,7 +225,7 @@ describe('addNewXTrefsFromMarkdown', () => {
             externalSpec: 'specA',
             term: 'termA',
             aliases: ['aliasA'],
-            firstAlias: 'aliasA'
+            firstTrefAlias: 'aliasA'
         });
     });
 
@@ -293,7 +293,7 @@ describe('processXTrefObject', () => {
             externalSpec: 'specA',
             term: 'termA',
             aliases: ['aliasA'],
-            firstAlias: 'aliasA',
+            firstTrefAlias: 'aliasA',
             referenceType: 'tref'
         });
     });
@@ -319,7 +319,7 @@ describe('processXTrefObject', () => {
             externalSpec: 'specA',
             term: 'termA',
             aliases: ['aliasA', 'aliasB'],
-            firstAlias: 'aliasA',
+            firstTrefAlias: 'aliasA',
             referenceType: 'tref'
         });
     });
@@ -332,7 +332,7 @@ describe('processXTrefObject', () => {
             externalSpec: 'specA',
             term: 'termA',
             aliases: ['aliasA'],
-            firstAlias: 'aliasA',
+            firstTrefAlias: 'aliasA',
             referenceType: 'tref'
         });
     });
@@ -349,7 +349,7 @@ describe('processXTrefObject', () => {
         });
     });
 
-    it('should not include firstAlias property when no aliases exist', () => {
+    it('should not include firstTrefAlias property when no aliases exist for tref', () => {
         const xtref = '[[tref:specA,termA]]';
         const result = processXTrefObject(xtref);
         
@@ -359,7 +359,7 @@ describe('processXTrefObject', () => {
             referenceType: 'tref',
             aliases: []
         });
-        expect(result.firstAlias).toBeUndefined();
+        expect(result.firstTrefAlias).toBeUndefined();
     });
 
     it('should correctly identify the first alias among multiple aliases', () => {
@@ -370,10 +370,10 @@ describe('processXTrefObject', () => {
             externalSpec: 'specA',
             term: 'termA',
             aliases: ['firstAlias', 'secondAlias', 'thirdAlias'],
-            firstAlias: 'firstAlias',
+            firstTrefAlias: 'firstAlias',
             referenceType: 'tref'
         });
-        expect(result.firstAlias).toBe('firstAlias');
+        expect(result.firstTrefAlias).toBe('firstAlias');
         expect(result.aliases[0]).toBe('firstAlias');
     });
 });
@@ -642,7 +642,7 @@ describe('Bug fix: tref/xref alias caching issue', () => {
             externalSpec: 'KERISuite',
             term: 'composability',
             aliases: ['Kompoosabilitie', 'KPB'],
-            firstAlias: 'Kompoosabilitie',
+            firstTrefAlias: 'Kompoosabilitie',
             sourceFiles: [{ file: 'composability.md', type: 'tref' }]
         });
         
@@ -659,8 +659,8 @@ describe('Bug fix: tref/xref alias caching issue', () => {
             sourceFiles: [{ file: 'composability.md', type: 'tref' }]
         });
         
-        // Verify firstAlias property is completely removed
-        expect(allXTrefs.xtrefs[0].hasOwnProperty('firstAlias')).toBe(false);
+        // Verify firstTrefAlias property is completely removed
+        expect(allXTrefs.xtrefs[0].hasOwnProperty('firstTrefAlias')).toBe(false);
     });
     
     it('should preserve tref aliases when xref for same term is processed after tref', () => {
@@ -680,7 +680,7 @@ describe('Bug fix: tref/xref alias caching issue', () => {
             externalSpec: 'KERISuite',
             term: 'composability',
             aliases: ['Kompoosabilitie', 'KPB'],  // Should be preserved from tref
-            firstAlias: 'Kompoosabilitie',        // Should be preserved from tref
+            firstTrefAlias: 'Kompoosabilitie',    // Should be preserved from tref
             sourceFiles: [
                 { file: 'composability.md', type: 'tref' },
                 { file: 'soil.md', type: 'xref' }

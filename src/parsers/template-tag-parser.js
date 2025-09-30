@@ -172,8 +172,14 @@ function processXTrefObject(xtref) {
 
   // Store the first alias separately as it has special meaning
   // This maintains backward compatibility while providing explicit access to the first alias
+  // For tref, store as firstTrefAlias; for xref, we might add firstXrefAlias in the future
   if (allAliases.length > 0) {
-    xtrefObject.firstAlias = allAliases[0];
+    if (referenceType === 'tref') {
+      xtrefObject.firstTrefAlias = allAliases[0];
+    } else if (referenceType === 'xref') {
+      // For now, still use generic firstAlias for xref until we implement firstXrefAlias
+      xtrefObject.firstAlias = allAliases[0];
+    }
   }
 
   return xtrefObject;

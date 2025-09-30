@@ -68,29 +68,30 @@ function addXtrefToCollection(xtrefObject, allXTrefs, filename = null) {
     }
 
     const existingXTref = allXTrefs.xtrefs[existingIndex];
-    
+
     // Update the existing entry with new data to handle changes in aliases
     // Preserve the existing sourceFiles array and extend it with new entries
     const existingSourceFiles = existingXTref.sourceFiles || [];
-    
+
     // Smart merge: Priority is given to tref over xref for properties like aliases
     // If the new reference is an xref and existing has tref data, preserve tref properties
     const hasExistingTref = existingSourceFiles.some(sf => sf.type === 'tref');
     const isNewXref = referenceType === 'xref';
-    
+
     if (hasExistingTref && isNewXref) {
         // Don't overwrite tref data with xref data - just add to sourceFiles
         // Keep existing aliases, firstAlias, etc. from the tref
     } else {
         // Update with new data (either new tref, or no existing tref)
         Object.assign(existingXTref, cleanXTrefObj);
-        
+
         // Handle properties that should be removed when not present in the new object
-        if (!cleanXTrefObj.hasOwnProperty('firstAlias') && existingXTref.hasOwnProperty('firstAlias')) {
-            delete existingXTref.firstAlias;
+        // Remove firstTrefAlias if not present in new object
+        if (!cleanXTrefObj.hasOwnProperty('firstTrefAlias') && existingXTref.hasOwnProperty('firstTrefAlias')) {
+            delete existingXTref.firstTrefAlias;
         }
     }
-    
+
     // Restore and update the sourceFiles array
     existingXTref.sourceFiles = existingSourceFiles;
 
