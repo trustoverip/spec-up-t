@@ -148,7 +148,7 @@ function parseTref(token) {
  * and prevent cross-module object mutation.
  *
  * @param {string} xtref - Raw reference markup including brackets and prefix.
- * @returns {{ externalSpec: string, term: string, referenceType: string, alias?: string }}
+ * @returns {{ externalSpec: string, term: string, referenceType: string, firstAlias?: string, aliases: string[] }}
  */
 function processXTrefObject(xtref) {
   const referenceTypeMatch = xtref.match(externalReferences.referenceType);
@@ -167,7 +167,14 @@ function processXTrefObject(xtref) {
   };
 
   // Collect all aliases from parts after the term (index 1), trim and filter empties
-  xtrefObject.aliases = parts.slice(2).map(p => p.trim()).filter(Boolean);
+  const allAliases = parts.slice(2).map(p => p.trim()).filter(Boolean);
+  xtrefObject.aliases = allAliases;
+
+  // Store the first alias separately as it has special meaning
+  // This maintains backward compatibility while providing explicit access to the first alias
+  if (allAliases.length > 0) {
+    xtrefObject.firstAlias = allAliases[0];
+  }
 
   return xtrefObject;
 }

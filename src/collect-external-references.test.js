@@ -224,7 +224,8 @@ describe('addNewXTrefsFromMarkdown', () => {
         expect(updatedXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            aliases: ['aliasA']
+            aliases: ['aliasA'],
+            firstAlias: 'aliasA'
         });
     });
 
@@ -237,7 +238,8 @@ describe('addNewXTrefsFromMarkdown', () => {
         expect(updatedXTrefs.xtrefs[0]).toEqual({
             externalSpec: 'specA',
             term: 'termA',
-            aliases: ['aliasA']
+            aliases: ['aliasA'],
+            firstAlias: 'aliasA'
         });
     });
 
@@ -291,6 +293,7 @@ describe('processXTrefObject', () => {
             externalSpec: 'specA',
             term: 'termA',
             aliases: ['aliasA'],
+            firstAlias: 'aliasA',
             referenceType: 'tref'
         });
     });
@@ -303,6 +306,7 @@ describe('processXTrefObject', () => {
             externalSpec: 'specA',
             term: 'termA',
             aliases: ['aliasA'],
+            firstAlias: 'aliasA',
             referenceType: 'xref'
         });
     });
@@ -315,6 +319,7 @@ describe('processXTrefObject', () => {
             externalSpec: 'specA',
             term: 'termA',
             aliases: ['aliasA', 'aliasB'],
+            firstAlias: 'aliasA',
             referenceType: 'tref'
         });
     });
@@ -327,6 +332,7 @@ describe('processXTrefObject', () => {
             externalSpec: 'specA',
             term: 'termA',
             aliases: ['aliasA'],
+            firstAlias: 'aliasA',
             referenceType: 'tref'
         });
     });
@@ -341,6 +347,34 @@ describe('processXTrefObject', () => {
             referenceType: 'tref',
             aliases: []
         });
+    });
+
+    it('should not include firstAlias property when no aliases exist', () => {
+        const xtref = '[[tref:specA,termA]]';
+        const result = processXTrefObject(xtref);
+        
+        expect(result).toEqual({
+            externalSpec: 'specA',
+            term: 'termA',
+            referenceType: 'tref',
+            aliases: []
+        });
+        expect(result.firstAlias).toBeUndefined();
+    });
+
+    it('should correctly identify the first alias among multiple aliases', () => {
+        const xtref = '[[tref:specA,termA,firstAlias,secondAlias,thirdAlias]]';
+        const result = processXTrefObject(xtref);
+        
+        expect(result).toEqual({
+            externalSpec: 'specA',
+            term: 'termA',
+            aliases: ['firstAlias', 'secondAlias', 'thirdAlias'],
+            firstAlias: 'firstAlias',
+            referenceType: 'tref'
+        });
+        expect(result.firstAlias).toBe('firstAlias');
+        expect(result.aliases[0]).toBe('firstAlias');
     });
 });
 
