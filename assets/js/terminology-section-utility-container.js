@@ -106,6 +106,14 @@ function initializeTerminologyUtilityContainer() {
     checkboxesContainer.appendChild(externalTermsCheckboxDiv);
     leftCol.appendChild(checkboxesContainer);
 
+    // Snapshot link
+    const snapshotLink = document.createElement('a');
+    snapshotLink.id = 'snapshotLinkInContent';
+    snapshotLink.className = 'btn btn-outline-primary';
+    snapshotLink.href = './versions/';
+    snapshotLink.textContent = 'Versions';
+    leftCol.appendChild(snapshotLink);
+
     // Right column: Search
     const rightCol = document.createElement("div");
     rightCol.className = "col-md-6 d-flex justify-content-end";
