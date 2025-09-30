@@ -195,17 +195,23 @@ function processXTrefObject(xtref) {
 
   // Collect all aliases from parts after the term (index 1), trim and filter empties
   const allAliases = parts.slice(2).map(p => p.trim()).filter(Boolean);
-  xtrefObject.aliases = allAliases;
+  
+  // Initialize both tref and xref alias arrays
+  xtrefObject.trefAliases = [];
+  xtrefObject.xrefAliases = [];
 
-  // Store the first alias separately as it has special meaning
-  // This maintains backward compatibility while providing explicit access to the first alias
-  // For tref, store as firstTrefAlias; for xref, we might add firstXrefAlias in the future
-  if (allAliases.length > 0) {
-    if (referenceType === 'tref') {
+  // Store aliases in the appropriate array based on reference type
+  if (referenceType === 'tref') {
+    xtrefObject.trefAliases = allAliases;
+    // Store the first tref alias separately as it has special meaning
+    if (allAliases.length > 0) {
       xtrefObject.firstTrefAlias = allAliases[0];
-    } else if (referenceType === 'xref') {
-      // For now, still use generic firstAlias for xref until we implement firstXrefAlias
-      xtrefObject.firstAlias = allAliases[0];
+    }
+  } else if (referenceType === 'xref') {
+    xtrefObject.xrefAliases = allAliases;
+    // Store the first xref alias separately as it has special meaning
+    if (allAliases.length > 0) {
+      xtrefObject.firstXrefAlias = allAliases[0];
     }
   }
 

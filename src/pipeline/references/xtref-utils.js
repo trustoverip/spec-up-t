@@ -79,16 +79,33 @@ function addXtrefToCollection(xtrefObject, allXTrefs, filename = null) {
     const isNewXref = referenceType === 'xref';
 
     if (hasExistingTref && isNewXref) {
-        // Don't overwrite tref data with xref data - just add to sourceFiles
-        // Keep existing aliases, firstAlias, etc. from the tref
-    } else {
-        // Update with new data (either new tref, or no existing tref)
+        // Don't overwrite tref data with xref data - just merge xref aliases
+        // Keep existing tref aliases and properties, but add xref aliases
+        if (cleanXTrefObj.xrefAliases && cleanXTrefObj.xrefAliases.length > 0) {
+            existingXTref.xrefAliases = cleanXTrefObj.xrefAliases;
+            existingXTref.firstXrefAlias = cleanXTrefObj.firstXrefAlias;
+        }
+    } else if (!hasExistingTref && isNewXref) {
+        // New xref with no existing tref - initialize empty tref arrays
         Object.assign(existingXTref, cleanXTrefObj);
+        if (!existingXTref.trefAliases) {
+            existingXTref.trefAliases = [];
+        }
+    } else {
+        // Update with new tref data (either new tref, or updating existing tref)
+        Object.assign(existingXTref, cleanXTrefObj);
+        
+        // Ensure xref arrays exist if not present in new object
+        if (!cleanXTrefObj.xrefAliases && !existingXTref.xrefAliases) {
+            existingXTref.xrefAliases = [];
+        }
 
         // Handle properties that should be removed when not present in the new object
-        // Remove firstTrefAlias if not present in new object
         if (!cleanXTrefObj.hasOwnProperty('firstTrefAlias') && existingXTref.hasOwnProperty('firstTrefAlias')) {
             delete existingXTref.firstTrefAlias;
+        }
+        if (!cleanXTrefObj.hasOwnProperty('firstXrefAlias') && existingXTref.hasOwnProperty('firstXrefAlias')) {
+            delete existingXTref.firstXrefAlias;  
         }
     }
 
