@@ -96,8 +96,9 @@ function parseRef(globalState, primary) {
 }
 
 /**
- * Processes [[xref: spec, term]] constructs
+ * Processes [[xref: spec, term, alias, ...]] constructs
  * Creates links to external specification terms with tooltips
+ * Uses primaryDisplayTerm concept: shows first alias if available, otherwise shows the term itself
  * @param {Object} config - Configuration containing external specs
  * @param {Object} token - The markdown-it token
  * @returns {string} HTML anchor element linking to external term
@@ -106,8 +107,12 @@ function parseXref(config, token) {
   const externalSpec = findExternalSpecByKey(config, token.info.args[0]);
   const url = externalSpec?.gh_page || '#';
   const termName = token.info.args[1];
+  const aliases = token.info.args.slice(2).filter(Boolean); // Get all aliases after the term
   const term = termName.replace(whitespace.oneOrMore, '-').toLowerCase();
   const xrefTerm = lookupXrefTerm(token.info.args[0], term);
+
+  // Determine the primary display term (first alias if available, otherwise original term)
+  const primaryDisplayTerm = aliases.length > 0 ? aliases[0] : termName;
 
   // Build link attributes with both local and external href capabilities
   let linkAttributes = `class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}" href="${url}#term:${term}"`;
@@ -118,7 +123,7 @@ function parseXref(config, token) {
     linkAttributes += ` title="External term definition" data-term-content="${cleanContent}"`;
   }
 
-  return `<a ${linkAttributes}>${termName}</a>`;
+  return `<a ${linkAttributes}>${primaryDisplayTerm}</a>`;
 }
 
 /**
