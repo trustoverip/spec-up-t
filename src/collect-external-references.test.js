@@ -627,3 +627,64 @@ describe('Reference type tracking', () => {
         expect(allXTrefs.xtrefs[0].sourceFile).toBeUndefined();
     });
 });
+
+describe('Bug fix: tref/xref alias caching issue', () => {
+    
+    it('should properly update aliases when tref changes from having aliases to no aliases', () => {
+        // First, process tref with aliases
+        const markdownWithAliases = "[[tref: KERISuite, composability, Kompoosabilitie, KPB]]";
+        let allXTrefs = { xtrefs: [] };
+        
+        allXTrefs = addNewXTrefsFromMarkdown(markdownWithAliases, allXTrefs, 'composability.md', processXTrefObject);
+        
+        expect(allXTrefs.xtrefs.length).toBe(1);
+        expect(allXTrefs.xtrefs[0]).toEqual({
+            externalSpec: 'KERISuite',
+            term: 'composability',
+            aliases: ['Kompoosabilitie', 'KPB'],
+            firstAlias: 'Kompoosabilitie',
+            sourceFiles: [{ file: 'composability.md', type: 'tref' }]
+        });
+        
+        // Then, process the same tref without aliases - should update the existing entry
+        const markdownWithoutAliases = "[[tref: KERISuite, composability]]";
+        
+        allXTrefs = addNewXTrefsFromMarkdown(markdownWithoutAliases, allXTrefs, 'composability.md', processXTrefObject);
+        
+        expect(allXTrefs.xtrefs.length).toBe(1);
+        expect(allXTrefs.xtrefs[0]).toEqual({
+            externalSpec: 'KERISuite',
+            term: 'composability', 
+            aliases: [],
+            sourceFiles: [{ file: 'composability.md', type: 'tref' }]
+        });
+        
+        // Verify firstAlias property is completely removed
+        expect(allXTrefs.xtrefs[0].hasOwnProperty('firstAlias')).toBe(false);
+    });
+    
+    it('should preserve tref aliases when xref for same term is processed after tref', () => {
+        // First, process tref with aliases
+        const trefMarkdown = "[[tref: KERISuite, composability, Kompoosabilitie, KPB]]";
+        let allXTrefs = { xtrefs: [] };
+        
+        allXTrefs = addNewXTrefsFromMarkdown(trefMarkdown, allXTrefs, 'composability.md', processXTrefObject);
+        
+        // Then, process xref for same term (no aliases) - should NOT overwrite tref data
+        const xrefMarkdown = "[[xref: KERISuite, composability]]";
+        
+        allXTrefs = addNewXTrefsFromMarkdown(xrefMarkdown, allXTrefs, 'soil.md', processXTrefObject);
+        
+        expect(allXTrefs.xtrefs.length).toBe(1);
+        expect(allXTrefs.xtrefs[0]).toEqual({
+            externalSpec: 'KERISuite',
+            term: 'composability',
+            aliases: ['Kompoosabilitie', 'KPB'],  // Should be preserved from tref
+            firstAlias: 'Kompoosabilitie',        // Should be preserved from tref
+            sourceFiles: [
+                { file: 'composability.md', type: 'tref' },
+                { file: 'soil.md', type: 'xref' }
+            ]
+        });
+    });
+});
