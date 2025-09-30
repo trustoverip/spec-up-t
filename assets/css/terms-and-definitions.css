@@ -69,10 +69,44 @@ dl.terms-and-definitions-list>dt {
   /* Vertically center the content */
 }
 
-/* This adds spacing between the term text and the buttons */
+/* ====== ELLIPSIS TRUNCATION WITH HOVER EXPANSION ====== */
+/* Term text styling with ellipsis truncation and hover expansion */
 dl.terms-and-definitions-list>dt>span {
   margin-right: 1.5em;
   /* Add spacing to the right of the term text */
+  display: inline-block;
+  max-width: calc(100% - 2em);
+  /* Account for margin and potential buttons */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: white-space 0.2s ease-in-out, max-width 0.2s ease-in-out;
+  vertical-align: top;
+}
+
+/* On hover or focus (including parent dt), expand to show full content */
+dl.terms-and-definitions-list>dt>span:hover,
+dl.terms-and-definitions-list>dt>span:focus,
+dl.terms-and-definitions-list>dt:hover>span,
+dl.terms-and-definitions-list>dt:focus>span {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+  word-wrap: break-word;
+  line-height: 1.4;
+  max-width: 100%;
+  /* Allow full width when expanded */
+}
+
+/* Touch device support - also trigger on tap/touch */
+dl.terms-and-definitions-list>dt>span:active,
+dl.terms-and-definitions-list>dt:active>span {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+  word-wrap: break-word;
+  line-height: 1.4;
+  max-width: 100%;
 }
 
 
@@ -219,6 +253,8 @@ html.dense-info dl.terms-and-definitions-list>dt::before {
 html.dense-info dl.terms-and-definitions-list>dt>span {
   margin-right: 0;
   /* Remove spacing for term text */
+  max-width: 100%;
+  /* Full width in dense mode since no button spacing needed */
 }
 
 /* ====== TRANSCLUSIONS STYLING ====== */
