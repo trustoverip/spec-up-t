@@ -5,7 +5,7 @@
  * - [[def: term, alias]] - Term definitions with optional aliases
  * - [[ref: term]] - Internal term references
  * - [[xref: spec, term]] - External specification term references
- * - [[tref: spec, term, alias]] - External term references with optional aliases
+ * - [[tref: spec, term, alias1, alias2, ...]] - External term references with multiple aliases
  * 
  * The functional approach reduces cognitive complexity and makes functions easier to test
  * as they are pure functions with clear inputs and outputs.
@@ -38,9 +38,9 @@ function extractCurrentFile(token, globalState) {
  */
 function parseTemplateTag(config, globalState, token, type, primary) {
   if (!primary) return;
-  
+
   const currentFile = extractCurrentFile(token, globalState);
-  
+
   switch (type) {
     case 'def':
       return parseDef(globalState, token, primary, currentFile);
@@ -64,12 +64,12 @@ function parseTemplateTag(config, globalState, token, type, primary) {
  */
 function parseDef(globalState, token, primary, currentFile) {
   // Store definition in global state for validation and cross-referencing
-  globalState.definitions.push({ 
-    term: token.info.args[0], 
-    alias: token.info.args[1], 
-    source: currentFile 
+  globalState.definitions.push({
+    term: token.info.args[0],
+    alias: token.info.args[1],
+    source: currentFile
   });
-  
+
   // Generate HTML spans for each term/alias combination
   // This creates anchor points that can be referenced by links
   return token.info.args.reduce((acc, syn) => {
@@ -108,37 +108,64 @@ function parseXref(config, token) {
   const termName = token.info.args[1];
   const term = termName.replace(whitespace.oneOrMore, '-').toLowerCase();
   const xrefTerm = lookupXrefTerm(token.info.args[0], term);
-  
+
   // Build link attributes with both local and external href capabilities
   let linkAttributes = `class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}" href="${url}#term:${term}"`;
-  
+
   // Add tooltip content if term definition is available
   if (xrefTerm && xrefTerm.content) {
     const cleanContent = xrefTerm.content.replace(contentCleaning.quotes, '&quot;').replace(contentCleaning.newlines, ' ');
     linkAttributes += ` title="External term definition" data-term-content="${cleanContent}"`;
   }
-  
+
   return `<a ${linkAttributes}>${termName}</a>`;
 }
 
 /**
- * Processes [[tref: spec, term, alias]] constructs
- * Creates external term references with optional display aliases
+ * Processes [[tref: spec, term, alias, ...]] constructs
+ * Creates external term references with multiple aliases displayed in a readable format
+ * Format: "Primary Alias (alias1, alias2, original-term)"
  * @param {Object} token - The markdown-it token
  * @returns {string} HTML span element for external term reference
  */
 function parseTref(token) {
   const termName = token.info.args[1];
-  const alias = token.info.args[2];
-  const publishedTermName = alias ? alias : termName;
+  const aliases = token.info.args.slice(2).filter(Boolean); // Get all aliases after the term
+
+  // Determine the primary display term (first alias if available, otherwise original term)
+  const primaryDisplayTerm = aliases.length > 0 ? aliases[0] : termName;
+
+  // Build the display text format: "Primary (alias1, alias2, original-term)"
+  let displayText = primaryDisplayTerm;
+
+  if (aliases.length > 0) {
+    // Collect all additional terms to show in parentheses
+    const parentheticalTerms = [];
+
+    // Add remaining aliases (after the first one used as primary)
+    if (aliases.length > 1) {
+      parentheticalTerms.push(...aliases.slice(1));
+    }
+
+    // Add original term if it's different from the primary display term
+    if (termName !== primaryDisplayTerm) {
+      parentheticalTerms.push(termName);
+    }
+
+    // Append parenthetical terms if any exist
+    if (parentheticalTerms.length > 0) {
+      displayText += ` (${parentheticalTerms.join(', ')})`;
+    }
+  }
+
   const termId = `term:${termName.replace(whitespace.oneOrMore, '-').toLowerCase()}`;
-  const aliasId = alias ? `term:${alias.replace(whitespace.oneOrMore, '-').toLowerCase()}` : '';
-  
-  // Handle cases where alias differs from the original term name
-  if (aliasId && alias !== termName) {
-    return `<span data-original-term="${termName}" class="term-external" id="${termId}"><span title="Externally defined as ${termName}" id="${aliasId}">${publishedTermName}</span></span>`;
+  const primaryAliasId = aliases.length > 0 ? `term:${aliases[0].replace(whitespace.oneOrMore, '-').toLowerCase()}` : '';
+
+  // Handle cases where we have aliases
+  if (aliases.length > 0 && aliases[0] !== termName) {
+    return `<span data-original-term="${termName}" class="term-external" id="${termId}"><span title="Externally defined as ${termName}" id="${primaryAliasId}">${displayText}</span></span>`;
   } else {
-    return `<span title="Externally also defined as ${termName}" data-original-term="${termName}" class="term-external" id="${termId}">${publishedTermName}</span>`;
+    return `<span title="Externally also defined as ${termName}" data-original-term="${termName}" class="term-external" id="${termId}">${displayText}</span>`;
   }
 }
 

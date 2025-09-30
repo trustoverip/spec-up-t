@@ -13,8 +13,8 @@ const {
 
 // Import functions directly from their modules since they're not exported through index
 const {
-  parseDefinition,
-  parseReference
+  parseDef,
+  parseRef
 } = require('../src/parsers/template-tag-parser');
 
 const {
@@ -64,7 +64,7 @@ describe('Functional Parser Integration Tests', () => {
         info: { args: ['test-term', 'alias'] }
       };
 
-      const result = parseDefinition(mockGlobal, mockToken, 'Test Term', 'test.md');
+      const result = parseDef(mockGlobal, mockToken, 'Test Term', 'test.md');
 
       expect(result).toContain('id="term:test-term"');
       expect(result).toContain('id="term:alias"');
@@ -77,7 +77,7 @@ describe('Functional Parser Integration Tests', () => {
     });
 
     test('should parse reference correctly', () => {
-      const result = parseReference(mockGlobal, 'test-term');
+      const result = parseRef(mockGlobal, 'test-term');
 
       expect(result).toContain('href="#term:test-term"');
       expect(result).toContain('class="term-reference"');
@@ -171,7 +171,7 @@ describe('Functional Parser Integration Tests', () => {
       const testGlobal = { definitions: [], references: [] };
       const testToken = { info: { args: ['pure-test'] } };
       
-      const result = parseDefinition(testGlobal, testToken, 'Pure Test', 'test.md');
+      const result = parseDef(testGlobal, testToken, 'Pure Test', 'test.md');
       
       expect(result).toContain('id="term:pure-test"');
       expect(testGlobal.definitions).toHaveLength(1);
@@ -191,8 +191,8 @@ describe('Functional Parser Integration Tests', () => {
 
     test('individual functions should be importable', () => {
       // Test that individual functions can be imported and used
-      expect(typeof parseDefinition).toBe('function');
-      expect(typeof parseReference).toBe('function');
+      expect(typeof parseDef).toBe('function');
+      expect(typeof parseRef).toBe('function');
       expect(typeof hasSpec).toBe('function');
     });
   });
