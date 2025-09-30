@@ -13,8 +13,8 @@ const {
 
 // Import functions directly from their modules since they're not exported through index
 const {
-  parseDefinition,
-  parseReference
+  parseDef,
+  parseRef
 } = require('../src/parsers/template-tag-parser');
 
 const {
@@ -23,6 +23,7 @@ const {
   hasSpec
 } = require('../src/parsers/spec-parser');
 
+// Tests for verifying the refactored functional parser system works correctly
 describe('Functional Parser Integration Tests', () => {
   let mockConfig, mockGlobal, mockSpecCorpus;
 
@@ -58,13 +59,15 @@ describe('Functional Parser Integration Tests', () => {
     global.noticeTitles = mockGlobal.noticeTitles;
   });
 
+  // Tests for parsing definition and reference template tags
   describe('Template Tag Parsing Functions', () => {
+    // Test: Can the system parse definition markup into proper HTML?
     test('should parse definition correctly', () => {
       const mockToken = {
         info: { args: ['test-term', 'alias'] }
       };
 
-      const result = parseDefinition(mockGlobal, mockToken, 'Test Term', 'test.md');
+      const result = parseDef(mockGlobal, mockToken, 'Test Term', 'test.md');
 
       expect(result).toContain('id="term:test-term"');
       expect(result).toContain('id="term:alias"');
@@ -76,14 +79,16 @@ describe('Functional Parser Integration Tests', () => {
       });
     });
 
+    // Test: Can the system parse reference markup into proper links?
     test('should parse reference correctly', () => {
-      const result = parseReference(mockGlobal, 'test-term');
+      const result = parseRef(mockGlobal, 'test-term');
 
       expect(result).toContain('href="#term:test-term"');
       expect(result).toContain('class="term-reference"');
       expect(mockGlobal.references).toContain('test-term');
     });
 
+    // Test: Does the parser factory create functional parsers?
     test('createTemplateTagParser should return a working function', () => {
       const templateTagParser = createTemplateTagParser(mockConfig, mockGlobal);
       
@@ -98,7 +103,9 @@ describe('Functional Parser Integration Tests', () => {
     });
   });
 
+  // Tests for parsing external specification references
   describe('Specification Parsing Functions', () => {
+    // Test: Can the system parse specification references properly?
     test('should parse spec reference correctly', () => {
       const mockToken = { info: {} };
 
@@ -109,6 +116,7 @@ describe('Functional Parser Integration Tests', () => {
       expect(mockToken.info.spec).toBeDefined();
     });
 
+    // Test: Can the system render individual spec references as HTML?
     test('should render individual spec correctly', () => {
       const mockToken = {
         info: {
@@ -126,11 +134,13 @@ describe('Functional Parser Integration Tests', () => {
       expect(result).toContain('RFC-2119');
     });
 
+    // Test: Can the system determine if a specification exists?
     test('should check if spec exists', () => {
       expect(hasSpec(mockSpecCorpus, 'RFC-2119')).toBe(true);
       expect(hasSpec(mockSpecCorpus, 'nonexistent-spec')).toBe(false);
     });
 
+    // Test: Does the spec parser factory create functional parsers?
     test('createSpecParser should return a working parser object', () => {
       const specParser = createSpecParser(mockSpecCorpus, mockGlobal);
       
@@ -142,7 +152,9 @@ describe('Functional Parser Integration Tests', () => {
     });
   });
 
+  // Tests for integrating the functional parser system with markdown processing
   describe('Markdown Parser Integration', () => {
+    // Test: Can the system create a markdown parser using the functional approach?
     test('should create parser with functional system', () => {
       const mockSetToc = jest.fn();
       const parser = createMarkdownParser(mockConfig, mockSetToc);
@@ -151,6 +163,7 @@ describe('Functional Parser Integration Tests', () => {
       expect(parser.render).toBeDefined();
     });
 
+    // Test: Does the refactored system maintain compatibility with existing markdown processing?
     test('should maintain backward compatibility', () => {
       const mockSetToc = jest.fn();
       const parser = createMarkdownParser(mockConfig, mockSetToc);
@@ -165,19 +178,22 @@ describe('Functional Parser Integration Tests', () => {
     });
   });
 
+  // Tests verifying the benefits of the functional programming approach
   describe('Functional Benefits', () => {
+    // Test: Are the functions pure and independently testable?
     test('functions should be pure and testable', () => {
       // Test that pure functions work independently
       const testGlobal = { definitions: [], references: [] };
       const testToken = { info: { args: ['pure-test'] } };
       
-      const result = parseDefinition(testGlobal, testToken, 'Pure Test', 'test.md');
+      const result = parseDef(testGlobal, testToken, 'Pure Test', 'test.md');
       
       expect(result).toContain('id="term:pure-test"');
       expect(testGlobal.definitions).toHaveLength(1);
       expect(mockGlobal.definitions).toHaveLength(0); // Original should be unchanged
     });
 
+    // Test: Can the functions be combined and used together effectively?
     test('functions should compose well', () => {
       // Test that functions can be used in different combinations
       const templateTagParser = createTemplateTagParser(mockConfig, mockGlobal);
@@ -189,10 +205,11 @@ describe('Functional Parser Integration Tests', () => {
       expect(typeof specParser.parseSpecReference).toBe('function');
     });
 
+    // Test: Can individual functions be imported and used separately?
     test('individual functions should be importable', () => {
       // Test that individual functions can be imported and used
-      expect(typeof parseDefinition).toBe('function');
-      expect(typeof parseReference).toBe('function');
+      expect(typeof parseDef).toBe('function');
+      expect(typeof parseRef).toBe('function');
       expect(typeof hasSpec).toBe('function');
     });
   });

@@ -41,26 +41,27 @@ function initializeTerminologyUtilityContainer() {
     /*************************************************/
 
     /* ===== ROW 1: ALPHABET INDEX ===== */
-    const alphabetRow = document.createElement("div");
-    alphabetRow.className = "row mb-2";
-    
-    const alphabetCol = document.createElement("div");
-    alphabetCol.className = "col-12";
-    
-    const alphabetIndexContainer = document.createElement("div");
-    alphabetIndexContainer.className = "d-flex flex-wrap justify-content-center gap-2";
+    // ALPHABET INDEX TEMPORARILY DISABLED
+    // const alphabetRow = document.createElement("div");
+    // alphabetRow.className = "row mb-2";
+    // 
+    // const alphabetCol = document.createElement("div");
+    // alphabetCol.className = "col-12";
+    // 
+    // const alphabetIndexContainer = document.createElement("div");
+    // alphabetIndexContainer.className = "d-flex flex-wrap justify-content-center gap-2";
 
-    // Create alphabet links
-    Object.keys(alphabetIndex).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).forEach(char => {
-        const link = document.createElement("a");
-        link.href = `#${alphabetIndex[char]}`;
-        link.textContent = char;
-        link.className = "btn btn-outline-secondary btn-sm";
-        alphabetIndexContainer.appendChild(link);
-    });
+    // // Create alphabet links
+    // Object.keys(alphabetIndex).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).forEach(char => {
+    //     const link = document.createElement("a");
+    //     link.href = `#${alphabetIndex[char]}`;
+    //     link.textContent = char;
+    //     link.className = "btn btn-outline-secondary btn-sm";
+    //     alphabetIndexContainer.appendChild(link);
+    // });
 
-    alphabetCol.appendChild(alphabetIndexContainer);
-    alphabetRow.appendChild(alphabetCol);
+    // alphabetCol.appendChild(alphabetIndexContainer);
+    // alphabetRow.appendChild(alphabetCol);
 
     /* ===== ROW 2: UTILITIES (TERM COUNT + FILTERS + SEARCH) ===== */
     const utilityRow = document.createElement("div");
@@ -104,6 +105,14 @@ function initializeTerminologyUtilityContainer() {
     checkboxesContainer.appendChild(localTermsCheckboxDiv);
     checkboxesContainer.appendChild(externalTermsCheckboxDiv);
     leftCol.appendChild(checkboxesContainer);
+
+    // Snapshot link
+    const snapshotLink = document.createElement('a');
+    snapshotLink.id = 'snapshotLinkInContent';
+    snapshotLink.className = 'btn btn-outline-primary';
+    snapshotLink.href = './versions/';
+    snapshotLink.textContent = 'Versions';
+    leftCol.appendChild(snapshotLink);
 
     // Right column: Search
     const rightCol = document.createElement("div");
@@ -167,7 +176,8 @@ function initializeTerminologyUtilityContainer() {
     utilityRow.appendChild(rightCol);
 
     /* ===== ASSEMBLE COMPLETE STRUCTURE ===== */
-    terminologySectionUtilityContainer.appendChild(alphabetRow);
+    // ALPHABET INDEX TEMPORARILY DISABLED
+    // terminologySectionUtilityContainer.appendChild(alphabetRow);
     terminologySectionUtilityContainer.appendChild(utilityRow);
 
     /*****************************************/
@@ -175,7 +185,8 @@ function initializeTerminologyUtilityContainer() {
     /*****************************************/
 
     // Initialize functionalities (these will attach to the DOM elements we just created)
-    attachAlphabetIndexFunctionality();
+    // ALPHABET INDEX TEMPORARILY DISABLED
+    // attachAlphabetIndexFunctionality();
     attachTermFilterFunctionality(checkboxesContainer);
     attachSearchFunctionality(searchInput, goToPreviousMatchButton, goToNextMatchButton, totalMatchesSpan);
 }
