@@ -1,3 +1,7 @@
-.tref-alias {
-    margin-right: 0.5em;
+.term-external-original-term {
+    font-style: italic;
+}
+
+.term-external-parenthetical-terms {
+    font-weight: normal;
 }

@@ -145,21 +145,21 @@ function parseTref(token) {
 
   if (aliases.length > 0) {
     // Collect all additional terms to show in parentheses
-    const parentheticalTerms = [];
+    const parentheticalContent = [];
 
     // Add remaining aliases (after the first one used as primary)
     if (aliases.length > 1) {
-      parentheticalTerms.push(...aliases.slice(1));
+      parentheticalContent.push(...aliases.slice(1));
     }
 
     // Add original term if it's different from the primary display term
     if (termName !== primaryDisplayTerm) {
-      parentheticalTerms.push(termName);
+      parentheticalContent.push(`<span class='term-external-original-term' title='original term'>${termName}</span>`);
     }
 
     // Append parenthetical terms if any exist
-    if (parentheticalTerms.length > 0) {
-      displayText += ` (${parentheticalTerms.join(', ')})`;
+    if (parentheticalContent.length > 0) {
+      displayText += ` <span class='term-external-parenthetical-terms'>(${parentheticalContent.join(', ')})</span>`;
     }
   }
 
