@@ -54,8 +54,9 @@ function parseTemplateTag(config, globalState, token, type, primary) {
 }
 
 /**
- * Processes [[def: term, alias]] constructs
+ * Processes [[def: term, alias1, alias2, ...]] constructs
  * Creates definition entries and generates HTML spans with proper IDs
+ * Format: "Primary Alias (alias2, alias3, original-term)" similar to tref
  * @param {Object} globalState - Global state to store definitions
  * @param {Object} token - The markdown-it token
  * @param {string} primary - The primary term content
@@ -63,20 +64,50 @@ function parseTemplateTag(config, globalState, token, type, primary) {
  * @returns {string} HTML span elements with term IDs
  */
 function parseDef(globalState, token, primary, currentFile) {
+  const termName = token.info.args[0];
+  const aliases = token.info.args.slice(1).filter(Boolean); // Get all aliases after the term
+
   // Store definition in global state for validation and cross-referencing
   globalState.definitions.push({
-    term: token.info.args[0],
-    alias: token.info.args[1],
+    term: termName,
+    alias: aliases[0] || null, // First alias, or null if no aliases
     source: currentFile
   });
 
+  // Determine the primary display term (first alias if available, otherwise original term)
+  const primaryDisplayTerm = aliases.length > 0 ? aliases[0] : termName;
+
+  // Build the display text format: "Primary (alias1, alias2, original-term)"
+  let displayText = primaryDisplayTerm;
+
+  if (aliases.length > 0) {
+    // Collect all additional terms to show in parentheses
+    const parentheticalContent = [];
+
+    // Add remaining aliases (after the first one used as primary)
+    if (aliases.length > 1) {
+      parentheticalContent.push(...aliases.slice(1));
+    }
+
+    // Add original term if it's different from the primary display term
+    if (termName !== primaryDisplayTerm) {
+      parentheticalContent.push(`<span class='term-local-original-term' title='original term'>${termName}</span>`);
+    }
+
+    // Append parenthetical terms if any exist
+    if (parentheticalContent.length > 0) {
+      displayText += ` <span class='term-local-parenthetical-terms'>(${parentheticalContent.join(', ')})</span>`;
+    }
+  }
+
   // Generate HTML spans for each term/alias combination
   // This creates anchor points that can be referenced by links
+  // IDs stay intact - we create an ID for the original term and each alias
   return token.info.args.reduce((acc, syn) => {
     // Generate a unique term ID by normalizing the synonym: replace whitespace with hyphens and convert to lowercase. The ID is used for fragment identifier (hash) in the URL, which in turn can be used for an anchor in a web page.
     const termId = `term:${syn.replace(whitespace.oneOrMore, '-').toLowerCase()}`;
     return `<span id="${termId}">${acc}</span>`;
-  }, primary);
+  }, displayText);
 }
 
 /**
