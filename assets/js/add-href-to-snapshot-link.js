@@ -23,7 +23,7 @@ function addHrefToSnapshotLink() {
    let snapshotLinkHref;
    if (versionsMatch) {
       // If we are already in the 'versions' directory or deeper, strip down to 'versions/'
-      snapshotLinkHref = `${versionsMatch[1]}/versions/`;
+      snapshotLinkHref = `${versionsMatch[1]}/versions/index.html`;
    } else {
       // Clean up the URL: remove index.html, remove trailing slashes, remove any existing /versions/ suffixes
       let cleanUrl = urlWithoutParams
@@ -32,7 +32,7 @@ function addHrefToSnapshotLink() {
          .replace(/\/versions+$/, ''); // Remove any trailing /versions (including multiple)
 
       // Append '/versions/' to the current directory
-      snapshotLinkHref = cleanUrl + '/versions/';
+      snapshotLinkHref = cleanUrl + '/versions/index.html';
    }
 
    // Set the 'href' attribute of the snapshot link element to the constructed URL
