@@ -114,7 +114,8 @@ function initializeTerminologyUtilityContainer() {
     const snapshotLink = document.createElement('a');
     snapshotLink.id = 'snapshotLinkInContent';
     snapshotLink.className = 'btn btn-outline-primary btn-sm';
-    snapshotLink.href = './versions/';
+    // snapshotLink.href = './versions/';
+    snapshotLink.href = '#';
     snapshotLink.textContent = 'Versions';
     centerCol.appendChild(snapshotLink);
 
