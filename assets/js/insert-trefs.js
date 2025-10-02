@@ -116,10 +116,14 @@ function insertTrefs(allXTrefs) {
                .replace(/\]\]/g, '');
 
             // Clean up the markdown content in the term definition
-            // Part B: Remove all <a> elements from the content via a temporary div and DOM manipulation
+            // Part B: Remove internal <a> elements from the content via a temporary div and DOM manipulation
             const tempDivForLinks = document.createElement('div');
             tempDivForLinks.innerHTML = md.render(content);
-            tempDivForLinks.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+            tempDivForLinks.querySelectorAll('a').forEach(a => {
+                if (!a.href.startsWith('http://') && !a.href.startsWith('https://')) {
+                    a.replaceWith(...a.childNodes);
+                }
+            });
             content = tempDivForLinks.innerHTML;
 
             // Parse the rendered HTML to check for dd elements. xref.content is a string that contains HTML, in the form of <dd>...</dd>'s
