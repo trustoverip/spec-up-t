@@ -120,7 +120,13 @@ function insertTrefs(allXTrefs) {
             const tempDivForLinks = document.createElement('div');
             tempDivForLinks.innerHTML = md.render(content);
             tempDivForLinks.querySelectorAll('a').forEach(a => {
-                if (!a.href.startsWith('http://') && !a.href.startsWith('https://')) {
+                try {
+                    const url = new URL(a.href);
+                    if (url.hostname === window.location.hostname) {
+                        a.replaceWith(...a.childNodes);
+                    }
+                } catch (e) {
+                    // Invalid URL (e.g., relative links), treat as internal and remove
                     a.replaceWith(...a.childNodes);
                 }
             });
