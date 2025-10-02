@@ -17,7 +17,7 @@
 function createToggleButton(element) {
     const toggleButton = document.createElement('button');
     toggleButton.classList.add('meta-info-toggle-button', 'btn', 'fs-1', 'd-flex', 'align-items-center','justify-content-center');
-    toggleButton.innerHTML = '<i class="bi bi-info-circle"></i>';
+    toggleButton.innerHTML = '<i class="bi bi-info-circle" style="margin-top: -0.5em;"></i>';
     toggleButton.title = 'Meta info';
 
     // Add event listener to the button
