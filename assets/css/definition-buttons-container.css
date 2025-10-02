@@ -1,0 +1,36 @@
+/**
+ * @fileoverview Styles for the definition buttons container that holds both
+ * the meta-info toggle button and the collapse-all-definitions button.
+ * @author Kor Dwarshuis
+ * @version 1.0.0
+ * @since 2025-10-02
+ * @description This CSS file provides the styling for a container that groups
+ * multiple control buttons in definition list terms (dt elements). The container
+ * uses flexbox to align buttons horizontally with appropriate spacing.
+ */
+
+/**
+ * Container that holds both definition control buttons.
+ * Uses flexbox for proper alignment and spacing of child buttons.
+ * Positioned to the right side of the definition term.
+ */
+.definition-buttons-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  float: right;
+  position: relative;
+  z-index: 5;
+}
+
+/**
+ * Remove individual float from buttons since the container handles positioning.
+ * This prevents conflicts between multiple float declarations.
+ */
+.definition-buttons-container .collapse-all-defs-button {
+  float: none;
+}
+
+.definition-buttons-container .meta-info-toggle-button {
+  float: none;
+}

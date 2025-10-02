@@ -287,10 +287,6 @@ dl.terms-and-definitions-list>dd.term-local {
   /* Higher z-index for all buttons */
 }
 
-.collapse-all-defs-button {
-  float: right;
-}
-
 .transclusion-heading {
   font-size: 1.3em;
   font-weight: bold;
