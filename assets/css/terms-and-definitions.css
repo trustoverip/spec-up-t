@@ -65,26 +65,31 @@ dl.terms-and-definitions-list>dt {
   /* Improve line spacing */
   font-size: 1.05em;
   /* Slightly larger font for better hierarchy */
+  /* Use flexbox for proper layout of term text and button container */
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  /* Vertically center the content */
+  gap: 0.5rem;
+  /* Space between term text and buttons */
+  min-height: 2.5rem;
+  /* Ensure minimum height for buttons */
 }
 
 /* ====== ELLIPSIS TRUNCATION WITH HOVER EXPANSION ====== */
 /* Term text styling with ellipsis truncation and hover expansion */
 dl.terms-and-definitions-list>dt>span {
-  margin-right: 1.5em;
-  /* Add spacing to the right of the term text */
-  display: inline-block;
-  max-width: calc(100% - 2em);
-  /* Account for margin and potential buttons */
+  /* Flex item that grows to fill available space */
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Allow flex item to shrink below content size */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: white-space 0.2s ease-in-out, max-width 0.2s ease-in-out;
-  vertical-align: top;
+  transition: all 0.2s ease-in-out;
 }
 
 /* On hover or focus (including parent dt), expand to show full content */
+/* The term will expand naturally and wrap if needed, buttons will only wrap if necessary */
 dl.terms-and-definitions-list>dt>span:hover,
 dl.terms-and-definitions-list>dt>span:focus,
 dl.terms-and-definitions-list>dt:hover>span,
@@ -94,8 +99,8 @@ dl.terms-and-definitions-list>dt:focus>span {
   text-overflow: initial;
   word-wrap: break-word;
   line-height: 1.4;
-  max-width: 100%;
-  /* Allow full width when expanded */
+  /* Don't force full width - let it expand naturally */
+  /* Buttons will only wrap if the expanded text actually needs more space */
 }
 
 /* Touch device support - also trigger on tap/touch */
@@ -106,7 +111,6 @@ dl.terms-and-definitions-list>dt:active>span {
   text-overflow: initial;
   word-wrap: break-word;
   line-height: 1.4;
-  max-width: 100%;
 }
 
 
@@ -235,10 +239,11 @@ dl.terms-and-definitions-list dd.last-dd {
 /* Apply original, more condensed styling when the html element has class "dense-info" */
 html.dense-info dl.terms-and-definitions-list>dt {
   padding: 0.1rem 1.25rem;
-  display: block;
-  /* Revert from flexbox to block */
+  /* Keep flexbox for consistent layout, just reduce padding */
   line-height: inherit;
   font-size: inherit;
+  min-height: auto;
+  /* Remove minimum height in dense mode */
 }
 
 html.dense-info dl.terms-and-definitions-list dd+dt {
@@ -251,10 +256,9 @@ html.dense-info dl.terms-and-definitions-list>dt::before {
 }
 
 html.dense-info dl.terms-and-definitions-list>dt>span {
-  margin-right: 0;
-  /* Remove spacing for term text */
-  max-width: 100%;
-  /* Full width in dense mode since no button spacing needed */
+  /* Keep flex properties for consistent behavior */
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* ====== TRANSCLUSIONS STYLING ====== */
