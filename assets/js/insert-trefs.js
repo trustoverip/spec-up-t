@@ -122,11 +122,24 @@ function insertTrefs(allXTrefs) {
             tempDivForLinks.querySelectorAll('a').forEach(a => {
                 try {
                     const url = new URL(a.href);
-                    if (url.hostname === window.location.hostname) {
-                        a.replaceWith(...a.childNodes);
+                    if (url.hostname !== window.location.hostname) {
+                        // Different domain, keep
+                        return;
                     }
+                    // Same domain
+                    if (url.hash && document.querySelector(url.hash)) {
+                        // Hash exists locally, keep
+                        return;
+                    }
+                    // Same domain but no valid hash, remove
+                    a.replaceWith(...a.childNodes);
                 } catch (e) {
-                    // Invalid URL (e.g., relative links), treat as internal and remove
+                    // Invalid URL, check if it's a local hash
+                    if (a.href.startsWith('#') && document.querySelector(a.href)) {
+                        // Local hash, keep
+                        return;
+                    }
+                    // Not a valid local hash, remove
                     a.replaceWith(...a.childNodes);
                 }
             });
