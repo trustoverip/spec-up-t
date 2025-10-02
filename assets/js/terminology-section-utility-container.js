@@ -112,7 +112,7 @@ function initializeTerminologyUtilityContainer() {
 
     // Snapshot link
     const snapshotLink = document.createElement('a');
-    snapshotLink.id = 'snapshotLinkInContent';
+    snapshotLink.id = 'snapshot-link-in-content';
     snapshotLink.className = 'btn btn-outline-primary btn-sm';
     // snapshotLink.href = './versions/';
     snapshotLink.href = '#';
