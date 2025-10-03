@@ -21,7 +21,7 @@ function handle_choice() {
         echo "  ${options[index]}"
         echo -e "  ************************************\n\n"
         show_progress
-        ${options[index + 1]}
+        "${options[index + 1]}"
     else
         clear
         echo -e "\n\n  ************************************"
