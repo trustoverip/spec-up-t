@@ -116,32 +116,32 @@ function insertTrefs(allXTrefs) {
                .replace(/\]\]/g, '');
 
             // Clean up the markdown content in the term definition
-            // Part B: Remove internal <a> elements from the content via a temporary div and DOM manipulation
+            // Part B: Remove some <a> elements from the content. We can turn the fact that the inserted URLs are relative (which previously seemed to be a disadvantage) into an advantage, since the fact that the URL then points to a possible local variant is actually an advantage. To this end, if the local variant does indeed exist, we leave the link intact.
             const tempDivForLinks = document.createElement('div');
             tempDivForLinks.innerHTML = md.render(content);
             tempDivForLinks.querySelectorAll('a').forEach(a => {
-                try {
-                    const url = new URL(a.href);
-                    if (url.hostname !== window.location.hostname) {
-                        // Different domain, keep
-                        return;
-                    }
-                    // Same domain
-                    if (url.hash && document.querySelector(url.hash)) {
-                        // Hash exists locally, keep
-                        return;
-                    }
-                    // Same domain but no valid hash, remove
+               try {
+                  const url = new URL(a.href);
+                  if (url.hostname !== window.location.hostname) {
+                     // Different domain, keep
+                     return;
+                  }
+                  // Same domain
+                  if (url.hash && document.getElementById(url.hash.slice(1))) {
+                     // Hash exists locally, keep
+                     return;
+                  }
+                  // Same domain but no valid hash, remove
                     a.replaceWith(...a.childNodes);
-                } catch (e) {
-                    // Invalid URL, check if it's a local hash
-                    if (a.href.startsWith('#') && document.querySelector(a.href)) {
-                        // Local hash, keep
-                        return;
-                    }
-                    // Not a valid local hash, remove
+               } catch (e) {
+                  // Invalid URL, check if it's a local hash
+                  if (a.href.startsWith('#') && document.getElementById(a.href.slice(1))) {
+                     // Local hash, keep
+                     return;
+                  }
+                  // Not a valid local hash, remove
                     a.replaceWith(...a.childNodes);
-                }
+               }
             });
             content = tempDivForLinks.innerHTML;
 
