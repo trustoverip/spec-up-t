@@ -15,6 +15,7 @@
       "assets/css/backToTop.css",
       "assets/css/notyf.css",
       "assets/css/collapse-definitions.css",
+      "assets/css/definition-buttons-container.css",
       "assets/css/create-term-filter.css",
       "assets/css/modal.css",
       "assets/css/create-alphabet-index.css",
@@ -28,7 +29,7 @@
       "assets/css/horizontal-scroll-hint.css",
       "assets/css/highlight-heading-plus-sibling-nodes.css",
       "assets/css/counter.css",
-      "assets/css/snapshots.css",
+      "assets/css/insert-trefs.css",
       "assets/css/index.css"
     ],
     "js": [
@@ -65,6 +66,7 @@
       "assets/js/token-input.js",
       "assets/js/download-pdf-docx.js",
       "assets/js/insert-trefs.js",
+      "assets/js/definition-button-container-utils.js",
       "assets/js/collapse-definitions.js",
       "assets/js/collapse-meta-info.js",
       "assets/js/fix-last-dd.js",

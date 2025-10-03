@@ -41,41 +41,46 @@ function initializeTerminologyUtilityContainer() {
     /*************************************************/
 
     /* ===== ROW 1: ALPHABET INDEX ===== */
-    const alphabetRow = document.createElement("div");
-    alphabetRow.className = "row mb-2";
-    
-    const alphabetCol = document.createElement("div");
-    alphabetCol.className = "col-12";
-    
-    const alphabetIndexContainer = document.createElement("div");
-    alphabetIndexContainer.className = "d-flex flex-wrap justify-content-center gap-2";
+    // ALPHABET INDEX TEMPORARILY DISABLED
+    // const alphabetRow = document.createElement("div");
+    // alphabetRow.className = "row mb-2";
+    // 
+    // const alphabetCol = document.createElement("div");
+    // alphabetCol.className = "col-12";
+    // 
+    // const alphabetIndexContainer = document.createElement("div");
+    // alphabetIndexContainer.className = "d-flex flex-wrap justify-content-center gap-2";
 
-    // Create alphabet links
-    Object.keys(alphabetIndex).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).forEach(char => {
-        const link = document.createElement("a");
-        link.href = `#${alphabetIndex[char]}`;
-        link.textContent = char;
-        link.className = "btn btn-outline-secondary btn-sm";
-        alphabetIndexContainer.appendChild(link);
-    });
+    // // Create alphabet links
+    // Object.keys(alphabetIndex).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).forEach(char => {
+    //     const link = document.createElement("a");
+    //     link.href = `#${alphabetIndex[char]}`;
+    //     link.textContent = char;
+    //     link.className = "btn btn-outline-secondary btn-sm";
+    //     alphabetIndexContainer.appendChild(link);
+    // });
 
-    alphabetCol.appendChild(alphabetIndexContainer);
-    alphabetRow.appendChild(alphabetCol);
+    // alphabetCol.appendChild(alphabetIndexContainer);
+    // alphabetRow.appendChild(alphabetCol);
 
     /* ===== ROW 2: UTILITIES (TERM COUNT + FILTERS + SEARCH) ===== */
     const utilityRow = document.createElement("div");
-    utilityRow.className = "row";
+    utilityRow.className = "row g-2";
     utilityRow.id = "utility-row";
     
-    // Left column: Term count and filters
+    // Left column: Term count
     const leftCol = document.createElement("div");
-    leftCol.className = "col-md-6 d-flex flex-wrap align-items-center gap-3";
+    leftCol.className = "col-auto d-flex align-items-center";
 
     // Term count
     const numberOfTerms = document.createElement("small");
     numberOfTerms.className = "text-muted mb-0";
     numberOfTerms.textContent = `${dtElements.length} terms`;
     leftCol.appendChild(numberOfTerms);
+
+    // Center column: Filters and Versions button
+    const centerCol = document.createElement("div");
+    centerCol.className = "col d-flex flex-wrap align-items-center gap-3";
 
     // Filter checkboxes container
     const checkboxesContainer = document.createElement('div');
@@ -103,11 +108,20 @@ function initializeTerminologyUtilityContainer() {
     
     checkboxesContainer.appendChild(localTermsCheckboxDiv);
     checkboxesContainer.appendChild(externalTermsCheckboxDiv);
-    leftCol.appendChild(checkboxesContainer);
+    centerCol.appendChild(checkboxesContainer);
+
+    // Snapshot link
+    const snapshotLink = document.createElement('a');
+    snapshotLink.id = 'snapshot-link-in-content';
+    snapshotLink.className = 'btn btn-outline-primary btn-sm';
+    // snapshotLink.href = './versions/';
+    snapshotLink.href = '#';
+    snapshotLink.textContent = 'Versions';
+    centerCol.appendChild(snapshotLink);
 
     // Right column: Search
     const rightCol = document.createElement("div");
-    rightCol.className = "col-md-6 d-flex justify-content-end";
+    rightCol.className = "col-auto d-flex justify-content-end";
 
     // Search container
     const searchContainer = document.createElement("div");
@@ -164,10 +178,12 @@ function initializeTerminologyUtilityContainer() {
     rightCol.appendChild(searchContainer);
 
     utilityRow.appendChild(leftCol);
+    utilityRow.appendChild(centerCol);
     utilityRow.appendChild(rightCol);
 
     /* ===== ASSEMBLE COMPLETE STRUCTURE ===== */
-    terminologySectionUtilityContainer.appendChild(alphabetRow);
+    // ALPHABET INDEX TEMPORARILY DISABLED
+    // terminologySectionUtilityContainer.appendChild(alphabetRow);
     terminologySectionUtilityContainer.appendChild(utilityRow);
 
     /*****************************************/
@@ -175,7 +191,8 @@ function initializeTerminologyUtilityContainer() {
     /*****************************************/
 
     // Initialize functionalities (these will attach to the DOM elements we just created)
-    attachAlphabetIndexFunctionality();
+    // ALPHABET INDEX TEMPORARILY DISABLED
+    // attachAlphabetIndexFunctionality();
     attachTermFilterFunctionality(checkboxesContainer);
     attachSearchFunctionality(searchInput, goToPreviousMatchButton, goToNextMatchButton, totalMatchesSpan);
 }
