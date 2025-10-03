@@ -120,27 +120,39 @@ function insertTrefs(allXTrefs) {
             const tempDivForLinks = document.createElement('div');
             tempDivForLinks.innerHTML = md.render(content);
             tempDivForLinks.querySelectorAll('a').forEach(a => {
+               // Helper function to safely check if an element exists by ID
+               // This handles IDs with special characters (like colons) that are invalid in CSS selectors
+               const elementExistsById = (id) => {
+                  try {
+                     return document.getElementById(id) !== null;
+                  } catch {
+                     return false;
+                  }
+               };
+
                try {
                   const url = new URL(a.href);
+                  
+                  // Keep links to different domains
                   if (url.hostname !== window.location.hostname) {
-                     // Different domain, keep
                      return;
                   }
-                  // Same domain
-                  if (url.hash && document.getElementById(url.hash.slice(1))) {
-                     // Hash exists locally, keep
+                  
+                  // Keep links with valid local hash anchors
+                  if (url.hash && elementExistsById(url.hash.slice(1))) {
                      return;
                   }
-                  // Same domain but no valid hash, remove
-                    a.replaceWith(...a.childNodes);
-               } catch (e) {
-                  // Invalid URL, check if it's a local hash
-                  if (a.href.startsWith('#') && document.getElementById(a.href.slice(1))) {
-                     // Local hash, keep
+                  
+                  // Remove links to same domain without valid hash
+                  a.replaceWith(...a.childNodes);
+               } catch {
+                  // Handle relative URLs or invalid URL formats
+                  if (a.href.startsWith('#') && elementExistsById(a.href.slice(1))) {
                      return;
                   }
-                  // Not a valid local hash, remove
-                    a.replaceWith(...a.childNodes);
+                  
+                  // Remove invalid or non-local links
+                  a.replaceWith(...a.childNodes);
                }
             });
             content = tempDivForLinks.innerHTML;
