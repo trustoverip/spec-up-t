@@ -20,7 +20,7 @@ const {
   whitespace,
   urls,
   utils
-} = require('../src/utils/regex-patterns');
+} = require('./regex-patterns');
 
 // Tests for verifying all centralized regex patterns work correctly
 describe('Centralized Regex Patterns Test Suite', () => {
