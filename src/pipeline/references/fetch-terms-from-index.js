@@ -51,7 +51,7 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
                     Logger.success(`Got commit hash from main branch: ${commitHash}`);
                 }
             } catch (error) {
-                Logger.warn(`Could not get commit hash from main branch: ${error.message}`);
+                Logger.error(`Could not get commit hash from main branch: ${error.message}`);
             }
         } else {
             Logger.warn('No GitHub Pages URL provided, falling back to repository method');
