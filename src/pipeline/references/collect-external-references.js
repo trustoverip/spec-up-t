@@ -284,20 +284,20 @@ function collectExternalReferences(options = {}) {
     const pipeline = processExternalReferences(config, GITHUB_API_TOKEN);
 
     // If the pipeline short-circuited (e.g. missing configuration), render immediately and return its value.
-    if (!pipeline || typeof pipeline.then !== 'function') {
+    if (pipeline && typeof pipeline.then === 'function') {
+        return pipeline
+            .then(result => {
+                renderSpecification();
+                return result;
+            })
+            .catch(error => {
+                Logger.error('Rendering failed after collecting external references.', error);
+                throw error;
+            });
+    } else {
         renderSpecification();
         return pipeline;
     }
-
-    return pipeline
-        .then(result => {
-            renderSpecification();
-            return result;
-        })
-        .catch(error => {
-            Logger.error('Rendering failed after collecting external references.', error);
-            throw error;
-        });
 }
 
 module.exports = {

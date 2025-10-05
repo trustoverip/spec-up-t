@@ -6,20 +6,14 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const gulp = require('gulp');
 const findPkgDir = require('find-pkg-dir');
 
 const { initialize } = require('../../init.js');
 const Logger = require('../../utils/logger.js');
-const { fetchExternalSpecs, validateReferences, findExternalSpecByKey, mergeXrefTermsIntoAllXTrefs } = require('../references/external-references-service.js');
 const { runJsonKeyValidatorSync } = require('../../json-key-validator.js');
 const { createTermIndex } = require('./create-term-index.js');
-const { processWithEscapes } = require('../preprocessing/escape-processor.js');
 const { insertTermIndex } = require('./insert-term-index.js');
 const { normalizeTerminologyMarkdown } = require('../preprocessing/normalize-terminology-markdown.js');
-const { processEscapedTags, restoreEscapedTags } = require('../preprocessing/escape-placeholder-utils.js');
-const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('../postprocessing/definition-list-postprocessor.js');
-const { getGithubRepoInfo } = require('../../utils/git-info.js');
 
 /**
  * Initializes configuration and shared variables for spec processing.

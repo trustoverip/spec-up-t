@@ -1,7 +1,6 @@
 const fs = require('fs');
-const { spawn } = require('child_process');
-const Logger = require('./logger');
 const { spawnSync } = require('child_process');
+const Logger = require('./logger');
 
 /**
  * Helper function to get the absolute path of a command

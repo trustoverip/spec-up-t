@@ -72,7 +72,8 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "jest-environment-jsdom": "^30.0.5"
+    "jest-environment-jsdom": "^30.0.5",
+    "unimported": "^1.31.0"
   },
   "scripts": {
     "test": "jest",

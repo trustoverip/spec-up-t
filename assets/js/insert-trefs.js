@@ -116,10 +116,45 @@ function insertTrefs(allXTrefs) {
                .replace(/\]\]/g, '');
 
             // Clean up the markdown content in the term definition
-            // Part B: Remove all <a> elements from the content via a temporary div and DOM manipulation
+            // Part B: Remove some <a> elements from the content. We can turn the fact that the inserted URLs are relative (which previously seemed to be a disadvantage) into an advantage, since the fact that the URL then points to a possible local variant is actually an advantage. To this end, if the local variant does indeed exist, we leave the link intact.
             const tempDivForLinks = document.createElement('div');
             tempDivForLinks.innerHTML = md.render(content);
-            tempDivForLinks.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+            tempDivForLinks.querySelectorAll('a').forEach(a => {
+               // Helper function to safely check if an element exists by ID
+               // This handles IDs with special characters (like colons) that are invalid in CSS selectors
+               const elementExistsById = (id) => {
+                  try {
+                     return document.getElementById(id) !== null;
+                  } catch {
+                     return false;
+                  }
+               };
+
+               try {
+                  const url = new URL(a.href);
+                  
+                  // Keep links to different domains
+                  if (url.hostname !== window.location.hostname) {
+                     return;
+                  }
+                  
+                  // Keep links with valid local hash anchors
+                  if (url.hash && elementExistsById(url.hash.slice(1))) {
+                     return;
+                  }
+                  
+                  // Remove links to same domain without valid hash
+                  a.replaceWith(...a.childNodes);
+               } catch {
+                  // Handle relative URLs or invalid URL formats
+                  if (a.href.startsWith('#') && elementExistsById(a.href.slice(1))) {
+                     return;
+                  }
+                  
+                  // Remove invalid or non-local links
+                  a.replaceWith(...a.childNodes);
+               }
+            });
             content = tempDivForLinks.innerHTML;
 
             // Parse the rendered HTML to check for dd elements. xref.content is a string that contains HTML, in the form of <dd>...</dd>'s

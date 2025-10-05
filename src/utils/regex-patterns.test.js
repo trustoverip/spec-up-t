@@ -20,12 +20,15 @@ const {
   whitespace,
   urls,
   utils
-} = require('../src/utils/regex-patterns');
+} = require('./regex-patterns');
 
+// Tests for verifying all centralized regex patterns work correctly
 describe('Centralized Regex Patterns Test Suite', () => {
   
+  // Tests for regex patterns that handle template tag markup
   describe('Template Tags Patterns', () => {
     
+    // Test: Can the system identify all types of template tag markup?
     test('replacer pattern identifies template tags', () => {
       const testCases = [
         '[[def: term]]',
@@ -40,12 +43,14 @@ describe('Centralized Regex Patterns Test Suite', () => {
       });
     });
 
+    // Test: Can the system split comma-separated arguments correctly?
     test('argsSeparator splits comma-separated values', () => {
       const input = 'term, alias, extra';
       const result = input.split(templateTags.argsSeparator);
       expect(result).toEqual(['term', 'alias', 'extra']);
     });
 
+    // Test: Can the system replace template variables with actual values?
     test('variableInterpolation replaces template variables', () => {
       const template = 'Hello ${name}, version ${version}';
       const result = template.replace(templateTags.variableInterpolation, (match, p1) => {
@@ -56,8 +61,10 @@ describe('Centralized Regex Patterns Test Suite', () => {
     });
   });
 
+  // Tests for regex patterns that handle external specification references
   describe('External References Patterns', () => {
     
+    // Test: Can the system find all external reference markup in content?
     test('allXTrefs finds external references', () => {
       const content = 'Text with [[xref:spec,term]] and [[tref:spec2,term2]].';
       const matches = content.match(externalReferences.allXTrefs);
@@ -66,6 +73,7 @@ describe('Centralized Regex Patterns Test Suite', () => {
       expect(matches[1]).toBe('[[tref:spec2,term2]]');
     });
 
+    // Test: Can the system distinguish between xref and tref reference types?
     test('referenceType extracts xref/tref type', () => {
       const xrefMatch = '[[xref:spec,term]]'.match(externalReferences.referenceType);
       const trefMatch = '[[tref:spec,term]]'.match(externalReferences.referenceType);
@@ -74,14 +82,17 @@ describe('Centralized Regex Patterns Test Suite', () => {
       expect(trefMatch[1]).toBe('tref');
     });
 
+    // Test: Can the system extract specification names from tref markup?
     test('trefSpecExtractor gets spec name from tref', () => {
       const match = '[[tref:myspec,term]]'.match(externalReferences.trefSpecExtractor);
       expect(match[1]).toBe('myspec');
     });
   });
 
+  // Tests for regex patterns that handle character escaping
   describe('Escaping Patterns', () => {
     
+    // Test: Can the system escape special regex characters properly?
     test('specialChars can be used for escaping', () => {
       const input = 'test.file+regex*chars';
       const escaped = input.replace(escaping.specialChars, '\\$&');
@@ -90,14 +101,17 @@ describe('Centralized Regex Patterns Test Suite', () => {
       expect(escaped).toContain('\\*');
     });
 
+    // Test: Can the system match escaped placeholder patterns?
     test('placeholderRegex matches escaped placeholders', () => {
       const content = 'Text with __SPEC_UP_ESCAPED_TAG__ here';
       expect(escaping.placeholderRegex.test(content)).toBe(true);
     });
   });
 
+  // Tests for regex patterns that handle file path operations
   describe('Path Patterns', () => {
     
+    // Test: Can the system remove trailing slashes from paths?
     test('trailingSlash removes trailing slashes', () => {
       const testCases = [
         { input: 'path/to/dir/', expected: 'path/to/dir' },
@@ -111,8 +125,10 @@ describe('Centralized Regex Patterns Test Suite', () => {
     });
   });
 
+  // Tests for regex patterns that handle version directory naming
   describe('Version Patterns', () => {
     
+    // Test: Can the system identify valid version directory names?
     test('pattern matches version directories', () => {
       expect(versions.pattern.test('v1')).toBe(true);
       expect(versions.pattern.test('v123')).toBe(true);
@@ -121,8 +137,10 @@ describe('Centralized Regex Patterns Test Suite', () => {
     });
   });
 
+  // Tests for regex patterns that handle whitespace normalization
   describe('Whitespace Patterns', () => {
     
+    // Test: Can the system collapse multiple whitespace characters?
     test('oneOrMore collapses multiple spaces', () => {
       const input = 'text   with    spaces';
       const result = input.replace(whitespace.oneOrMore, ' ');
@@ -130,8 +148,10 @@ describe('Centralized Regex Patterns Test Suite', () => {
     });
   });
 
+  // Tests for regex patterns that handle URL parsing
   describe('URL Patterns', () => {
     
+    // Test: Can the system extract base URLs from version URLs?
     test('versionsBase extracts base URL', () => {
       const testUrl = 'https://example.com/spec/versions/v1/';
       const match = testUrl.match(urls.versionsBase);
@@ -139,13 +159,16 @@ describe('Centralized Regex Patterns Test Suite', () => {
     });
   });
 
+  // Tests for utility functions that help with regex operations
   describe('Utility Functions', () => {
     
+    // Test: Can the utility function escape regex special characters?
     test('escapeRegexChars escapes special characters', () => {
       const result = utils.escapeRegexChars('test.file');
       expect(result).toBe('test\\.file');
     });
 
+    // Test: Can the utility create regex patterns for external references?
     test('createXTrefRegex creates working regex', () => {
       const regex = utils.createXTrefRegex('spec1', 'term1');
       regex.lastIndex = 0; // Reset state
@@ -154,6 +177,7 @@ describe('Centralized Regex Patterns Test Suite', () => {
       expect(regex.test('[[tref: spec1, term1, alias]]')).toBe(true);
     });
 
+    // Test: Can the utility convert gitignore patterns to working regex?
     test('createGitignoreRegex converts globs to regex', () => {
       const regex = utils.createGitignoreRegex('*.js');
       expect(regex.test('file.js')).toBe(true);
@@ -161,8 +185,10 @@ describe('Centralized Regex Patterns Test Suite', () => {
     });
   });
 
+  // Tests verifying patterns work together in realistic scenarios
   describe('Pattern Integration Tests', () => {
     
+    // Test: Do all patterns work correctly with realistic specification content?
     test('processes realistic spec content', () => {
       const specContent = `
         # Test Specification
@@ -180,6 +206,7 @@ describe('Centralized Regex Patterns Test Suite', () => {
       expect(versions.pattern.test('v1')).toBe(true);
     });
 
+    // Test: Do the patterns handle unusual or malformed input without errors?
     test('handles edge cases gracefully', () => {
       const edgeCases = [
         '',
@@ -198,8 +225,10 @@ describe('Centralized Regex Patterns Test Suite', () => {
     });
   });
 
+  // Tests ensuring patterns perform well with large content
   describe('Performance Validation', () => {
     
+    // Test: Can the patterns process large amounts of content quickly?
     test('handles large content efficiently', () => {
       const largeContent = Array(1000).fill('[[def: term]] some text [[xref:spec,term]]').join(' ');
       
@@ -212,8 +241,10 @@ describe('Centralized Regex Patterns Test Suite', () => {
     });
   });
 
+  // Tests ensuring patterns maintain compatibility with existing content
   describe('Backwards Compatibility Validation', () => {
     
+    // Test: Do the patterns still work with all historical template tag formats?
     test('template tag replacer works with all historical patterns', () => {
       const historicalExamples = [
         '[[def: simple-term]]',
@@ -230,6 +261,7 @@ describe('Centralized Regex Patterns Test Suite', () => {
       });
     });
 
+    // Test: Do external reference patterns work with existing specification formats?
     test('external reference patterns maintain format compatibility', () => {
       const externalRefContent = `
         This specification references [[xref: RFC7515, JSON Web Signature]].
