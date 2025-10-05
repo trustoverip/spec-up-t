@@ -13,3 +13,6 @@
 - A very modular approach is preferred, the overhead is acceptable
 - Write code in a functional programming style, avoiding the use of classes
 - Use Kebab Case (kebab-case) for file names
+- When it comes to testing, it is important to realise that there are two types of testing:
+  - the Jest tests that do JS tests
+  - the Healthcheck tests that do tests that are meant for the user and are outputted to an HTML file (validators)
