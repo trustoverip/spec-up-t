@@ -25,7 +25,7 @@ function getCurrentBranch() {
         }).trim();
         
         if (branch) {
-            Logger.info(`Current git branch: ${branch}`);
+            // This is too much info, comment out for the moment, Logger.info(`Current git branch: ${branch}`);
             return branch;
         }
         
@@ -61,7 +61,6 @@ function getGithubRepoInfo(spec) {
         const account = source.account || 'unknown';
         const repo = source.repo || 'unknown';
         const branch = getCurrentBranch();
-        
         const content = `${account},${repo},${branch}`;
         Logger.info(`GitHub repo info: ${content}`);
         return content;

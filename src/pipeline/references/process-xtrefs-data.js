@@ -14,7 +14,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
 
         allXTrefs.xtrefs = allXTrefs.xtrefs.filter(xtref => {
             if (!xtref.owner || !xtref.repo || !xtref.repoUrl) {
-                Logger.warn(`Removing incomplete reference: ${xtref.externalSpec}, ${xtref.term}`);
+                Logger.error(`Removing incomplete reference: ${xtref.externalSpec}, ${xtref.term}`);
                 return false;
             }
             return true;
