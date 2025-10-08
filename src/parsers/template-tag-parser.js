@@ -89,15 +89,18 @@ function parseDef(globalState, token, primary, currentFile) {
       parentheticalContent.push(...aliases.slice(1));
     }
 
-    // Add original term if it's different from the primary display term
-    if (termName !== primaryDisplayTerm) {
-      parentheticalContent.push(`<span class='term-local-original-term' title='original term'>${termName}</span>`);
-    }
+    // Always add the original term if there are aliases, with special styling
+    // This ensures consistent behavior regardless of whether alias1 equals the term
+    // The original term should always be visible in the parenthetical list
+    parentheticalContent.push(`<span class='term-local-original-term term-original-term' title='original term'>${termName}</span>`);
 
     // Append parenthetical terms if any exist
     if (parentheticalContent.length > 0) {
       displayText += ` <span class='term-local-parenthetical-terms'>(${parentheticalContent.join(', ')})</span>`;
     }
+  } else {
+    // No aliases: wrap the term name itself as the original term
+    displayText = `<span class='term-local-original-term term-original-term' title='original term'>${termName}</span>`;
   }
 
   // Generate HTML spans for each term/alias combination
@@ -183,15 +186,18 @@ function parseTref(token) {
       parentheticalContent.push(...aliases.slice(1));
     }
 
-    // Add original term if it's different from the primary display term
-    if (termName !== primaryDisplayTerm) {
-      parentheticalContent.push(`<span class='term-external-original-term' title='original term'>${termName}</span>`);
-    }
+    // Always add the original term if there are aliases, with special styling
+    // This ensures consistent behavior regardless of whether alias1 equals the term
+    // The original term should always be visible in the parenthetical list
+    parentheticalContent.push(`<span class='term-external-original-term term-original-term' title='original term'>${termName}</span>`);
 
     // Append parenthetical terms if any exist
     if (parentheticalContent.length > 0) {
       displayText += ` <span class='term-external-parenthetical-terms'>(${parentheticalContent.join(', ')})</span>`;
     }
+  } else {
+    // No aliases: wrap the term name itself as the original term
+    displayText = `<span class='term-external-original-term term-original-term' title='original term'>${termName}</span>`;
   }
 
   const termId = `term:${termName.replace(whitespace.oneOrMore, '-').toLowerCase()}`;

@@ -62,6 +62,33 @@ describe('Template Tag Parsing Functions', () => {
     });
   });
 
+  // Test: Does the parser handle the case when alias1 equals the term?
+  // Issue #194: When alias1 is the same as the term, the term should still appear in parentheses
+  test('should include term in parentheses even when alias1 equals term', () => {
+    const mockToken = {
+      info: { args: ['action', 'action', 'actions', 'act', 'acts'] }
+    };
+
+    const result = parseDef(mockGlobal, mockToken, 'Action', 'test.md');
+
+    // Should show: action (actions, act, acts, action)
+    // The term "action" should appear both as primary and in parenthetical list
+    expect(result).toContain('action');
+    expect(result).toContain('actions');
+    expect(result).toContain('act');
+    expect(result).toContain('acts');
+    
+    // The original term should be in the parenthetical content with special styling
+    expect(result).toContain('term-local-original-term');
+    expect(result).toContain('term-local-parenthetical-terms');
+    
+    // Verify all term IDs are present
+    expect(result).toContain('id="term:action"');
+    expect(result).toContain('id="term:actions"');
+    expect(result).toContain('id="term:act"');
+    expect(result).toContain('id="term:acts"');
+  });
+
   // Test: Can the system parse reference markup into proper links?
   test('should parse reference correctly', () => {
     const result = parseRef(mockGlobal, 'test-term');
