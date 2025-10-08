@@ -37,7 +37,10 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
 
         for (const repoKey of Object.keys(xrefsByRepo)) {
             const repoGroup = xrefsByRepo[repoKey];
-            Logger.process(`Processing repository: ${repoKey} (${repoGroup.xtrefs.length} terms)`);
+            // Build a repository URL for logging. Prefer an explicit repoUrl from
+            // an xtref, otherwise fall back to the canonical GitHub URL.
+            const repoUrl = repoGroup.xtrefs[0]?.repoUrl || `https://github.com/${repoKey}`;
+            Logger.process(`Processing repository: ${repoKey} (${repoGroup.xtrefs.length} terms) - ${repoUrl}`);
 
             const ghPageUrl = repoGroup.xtrefs[0]?.ghPageUrl;
             const allTermsData = await fetchAllTermsFromIndex(
@@ -48,7 +51,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
             );
 
             if (!allTermsData) {
-                Logger.error(`Could not fetch terms from repository ${repoKey}`);
+                Logger.error(`Could not fetch terms from repository ${repoKey} (${repoUrl})`);
                 repoGroup.xtrefs.forEach(xtref => {
                     xtref.commitHash = 'not found';
                     xtref.content = 'This term was not found in the external repository.';
@@ -94,7 +97,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                 }
             }
 
-            Logger.success(`Finished processing repository: ${repoKey}`);
+            Logger.success(`Finished processing repository: ${repoKey} (${repoUrl})`);
             Logger.separator();
         }
 
