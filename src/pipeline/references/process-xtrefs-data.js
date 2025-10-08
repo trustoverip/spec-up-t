@@ -71,7 +71,22 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                     xtref.commitHash = 'not found';
                     xtref.content = 'This term was not found in the external repository.';
                     xtref.avatarUrl = null;
-                    Logger.error(`Origin: ${xtref.sourceFile || xtref.sourceFiles.join(', ')} 👉 No match found for term: ${xtref.term} in ${xtref.externalSpec} (${repoKey})`);
+                    
+                    // Build a readable list of source files for the error message.
+                    // Two possible data structures exist:
+                    // 1. xtref.sourceFile is a STRING like "primitive.md"
+                    // 2. xtref.sourceFiles is an ARRAY OF OBJECTS like [{file: "primitive.md", type: "xref"}]
+                    //
+                    // The ternary operator works as follows:
+                    // - If xtref.sourceFile exists (legacy case) → use it directly (it's already a string)
+                    // - Otherwise → extract file names from the sourceFiles array:
+                    //   - .map(sf => sf.file) extracts just the filename from each object
+                    //   - .join(', ') combines them into a comma-separated string
+                    const sourceFilesList = xtref.sourceFile 
+                        ? xtref.sourceFile 
+                        : (xtref.sourceFiles || []).map(sf => sf.file).join(', ');
+                    
+                    Logger.error(`Origin: ${sourceFilesList} 👉 No match found for term: ${xtref.term} in ${xtref.externalSpec} (${repoKey})`);
                 }
             }
 
