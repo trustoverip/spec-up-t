@@ -85,8 +85,12 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                     const sourceFilesList = xtref.sourceFile 
                         ? xtref.sourceFile 
                         : (xtref.sourceFiles || []).map(sf => sf.file).join(', ');
-                    
-                    Logger.error(`Origin: ${sourceFilesList} 👉 No match found for term: ${xtref.term} in ${xtref.externalSpec} (${repoKey})`);
+
+                    // Prefer an explicit repo URL if provided on the xtref, otherwise
+                    // build a standard GitHub URL from the owner/repo.
+                    const githubUrl = xtref.repoUrl || `https://github.com/${repoKey}`;
+
+                    Logger.error(`Origin: ${sourceFilesList} 👉 No match found for term: ${xtref.term} in ${xtref.externalSpec} (${githubUrl})`);
                 }
             }
 
