@@ -51,7 +51,7 @@ class Logger {
      * Highlight important data - magenta
      */
     static highlight(message, ...args) {
-        console.log(chalk.magenta('✨'), chalk.magenta(message), ...args);
+        console.log(chalk.blue('✨'), chalk.blue(message), ...args);
     }
 
     /**

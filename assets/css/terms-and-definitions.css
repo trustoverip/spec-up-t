@@ -282,6 +282,15 @@ dl.terms-and-definitions-list>dd.term-local {
   background: #f0f8ff;
 }
 
+/* Generic class for all original terms (both local and external) */
+dl.terms-and-definitions-list .term-original-term {
+  font-style: italic;
+}
+
+dl.terms-and-definitions-list .term-external-parenthetical-terms {
+  font-weight: normal;
+}
+
 /* Local term original term and parenthetical styling */
 dl.terms-and-definitions-list .term-local-original-term {
   font-style: italic;

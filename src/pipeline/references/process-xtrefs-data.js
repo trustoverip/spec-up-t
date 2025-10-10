@@ -14,7 +14,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
 
         allXTrefs.xtrefs = allXTrefs.xtrefs.filter(xtref => {
             if (!xtref.owner || !xtref.repo || !xtref.repoUrl) {
-                Logger.warn(`Removing incomplete reference: ${xtref.externalSpec}, ${xtref.term}`);
+                Logger.error(`Removing incomplete reference: ${xtref.externalSpec}, ${xtref.term}`);
                 return false;
             }
             return true;
@@ -37,7 +37,10 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
 
         for (const repoKey of Object.keys(xrefsByRepo)) {
             const repoGroup = xrefsByRepo[repoKey];
-            Logger.process(`Processing repository: ${repoKey} (${repoGroup.xtrefs.length} terms)`);
+            // Build a repository URL for logging. Prefer an explicit repoUrl from
+            // an xtref, otherwise fall back to the canonical GitHub URL.
+            const repoUrl = repoGroup.xtrefs[0]?.repoUrl || `https://github.com/${repoKey}`;
+            Logger.process(`Processing repository: ${repoKey} (${repoGroup.xtrefs.length} terms) - ${repoUrl}`);
 
             const ghPageUrl = repoGroup.xtrefs[0]?.ghPageUrl;
             const allTermsData = await fetchAllTermsFromIndex(
@@ -48,7 +51,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
             );
 
             if (!allTermsData) {
-                Logger.error(`Could not fetch terms from repository ${repoKey}`);
+                Logger.error(`Could not fetch terms from repository ${repoKey} (${repoUrl})`);
                 repoGroup.xtrefs.forEach(xtref => {
                     xtref.commitHash = 'not found';
                     xtref.content = 'This term was not found in the external repository.';
@@ -71,11 +74,30 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                     xtref.commitHash = 'not found';
                     xtref.content = 'This term was not found in the external repository.';
                     xtref.avatarUrl = null;
-                    Logger.error(`Origin: ${xtref.sourceFile || xtref.sourceFiles.join(', ')} 👉 No match found for term: ${xtref.term} in ${xtref.externalSpec} (${repoKey})`);
+                    
+                    // Build a readable list of source files for the error message.
+                    // Two possible data structures exist:
+                    // 1. xtref.sourceFile is a STRING like "primitive.md"
+                    // 2. xtref.sourceFiles is an ARRAY OF OBJECTS like [{file: "primitive.md", type: "xref"}]
+                    //
+                    // The ternary operator works as follows:
+                    // - If xtref.sourceFile exists (legacy case) → use it directly (it's already a string)
+                    // - Otherwise → extract file names from the sourceFiles array:
+                    //   - .map(sf => sf.file) extracts just the filename from each object
+                    //   - .join(', ') combines them into a comma-separated string
+                    const sourceFilesList = xtref.sourceFile 
+                        ? xtref.sourceFile 
+                        : (xtref.sourceFiles || []).map(sf => sf.file).join(', ');
+
+                    // Prefer an explicit repo URL if provided on the xtref, otherwise
+                    // build a standard GitHub URL from the owner/repo.
+                    const githubUrl = xtref.repoUrl || `https://github.com/${repoKey}`;
+
+                    Logger.error(`Origin: ${sourceFilesList} 👉 No match found for term: ${xtref.term} in ${xtref.externalSpec} (${githubUrl})`);
                 }
             }
 
-            Logger.success(`Finished processing repository: ${repoKey}`);
+            Logger.success(`Finished processing repository: ${repoKey} (${repoUrl})`);
             Logger.separator();
         }
 

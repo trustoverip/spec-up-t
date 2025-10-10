@@ -51,7 +51,7 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
                     Logger.success(`Got commit hash from main branch: ${commitHash}`);
                 }
             } catch (error) {
-                Logger.warn(`Could not get commit hash from main branch: ${error.message}`);
+                Logger.error(`Could not get commit hash from main branch: ${error.message}`);
             }
         } else {
             Logger.warn('No GitHub Pages URL provided, falling back to repository method');
@@ -105,17 +105,15 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
                 return;
             }
 
-            let termText = '';
-            termSpan.childNodes.forEach(node => {
-                if (node.nodeType === dom.window.Node.TEXT_NODE) {
-                    termText += node.textContent.trim();
-                }
-            });
-
-            if (!termText) {
-                termText = termSpan.textContent.trim();
+            // Extract the canonical term identifier from the term-local-original-term span.
+            // This contains the original term identifier as used in the source file naming
+            // and tref/xref references. If this span doesn't exist, skip the term entirely.
+            const originalTermSpan = dt.querySelector('span.term-local-original-term');
+            if (!originalTermSpan) {
+                return;
             }
 
+            const termText = originalTermSpan.textContent.trim();
             if (!termText) {
                 return;
             }
