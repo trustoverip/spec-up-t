@@ -134,8 +134,8 @@ async function main() {
     // For HTML format, try to open in browser
     if (options.format === 'html' && !options.output) {
       try {
-        const fileOpener = require('./src/utils/file-opener');
-        await fileOpener.openFileInBrowser(path.resolve(outputPath));
+        const { openHtmlFile } = require('./utils/file-opener');
+        await openHtmlFile(path.resolve(outputPath));
         console.log('🌐 Opening report in browser...');
       } catch (error) {
         console.log('ℹ️  Tip: Open the report manually in your browser');
