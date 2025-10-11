@@ -77,7 +77,6 @@
   },
   "scripts": {
     "test": "jest",
-    "test:coverage": "jest --coverage",
-    "healthCheck2": "node --no-warnings healthcheck-test.js"
+    "test:coverage": "jest --coverage"
   }
 }
