@@ -26,6 +26,7 @@ const path = require('path');
 
 /**
  * Parse command line arguments
+ * Handles both direct node invocations and npm script invocations
  * 
  * @returns {Object} Parsed arguments
  */

@@ -32,9 +32,12 @@ async function runHealthCheck() {
     // Get the path to the run-healthcheck.js script in spec-up-t
     const healthCheckScript = path.join(__dirname, 'run-healthcheck.js');
     
-    // Run the health check script with Node
+    // Pass through all command line arguments (excluding node and script name)
+    const args = process.argv.slice(2);
+    
+    // Run the health check script with Node, passing through all arguments
     // The script will automatically check process.cwd() (the consuming project)
-    const child = spawn('node', [healthCheckScript], {
+    const child = spawn('node', [healthCheckScript, ...args], {
         stdio: 'inherit',  // Pass through all I/O
         cwd: process.cwd()  // Ensure we're in the consuming project directory
     });
