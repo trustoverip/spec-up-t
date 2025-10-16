@@ -17,7 +17,7 @@ function validateReferences(references, definitions, render) {
     }
   );
   if (unresolvedRefs.length > 0) {
-    Logger.info('Unresolved References:', unresolvedRefs);
+    Logger.warn(`Unresolved References: ${unresolvedRefs.join(',')}`);
   }
 
   const danglingDefs = [];
@@ -38,7 +38,7 @@ function validateReferences(references, definitions, render) {
     }
   })
   if (danglingDefs.length > 0) {
-    Logger.info('Dangling Definitions:', danglingDefs);
+    Logger.warn(`Dangling Definitions: ${danglingDefs.join(',')}`);
   }
 }
 
