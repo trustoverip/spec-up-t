@@ -1,8 +1,12 @@
 const chalk = require('chalk');
+const messageCollector = require('./message-collector');
 
 /**
  * Logger utility with color-coded console output
  * Provides consistent logging across the spec-up-t application
+ * 
+ * All messages are automatically collected when message collection is active,
+ * allowing healthchecks and other tools to consume the output in JSON format.
  */
 class Logger {
     /**
@@ -10,6 +14,7 @@ class Logger {
      */
     static success(message, ...args) {
         console.log(chalk.green('✅'), chalk.green(message), ...args);
+        messageCollector.addMessage('success', message, args);
     }
 
     /**
@@ -17,6 +22,7 @@ class Logger {
      */
     static error(message, ...args) {
         console.log(chalk.red('❌'), chalk.red(message), ...args);
+        messageCollector.addMessage('error', message, args);
     }
 
     /**
@@ -24,6 +30,7 @@ class Logger {
      */
     static warn(message, ...args) {
         console.log(chalk.yellow('🟡'), chalk.yellow(message), ...args);
+        messageCollector.addMessage('warn', message, args);
     }
 
     /**
@@ -31,6 +38,7 @@ class Logger {
      */
     static info(message, ...args) {
         console.log(chalk.blue('📒'), chalk.blue(message), ...args);
+        messageCollector.addMessage('info', message, args);
     }
 
     /**
@@ -38,6 +46,7 @@ class Logger {
      */
     static process(message, ...args) {
         console.log(chalk.cyan('🔄'), chalk.cyan(message), ...args);
+        messageCollector.addMessage('process', message, args);
     }
 
     /**
@@ -45,6 +54,7 @@ class Logger {
      */
     static debug(message, ...args) {
         console.log(chalk.gray('🔍'), chalk.gray(message), ...args);
+        messageCollector.addMessage('debug', message, args);
     }
 
     /**
@@ -52,6 +62,7 @@ class Logger {
      */
     static highlight(message, ...args) {
         console.log(chalk.blue('✨'), chalk.blue(message), ...args);
+        messageCollector.addMessage('highlight', message, args);
     }
 
     /**
@@ -59,6 +70,7 @@ class Logger {
      */
     static separator() {
         console.log(chalk.gray('═'.repeat(60)));
+        messageCollector.addMessage('separator', '═'.repeat(60), []);
     }
 
     /**
@@ -67,7 +79,9 @@ class Logger {
     static progress(current, total, message) {
         const percentage = Math.round((current / total) * 100);
         const bar = '█'.repeat(Math.floor(percentage / 5)) + '░'.repeat(20 - Math.floor(percentage / 5));
-        console.log(chalk.cyan(`📊 [${bar}] ${percentage}% ${message}`));
+        const progressMessage = `[${bar}] ${percentage}% ${message}`;
+        console.log(chalk.cyan(`📊 ${progressMessage}`));
+        messageCollector.addMessage('progress', progressMessage, [current, total]);
     }
 }
 

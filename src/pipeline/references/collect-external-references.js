@@ -13,6 +13,7 @@ const fs = require('fs-extra');
 const readlineSync = require('readline-sync');
 
 const Logger = require('../../utils/logger');
+const messageCollector = require('../../utils/message-collector');
 const { shouldProcessFile } = require('../../utils/file-filter');
 const { getCurrentBranch } = require('../../utils/git-info');
 const { addNewXTrefsFromMarkdown, isXTrefInAnyFile } = require('./xtref-utils');
@@ -242,9 +243,17 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
 /**
  * Public entry point for the external reference collection stage.
  *
- * @param {{ pat?: string }} options - Optional overrides (GitHub PAT).
+ * @param {{ pat?: string, collectMessages?: boolean }} options - Optional overrides (GitHub PAT, message collection).
  */
 function collectExternalReferences(options = {}) {
+    // Start collecting messages if requested
+    const shouldCollectMessages = options.collectMessages !== false; // Collect by default
+    
+    if (shouldCollectMessages) {
+        messageCollector.clearMessages();
+        messageCollector.startCollecting('collectExternalReferences');
+    }
+
     const config = fs.readJsonSync('specs.json');
     const normalizedConfig = normalizeSpecConfiguration(config, {
         noSpecsMessage: 'No specs defined in specs.json. Nothing to collect.'
@@ -252,6 +261,10 @@ function collectExternalReferences(options = {}) {
 
     // Bail out immediately if the specs.json file lacks the required specs collection.
     if (!normalizedConfig) {
+        if (shouldCollectMessages) {
+            messageCollector.stopCollecting();
+            messageCollector.saveMessages();
+        }
         return;
     }
 
@@ -268,7 +281,16 @@ function collectExternalReferences(options = {}) {
         Logger.info(
             'No external_specs array found on the first spec entry in specs.json. External reference collection is skipped.'
         );
-        renderSpecification();
+        
+        if (shouldCollectMessages) {
+            messageCollector.stopCollecting();
+            messageCollector.saveMessages().then(path => {
+                Logger.success(`Console messages saved to: ${path}`);
+                renderSpecification();
+            });
+        } else {
+            renderSpecification();
+        }
         return;
     }
 
@@ -277,7 +299,16 @@ function collectExternalReferences(options = {}) {
         Logger.info(
             'The external_specs array in specs.json is empty. Add external repositories to collect external references.'
         );
-        renderSpecification();
+        
+        if (shouldCollectMessages) {
+            messageCollector.stopCollecting();
+            messageCollector.saveMessages().then(path => {
+                Logger.success(`Console messages saved to: ${path}`);
+                renderSpecification();
+            });
+        } else {
+            renderSpecification();
+        }
         return;
     }
 
@@ -287,15 +318,40 @@ function collectExternalReferences(options = {}) {
     if (pipeline && typeof pipeline.then === 'function') {
         return pipeline
             .then(result => {
-                renderSpecification();
-                return result;
+                if (shouldCollectMessages) {
+                    messageCollector.stopCollecting();
+                    return messageCollector.saveMessages().then(path => {
+                        Logger.success(`Console messages saved to: ${path}`);
+                        renderSpecification();
+                        return result;
+                    });
+                } else {
+                    renderSpecification();
+                    return result;
+                }
             })
             .catch(error => {
                 Logger.error('Rendering failed after collecting external references.', error);
+                
+                if (shouldCollectMessages) {
+                    messageCollector.stopCollecting();
+                    messageCollector.saveMessages().catch(() => {
+                        // Silent fail on save error
+                    });
+                }
+                
                 throw error;
             });
     } else {
-        renderSpecification();
+        if (shouldCollectMessages) {
+            messageCollector.stopCollecting();
+            messageCollector.saveMessages().then(path => {
+                Logger.success(`Console messages saved to: ${path}`);
+                renderSpecification();
+            });
+        } else {
+            renderSpecification();
+        }
         return pipeline;
     }
 }
