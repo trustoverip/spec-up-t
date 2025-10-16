@@ -25,7 +25,8 @@ const { processXTrefObject } = require('../../parsers/template-tag-parser');
  * automated callers of `collectExternalReferences` continue to receive a fully rendered spec.
  */
 function renderSpecification() {
-    require('../../../index.js')({ nowatch: true });
+    // Pass skipClear to preserve messages from collectExternalReferences
+    require('../../../index.js')({ nowatch: true, skipClear: true });
 }
 
 /**

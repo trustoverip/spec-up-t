@@ -7,7 +7,11 @@ module.exports = async function (options = {}) {
   const shouldCollectMessages = options.collectMessages !== false; // Collect by default
   
   if (shouldCollectMessages) {
-    messageCollector.clearMessages();
+    // Only clear messages if not called from another operation (like collectExternalReferences)
+    // If skipClear is true, we're continuing from a previous operation
+    if (!options.skipClear) {
+      messageCollector.clearMessages();
+    }
     messageCollector.startCollecting('render');
   }
 

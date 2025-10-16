@@ -66,6 +66,8 @@ function addMessage(type, message, args = []) {
 
 /**
  * Save collected messages to JSON file
+ * Each run creates a fresh file, replacing any existing messages.
+ * 
  * @param {string} [outputPath] - Optional custom output path
  * @returns {Promise<string>} Path to the saved file
  */
@@ -90,7 +92,7 @@ async function saveMessages(outputPath) {
     };
 
     await fs.writeJson(filePath, output, { spaces: 2 });
-    
+
     return filePath;
 }
 
