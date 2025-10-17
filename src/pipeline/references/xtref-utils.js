@@ -7,6 +7,7 @@
  */
 
 const { externalReferences, utils } = require('../../utils/regex-patterns');
+const Logger = require('../../utils/logger');
 
 /**
  * Checks if a specific xtref is present in the markdown content.
@@ -43,12 +44,29 @@ function isXTrefInAnyFile(xtref, fileContents) {
  * @param {object} xtrefObject - Pre-parsed xtref object from template-tag-parser
  * @param {{ xtrefs: Array<object> }} allXTrefs - Aggregated reference collection
  * @param {string|null} filename - Originating filename for bookkeeping
+ * @param {Array<object>|null} externalSpecs - Array of external_specs from specs.json for validation
  * @returns {{ xtrefs: Array<object> }} Updated reference collection
  */
-function addXtrefToCollection(xtrefObject, allXTrefs, filename = null) {
+function addXtrefToCollection(xtrefObject, allXTrefs, filename = null, externalSpecs = null) {
     const referenceType = xtrefObject.referenceType;
     const cleanXTrefObj = { ...xtrefObject };
     delete cleanXTrefObj.referenceType;
+
+    // Validate that the external spec exists in specs.json configuration
+    if (externalSpecs && Array.isArray(externalSpecs)) {
+        const externalSpecExists = externalSpecs.some(
+            spec => spec.external_spec === cleanXTrefObj.externalSpec
+        );
+        
+        if (!externalSpecExists) {
+            const availableSpecs = externalSpecs.map(s => s.external_spec).join(', ');
+            Logger.error(
+                `External spec "${cleanXTrefObj.externalSpec}" not found in specs.json configuration. ` +
+                `Available external specs: ${availableSpecs}. ` +
+                `Check [[${referenceType}: ${cleanXTrefObj.externalSpec}, ${cleanXTrefObj.term}]] in ${filename || 'unknown file'}`
+            );
+        }
+    }
 
     const existingIndex = allXTrefs?.xtrefs?.findIndex(existingXTref =>
         existingXTref.term === cleanXTrefObj.term &&
@@ -135,9 +153,10 @@ function addXtrefToCollection(xtrefObject, allXTrefs, filename = null) {
  * @param {{ xtrefs: Array<object> }} allXTrefs - Aggregated reference collection.
  * @param {string|null} filename - Originating filename for bookkeeping.
  * @param {function} processXTrefObject - Parsing function for xtref strings.
+ * @param {Array<object>|null} externalSpecs - Array of external_specs from specs.json for validation.
  * @returns {{ xtrefs: Array<object> }} Updated reference collection.
  */
-function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null, processXTrefObject) {
+function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null, processXTrefObject, externalSpecs = null) {
     if (!processXTrefObject) {
         throw new Error('processXTrefObject function is required. Import from template-tag-parser.');
     }
@@ -152,7 +171,7 @@ function addNewXTrefsFromMarkdown(markdownContent, allXTrefs, filename = null, p
 
     xtrefs.forEach(rawXtref => {
         const xtrefObject = processXTrefObject(rawXtref);
-        addXtrefToCollection(xtrefObject, allXTrefs, filename);
+        addXtrefToCollection(xtrefObject, allXTrefs, filename, externalSpecs);
     });
 
     return allXTrefs;

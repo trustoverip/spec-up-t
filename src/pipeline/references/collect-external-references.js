@@ -234,7 +234,7 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
     );
 
     fileContents.forEach((content, filename) => {
-        addNewXTrefsFromMarkdown(content, allXTrefs, filename, processXTrefObject);
+        addNewXTrefsFromMarkdown(content, allXTrefs, filename, processXTrefObject, externalSpecsRepos);
     });
 
     extendXTrefs(config, allXTrefs.xtrefs);
