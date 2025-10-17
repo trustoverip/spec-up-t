@@ -117,6 +117,10 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
 
     // Add xref terms to the allXTrefs structure
     // Mark them with source: 'xref' to distinguish from tref entries
+    // Track how many terms were matched vs skipped for logging purposes
+    let matchedCount = 0;
+    let skippedCount = 0;
+
     xrefTerms.forEach(xrefTerm => {
       // Check if this term already exists (match by externalSpec and term only)
       // Don't filter by source because entries from markdown scanning don't have source field
@@ -134,12 +138,11 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
           termId: xrefTerm.termId,     // Add termId if not present
           lastUpdated: new Date().toISOString()
         };
+        matchedCount++;
       } else {
-        // Add new entry (this term wasn't referenced in the markdown)
-        allXTrefs.xtrefs.push({
-          ...xrefTerm,
-          lastUpdated: new Date().toISOString()
-        });
+        // Skip terms that are not referenced in the local markdown files
+        // This prevents bloating the xtrefs-data.json with unreferenced terms
+        skippedCount++;
       }
     });
 
@@ -150,7 +153,7 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
     const stringReadyForFileWrite = `const allXTrefs = ${allXTrefsStr};`;
     fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
 
-    Logger.success(`Merged ${xrefTerms.length} xref terms into allXTrefs. Total entries: ${allXTrefs.xtrefs.length}`);
+    Logger.success(`Merged xref terms: ${matchedCount} matched, ${skippedCount} skipped (not referenced). Total entries: ${allXTrefs.xtrefs.length}`);
 
   } catch (error) {
     Logger.error('Error merging xref terms into allXTrefs:', error.message);
