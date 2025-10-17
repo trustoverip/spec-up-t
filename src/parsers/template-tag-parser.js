@@ -14,6 +14,7 @@
 const { findExternalSpecByKey } = require('../pipeline/references/external-references-service.js');
 const { lookupXrefTerm } = require('../pipeline/rendering/render-utils.js');
 const { whitespace, htmlComments, contentCleaning, externalReferences } = require('../utils/regex-patterns');
+const Logger = require('../utils/logger.js');
 
 /**
  * Extracts the current file from token content for source tracking
@@ -261,6 +262,13 @@ function processXTrefObject(xtref) {
     // Store the first xref alias separately as it has special meaning
     if (allAliases.length > 0) {
       xtrefObject.firstXrefAlias = allAliases[0];
+    }
+    
+    // Log error if xref has more than one alias
+    // xref should only have 0 or 1 alias, unlike tref which supports multiple aliases
+    if (allAliases.length > 1) {
+      const extraAliases = allAliases.slice(1).join(', ');
+      Logger.error(`Invalid xref syntax: [[xref: ${xtrefObject.externalSpec}, ${xtrefObject.term}, ${allAliases.join(', ')}]] has ${allAliases.length} aliases. Only the first alias "${allAliases[0]}" will be used. Extra aliases ignored: ${extraAliases}.`);
     }
   }
 
