@@ -77,6 +77,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                     // A term with 'term-external' class means it's transcluded from another spec
                     const isExternalTref = foundTerm.classes && foundTerm.classes.includes('term-external');
                     const isTref = xtref.sourceFiles && xtref.sourceFiles.some(sf => sf.type === 'tref');
+                    const isXref = xtref.sourceFiles && xtref.sourceFiles.some(sf => sf.type === 'xref');
 
                     if (isExternalTref && isTref) {
                         // Build a readable list of source files for the error message
@@ -88,6 +89,18 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                         const externalRepoUrl = xtref.ghPageUrl || xtref.repoUrl || `https://github.com/${xtref.owner}/${xtref.repo}`;
                         
                         Logger.error(`Origin: ${sourceFilesList} 👉 NESTED TREF DETECTED: Term "${xtref.term}" in ${xtref.externalSpec} is itself a tref (transcluded from another spec). This creates a chain of external references.`);
+                    }
+
+                    if (isExternalTref && isXref) {
+                        // Build a readable list of source files for the warning message
+                        const sourceFilesList = xtref.sourceFile 
+                            ? xtref.sourceFile 
+                            : (xtref.sourceFiles || []).map(sf => sf.file).join(', ');
+                        
+                        // Construct the external repository URL
+                        const externalRepoUrl = xtref.ghPageUrl || xtref.repoUrl || `https://github.com/${xtref.owner}/${xtref.repo}`;
+                        
+                        Logger.error(`Origin: ${sourceFilesList} 👉 NESTED XREF DETECTED: Term "${xtref.term}" in ${xtref.externalSpec} is itself a tref (transcluded from another spec). This xref points to a term that is already transcluded from elsewhere, creating a chain of external references. (${externalRepoUrl})`);
                     }
 
                     Logger.success(`Match found for term: ${xtref.term} in ${xtref.externalSpec}`);

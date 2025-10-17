@@ -147,6 +147,7 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
         // A term with 'term-external' class means it's transcluded from another spec
         const isExternalTref = xrefTerm.classes && xrefTerm.classes.includes('term-external');
         const isTref = existingXtref.sourceFiles && existingXtref.sourceFiles.some(sf => sf.type === 'tref');
+        const isXref = existingXtref.sourceFiles && existingXtref.sourceFiles.some(sf => sf.type === 'xref');
 
         if (isExternalTref && isTref) {
           // Build a readable list of source files for the error message
@@ -158,6 +159,18 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
           const externalRepoUrl = existingXtref.ghPageUrl || existingXtref.repoUrl || `https://github.com/${existingXtref.owner}/${existingXtref.repo}`;
           
           Logger.error(`Origin: ${sourceFilesList} 👉 NESTED TREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec} is itself a tref (transcluded from another spec). This creates a chain of external references.`);
+        }
+
+        if (isExternalTref && isXref) {
+          // Build a readable list of source files for the warning message
+          const sourceFilesList = existingXtref.sourceFile 
+            ? existingXtref.sourceFile 
+            : (existingXtref.sourceFiles || []).map(sf => sf.file).join(', ');
+          
+          // Construct the external repository URL
+          const externalRepoUrl = existingXtref.ghPageUrl || existingXtref.repoUrl || `https://github.com/${existingXtref.owner}/${existingXtref.repo}`;
+          
+          Logger.error(`Origin: ${sourceFilesList} 👉 NESTED XREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec} is itself a tref (transcluded from another spec). This xref points to a term that is already transcluded from elsewhere, creating a chain of external references. (${externalRepoUrl})`);
         }
 
         matchedCount++;
