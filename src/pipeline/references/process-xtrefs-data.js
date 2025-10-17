@@ -69,6 +69,9 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                     xtref.commitHash = allTermsData.sha;
                     xtref.content = foundTerm.definition;
                     xtref.avatarUrl = allTermsData.avatarUrl;
+                    // Copy the classes array from the foundTerm to identify if this is a local or external term.
+                    // This helps determine if a tref to an external resource is itself a tref (term-external).
+                    xtref.classes = foundTerm.classes || [];
                     Logger.success(`Match found for term: ${xtref.term} in ${xtref.externalSpec}`);
                 } else {
                     xtref.commitHash = 'not found';
