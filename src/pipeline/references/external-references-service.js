@@ -134,6 +134,7 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
         allXTrefs.xtrefs[existingIndex] = {
           ...allXTrefs.xtrefs[existingIndex],
           content: xrefTerm.content,  // Update the content from fetched HTML
+          classes: xrefTerm.classes || [], // Update classes from dt element
           source: xrefTerm.source,     // Add source field
           termId: xrefTerm.termId,     // Add termId if not present
           lastUpdated: new Date().toISOString()
@@ -211,6 +212,12 @@ function extractTermsFromHtml(externalSpec, html) {
           if (termIds.length === 0) {
             return;
           }
+
+          // Extract classes from the <dt> element to determine if it's a local or external term.
+          // This helps identify if a tref to an external resource is itself a tref (term-external).
+          const dtClasses = $termElement.attr('class');
+          const classArray = dtClasses ? dtClasses.split(/\s+/).filter(Boolean) : [];
+          const termClasses = classArray.filter(cls => cls === 'term-local' || cls === 'term-external');
           
           const dd = $termElement.next('dd');
 
@@ -224,9 +231,10 @@ function extractTermsFromHtml(externalSpec, html) {
                 externalSpec: externalSpec,
                 term: termName,
                 content: ddContent,
+                classes: termClasses, // CSS classes from dt element (term-local or term-external)
                 // Add metadata for consistency with tref structure
                 source: 'xref', // Distinguish from tref entries
-                termId: `term:${externalSpec}:${termName}`, // Fully qualified term ID
+                termId: `term:${termName}`, // Term ID matches the actual HTML anchor format
               };
 
               terms.push(termObj);
