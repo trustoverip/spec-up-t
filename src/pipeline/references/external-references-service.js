@@ -157,7 +157,7 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
           // Construct the external repository URL
           const externalRepoUrl = existingXtref.ghPageUrl || existingXtref.repoUrl || `https://github.com/${existingXtref.owner}/${existingXtref.repo}`;
           
-          Logger.error(`Origin: ${sourceFilesList} 👉 NESTED TREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec} is itself a tref (transcluded from another spec). This creates a chain of external references. Consider using [[xref:${existingXtref.externalSpec},${existingXtref.term}]] instead. (${externalRepoUrl})`);
+          Logger.error(`Origin: ${sourceFilesList} 👉 NESTED TREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec} is itself a tref (transcluded from another spec). This creates a chain of external references.`);
         }
 
         matchedCount++;
