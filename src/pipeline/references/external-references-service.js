@@ -130,15 +130,36 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
       );
 
       if (existingIndex >= 0) {
+        // Get the existing entry to check if it's a tref
+        const existingXtref = allXTrefs.xtrefs[existingIndex];
+        
         // Update existing entry - preserve the existing metadata but add/update content
         allXTrefs.xtrefs[existingIndex] = {
-          ...allXTrefs.xtrefs[existingIndex],
+          ...existingXtref,
           content: xrefTerm.content,  // Update the content from fetched HTML
           classes: xrefTerm.classes || [], // Update classes from dt element
           source: xrefTerm.source,     // Add source field
           termId: xrefTerm.termId,     // Add termId if not present
           lastUpdated: new Date().toISOString()
         };
+
+        // Check if this is a tref to an external tref (nested tref)
+        // A term with 'term-external' class means it's transcluded from another spec
+        const isExternalTref = xrefTerm.classes && xrefTerm.classes.includes('term-external');
+        const isTref = existingXtref.sourceFiles && existingXtref.sourceFiles.some(sf => sf.type === 'tref');
+
+        if (isExternalTref && isTref) {
+          // Build a readable list of source files for the error message
+          const sourceFilesList = existingXtref.sourceFile 
+            ? existingXtref.sourceFile 
+            : (existingXtref.sourceFiles || []).map(sf => sf.file).join(', ');
+          
+          // Construct the external repository URL
+          const externalRepoUrl = existingXtref.ghPageUrl || existingXtref.repoUrl || `https://github.com/${existingXtref.owner}/${existingXtref.repo}`;
+          
+          Logger.error(`Origin: ${sourceFilesList} 👉 NESTED TREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec} is itself a tref (transcluded from another spec). This creates a chain of external references. Consider using [[xref:${existingXtref.externalSpec},${existingXtref.term}]] instead. (${externalRepoUrl})`);
+        }
+
         matchedCount++;
       } else {
         // Skip terms that are not referenced in the local markdown files
