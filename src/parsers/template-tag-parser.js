@@ -200,15 +200,22 @@ function parseTref(token) {
     displayText = `<span class='term-external-original-term term-original-term' title='original term'>${termName}</span>`;
   }
 
-  const termId = `term:${termName.replace(whitespace.oneOrMore, '-').toLowerCase()}`;
-  const primaryAliasId = aliases.length > 0 ? `term:${aliases[0].replace(whitespace.oneOrMore, '-').toLowerCase()}` : '';
+  // Generate HTML spans for each term/alias combination, similar to parseDef
+  // This creates anchor points that can be referenced by [[ref: ...]] links
+  // token.info.args for tref is [externalSpec, term, alias1, alias2, ...]
+  // We need to create IDs for the term and all aliases (skip the externalSpec at index 0)
+  const termsAndAliases = [termName, ...aliases];
 
-  // Handle cases where we have aliases
-  if (aliases.length > 0 && aliases[0] !== termName) {
-    return `<span data-original-term="${termName}" class="term-external" id="${termId}"><span title="Externally defined as ${termName}" id="${primaryAliasId}">${displayText}</span></span>`;
-  } else {
-    return `<span title="Externally also defined as ${termName}" data-original-term="${termName}" class="term-external" id="${termId}">${displayText}</span>`;
-  }
+  return termsAndAliases.reduce((acc, syn, index) => {
+    // Generate a unique term ID by normalizing the synonym: replace whitespace with hyphens and convert to lowercase
+    const termId = `term:${syn.replace(whitespace.oneOrMore, '-').toLowerCase()}`;
+    // Add title attribute to the innermost span (first in the array, which wraps the display text directly)
+    // This provides a tooltip showing which external term this alias refers to
+    const titleAttr = index === 0 && aliases.length > 0 ? ` title="Externally defined as ${termName}"` : '';
+    // Add class and data attributes only to the outermost span (last one created)
+    const outerAttrs = index === termsAndAliases.length - 1 ? ` data-original-term="${termName}" class="term-external"` : '';
+    return `<span id="${termId}"${outerAttrs}${titleAttr}>${acc}</span>`;
+  }, displayText);
 }
 
 /**
@@ -237,7 +244,7 @@ function processXTrefObject(xtref) {
 
   // Collect all aliases from parts after the term (index 1), trim and filter empties
   const allAliases = parts.slice(2).map(p => p.trim()).filter(Boolean);
-  
+
   // Initialize both tref and xref alias arrays
   xtrefObject.trefAliases = [];
   xtrefObject.xrefAliases = [];

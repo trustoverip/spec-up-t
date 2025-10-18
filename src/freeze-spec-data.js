@@ -44,3 +44,7 @@ const destFile = path.join(newVersionDir, 'index.html');
 fs.copyFileSync(sourceFile, destFile);
 
 Logger.success(`Created a freezed specification version in ${destFile}`);
+
+// Update the versions index.html to include the newly created version
+const createVersionsIndex = require('./pipeline/configuration/create-versions-index.js');
+createVersionsIndex(outputPath);

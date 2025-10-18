@@ -118,22 +118,24 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
     // Add xref terms to the allXTrefs structure
     // Mark them with source: 'xref' to distinguish from tref entries
     xrefTerms.forEach(xrefTerm => {
-      // Check if this term already exists (avoid duplicates)
+      // Check if this term already exists (match by externalSpec and term only)
+      // Don't filter by source because entries from markdown scanning don't have source field
       const existingIndex = allXTrefs.xtrefs.findIndex(existing =>
         existing.externalSpec === xrefTerm.externalSpec &&
-        existing.term === xrefTerm.term &&
-        existing.source === 'xref'
+        existing.term === xrefTerm.term
       );
 
       if (existingIndex >= 0) {
-        // Update existing entry
+        // Update existing entry - preserve the existing metadata but add/update content
         allXTrefs.xtrefs[existingIndex] = {
           ...allXTrefs.xtrefs[existingIndex],
-          ...xrefTerm,
+          content: xrefTerm.content,  // Update the content from fetched HTML
+          source: xrefTerm.source,     // Add source field
+          termId: xrefTerm.termId,     // Add termId if not present
           lastUpdated: new Date().toISOString()
         };
       } else {
-        // Add new entry
+        // Add new entry (this term wasn't referenced in the markdown)
         allXTrefs.xtrefs.push({
           ...xrefTerm,
           lastUpdated: new Date().toISOString()
@@ -179,28 +181,53 @@ function extractTermsFromHtml(externalSpec, html) {
       batch.each((index, termElement) => {
         try {
           const $termElement = $(termElement);
-          const termId = $termElement.attr('id');
           
-          // Skip elements without an id attribute or with invalid id format
-          if (!termId || !termId.includes('term:')) {
+          // The id can be on the dt element itself OR on span(s) inside it
+          // Some terms have multiple nested spans with different IDs (e.g., aliases)
+          // We need to extract ALL term IDs from the dt element
+          const termIds = [];
+          
+          // First check if dt itself has an id
+          const dtId = $termElement.attr('id');
+          if (dtId && dtId.includes('term:')) {
+            termIds.push(dtId.replace('term:', ''));
+          }
+          
+          // Then find all spans with ids that contain 'term:'
+          $termElement.find('span[id*="term:"]').each((i, span) => {
+            const spanId = $(span).attr('id');
+            if (spanId && spanId.includes('term:')) {
+              const termName = spanId.replace('term:', '');
+              if (!termIds.includes(termName)) {
+                termIds.push(termName);
+              }
+            }
+          });
+          
+          // Skip if no valid term IDs found
+          if (termIds.length === 0) {
             return;
           }
           
-          const termName = termId.replace('term:', '');
           const dd = $termElement.next('dd');
 
           if (dd.length > 0) {
-            // Create term object compatible with allXTrefs structure
-            const termObj = {
-              externalSpec: externalSpec,
-              term: termName,
-              content: $.html(dd), // Store the complete DD content
-              // Add metadata for consistency with tref structure
-              source: 'xref', // Distinguish from tref entries
-              termId: `term:${externalSpec}:${termName}`, // Fully qualified term ID
-            };
+            const ddContent = $.html(dd); // Store the complete DD content once
+            
+            // Create a term object for each ID found in this dt element
+            // This handles cases where one term definition has multiple aliases
+            termIds.forEach(termName => {
+              const termObj = {
+                externalSpec: externalSpec,
+                term: termName,
+                content: ddContent,
+                // Add metadata for consistency with tref structure
+                source: 'xref', // Distinguish from tref entries
+                termId: `term:${externalSpec}:${termName}`, // Fully qualified term ID
+              };
 
-            terms.push(termObj);
+              terms.push(termObj);
+            });
           }
         } catch (termError) {
           Logger.warn(`Error processing term in ${externalSpec}:`, termError.message);
