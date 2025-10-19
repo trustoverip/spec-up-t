@@ -16,7 +16,7 @@
           repo_issue_list.innerHTML = issues.map(issue => {
             return `<li class="repo-issue">
               <detail-box>
-                <section>${md.render(issue.body || '')}</section>
+                <div>${md.render(issue.body || '')}</div>
                 <header class="repo-issue-title">
                   <span class="repo-issue-number">${issue.number}</span>
                   <span class="repo-issue-link">
