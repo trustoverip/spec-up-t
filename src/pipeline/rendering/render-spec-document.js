@@ -111,7 +111,6 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
       assetsHead: assets.head,
       assetsBody: assets.body,
       assetsSvg: assets.svg,
-      features: Object.keys(features).join(' '),
       externalReferences: '', // No longer inject DOM HTML - xrefs are in allXTrefs
       xtrefsData: createScriptElementWithXTrefDataForEmbeddingInHtml(),
       specLogo: spec.logo,
