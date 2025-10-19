@@ -14,6 +14,7 @@
 const { findExternalSpecByKey } = require('../pipeline/references/external-references-service.js');
 const { lookupXrefTerm } = require('../pipeline/rendering/render-utils.js');
 const { whitespace, htmlComments, contentCleaning, externalReferences } = require('../utils/regex-patterns');
+const Logger = require('../utils/logger.js');
 
 /**
  * Extracts the current file from token content for source tracking
@@ -135,11 +136,16 @@ function parseRef(globalState, primary) {
  * Uses primaryDisplayTerm concept: shows first alias if available, otherwise shows the term itself
  * @param {Object} config - Configuration containing external specs
  * @param {Object} token - The markdown-it token
- * @returns {string} HTML anchor element linking to external term
+ * @returns {string} HTML anchor element linking to external term or error span if unresolved
  */
 function parseXref(config, token) {
   const externalSpec = findExternalSpecByKey(config, token.info.args[0]);
-  const url = externalSpec?.gh_page || '#';
+  
+  // If external spec cannot be found, return error indicator
+  if (!externalSpec) {
+    return `<span class="no-xref-found-message" title="External spec '${token.info.args[0]}' not found in configuration">xref cannot be resolved</span>`;
+  }
+
   const termName = token.info.args[1];
   const aliases = token.info.args.slice(2).filter(Boolean); // Get all aliases after the term
   const term = termName.replace(whitespace.oneOrMore, '-').toLowerCase();
@@ -148,8 +154,11 @@ function parseXref(config, token) {
   // Determine the primary display term (first alias if available, otherwise original term)
   const primaryDisplayTerm = aliases.length > 0 ? aliases[0] : termName;
 
+  // Build the href attribute using the external spec's gh_page
+  const href = `${externalSpec.gh_page}#term:${term}`;
+
   // Build link attributes with both local and external href capabilities
-  let linkAttributes = `class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}" href="${url}#term:${term}"`;
+  let linkAttributes = `class="x-term-reference term-reference" data-local-href="#term:${token.info.args[0]}:${term}" href="${href}"`;
 
   // Add tooltip content if term definition is available
   if (xrefTerm && xrefTerm.content) {
@@ -261,6 +270,13 @@ function processXTrefObject(xtref) {
     // Store the first xref alias separately as it has special meaning
     if (allAliases.length > 0) {
       xtrefObject.firstXrefAlias = allAliases[0];
+    }
+    
+    // Log error if xref has more than one alias
+    // xref should only have 0 or 1 alias, unlike tref which supports multiple aliases
+    if (allAliases.length > 1) {
+      const extraAliases = allAliases.slice(1).join(', ');
+      Logger.error(`Invalid xref syntax: [[xref: ${xtrefObject.externalSpec}, ${xtrefObject.term}, ${allAliases.join(', ')}]] has ${allAliases.length} aliases. Only the first alias "${allAliases[0]}" will be used. Extra aliases ignored: ${extraAliases}.`);
     }
   }
 

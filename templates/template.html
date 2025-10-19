@@ -8,7 +8,7 @@
     <meta name="author" content="${author}">
     <meta property="spec-up-t:github-repo-info" content="${githubRepoInfo}">
     <link rel="icon" href="${specFavicon}" type="image/x-icon">
-    <meta name="generator" content="Spec-Up-T" />
+    <meta name="generator" content="Spec-Up-T">
     <title>${title}</title>
 
     ${assetsHead}
@@ -19,7 +19,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
 </head>
 
-<body features="${features}">
+<body>
     <!-- Skip to content link for accessibility -->
     <a href="#content" class="screen-reader-text">Skip to content</a>
 
@@ -128,7 +128,7 @@
         </button>
 
         <a id="logo" href="${specLogoLink}">
-            <img class="d-print-none m-1" src="${specLogo}" alt="" />
+            <img class="d-print-none m-1" src="${specLogo}" alt="">
         </a>
 
         <!-- Spacer to push the following elements to the right -->
@@ -138,7 +138,7 @@
         <div class="d-flex align-items-center service-menu d-print-none">
 
             <!-- Settings side menu -->
-            <button id="repo_settings" animate class="btn btn-sm btn-outline-secondary ms-2" type="button"
+            <button id="repo_settings" class="btn btn-sm btn-outline-secondary ms-2" type="button"
                 data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings" aria-controls="offcanvasSettings">
                 <svg class="bi" width="1em" height="1em" aria-hidden="true">
                     <use href="#gear-wide-connected"></use>
@@ -249,7 +249,7 @@
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettingsLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title mt-0" id="offcanvasSettings">Settings</h5>
+            <h5 class="offcanvas-title mt-0" id="offcanvasSettingsLabel">Settings</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body p-0">
@@ -259,7 +259,7 @@
                 aria-label="Enter GitHub Token">
                 Enter GitHub Token
             </button>
-            <button id="repo_issues" issue-count animate class="btn btn-menu-item m-0 mb-1 border-start-0 border-end-0"
+            <button id="repo_issues" data-issue-count data-animate class="btn btn-menu-item m-0 mb-1 border-start-0 border-end-0"
                 type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasIssues"
                 aria-controls="offcanvasIssues">
                 Issues

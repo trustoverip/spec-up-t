@@ -65,7 +65,8 @@ function sortDefinitionTermsInHtml(html) {
   });
 
   // Return the modified HTML
-  return dom.serialize();
+  // Extract only the body's innerHTML to avoid wrapping in <html><head></head><body> tags
+  return dom.window.document.body.innerHTML;
 }
 
 /**
@@ -340,7 +341,8 @@ function fixDefinitionListStructure(html) {
   }
 
   // Return the fixed HTML
-  return dom.serialize();
+  // Extract only the body's innerHTML to avoid wrapping in <html><head></head><body> tags
+  return dom.window.document.body.innerHTML;
 }
 
 module.exports = {

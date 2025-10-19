@@ -1,7 +1,20 @@
 const { initialize } = require('./src/init');
 const Logger = require('./src/utils/logger');
+const messageCollector = require('./src/utils/message-collector');
 
 module.exports = async function (options = {}) {
+  // Start collecting messages if requested
+  const shouldCollectMessages = options.collectMessages !== false; // Collect by default
+  
+  if (shouldCollectMessages) {
+    // Only clear messages if not called from another operation (like collectExternalReferences)
+    // If skipClear is true, we're continuing from a previous operation
+    if (!options.skipClear) {
+      messageCollector.clearMessages();
+    }
+    messageCollector.startCollecting('render');
+  }
+
   try {
   const { initializeConfig } = require('./src/pipeline/configuration/prepare-spec-configuration.js');
     let toc = '';
@@ -137,8 +150,16 @@ module.exports = async function (options = {}) {
 
         // Run render and wait for it
         render(spec, assetTags, { externalReferences, references, definitions, specGroups, noticeTitles }, config, template, assets, Logger, md, externalSpecsList)
-          .then(() => {
+          .then(async () => {
             Logger.info('Render completed for:', spec.destination);
+            
+            // Save collected messages
+            if (shouldCollectMessages) {
+              messageCollector.stopCollecting();
+              const messagePath = await messageCollector.saveMessages();
+              Logger.success(`Console messages saved to: ${messagePath}`);
+            }
+            
             if (options.nowatch) {
               Logger.info('Exiting with nowatch');
               process.exit(0);
@@ -146,6 +167,15 @@ module.exports = async function (options = {}) {
           })
           .catch((e) => {
             Logger.error('Render failed:', e.message);
+            
+            // Save messages even on failure
+            if (shouldCollectMessages) {
+              messageCollector.stopCollecting();
+              messageCollector.saveMessages().catch(() => {
+                // Silent fail on save error
+              });
+            }
+            
             process.exit(1);
           });
 
@@ -159,10 +189,28 @@ module.exports = async function (options = {}) {
       });
     } catch (error) {
       Logger.error(`Error during initialization or module execution: ${error.message}`);
+      
+      // Save messages even on error
+      if (shouldCollectMessages) {
+        messageCollector.stopCollecting();
+        await messageCollector.saveMessages().catch(() => {
+          // Silent fail on save error
+        });
+      }
+      
       throw error; // Re-throw to let the caller handle the error
     }
   } catch (error) {
     Logger.error(`Error during initialization: ${error.message}`);
+    
+    // Save messages even on error
+    if (shouldCollectMessages) {
+      messageCollector.stopCollecting();
+      await messageCollector.saveMessages().catch(() => {
+        // Silent fail on save error
+      });
+    }
+    
     throw error; // Re-throw to let the caller handle the error
   }
 };

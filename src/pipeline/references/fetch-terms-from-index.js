@@ -12,6 +12,16 @@ const Logger = require('../../utils/logger');
 
 const CACHE_DIR = getPath('githubcache');
 
+/**
+ * Retrieves the latest commit hash for a specific file in a GitHub repository.
+ * 
+ * @param {string} token - GitHub API token for authentication
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {string} filePath - Path to the file within the repository
+ * @param {Object} headers - HTTP headers for the request
+ * @returns {Promise<string|null>} The commit SHA or null if not found
+ */
 async function getFileCommitHash(token, owner, repo, filePath, headers) {
     try {
         const normalizedPath = filePath.replace(/^\//, '');
@@ -31,6 +41,27 @@ async function getFileCommitHash(token, owner, repo, filePath, headers) {
     }
 }
 
+/**
+ * Fetches all term definitions from an external specification repository.
+ * Extracts terms from the generated index.html file and includes CSS classes
+ * to identify whether terms are local definitions or external references.
+ * 
+ * @param {string} token - GitHub API token for authentication
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {Object} [options={}] - Additional options
+ * @param {string} [options.ghPageUrl] - GitHub Pages URL for the repository
+ * @returns {Promise<Object|null>} Object containing:
+ *   - {number} timestamp - Unix timestamp when terms were fetched
+ *   - {string} repository - Full repository path (owner/repo)
+ *   - {Array<Object>} terms - Array of term objects, each containing:
+ *     - {string} term - The term identifier
+ *     - {string} definition - HTML definition content
+ *     - {Array<string>} classes - CSS classes from the dt element ('term-local' or 'term-external')
+ *   - {string|null} sha - Commit hash
+ *   - {string|null} avatarUrl - Avatar URL
+ *   - {string} outputFileName - Name of the cached file
+ */
 async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
     try {
         const headers = token ? { Authorization: `token ${token}` } : {};
@@ -118,6 +149,12 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
                 return;
             }
 
+            // Extract classes from the <dt> element to determine if it's a local or external term.
+            // This helps identify if a tref to an external resource is itself a tref (term-external)
+            // or a local definition (term-local).
+            const dtClasses = dt.className ? dt.className.split(/\s+/).filter(Boolean) : [];
+            const termClasses = dtClasses.filter(cls => cls === 'term-local' || cls === 'term-external');
+
             const definitions = [];
             let pointer = dt.nextElementSibling;
             while (pointer && pointer.tagName.toLowerCase() === 'dd') {
@@ -125,7 +162,11 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
                 pointer = pointer.nextElementSibling;
             }
 
-            terms.push({ term: termText, definition: definitions.join('\n') });
+            terms.push({ 
+                term: termText, 
+                definition: definitions.join('\n'),
+                classes: termClasses
+            });
         });
 
         const timestamp = Date.now();
@@ -163,6 +204,25 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
     }
 }
 
+/**
+ * Fetches a specific term definition from an external specification repository.
+ * This is a convenience wrapper around fetchAllTermsFromIndex that returns
+ * only a single matching term.
+ * 
+ * @param {string} token - GitHub API token for authentication
+ * @param {string} term - The specific term to fetch
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {string} termsDir - Terms directory (currently unused but kept for compatibility)
+ * @param {Object} [options={}] - Additional options
+ * @param {string} [options.ghPageUrl] - GitHub Pages URL for the repository
+ * @returns {Promise<Object|null>} Object containing:
+ *   - {string} term - The term identifier
+ *   - {string} content - HTML definition content
+ *   - {Array<string>} classes - CSS classes ('term-local' or 'term-external')
+ *   - {string|null} sha - Commit hash
+ *   - {Object} repository - Repository metadata
+ */
 async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options = {}) {
     const allTermsData = await fetchAllTermsFromIndex(token, owner, repo, options);
     if (!allTermsData || !Array.isArray(allTermsData.terms)) {
@@ -179,6 +239,7 @@ async function fetchTermsFromIndex(token, term, owner, repo, termsDir, options =
     return {
         term: foundTerm.term,
         content: foundTerm.definition,
+        classes: foundTerm.classes || [],
         sha: allTermsData.sha,
         repository: {
             owner: {

@@ -17,7 +17,7 @@ function validateReferences(references, definitions, render) {
     }
   );
   if (unresolvedRefs.length > 0) {
-    Logger.info('Unresolved References:', unresolvedRefs);
+    Logger.warn(`Unresolved References: ${unresolvedRefs.join(',')}`);
   }
 
   const danglingDefs = [];
@@ -38,7 +38,7 @@ function validateReferences(references, definitions, render) {
     }
   })
   if (danglingDefs.length > 0) {
-    Logger.info('Dangling Definitions:', danglingDefs);
+    Logger.warn(`Dangling Definitions: ${danglingDefs.join(',')}`);
   }
 }
 
@@ -117,6 +117,10 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
 
     // Add xref terms to the allXTrefs structure
     // Mark them with source: 'xref' to distinguish from tref entries
+    // Track how many terms were matched vs skipped for logging purposes
+    let matchedCount = 0;
+    let skippedCount = 0;
+
     xrefTerms.forEach(xrefTerm => {
       // Check if this term already exists (match by externalSpec and term only)
       // Don't filter by source because entries from markdown scanning don't have source field
@@ -126,20 +130,54 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
       );
 
       if (existingIndex >= 0) {
+        // Get the existing entry to check if it's a tref
+        const existingXtref = allXTrefs.xtrefs[existingIndex];
+        
         // Update existing entry - preserve the existing metadata but add/update content
         allXTrefs.xtrefs[existingIndex] = {
-          ...allXTrefs.xtrefs[existingIndex],
+          ...existingXtref,
           content: xrefTerm.content,  // Update the content from fetched HTML
+          classes: xrefTerm.classes || [], // Update classes from dt element
           source: xrefTerm.source,     // Add source field
           termId: xrefTerm.termId,     // Add termId if not present
           lastUpdated: new Date().toISOString()
         };
+
+        // Check if this is a tref to an external tref (nested tref)
+        // A term with 'term-external' class means it's transcluded from another spec
+        const isExternalTref = xrefTerm.classes && xrefTerm.classes.includes('term-external');
+        const isTref = existingXtref.sourceFiles && existingXtref.sourceFiles.some(sf => sf.type === 'tref');
+        const isXref = existingXtref.sourceFiles && existingXtref.sourceFiles.some(sf => sf.type === 'xref');
+
+        if (isExternalTref && isTref) {
+          // Build a readable list of source files for the error message
+          const sourceFilesList = existingXtref.sourceFile 
+            ? existingXtref.sourceFile 
+            : (existingXtref.sourceFiles || []).map(sf => sf.file).join(', ');
+          
+          // Construct the external repository URL
+          const externalRepoUrl = existingXtref.ghPageUrl || existingXtref.repoUrl || `https://github.com/${existingXtref.owner}/${existingXtref.repo}`;
+          
+          Logger.error(`Origin: ${sourceFilesList} 👉 NESTED TREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec} is itself a tref (transcluded from another spec). This creates a chain of external references.`);
+        }
+
+        if (isExternalTref && isXref) {
+          // Build a readable list of source files for the warning message
+          const sourceFilesList = existingXtref.sourceFile 
+            ? existingXtref.sourceFile 
+            : (existingXtref.sourceFiles || []).map(sf => sf.file).join(', ');
+          
+          // Construct the external repository URL
+          const externalRepoUrl = existingXtref.ghPageUrl || existingXtref.repoUrl || `https://github.com/${existingXtref.owner}/${existingXtref.repo}`;
+          
+          Logger.error(`Origin: ${sourceFilesList} 👉 NESTED XREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec} is itself a tref (transcluded from another spec). This xref points to a term that is already transcluded from elsewhere, creating a chain of external references. (${externalRepoUrl})`);
+        }
+
+        matchedCount++;
       } else {
-        // Add new entry (this term wasn't referenced in the markdown)
-        allXTrefs.xtrefs.push({
-          ...xrefTerm,
-          lastUpdated: new Date().toISOString()
-        });
+        // Skip terms that are not referenced in the local markdown files
+        // This prevents bloating the xtrefs-data.json with unreferenced terms
+        skippedCount++;
       }
     });
 
@@ -150,7 +188,7 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
     const stringReadyForFileWrite = `const allXTrefs = ${allXTrefsStr};`;
     fs.writeFileSync(outputPathJS, stringReadyForFileWrite, 'utf8');
 
-    Logger.success(`Merged ${xrefTerms.length} xref terms into allXTrefs. Total entries: ${allXTrefs.xtrefs.length}`);
+    Logger.success(`Merged xref terms: ${matchedCount} matched, ${skippedCount} skipped (not referenced). Total entries: ${allXTrefs.xtrefs.length}`);
 
   } catch (error) {
     Logger.error('Error merging xref terms into allXTrefs:', error.message);
@@ -208,6 +246,12 @@ function extractTermsFromHtml(externalSpec, html) {
           if (termIds.length === 0) {
             return;
           }
+
+          // Extract classes from the <dt> element to determine if it's a local or external term.
+          // This helps identify if a tref to an external resource is itself a tref (term-external).
+          const dtClasses = $termElement.attr('class');
+          const classArray = dtClasses ? dtClasses.split(/\s+/).filter(Boolean) : [];
+          const termClasses = classArray.filter(cls => cls === 'term-local' || cls === 'term-external');
           
           const dd = $termElement.next('dd');
 
@@ -221,9 +265,10 @@ function extractTermsFromHtml(externalSpec, html) {
                 externalSpec: externalSpec,
                 term: termName,
                 content: ddContent,
+                classes: termClasses, // CSS classes from dt element (term-local or term-external)
                 // Add metadata for consistency with tref structure
                 source: 'xref', // Distinguish from tref entries
-                termId: `term:${externalSpec}:${termName}`, // Fully qualified term ID
+                termId: `term:${termName}`, // Term ID matches the actual HTML anchor format
               };
 
               terms.push(termObj);
