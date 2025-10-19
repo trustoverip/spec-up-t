@@ -13,18 +13,18 @@
     color: var(--header-navbar-text);
 }
 
-[issue-count]:after {
-    content: "(" attr(issue-count) ")";
+[data-issue-count]:after {
+    content: "(" attr(data-issue-count) ")";
     margin: 0 0 0 0.3em;
     padding: 0.1em 0 0;
 }
 
-[issue-count=""][animate] {
+[data-issue-count=""][data-animate] {
     display: none;
     opacity: 0;
 }
 
-[issue-count][animate]:not([issue-count=""]) {
+[data-issue-count][data-animate]:not([data-issue-count=""]) {
     animation: display-show 1s;
 }
 

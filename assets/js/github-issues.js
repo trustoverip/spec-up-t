@@ -10,8 +10,8 @@
         .then(response => response.json())
         .then(issues => {
           let count = issues.length;
-          document.querySelectorAll('[issue-count]').forEach(node => {
-            node.setAttribute('issue-count', count)
+          document.querySelectorAll('[data-issue-count]').forEach(node => {
+            node.setAttribute('data-issue-count', count)
           });
           repo_issue_list.innerHTML = issues.map(issue => {
             return `<li class="repo-issue">
