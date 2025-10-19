@@ -12,7 +12,6 @@
  * 
  * - TABLE ENHANCEMENT: Bootstrap styling and responsive wrappers
  * - TEMPLATE-TAG SYNTAX: Custom [[template-tag:args]] syntax processing
- * - LINK ENHANCEMENT: Path-based attributes for links
  * - DEFINITION LISTS: Advanced terminology and reference list handling
  * 
  * This modular approach makes the code more maintainable and easier to
@@ -22,7 +21,6 @@
 // Import all the specialized enhancement modules
 const applyTableEnhancements = require('./table-enhancement');
 const applyTemplateTagSyntax = require('./template-tag-syntax');
-const applyLinkEnhancements = require('./link-enhancement');
 const applyDefinitionListEnhancements = require('./definition-lists');
 
 /**
@@ -64,10 +62,7 @@ function applyMarkdownItExtensions(md, templates = []) {
   // 2. Template-tag syntax - should be applied early as other modules may depend on it
   applyTemplateTagSyntax(md, templates);
   
-  // 3. Link enhancements - independent, can be applied anytime
-  applyLinkEnhancements(md);
-  
-  // 4. Definition lists - depends on template-tag syntax for term type detection
+  // 3. Definition lists - depends on template-tag syntax for term type detection
   applyDefinitionListEnhancements(md);
   
   // The markdown-it instance is now fully enhanced and ready for use
@@ -79,5 +74,4 @@ module.exports = applyMarkdownItExtensions;
 // Also export individual modules for fine-grained control if needed
 module.exports.tableEnhancements = applyTableEnhancements;
 module.exports.templateTagSyntax = applyTemplateTagSyntax;
-module.exports.linkEnhancements = applyLinkEnhancements;
 module.exports.definitionLists = applyDefinitionListEnhancements;

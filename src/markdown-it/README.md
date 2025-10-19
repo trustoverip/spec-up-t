@@ -46,19 +46,7 @@ Our extensions override default renderer rules and add custom inline parsing rul
 - Creates template tokens with parsed information
 - Provides a renderer rule to convert template tokens to HTML
 
-### 3. `link-enhancement.js`
-
-**Purpose**: Adds path-based attributes to links for CSS styling and JavaScript targeting.
-
-**Features**:
-
-- Extracts domain and path segments from URLs
-- Adds `path-0`, `path-1`, etc. attributes to anchor tags
-- Special handling for auto-detected links (linkify)
-
-**How it works**: Overrides `link_open` and `link_close` renderer rules.
-
-### 4. `definition-lists.js`
+### 3. `definition-lists.js`
 
 **Purpose**: Advanced processing of definition lists for terminology and reference management.
 
@@ -75,7 +63,7 @@ Our extensions override default renderer rules and add custom inline parsing rul
 - Uses helper functions to analyze token structure and content
 - Applies CSS classes based on term types and context
 
-### 5. `index.js`
+### 4. `index.js`
 
 **Purpose**: Main orchestrator that applies all enhancements in the correct order.
 
