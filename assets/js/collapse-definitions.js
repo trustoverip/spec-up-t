@@ -53,6 +53,8 @@ function collapseDefinitions() {
             "More in",
             "Also see",
             "See:",
+            "Mind you:",
+            "Explanation:",
             "See also",
             "See more",
             "See more in",
