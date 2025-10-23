@@ -33,7 +33,7 @@ function extractCurrentFile(token, globalState) {
  * @param {Object} config - Configuration object containing specs and settings
  * @param {Object} globalState - Global state object containing definitions, references, etc.
  * @param {Object} token - The markdown-it token being processed
- * @param {string} type - The type of construct (def, ref, xref, tref)
+ * @param {string} type - The type of construct (def, ref, iref, xref, tref)
  * @param {string} primary - The primary content/term
  * @returns {string} The rendered HTML for the construct
  */
@@ -45,6 +45,8 @@ function parseTemplateTag(config, globalState, token, type, primary) {
   switch (type) {
     case 'def':
       return parseDef(globalState, token, primary, currentFile);
+    case 'iref':
+      return parseIref(globalState, primary);
     case 'xref':
       return parseXref(config, token);
     case 'tref':
@@ -128,6 +130,25 @@ function parseRef(globalState, primary) {
   // Create internal link to the term definition
   const termId = primary.replace(whitespace.oneOrMore, '-').toLowerCase();
   return `<a class="term-reference" href="#term:${termId}">${primary}</a>`;
+}
+
+/**
+ * Processes [[iref: term]] constructs
+ * Creates a placeholder that will be replaced client-side with a copy of the term definition
+ * This allows inline copying of existing term definitions from the terms-and-definitions-list
+ * @param {Object} globalState - Global state to track inline references
+ * @param {string} primary - The term to inline copy
+ * @returns {string} HTML placeholder element that will be replaced by client-side script
+ */
+function parseIref(globalState, primary) {
+  // Track this inline reference for validation purposes
+  globalState.references.push(primary);
+
+  // Create a placeholder span with data attribute containing the term to copy
+  // The client-side script (insert-irefs.js) will find this and replace it with
+  // a copy of the actual <dt> and <dd> elements from the terms-and-definitions-list
+  const termId = primary.replace(whitespace.oneOrMore, '-').toLowerCase();
+  return `<span class="iref-placeholder" data-iref-term="${termId}" data-iref-original="${primary}"></span>`;
 }
 
 /**
@@ -298,6 +319,7 @@ module.exports = {
   createTemplateTagParser,
   // Export individual functions for testing purposes
   parseDef,
+  parseIref,
   parseXref,
   parseTref,
   parseRef,

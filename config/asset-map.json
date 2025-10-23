@@ -66,6 +66,7 @@
       "assets/js/token-input.js",
       "assets/js/download-pdf-docx.js",
       "assets/js/insert-trefs.js",
+      "assets/js/insert-irefs.js",
       "assets/js/definition-button-container-utils.js",
       "assets/js/collapse-definitions.js",
       "assets/js/collapse-meta-info.js",

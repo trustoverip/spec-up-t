@@ -109,12 +109,14 @@ const templateTags = {
    * Pattern breakdown:
    * - ^def$ → Exact match for "def" (definition)
    * - ^ref$ → Exact match for "ref" (reference)
+   * - ^iref$ → Exact match for "iref" (inline reference - copies existing term)
    * - ^xref → Starts with "xref" (external reference)
    * - ^tref → Starts with "tref" (typed reference)
    * 
    * Examples:
    * - "def" → matches
    * - "ref" → matches
+   * - "iref" → matches
    * - "xref" → matches
    * - "tref" → matches
    * - "xref:spec,term" → matches (starts with xref)
@@ -122,7 +124,7 @@ const templateTags = {
    * Flags:
    * - i: case-insensitive matching
    */
-  terminology: /^def$|^ref$|^xref|^tref$/i
+  terminology: /^def$|^ref$|^iref$|^xref|^tref$/i
 };
 
 /**
