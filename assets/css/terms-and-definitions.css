@@ -425,6 +425,20 @@ dl.iref-definition-list dd.iref-definition p {
   padding-left: 0.5rem;
 }
 
+/* Link to original term in iref dt */
+a.iref-link-to-original {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  transition: opacity 0.2s ease-in-out;
+}
+
+a.iref-link-to-original:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
 /* iref not found message */
 .iref-not-found {
   margin: 0.5rem 0;
