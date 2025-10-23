@@ -14,7 +14,11 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
 
         allXTrefs.xtrefs = allXTrefs.xtrefs.filter(xtref => {
             if (!xtref.owner || !xtref.repo || !xtref.repoUrl) {
-                Logger.error(`Removing incomplete reference: ${xtref.externalSpec}, ${xtref.term}`);
+                Logger.error(`Removing incomplete reference: ${xtref.externalSpec}, ${xtref.term}`, {
+                    context: 'External reference is missing required repository information',
+                    hint: 'Verify external_specs configuration in specs.json includes github_repo_url for each entry',
+                    details: `Missing: ${!xtref.owner ? 'owner' : ''} ${!xtref.repo ? 'repo' : ''} ${!xtref.repoUrl ? 'repoUrl' : ''}`
+                });
                 return false;
             }
             return true;
@@ -51,7 +55,11 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
             );
 
             if (!allTermsData) {
-                Logger.error(`Could not fetch terms from repository ${repoKey} (${repoUrl})`);
+                Logger.error(`Could not fetch terms from repository ${repoKey}`, {
+                    context: `Failed to retrieve terminology from ${repoUrl}`,
+                    hint: 'Ensure the repository exists, is accessible, and has published its spec. If it\'s private, set GITHUB_PAT environment variable',
+                    details: `Repository: ${repoUrl}. Check if GitHub Pages is enabled or if the repo has a valid specs.json`
+                });
                 repoGroup.xtrefs.forEach(xtref => {
                     xtref.commitHash = 'not found';
                     xtref.content = 'This term was not found in the external repository.';
@@ -81,26 +89,34 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
 
                     if (isExternalTref && isTref) {
                         // Build a readable list of source files for the error message
-                        const sourceFilesList = xtref.sourceFile 
-                            ? xtref.sourceFile 
+                        const sourceFilesList = xtref.sourceFile
+                            ? xtref.sourceFile
                             : (xtref.sourceFiles || []).map(sf => sf.file).join(', ');
-                        
+
                         // Construct the external repository URL
                         const externalRepoUrl = xtref.ghPageUrl || xtref.repoUrl || `https://github.com/${xtref.owner}/${xtref.repo}`;
-                        
-                        Logger.error(`Origin: ${sourceFilesList} 👉 NESTED TREF DETECTED: Term "${xtref.term}" in ${xtref.externalSpec} is itself a tref (transcluded from another spec). This creates a chain of external references.`);
+
+                        Logger.error(`NESTED TREF DETECTED: Term "${xtref.term}" in ${xtref.externalSpec}`, {
+                            context: `Origin: ${sourceFilesList} - This term is itself a tref transcluded from another spec`,
+                            hint: 'Avoid chaining trefs (tref → tref). Either reference the original source spec directly, or define the term locally',
+                            details: `Repository: ${externalRepoUrl}. Nested trefs create complex dependency chains`
+                        });
                     }
 
                     if (isExternalTref && isXref) {
                         // Build a readable list of source files for the warning message
-                        const sourceFilesList = xtref.sourceFile 
-                            ? xtref.sourceFile 
+                        const sourceFilesList = xtref.sourceFile
+                            ? xtref.sourceFile
                             : (xtref.sourceFiles || []).map(sf => sf.file).join(', ');
-                        
+
                         // Construct the external repository URL
                         const externalRepoUrl = xtref.ghPageUrl || xtref.repoUrl || `https://github.com/${xtref.owner}/${xtref.repo}`;
-                        
-                        Logger.error(`Origin: ${sourceFilesList} 👉 NESTED XREF DETECTED: Term "${xtref.term}" in ${xtref.externalSpec} is itself a tref (transcluded from another spec). This xref points to a term that is already transcluded from elsewhere, creating a chain of external references. (${externalRepoUrl})`);
+
+                        Logger.error(`NESTED XREF DETECTED: Term "${xtref.term}" in ${xtref.externalSpec}`, {
+                            context: `Origin: ${sourceFilesList} - This xref points to a term that is already transcluded elsewhere`,
+                            hint: 'Use [[xref]] only for terms directly defined in the external spec. For nested refs, reference the original source',
+                            details: `Repository: ${externalRepoUrl}. This creates a chain of external references`
+                        });
                     }
 
                     Logger.success(`Match found for term: ${xtref.term} in ${xtref.externalSpec}`);
@@ -108,7 +124,7 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                     xtref.commitHash = 'not found';
                     xtref.content = 'This term was not found in the external repository.';
                     xtref.avatarUrl = null;
-                    
+
                     // Build a readable list of source files for the error message.
                     // Two possible data structures exist:
                     // 1. xtref.sourceFile is a STRING like "primitive.md"
@@ -119,15 +135,19 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
                     // - Otherwise → extract file names from the sourceFiles array:
                     //   - .map(sf => sf.file) extracts just the filename from each object
                     //   - .join(', ') combines them into a comma-separated string
-                    const sourceFilesList = xtref.sourceFile 
-                        ? xtref.sourceFile 
+                    const sourceFilesList = xtref.sourceFile
+                        ? xtref.sourceFile
                         : (xtref.sourceFiles || []).map(sf => sf.file).join(', ');
 
                     // Prefer an explicit repo URL if provided on the xtref, otherwise
                     // build a standard GitHub URL from the owner/repo.
                     const githubUrl = xtref.repoUrl || `https://github.com/${repoKey}`;
 
-                    Logger.error(`Origin: ${sourceFilesList} 👉 No match found for term: ${xtref.term} in ${xtref.externalSpec} (${githubUrl})`);
+                    Logger.error(`No match found for term: ${xtref.term} in ${xtref.externalSpec}`, {
+                        context: `Origin: ${sourceFilesList} - Term not found in external repository`,
+                        hint: 'Check if the term exists in the external spec. Verify spelling, ensure the external spec has published, and confirm the term is in their terminology section',
+                        details: `Repository: ${githubUrl}. The term may have been renamed or removed`
+                    });
                 }
             }
 
@@ -138,10 +158,14 @@ async function processXTrefsData(allXTrefs, GITHUB_API_TOKEN, outputPathJSON, ou
         const allXTrefsStr = JSON.stringify(allXTrefs, null, 2);
         fs.writeFileSync(outputPathJSON, allXTrefsStr, 'utf8');
         const jsPayload = `const allXTrefs = ${allXTrefsStr};`;
-    fs.writeFileSync(outputPathJS, jsPayload, 'utf8');
-    fs.writeFileSync(outputPathJSTimeStamped, jsPayload, 'utf8');
+        fs.writeFileSync(outputPathJS, jsPayload, 'utf8');
+        fs.writeFileSync(outputPathJSTimeStamped, jsPayload, 'utf8');
     } catch (error) {
-        Logger.error('An error occurred:', error);
+        Logger.error('An error occurred during xtrefs processing', {
+            context: 'Failed while processing external references and fetching terms',
+            hint: 'Check your internet connection, verify GITHUB_PAT is set if needed, and ensure specs.json external_specs configuration is correct',
+            details: error.message
+        });
     }
 }
 

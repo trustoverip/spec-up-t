@@ -173,7 +173,7 @@ function processInlineElements(node, textRuns) {
         } else if (child.nodeType === 1) { // Element node
             const tagName = child.tagName.toLowerCase();
             const text = child.textContent.trim();
-            
+
             if (text) {
                 switch (tagName) {
                     case 'strong':
@@ -262,8 +262,11 @@ function createTitlePage(config) {
 
         // Check if HTML file exists
         if (!fs.existsSync(filePath)) {
-            Logger.error(`HTML file not found at ${filePath}`);
-            Logger.info('Please run "npm run render" first to generate the HTML file.');
+            Logger.error('HTML file not found', {
+                context: 'Cannot generate DOCX without rendered HTML',
+                hint: 'Run "npm run render" first to generate the HTML file, then run "npm run docx"',
+                details: `Expected file: ${filePath}`
+            });
             return;
         }
 
@@ -325,9 +328,13 @@ function createTitlePage(config) {
         // Write the DOCX file
         fs.writeFileSync(docxPath, buffer);
 
-    Logger.success('DOCX generated successfully! Find the DOCX file in the docs directory.');
+        Logger.success('DOCX generated successfully! Find the DOCX file in the docs directory.');
     } catch (error) {
-    Logger.error('Error generating DOCX:', error);
-    process.exit(1);
+        Logger.error('Error generating DOCX', {
+            context: 'Failed during DOCX document generation',
+            hint: 'Ensure the HTML file is valid and all dependencies are installed. Check that you have write permissions for the output directory',
+            details: error.message
+        });
+        process.exit(1);
     }
 })();
