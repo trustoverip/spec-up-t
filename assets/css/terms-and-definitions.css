@@ -374,12 +374,12 @@ dl.iref-definition-list {
 }
 
 /* Term styling for iref */
-dl.iref-definition-list > dt.iref-term {
+dl.iref-definition-list>dt.iref-term {
   font-weight: 700;
   margin: 0;
   background-color: var(--card-bg-dt);
   border: 1px solid var(--card-border);
-  padding: 0.5rem 1.25rem;
+  padding: 0.5rem 2.25rem;
   border-radius: 0.375rem 0.375rem 0 0;
   color: var(--card-text);
   position: relative;
@@ -395,7 +395,7 @@ dl.iref-definition-list > dt.iref-term {
 }
 
 /* Definition styling for iref */
-dl.iref-definition-list > dd.iref-definition {
+dl.iref-definition-list>dd.iref-definition {
   margin: 0;
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
@@ -409,12 +409,12 @@ dl.iref-definition-list > dd.iref-definition {
 }
 
 /* Add spacing between consecutive iref dd elements */
-dl.iref-definition-list > dd.iref-definition + dd.iref-definition {
+dl.iref-definition-list>dd.iref-definition+dd.iref-definition {
   border-top: 1px dashed var(--card-border);
 }
 
 /* Last dd in iref gets rounded bottom corners */
-dl.iref-definition-list > dd.iref-definition:last-child {
+dl.iref-definition-list>dd.iref-definition:last-child {
   border-radius: 0 0 0.375rem 0.375rem;
 }
 
