@@ -466,6 +466,28 @@ const utils = {
   createGitignoreRegex: function(globPattern) {
     const pattern = '^' + globPattern.replace(/\*/g, '.*').replace(/\//g, '\\/') + '$';
     return new RegExp(pattern);
+  },
+
+  /**
+   * Sanitizes a string for use as a valid CSS selector ID
+   * Removes special characters that would break querySelector while preserving readability
+   * 
+   * Keeps: letters, numbers, hyphens, underscores, colons
+   * Removes: parentheses, brackets, slashes, and other special characters
+   * 
+   * @param {string} str - String to sanitize
+   * @returns {string} Sanitized string safe for use in CSS selectors
+   * 
+   * Example:
+   * sanitizeTermId("authentic chained data container (ACDC)") 
+   *   → "authentic-chained-data-container-acdc"
+   * sanitizeTermId("term/with/slashes") → "term-with-slashes"
+   */
+  sanitizeTermId: function(str) {
+    return str
+      .replace(/[()[\]{}\/\\]/g, '-')  // Replace special chars with hyphens
+      .replace(/-+/g, '-')              // Collapse multiple hyphens into one
+      .replace(/^-|-$/g, '');           // Remove leading/trailing hyphens
   }
 };
 

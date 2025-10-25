@@ -55,10 +55,10 @@ function insertIrefs() {
             }
 
             // Find the term in the terms-and-definitions-list by its ID
+            // Use getElementById instead of querySelector to avoid issues with special characters
             // The term ID is in the format "term:term-name"
-            const termElement = document.querySelector(
-                `dl.terms-and-definitions-list dt span#term\\:${termId.replace(/:/g, '\\:')}`
-            );
+            const fullTermId = `term:${termId}`;
+            const termElement = document.getElementById(fullTermId);
 
             if (!termElement) {
                 console.warn(`iref: term "${originalTerm}" (id: ${termId}) not found in terms-and-definitions-list`);

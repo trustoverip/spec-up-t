@@ -13,7 +13,7 @@
 
 const { findExternalSpecByKey } = require('../pipeline/references/external-references-service.js');
 const { lookupXrefTerm } = require('../pipeline/rendering/render-utils.js');
-const { whitespace, htmlComments, contentCleaning, externalReferences } = require('../utils/regex-patterns');
+const { whitespace, htmlComments, contentCleaning, externalReferences, utils } = require('../utils/regex-patterns');
 const Logger = require('../utils/logger.js');
 
 /**
@@ -111,7 +111,10 @@ function parseDef(globalState, token, primary, currentFile) {
   // IDs stay intact - we create an ID for the original term and each alias
   return token.info.args.reduce((acc, syn) => {
     // Generate a unique term ID by normalizing the synonym: replace whitespace with hyphens and convert to lowercase. The ID is used for fragment identifier (hash) in the URL, which in turn can be used for an anchor in a web page.
-    const termId = `term:${syn.replace(whitespace.oneOrMore, '-').toLowerCase()}`;
+    // Apply sanitization to remove special characters that would break CSS selectors
+    const normalizedSyn = syn.replace(whitespace.oneOrMore, '-').toLowerCase();
+    const sanitizedSyn = utils.sanitizeTermId(normalizedSyn);
+    const termId = `term:${sanitizedSyn}`;
     return `<span id="${termId}">${acc}</span>`;
   }, displayText);
 }
@@ -238,7 +241,10 @@ function parseTref(token) {
 
   return termsAndAliases.reduce((acc, syn, index) => {
     // Generate a unique term ID by normalizing the synonym: replace whitespace with hyphens and convert to lowercase
-    const termId = `term:${syn.replace(whitespace.oneOrMore, '-').toLowerCase()}`;
+    // Apply sanitization to remove special characters that would break CSS selectors
+    const normalizedSyn = syn.replace(whitespace.oneOrMore, '-').toLowerCase();
+    const sanitizedSyn = utils.sanitizeTermId(normalizedSyn);
+    const termId = `term:${sanitizedSyn}`;
     // Add title attribute to the innermost span (first in the array, which wraps the display text directly)
     // This provides a tooltip showing which external term this alias refers to
     const titleAttr = index === 0 && aliases.length > 0 ? ` title="Externally defined as ${termName}"` : '';
