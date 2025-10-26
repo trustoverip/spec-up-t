@@ -115,6 +115,12 @@ function insertIrefs() {
                 element.removeAttribute('id');
             });
 
+            // Remove any edit-term-buttons from the cloned dt
+            const editTermButtons = clonedDt.querySelectorAll('.edit-term-buttons');
+            editTermButtons.forEach(button => {
+                button.remove();
+            });
+
             // Make the entire dt a link to the original term
             // Find the term ID from the original dt element (not the clone)
             const termIdSpan = dtElement.querySelector('[id^="term:"]');
