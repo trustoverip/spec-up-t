@@ -127,11 +127,11 @@ function insertIrefs() {
             if (termIdSpan) {
                 const termIdAttr = termIdSpan.getAttribute('id');
 
-                // Create a button-styled link
+                // Create a button-styled link with arrow icon
                 const glossaryLink = document.createElement('a');
                 glossaryLink.href = `#${termIdAttr}`;
-                glossaryLink.className = 'iref-go-to-glossary-button btn btn-sm btn-outline-primary';
-                glossaryLink.textContent = 'Go to glossary';
+                glossaryLink.className = 'iref-go-to-glossary-button btn btn-sm btn-outline-primary py-1';
+                glossaryLink.innerHTML = '<span class="iref-button-icon"></span>Go to glossary';
                 glossaryLink.title = `Go to original definition of ${originalTerm}`;
 
                 // Append the button to the cloned dt
