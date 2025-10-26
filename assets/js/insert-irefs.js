@@ -121,25 +121,21 @@ function insertIrefs() {
                 button.remove();
             });
 
-            // Make the entire dt a link to the original term
+            // Add a "Go to glossary" button link after the term definition
             // Find the term ID from the original dt element (not the clone)
             const termIdSpan = dtElement.querySelector('[id^="term:"]');
             if (termIdSpan) {
                 const termIdAttr = termIdSpan.getAttribute('id');
 
-                // Wrap the cloned dt content in a link
-                const link = document.createElement('a');
-                link.href = `#${termIdAttr}`;
-                link.className = 'iref-link-to-original';
-                link.title = `Go to original definition of ${originalTerm}`;
+                // Create a button-styled link
+                const glossaryLink = document.createElement('a');
+                glossaryLink.href = `#${termIdAttr}`;
+                glossaryLink.className = 'iref-go-to-glossary-button btn btn-sm btn-outline-primary';
+                glossaryLink.textContent = 'Go to glossary';
+                glossaryLink.title = `Go to original definition of ${originalTerm}`;
 
-                // Move all child nodes of clonedDt into the link
-                while (clonedDt.firstChild) {
-                    link.appendChild(clonedDt.firstChild);
-                }
-
-                // Add the link back to the clonedDt
-                clonedDt.appendChild(link);
+                // Append the button to the cloned dt
+                clonedDt.appendChild(glossaryLink);
             }
 
             dl.appendChild(clonedDt);

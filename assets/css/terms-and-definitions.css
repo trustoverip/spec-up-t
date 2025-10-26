@@ -377,21 +377,6 @@ dl.terms-and-definitions-list span.term-external {
   box-shadow: inset 0 0 0 3px #a9d9f5;
 }
 
-/* Arrow icon for term references using SVG data URI */
-.term-reference::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0.2rem;
-  transform: translateY(-50%);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' class='bi bi-box-arrow-right' viewBox='0 0 16 16' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z'/%3E%3Cpath fill-rule='evenodd' d='M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z'/%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 0.8rem;
-  height: 0.8rem;
-}
-
 /* Adjust arrow position for term references in definition terms */
 dt.term-reference::after {
   left: 1rem;
@@ -462,18 +447,15 @@ dl.iref-definition-list dd.iref-definition p {
   padding-left: 0.5rem;
 }
 
-/* Link to original term in iref dt */
-a.iref-link-to-original {
-  color: inherit;
+/* Button link to original term in iref dt */
+a.iref-go-to-glossary-button {
+  margin-left: 0.5rem;
+  white-space: nowrap;
   text-decoration: none;
-  display: block;
-  width: 100%;
-  transition: opacity 0.2s ease-in-out;
 }
 
-a.iref-link-to-original:hover {
-  opacity: 0.8;
-  text-decoration: underline;
+a.iref-go-to-glossary-button:hover {
+  text-decoration: none;
 }
 
 /* iref not found message */
