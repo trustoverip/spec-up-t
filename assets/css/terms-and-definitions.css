@@ -411,21 +411,11 @@ dl.iref-definition-list {
 
 /* Term styling for iref - lighter appearance to indicate it's a copy */
 dl.iref-definition-list>dt.iref-term {
-  font-weight: 700;
-  margin: 0;
   background-color: rgba(var(--card-bg-dt-rgb, 248, 249, 250), 0.3);
   border: none;
-  padding: 0.5rem 2.25rem;
+  box-shadow: none;
+  padding: 0rem 2.25rem;
   border-radius: 0.375rem 0.375rem 0 0;
-  color: var(--card-text);
-  position: relative;
-  line-height: 1.5;
-  font-size: 1.05em;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2.5rem;
   transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
 }
 
@@ -439,12 +429,13 @@ dl.iref-definition-list>dt.iref-term:hover {
 dl.iref-definition-list>dd.iref-definition {
   margin: 0;
   background-color: rgba(var(--card-bg-rgb, 255, 255, 255), 0.3);
-  border: none;
-  padding: 0.5rem 2rem;
-  color: var(--card-text);
-  width: 100%;
-  position: relative;
+  padding: 0rem 2rem;
   transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+dl.iref-definition-list>dt.iref-term,
+dl.iref-definition-list>dd.iref-definition {
+  font-size: 0.8em;
 }
 
 /* Subtle hover effect for iref definitions */
@@ -457,6 +448,7 @@ dl.iref-definition-list>dd.iref-definition:hover {
 dl.iref-definition-list>dd.iref-definition+dd.iref-definition {
   border-top: 1px dashed rgba(0, 0, 0, 0.1);
 }
+
 
 /* Last dd in iref gets rounded bottom corners */
 dl.iref-definition-list>dd.iref-definition:last-child {
