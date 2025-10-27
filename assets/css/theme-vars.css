@@ -70,6 +70,12 @@ Example of how to use these variables in your CSS:
     /* Purple border for todos */
     --todo-text: #6d00a2;
     /* Dark purple text for todos */
+    --informative-section-bg: #f5f7f9;
+    /* Very light grey-blue background for informative-section - subtle and non-intrusive */
+    --informative-section-border: #b8c5d6;
+    /* Soft grey-blue border for informative-section */
+    --informative-section-text: #5a6a7a;
+    /* Muted grey-blue text for informative-section */
 
 }
 
@@ -137,6 +143,12 @@ Example of how to use these variables in your CSS:
     /* Muted purple border for todos */
     --todo-text: #c89edc;
     /* Light purple text for todos */
+    --informative-section-bg: #1f2428;
+    /* Very subtle dark grey-blue background for informative-section */
+    --informative-section-border: #3d454d;
+    /* Muted grey-blue border for informative-section in dark mode */
+    --informative-section-text: #8b95a1;
+    /* Soft grey-blue text for informative-section in dark mode */
 
 }
 

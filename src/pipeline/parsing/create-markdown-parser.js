@@ -20,7 +20,8 @@ const noticeTypes = {
   issue: 1,
   example: 1,
   warning: 1,
-  todo: 1
+  todo: 1,
+  'informative-section': 1
 };
 // Domain-specific regex patterns for markdown parsing (now centralized)
 const specNameRegex = templateTags.specName;

@@ -149,6 +149,16 @@ dd td img {
   color: var(--todo-text);
 }
 
+.informative-section {
+  background: var(--informative-section-bg);
+  border-color: var(--informative-section-border);
+}
+
+.informative-section .notice-link {
+  display: block;
+  color: var(--informative-section-text);
+}
+
 /* End Notices */
 
 
