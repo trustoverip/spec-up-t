@@ -32,9 +32,9 @@ Example of how to use these variables in your CSS:
     /* Warning/error background */
     --error-message-text: #03365f;
     /* Warning/error text */
-    --term-reference-bg: #eaf5fb;
-    /* Light blue background for term references */
-    --term-reference-border: #a9d9f5;
+    --term-reference-bg: rgba(234, 245, 251, 0.1);
+    /* Light blue background for term references - more transparent */
+    --term-reference-border: #ddf0fb;
     /* Light blue border for term references */
     --table-border: #ddd;
     /* Light gray border for tables */
@@ -99,8 +99,8 @@ Example of how to use these variables in your CSS:
     /* Muted warning/error background for dark mode */
     --error-message-text: #ffd89b;
     /* Light warning/error text for dark mode */
-    --term-reference-bg: #2d4550;
-    /* Dark blue-gray background for term references */
+    --term-reference-bg: rgba(45, 69, 80, 0.1);
+    /* Dark blue-gray background for term references - more transparent */
     --term-reference-border: #5a8fa8;
     /* Muted blue border for term references in dark mode */
     --table-border: #555;
