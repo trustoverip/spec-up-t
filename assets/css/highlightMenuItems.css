@@ -4,6 +4,9 @@
   Description: JavaScript in /assets/js/highlightMenuItems.js
 */
 
-.highlight-cfib41dyhcd99sm {
-  background-color: #1d6dae11;
+/* Use more specific selector to override base TOC styles */
+ul.toc li a.menu-item-highlighted {
+  background-color: rgba(29, 109, 174, 0.08);
+  border-left: 3px solid #007bff;
+  padding-left: 1em;
 }
