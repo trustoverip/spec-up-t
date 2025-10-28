@@ -64,12 +64,12 @@ No more;
 :::
 
 <pre>
-::: informative-section Additional Context
+::: informativesection Additional Context
   Here's some helpful information that's subtle and non-intrusive.
 :::
 </pre>
 
-::: informative-section Additional Context
+::: informativesection Additional Context
   Here's some helpful information that's subtle and non-intrusive.
 :::
 
