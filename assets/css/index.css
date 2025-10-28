@@ -149,14 +149,14 @@ dd td img {
   color: var(--todo-text);
 }
 
-.informative-section {
-  background: var(--informative-section-bg);
-  border-color: var(--informative-section-border);
+.informative {
+  background: var(--informative-bg);
+  border-color: var(--informative-border);
 }
 
-.informative-section .notice-link {
+.informative .notice-link {
   display: block;
-  color: var(--informative-section-text);
+  color: var(--informative-text);
 }
 
 /* End Notices */

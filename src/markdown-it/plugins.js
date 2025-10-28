@@ -2,12 +2,12 @@
  * Maps notice type names to their display labels.
  * This allows for custom formatting of notice type labels in the rendered output.
  * 
- * @param {string} type - The notice type identifier (e.g., 'informativesection')
+ * @param {string} type - The notice type identifier (e.g., 'informative')
  * @returns {string} The formatted display label (e.g., 'INFORMATIVE SECTION')
  */
 function getNoticeDisplayLabel(type) {
   const displayLabels = {
-    'informativesection': 'INFORMATIVE SECTION'
+    'informative': 'INFORMATIVE SECTION'
   };
   
   return displayLabels[type] || type.toUpperCase();
