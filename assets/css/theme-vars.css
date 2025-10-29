@@ -34,7 +34,7 @@ Example of how to use these variables in your CSS:
     /* Warning/error text */
     --term-reference-bg: rgba(234, 245, 251, 0.1);
     /* Light blue background for term references - more transparent */
-    --term-reference-border: #ddf0fb;
+    --term-reference-border: #a3dafb;
     /* Light blue border for term references */
     --table-border: #ddd;
     /* Light gray border for tables */
