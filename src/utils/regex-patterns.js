@@ -109,12 +109,14 @@ const templateTags = {
    * Pattern breakdown:
    * - ^def$ → Exact match for "def" (definition)
    * - ^ref$ → Exact match for "ref" (reference)
+   * - ^iref$ → Exact match for "iref" (inline reference - copies existing term)
    * - ^xref → Starts with "xref" (external reference)
    * - ^tref → Starts with "tref" (typed reference)
    * 
    * Examples:
    * - "def" → matches
    * - "ref" → matches
+   * - "iref" → matches
    * - "xref" → matches
    * - "tref" → matches
    * - "xref:spec,term" → matches (starts with xref)
@@ -122,7 +124,7 @@ const templateTags = {
    * Flags:
    * - i: case-insensitive matching
    */
-  terminology: /^def$|^ref$|^xref|^tref$/i
+  terminology: /^def$|^ref$|^iref$|^xref|^tref$/i
 };
 
 /**
@@ -464,6 +466,28 @@ const utils = {
   createGitignoreRegex: function(globPattern) {
     const pattern = '^' + globPattern.replace(/\*/g, '.*').replace(/\//g, '\\/') + '$';
     return new RegExp(pattern);
+  },
+
+  /**
+   * Sanitizes a string for use as a valid CSS selector ID
+   * Removes special characters that would break querySelector while preserving readability
+   * 
+   * Keeps: letters, numbers, hyphens, underscores, colons
+   * Removes: parentheses, brackets, slashes, and other special characters
+   * 
+   * @param {string} str - String to sanitize
+   * @returns {string} Sanitized string safe for use in CSS selectors
+   * 
+   * Example:
+   * sanitizeTermId("authentic chained data container (ACDC)") 
+   *   → "authentic-chained-data-container-acdc"
+   * sanitizeTermId("term/with/slashes") → "term-with-slashes"
+   */
+  sanitizeTermId: function(str) {
+    return str
+      .replace(/[()[\]{}\/\\]/g, '-')  // Replace special chars with hyphens
+      .replace(/-+/g, '-')              // Collapse multiple hyphens into one
+      .replace(/^-|-$/g, '');           // Remove leading/trailing hyphens
   }
 };
 

@@ -1,4 +1,19 @@
 /**
+ * Maps notice type names to their display labels.
+ * This allows for custom formatting of notice type labels in the rendered output.
+ * 
+ * @param {string} type - The notice type identifier (e.g., 'informative')
+ * @returns {string} The formatted display label (e.g., 'INFORMATIVE SECTION')
+ */
+function getNoticeDisplayLabel(type) {
+  const displayLabels = {
+    'informative': 'INFORMATIVE SECTION'
+  };
+  
+  return displayLabels[type] || type.toUpperCase();
+}
+
+/**
  * Configures and applies external markdown-it plugins to a given markdown-it instance.
  * This module centralizes plugin loading to reduce complexity in the main index.js file.
  * It handles only the external npm plugins (e.g., markdown-it-attrs), not custom extensions.
@@ -86,7 +101,7 @@ function configurePlugins(md, config, containers, noticeTypes, noticeTitles, set
           // Auto-generated ID
           id = type + '-' + noticeTypes[type]++;
         }
-        return `<div id="${id}" class="notice ${type}"><a class="notice-link" href="#${id}">${type.toUpperCase()}</a>`;
+        return `<div id="${id}" class="notice ${type}"><a class="notice-link" href="#${id}">${getNoticeDisplayLabel(type)}</a>`;
       } else {
         return '</div>\n';
       }

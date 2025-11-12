@@ -24,6 +24,58 @@ Example of how to use these variables in your CSS:
     /* Light mode shadow */
     --card-hover-bg: #f8f9fa;
     /* Light mode hover */
+    --local-term-bg: #f0f8ff;
+    /* Light blue background for local terms */
+    --external-term-bg: #a9dde03b;
+    /* Light cyan background for external terms */
+    --error-message-bg: #f8c481;
+    /* Warning/error background */
+    --error-message-text: #03365f;
+    /* Warning/error text */
+    --term-reference-bg: rgba(234, 245, 251, 0.1);
+    /* Light blue background for term references - more transparent */
+    --term-reference-border: #a3dafb;
+    /* Light blue border for term references */
+    --table-border: #ddd;
+    /* Light gray border for tables */
+    --table-header-bg: #f5f5f5;
+    /* Light gray background for table headers */
+    --warning-message-bg: #fff3cd;
+    /* Yellow background for warnings */
+    --warning-message-border: #ffc107;
+    /* Yellow border for warnings */
+    --warning-message-text: #856404;
+    /* Dark yellow text for warnings */
+    --note-bg: #E9FBE9;
+    /* Light green background for notes */
+    --note-border: #52E052;
+    /* Green border for notes */
+    --note-text: #178217;
+    /* Green text for notes */
+    --issue-bg: rgb(233, 240, 251);
+    /* Light blue background for issues */
+    --issue-border: rgb(82, 127, 224);
+    /* Blue border for issues */
+    --issue-text: rgb(30, 76, 174);
+    /* Dark blue text for issues */
+    --warning-notice-bg: #FBE9E9;
+    /* Light red background for warnings */
+    --warning-notice-border: #E05252;
+    /* Red border for warnings */
+    --warning-notice-text: #AE1E1E;
+    /* Dark red text for warnings */
+    --todo-bg: #fbe4ff;
+    /* Light purple background for todos */
+    --todo-border: #9700e2;
+    /* Purple border for todos */
+    --todo-text: #6d00a2;
+    /* Dark purple text for todos */
+    --informative-bg: #f5f7f9;
+    /* Very light grey-blue background for informative - subtle and non-intrusive */
+    --informative-border: #b8c5d6;
+    /* Soft grey-blue border for informative */
+    --informative-text: #5a6a7a;
+    /* Muted grey-blue text for informative */
 
 }
 
@@ -45,6 +97,58 @@ Example of how to use these variables in your CSS:
     /* Dark mode shadow (subtle) */
     --card-hover-bg: #343a40;
     /* Dark mode hover */
+    --local-term-bg: #2a3f4f;
+    /* Dark blue-gray background for local terms in dark mode */
+    --external-term-bg: rgba(100, 180, 200, 0.2);
+    /* Dark cyan background for external terms */
+    --error-message-bg: #8b6b3d;
+    /* Muted warning/error background for dark mode */
+    --error-message-text: #ffd89b;
+    /* Light warning/error text for dark mode */
+    --term-reference-bg: rgba(45, 69, 80, 0.1);
+    /* Dark blue-gray background for term references - more transparent */
+    --term-reference-border: #5a8fa8;
+    /* Muted blue border for term references in dark mode */
+    --table-border: #555;
+    /* Dark gray border for tables */
+    --table-header-bg: #2c3135;
+    /* Dark gray background for table headers */
+    --warning-message-bg: #6b5416;
+    /* Dark yellow-brown background for warnings */
+    --warning-message-border: #8b6b1d;
+    /* Muted yellow border for warnings */
+    --warning-message-text: #ffd89b;
+    /* Light yellow text for warnings */
+    --note-bg: #1a3d1a;
+    /* Dark green background for notes */
+    --note-border: #2d6b2d;
+    /* Dark green border for notes */
+    --note-text: #7ec97e;
+    /* Light green text for notes */
+    --issue-bg: #1a2840;
+    /* Dark blue background for issues */
+    --issue-border: #3a5a8a;
+    /* Muted blue border for issues */
+    --issue-text: #7fa8d6;
+    /* Light blue text for issues */
+    --warning-notice-bg: #3d1a1a;
+    /* Dark red background for warnings */
+    --warning-notice-border: #6b2d2d;
+    /* Dark red border for warnings */
+    --warning-notice-text: #e97e7e;
+    /* Light red text for warnings */
+    --todo-bg: #2d1a3d;
+    /* Dark purple background for todos */
+    --todo-border: #5a3a6b;
+    /* Muted purple border for todos */
+    --todo-text: #c89edc;
+    /* Light purple text for todos */
+    --informative-bg: #1f2428;
+    /* Very subtle dark grey-blue background for informative */
+    --informative-border: #3d454d;
+    /* Muted grey-blue border for informative in dark mode */
+    --informative-text: #8b95a1;
+    /* Soft grey-blue text for informative in dark mode */
 
 }
 

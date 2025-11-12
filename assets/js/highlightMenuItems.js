@@ -9,15 +9,69 @@ function highlightMenuItems() {
 
    function highlightMenuItem(heading) {
       // Remove highlight from all menu items first
-      document.querySelectorAll('#toc_list a').forEach(item => {
-         item.classList.remove("highlight-cfib41dyhcd99sm");
+      document.querySelectorAll('#toc a').forEach(item => {
+         item.classList.remove("menu-item-highlighted");
       });
 
       // Highlight the new menu item
-      const menuItem = document.querySelector(`#toc_list a[href="#${heading.id}"]`);
+      const menuItem = document.querySelector(`#toc a[href="#${heading.id}"]`);
       if (menuItem) {
-         menuItem.classList.add("highlight-cfib41dyhcd99sm");
-         menuItem.scrollIntoView({ behavior: "smooth", block: "center" });
+         menuItem.classList.add("menu-item-highlighted");
+         
+         // Expand all parent items that contain this menu item
+         let parentLi = menuItem.closest('li');
+         const parentsToExpand = [];
+         
+         // Collect all parent li elements
+         while (parentLi) {
+            parentsToExpand.push(parentLi);
+            // Move to the parent li (skip the ul)
+            const parentUl = parentLi.parentElement;
+            if (parentUl && parentUl.tagName === 'UL') {
+               parentLi = parentUl.closest('li');
+            } else {
+               parentLi = null;
+            }
+         }
+         
+         // Use setTimeout to ensure collapsible menu is initialized
+         setTimeout(() => {
+            // Collapse all items first
+            document.querySelectorAll('#toc li.has-children').forEach(item => {
+               const toggleBtn = item.querySelector('.collapse-toggle');
+               if (toggleBtn && !parentsToExpand.includes(item)) {
+                  item.classList.add('collapsed');
+                  toggleBtn.classList.add('collapsed');
+                  toggleBtn.setAttribute('aria-expanded', 'false');
+               }
+            });
+            
+            // Expand the parents of the active item
+            parentsToExpand.forEach(parent => {
+               if (parent.classList.contains('has-children')) {
+                  const toggleBtn = parent.querySelector('.collapse-toggle');
+                  if (toggleBtn) {
+                     parent.classList.remove('collapsed');
+                     toggleBtn.classList.remove('collapsed');
+                     toggleBtn.setAttribute('aria-expanded', 'true');
+                  }
+               }
+            });
+         }, 50);
+         
+         // Scroll the menu item into view within the sidebar only (without affecting main scroll)
+         const tocContainer = document.getElementById('toc');
+         if (tocContainer && menuItem) {
+            const tocRect = tocContainer.getBoundingClientRect();
+            const itemRect = menuItem.getBoundingClientRect();
+            
+            // Check if item is outside the visible area of the TOC container
+            if (itemRect.top < tocRect.top || itemRect.bottom > tocRect.bottom) {
+               // Scroll the TOC container, not the whole page
+               const scrollOffset = itemRect.top - tocRect.top - (tocRect.height / 2) + (itemRect.height / 2);
+               tocContainer.scrollBy({ top: scrollOffset, behavior: 'smooth' });
+            }
+         }
 
          // Dispatch custom event for the collapsible menu to handle
          document.dispatchEvent(new CustomEvent('highlight-menu-item', {

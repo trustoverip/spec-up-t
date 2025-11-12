@@ -1,1 +1,1 @@
-[//]: # (This file, named “terms-and-definitions-intro.md” is mandatory and should not be deleted.)
+[//]: # (This file, named “terms-and-definitions-intro.md” is mandatory and should not be deleted. However, you can safely delete this comment and replace it with text of your choice.)

@@ -122,11 +122,27 @@ function renderRefGroup(type, specGroups) {
 
 /**
  * Finds the KaTeX distribution path.
- * Checks common locations for the KaTeX package.
+ * Uses Node's require.resolve to reliably locate the package across different installation scenarios.
  * @returns {string} The path to the KaTeX distribution.
  * @throws {Error} If KaTeX distribution cannot be located.
  */
 function findKatexDist() {
+  try {
+    // Use require.resolve to find the katex package.json, then get the dist folder
+    // This works with npm link, normal installs, and hoisted dependencies
+    const katexPackageJsonPath = require.resolve('katex/package.json', {
+      paths: [__dirname, process.cwd()]
+    });
+    const katexDistPath = path.join(path.dirname(katexPackageJsonPath), 'dist');
+    
+    if (fs.existsSync(katexDistPath)) {
+      return katexDistPath;
+    }
+  } catch (error) {
+    // Fallback to old behavior if require.resolve fails
+  }
+
+  // Fallback: check common locations
   const relpath = "node_modules/katex/dist";
   const paths = [
     path.join(process.cwd(), relpath),
@@ -137,6 +153,7 @@ function findKatexDist() {
       return abspath;
     }
   }
+  
   throw new Error("katex distribution could not be located");
 }
 

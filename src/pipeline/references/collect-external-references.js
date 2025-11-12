@@ -46,7 +46,11 @@ function normalizeSpecConfiguration(config, { noSpecsMessage }) {
     const specs = Array.isArray(config?.specs) ? config.specs : [];
 
     if (specs.length === 0) {
-        Logger.error(noSpecsMessage);
+        Logger.error(noSpecsMessage, {
+            context: 'specs.json is missing or has no specs array',
+            hint: 'Create a valid specs.json file in your project root. Run "npm run init" or copy from: https://github.com/trustoverip/spec-up-t-starter-pack',
+            details: 'The specs array is required to configure your specification'
+        });
         return null;
     }
 
@@ -65,7 +69,11 @@ function normalizeSpecConfiguration(config, { noSpecsMessage }) {
  */
 function extendXTrefs(config, xtrefs) {
     if (config.specs[0].external_specs_repos) {
-        Logger.warn('Your specs.json file uses an outdated structure. Update it using: https://github.com/trustoverip/spec-up-t/blob/master/src/install-from-boilerplate/boilerplate/specs.json');
+        Logger.warn('Your specs.json file uses an outdated structure', {
+            context: 'The "external_specs_repos" field is deprecated',
+            hint: 'Update to the new structure using "external_specs" instead. See: https://github.com/trustoverip/spec-up-t/blob/master/src/install-from-boilerplate/boilerplate/specs.json',
+            details: 'External references may not work correctly with the old structure'
+        });
         return;
     }
 
@@ -118,7 +126,11 @@ function extendXTrefs(config, xtrefs) {
         try {
             xtref.branch = getCurrentBranch();
         } catch (error) {
-            Logger.warn(`Could not get current branch for xtref ${xtref.externalSpec}:${xtref.term}: ${error.message}`);
+            Logger.warn(`Could not get current branch for xtref ${xtref.externalSpec}:${xtref.term}`, {
+                context: 'Git branch detection failed for external reference',
+                hint: 'Ensure you\'re in a git repository, or specify github_repo_branch in specs.json external_specs configuration',
+                details: `${error.message}. Using default: main`
+            });
             xtref.branch = 'main';
         }
     });
@@ -153,7 +165,7 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
                 }
 
                 const userInput = readlineSync.question(
-`❌ This external reference is not a valid URL:
+                    `❌ This external reference is not a valid URL:
 
    Repository: ${repo.url},
    
@@ -195,14 +207,22 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
         const termsDir = spec?.spec_terms_directory;
 
         if (!specDir || !termsDir) {
-            Logger.warn(`Spec entry is missing spec_directory or spec_terms_directory: ${JSON.stringify(spec)}`);
+            Logger.warn(`Spec entry is missing spec_directory or spec_terms_directory`, {
+                context: 'Invalid specs.json configuration',
+                hint: 'Ensure each spec in specs.json has both "spec_directory" and "spec_terms_directory" fields',
+                details: `Incomplete spec entry: ${JSON.stringify(spec)}`
+            });
             return directories;
         }
 
         const resolvedDir = path.join(specDir, termsDir);
 
         if (!fs.existsSync(resolvedDir)) {
-            Logger.warn(`Spec terms directory does not exist: ${resolvedDir}`);
+            Logger.warn(`Spec terms directory does not exist: ${resolvedDir}`, {
+                context: 'Directory specified in specs.json not found',
+                hint: 'Create the directory or update the path in specs.json. Typically this should be "spec/term-definitions" or similar',
+                details: `Expected path: ${resolvedDir}`
+            });
             return directories;
         }
 
@@ -211,7 +231,11 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
     }, []);
 
     if (specTermsDirectories.length === 0) {
-        Logger.warn('No spec terms directories found. Skipping external reference collection.');
+        Logger.warn('No spec terms directories found. Skipping external reference collection', {
+            context: 'Cannot collect external references without valid terminology directories',
+            hint: 'Check specs.json configuration. Ensure spec_directory and spec_terms_directory point to existing directories',
+            details: 'External trefs and xrefs will not be processed'
+        });
         return;
     }
 
@@ -249,7 +273,7 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
 function collectExternalReferences(options = {}) {
     // Start collecting messages if requested
     const shouldCollectMessages = options.collectMessages !== false; // Collect by default
-    
+
     if (shouldCollectMessages) {
         messageCollector.clearMessages();
         messageCollector.startCollecting('collectExternalReferences');
@@ -273,8 +297,11 @@ function collectExternalReferences(options = {}) {
     const GITHUB_API_TOKEN = options.pat || process.env.GITHUB_API_TOKEN;
 
     if (!GITHUB_API_TOKEN) {
-        Logger.warn('No GitHub Personal Access Token (PAT) found. Running without authentication (may hit rate limits).');
-        Logger.info('For better performance, set up a PAT: https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token\n');
+        Logger.warn('No GitHub Personal Access Token (PAT) found. Running without authentication', {
+            context: 'GitHub API requests will use unauthenticated access',
+            hint: 'Set GITHUB_PAT environment variable to increase rate limit from 60 to 5000 requests/hour. See: https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token',
+            details: 'You may hit rate limits when fetching many external references'
+        });
     }
 
     // Communicate that the expected external_specs array is missing entirely.
@@ -282,7 +309,7 @@ function collectExternalReferences(options = {}) {
         Logger.info(
             'No external_specs array found on the first spec entry in specs.json. External reference collection is skipped.'
         );
-        
+
         if (shouldCollectMessages) {
             messageCollector.stopCollecting();
             messageCollector.saveMessages().then(path => {
@@ -300,7 +327,7 @@ function collectExternalReferences(options = {}) {
         Logger.info(
             'The external_specs array in specs.json is empty. Add external repositories to collect external references.'
         );
-        
+
         if (shouldCollectMessages) {
             messageCollector.stopCollecting();
             messageCollector.saveMessages().then(path => {
@@ -333,14 +360,14 @@ function collectExternalReferences(options = {}) {
             })
             .catch(error => {
                 Logger.error('Rendering failed after collecting external references.', error);
-                
+
                 if (shouldCollectMessages) {
                     messageCollector.stopCollecting();
                     messageCollector.saveMessages().catch(() => {
                         // Silent fail on save error
                     });
                 }
-                
+
                 throw error;
             });
     } else {

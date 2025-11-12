@@ -88,7 +88,7 @@ function initCollapsibleMenu() {
       });
       
       // Set initial states - expand the active section, collapse others
-      const hasActiveChild = item.querySelector('a.highlight-cfib41dyhcd99sm, a.active');
+      const hasActiveChild = item.querySelector('a.menu-item-highlighted, a.active');
       if (!hasActiveChild) {
         item.classList.add('collapsed');
         toggleBtn.classList.add('collapsed');

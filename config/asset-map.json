@@ -29,7 +29,7 @@
       "assets/css/horizontal-scroll-hint.css",
       "assets/css/highlight-heading-plus-sibling-nodes.css",
       "assets/css/counter.css",
-      "assets/css/insert-trefs.css",
+      
       "assets/css/index.css"
     ],
     "js": [
@@ -66,6 +66,7 @@
       "assets/js/token-input.js",
       "assets/js/download-pdf-docx.js",
       "assets/js/insert-trefs.js",
+      "assets/js/insert-irefs.js",
       "assets/js/definition-button-container-utils.js",
       "assets/js/collapse-definitions.js",
       "assets/js/collapse-meta-info.js",

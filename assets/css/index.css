@@ -1,8 +1,9 @@
-*:target {
-  scroll-margin-top: calc(50vh);
-  /* Matches sticky header height */
+html {
+  scroll-behavior: smooth;
+  /* This creates a padding zone at the top for anchor scroll calculations *
+   * Elements will be scrolled so they appear 50vh from the top of viewport */
+  scroll-padding-top: 50vh;
 }
-
 
 /*
 - When a URL fragment targets an element,
@@ -91,33 +92,33 @@ dd td img {
 }
 
 .note {
-  background: #E9FBE9;
-  border-color: #52E052;
+  background: var(--note-bg);
+  border-color: var(--note-border);
 }
 
 .note .notice-link {
   display: block;
-  color: #178217;
+  color: var(--note-text);
 }
 
 .issue {
-  background: rgb(233, 240, 251);
-  border-color: rgb(82, 127, 224);
+  background: var(--issue-bg);
+  border-color: var(--issue-border);
 }
 
 .issue .notice-link:before {
   display: block;
-  color: rgb(30, 76, 174);
+  color: var(--issue-text);
 }
 
 .warning {
-  background: #FBE9E9;
-  border-color: #E05252;
+  background: var(--warning-notice-bg);
+  border-color: var(--warning-notice-border);
 }
 
 .warning .notice-link {
   display: block;
-  color: #AE1E1E;
+  color: var(--warning-notice-text);
 }
 
 .example {
@@ -139,13 +140,23 @@ dd td img {
 }
 
 .todo {
-  background: #fbe4ff;
-  border-color: #9700e2;
+  background: var(--todo-bg);
+  border-color: var(--todo-border);
 }
 
 .todo .notice-link {
   display: block;
-  color: #6d00a2;
+  color: var(--todo-text);
+}
+
+.informative {
+  background: var(--informative-bg);
+  border-color: var(--informative-border);
+}
+
+.informative .notice-link {
+  display: block;
+  color: var(--informative-text);
 }
 
 /* End Notices */

@@ -52,5 +52,5 @@ html.definitions-transitioning #content {
 }
 
 dl.terms-and-definitions-list>dd.terms-def-extra-info {
-  background-color: #edf3f4;
+  background-color: var(--card-bg);
 }

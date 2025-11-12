@@ -86,8 +86,50 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
 
     md[spec.katex ? "enable" : "disable"](['math_block', 'math_inline']);
 
-    // `render` is the rendered HTML
-    let renderedHtml = md.render(doc);
+    // Suppress markdown-it-attrs table errors during rendering
+    // 
+    // Background: markdown-it-attrs can throw "Cannot read properties of null (reading 'colsnum')" 
+    // errors when processing malformed tables. These errors are:
+    // 1. Non-blocking: The rendering continues and index.html is generated successfully
+    // 2. Caught proactively: The markdown-tables healthcheck detects these issues
+    // 3. Noisy: They clutter the console output without providing actionable information
+    //
+    // Solution: Intercept console.error during md.render() to suppress only these specific
+    // table-related errors while allowing all other errors to pass through normally.
+    const originalConsoleError = console.error;
+    let suppressNext = false;
+    console.error = (...args) => {
+      const message = args[0]?.toString() || '';
+      
+      // Check if this is the first console.error call with the error message
+      if (message.includes('markdown-it-attrs: Error in pattern') && 
+          message.includes('tables') && 
+          message.includes('colsnum')) {
+        // Suppress this error and the next stack trace
+        suppressNext = true;
+        return;
+      }
+      
+      // Check if this is the stack trace following the suppressed error
+      if (suppressNext) {
+        suppressNext = false;
+        // Also suppress if this looks like a stack trace for colsnum error
+        if (message.includes('colsnum') || message.includes('at Object.transform')) {
+          return;
+        }
+      }
+      
+      // Let all other errors through
+      originalConsoleError.apply(console, args);
+    };
+
+    try {
+      // `render` is the rendered HTML
+      renderedHtml = md.render(doc);
+    } finally {
+      // Always restore console.error
+      console.error = originalConsoleError;
+    }
 
     // Apply the fix for broken definition list structures
     renderedHtml = fixDefinitionListStructure(renderedHtml);

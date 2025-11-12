@@ -13,7 +13,7 @@
 
 const { findExternalSpecByKey } = require('../pipeline/references/external-references-service.js');
 const { lookupXrefTerm } = require('../pipeline/rendering/render-utils.js');
-const { whitespace, htmlComments, contentCleaning, externalReferences } = require('../utils/regex-patterns');
+const { whitespace, htmlComments, contentCleaning, externalReferences, utils } = require('../utils/regex-patterns');
 const Logger = require('../utils/logger.js');
 
 /**
@@ -33,7 +33,7 @@ function extractCurrentFile(token, globalState) {
  * @param {Object} config - Configuration object containing specs and settings
  * @param {Object} globalState - Global state object containing definitions, references, etc.
  * @param {Object} token - The markdown-it token being processed
- * @param {string} type - The type of construct (def, ref, xref, tref)
+ * @param {string} type - The type of construct (def, ref, iref, xref, tref)
  * @param {string} primary - The primary content/term
  * @returns {string} The rendered HTML for the construct
  */
@@ -45,6 +45,8 @@ function parseTemplateTag(config, globalState, token, type, primary) {
   switch (type) {
     case 'def':
       return parseDef(globalState, token, primary, currentFile);
+    case 'iref':
+      return parseIref(globalState, primary);
     case 'xref':
       return parseXref(config, token);
     case 'tref':
@@ -109,7 +111,10 @@ function parseDef(globalState, token, primary, currentFile) {
   // IDs stay intact - we create an ID for the original term and each alias
   return token.info.args.reduce((acc, syn) => {
     // Generate a unique term ID by normalizing the synonym: replace whitespace with hyphens and convert to lowercase. The ID is used for fragment identifier (hash) in the URL, which in turn can be used for an anchor in a web page.
-    const termId = `term:${syn.replace(whitespace.oneOrMore, '-').toLowerCase()}`;
+    // Apply sanitization to remove special characters that would break CSS selectors
+    const normalizedSyn = syn.replace(whitespace.oneOrMore, '-').toLowerCase();
+    const sanitizedSyn = utils.sanitizeTermId(normalizedSyn);
+    const termId = `term:${sanitizedSyn}`;
     return `<span id="${termId}">${acc}</span>`;
   }, displayText);
 }
@@ -128,6 +133,25 @@ function parseRef(globalState, primary) {
   // Create internal link to the term definition
   const termId = primary.replace(whitespace.oneOrMore, '-').toLowerCase();
   return `<a class="term-reference" href="#term:${termId}">${primary}</a>`;
+}
+
+/**
+ * Processes [[iref: term]] constructs
+ * Creates a placeholder that will be replaced client-side with a copy of the term definition
+ * This allows inline copying of existing term definitions from the terms-and-definitions-list
+ * @param {Object} globalState - Global state to track inline references
+ * @param {string} primary - The term to inline copy
+ * @returns {string} HTML placeholder element that will be replaced by client-side script
+ */
+function parseIref(globalState, primary) {
+  // Track this inline reference for validation purposes
+  globalState.references.push(primary);
+
+  // Create a placeholder span with data attribute containing the term to copy
+  // The client-side script (insert-irefs.js) will find this and replace it with
+  // a copy of the actual <dt> and <dd> elements from the terms-and-definitions-list
+  const termId = primary.replace(whitespace.oneOrMore, '-').toLowerCase();
+  return `<span class="iref-placeholder" data-iref-term="${termId}" data-iref-original="${primary}"></span>`;
 }
 
 /**
@@ -217,7 +241,10 @@ function parseTref(token) {
 
   return termsAndAliases.reduce((acc, syn, index) => {
     // Generate a unique term ID by normalizing the synonym: replace whitespace with hyphens and convert to lowercase
-    const termId = `term:${syn.replace(whitespace.oneOrMore, '-').toLowerCase()}`;
+    // Apply sanitization to remove special characters that would break CSS selectors
+    const normalizedSyn = syn.replace(whitespace.oneOrMore, '-').toLowerCase();
+    const sanitizedSyn = utils.sanitizeTermId(normalizedSyn);
+    const termId = `term:${sanitizedSyn}`;
     // Add title attribute to the innermost span (first in the array, which wraps the display text directly)
     // This provides a tooltip showing which external term this alias refers to
     const titleAttr = index === 0 && aliases.length > 0 ? ` title="Externally defined as ${termName}"` : '';
@@ -298,6 +325,7 @@ module.exports = {
   createTemplateTagParser,
   // Export individual functions for testing purposes
   parseDef,
+  parseIref,
   parseXref,
   parseTref,
   parseRef,

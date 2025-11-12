@@ -64,6 +64,16 @@ No more;
 :::
 
 <pre>
+::: informative Additional Context
+  Here's some helpful information that's subtle and non-intrusive.
+:::
+</pre>
+
+::: informative Additional Context
+  Here's some helpful information that's subtle and non-intrusive.
+:::
+
+<pre>
 ::: example Code Example
   Put your code block here
 :::

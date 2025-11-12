@@ -17,7 +17,11 @@ function validateReferences(references, definitions, render) {
     }
   );
   if (unresolvedRefs.length > 0) {
-    Logger.warn(`Unresolved References: ${unresolvedRefs.join(',')}`);
+    Logger.warn(`Unresolved References: ${unresolvedRefs.join(',')}`, {
+      context: 'These terms are referenced in your spec but not defined',
+      hint: 'Add [[def: term]] definitions for these terms in your terminology files, or check for typos in [[ref: term]] references',
+      details: `Count: ${unresolvedRefs.length} unresolved term(s)`
+    });
   }
 
   const danglingDefs = [];
@@ -38,7 +42,11 @@ function validateReferences(references, definitions, render) {
     }
   })
   if (danglingDefs.length > 0) {
-    Logger.warn(`Dangling Definitions: ${danglingDefs.join(',')}`);
+    Logger.warn(`Dangling Definitions: ${danglingDefs.join(',')}`, {
+      context: 'These terms are defined but never referenced in your spec',
+      hint: 'Add [[ref: term]] references where needed.',
+      details: `Count: ${danglingDefs.length} unused definition(s)`
+    });
   }
 }
 
@@ -71,7 +79,11 @@ async function fetchExternalSpecs(spec) {
         const msg = f.error.response
           ? `HTTP ${f.error.response.status} for ${f.url}`
           : `Network error for ${f.url}: ${f.error.message}`;
-        Logger.error("External spec fetch failed:", msg);
+        Logger.error("External spec fetch failed", {
+          context: `Attempting to fetch external terminology from: ${f.url}`,
+          hint: 'Verify the URL is correct in specs.json under external_specs[].gh_page. Ensure the external spec has published their GitHub Pages site',
+          details: msg
+        });
       });
     }
 
@@ -93,7 +105,11 @@ async function fetchExternalSpecs(spec) {
 
     return extractedTerms;
   } catch (e) {
-    Logger.error("Unexpected error in fetchExternalSpecs:", e);
+    Logger.error("Unexpected error in fetchExternalSpecs", {
+      context: 'Failed while fetching terms from external specifications',
+      hint: 'Check your internet connection and verify all external_specs URLs in specs.json are valid. Run with GITHUB_PAT set if accessing private repos',
+      details: e.message
+    });
     return [];
   }
 }
@@ -132,7 +148,7 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
       if (existingIndex >= 0) {
         // Get the existing entry to check if it's a tref
         const existingXtref = allXTrefs.xtrefs[existingIndex];
-        
+
         // Update existing entry - preserve the existing metadata but add/update content
         allXTrefs.xtrefs[existingIndex] = {
           ...existingXtref,
@@ -151,26 +167,34 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
 
         if (isExternalTref && isTref) {
           // Build a readable list of source files for the error message
-          const sourceFilesList = existingXtref.sourceFile 
-            ? existingXtref.sourceFile 
+          const sourceFilesList = existingXtref.sourceFile
+            ? existingXtref.sourceFile
             : (existingXtref.sourceFiles || []).map(sf => sf.file).join(', ');
-          
+
           // Construct the external repository URL
           const externalRepoUrl = existingXtref.ghPageUrl || existingXtref.repoUrl || `https://github.com/${existingXtref.owner}/${existingXtref.repo}`;
-          
-          Logger.error(`Origin: ${sourceFilesList} 👉 NESTED TREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec} is itself a tref (transcluded from another spec). This creates a chain of external references.`);
+
+          Logger.error(`NESTED TREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec}`, {
+            context: `Origin: ${sourceFilesList} - This term is itself transcluded from another spec`,
+            hint: 'Avoid chaining external references (tref → tref). Reference the original source spec directly, or define the term locally in your spec',
+            details: `This creates a complex dependency chain. Repository: ${externalRepoUrl}`
+          });
         }
 
         if (isExternalTref && isXref) {
           // Build a readable list of source files for the warning message
-          const sourceFilesList = existingXtref.sourceFile 
-            ? existingXtref.sourceFile 
+          const sourceFilesList = existingXtref.sourceFile
+            ? existingXtref.sourceFile
             : (existingXtref.sourceFiles || []).map(sf => sf.file).join(', ');
-          
+
           // Construct the external repository URL
           const externalRepoUrl = existingXtref.ghPageUrl || existingXtref.repoUrl || `https://github.com/${existingXtref.owner}/${existingXtref.repo}`;
-          
-          Logger.error(`Origin: ${sourceFilesList} 👉 NESTED XREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec} is itself a tref (transcluded from another spec). This xref points to a term that is already transcluded from elsewhere, creating a chain of external references. (${externalRepoUrl})`);
+
+          Logger.error(`NESTED XREF DETECTED: Term "${existingXtref.term}" in ${existingXtref.externalSpec}`, {
+            context: `Origin: ${sourceFilesList} - This xref points to a term that is already transcluded from elsewhere`,
+            hint: 'Use [[xref]] only for terms directly defined in the external spec. For nested references, either reference the original source or define the term locally',
+            details: `This creates a chain of external references. Repository: ${externalRepoUrl}`
+          });
         }
 
         matchedCount++;
@@ -191,7 +215,11 @@ async function mergeXrefTermsIntoAllXTrefs(xrefTerms, outputPathJSON, outputPath
     Logger.success(`Merged xref terms: ${matchedCount} matched, ${skippedCount} skipped (not referenced). Total entries: ${allXTrefs.xtrefs.length}`);
 
   } catch (error) {
-    Logger.error('Error merging xref terms into allXTrefs:', error.message);
+    Logger.error('Error merging xref terms into allXTrefs', {
+      context: 'Failed while merging external reference terms into the xtrefs cache',
+      hint: 'This may indicate corrupted cache files in .cache/xtrefs/. Try deleting the .cache directory and running the build again',
+      details: error.message
+    });
   }
 }
 
@@ -219,18 +247,18 @@ function extractTermsFromHtml(externalSpec, html) {
       batch.each((index, termElement) => {
         try {
           const $termElement = $(termElement);
-          
+
           // The id can be on the dt element itself OR on span(s) inside it
           // Some terms have multiple nested spans with different IDs (e.g., aliases)
           // We need to extract ALL term IDs from the dt element
           const termIds = [];
-          
+
           // First check if dt itself has an id
           const dtId = $termElement.attr('id');
           if (dtId && dtId.includes('term:')) {
             termIds.push(dtId.replace('term:', ''));
           }
-          
+
           // Then find all spans with ids that contain 'term:'
           $termElement.find('span[id*="term:"]').each((i, span) => {
             const spanId = $(span).attr('id');
@@ -241,7 +269,7 @@ function extractTermsFromHtml(externalSpec, html) {
               }
             }
           });
-          
+
           // Skip if no valid term IDs found
           if (termIds.length === 0) {
             return;
@@ -252,12 +280,12 @@ function extractTermsFromHtml(externalSpec, html) {
           const dtClasses = $termElement.attr('class');
           const classArray = dtClasses ? dtClasses.split(/\s+/).filter(Boolean) : [];
           const termClasses = classArray.filter(cls => cls === 'term-local' || cls === 'term-external');
-          
+
           const dd = $termElement.next('dd');
 
           if (dd.length > 0) {
             const ddContent = $.html(dd); // Store the complete DD content once
-            
+
             // Create a term object for each ID found in this dt element
             // This handles cases where one term definition has multiple aliases
             termIds.forEach(termName => {
@@ -275,7 +303,11 @@ function extractTermsFromHtml(externalSpec, html) {
             });
           }
         } catch (termError) {
-          Logger.warn(`Error processing term in ${externalSpec}:`, termError.message);
+          Logger.warn(`Error processing term in ${externalSpec}`, {
+            context: 'Failed to extract a specific term from external spec HTML',
+            hint: 'The external spec may have malformed HTML or non-standard term definitions. Contact the spec maintainer if this persists',
+            details: termError.message
+          });
         }
       });
 
@@ -289,7 +321,11 @@ function extractTermsFromHtml(externalSpec, html) {
     return terms;
 
   } catch (error) {
-    Logger.error(`Error extracting terms from external spec '${externalSpec}':`, error.message);
+    Logger.error(`Error extracting terms from external spec '${externalSpec}'`, {
+      context: 'Failed while parsing HTML from external spec to extract term definitions',
+      hint: 'Verify that the external spec is a valid spec-up-t generated document with a proper terms-and-definitions section',
+      details: error.message
+    });
     return [];
   }
 }
