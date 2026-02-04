@@ -157,6 +157,22 @@ function persistUpdatedConfig(config) {
 }
 
 /**
+ * Generates the initial documentation output by running the render command.
+ */
+function generateInitialDocs() {
+    const { execSync } = require('child_process');
+    
+    try {
+        Logger.info('\n🔨 Generating initial documentation...\n');
+        execSync('npm run render 4', { cwd: process.cwd(), stdio: 'inherit' });
+        Logger.success('Documentation generated in docs/ directory');
+    } catch (error) {
+        Logger.error('Error: Could not generate documentation.', error.message);
+        process.exit(1);
+    }
+}
+
+/**
  * Runs the interactive configuration workflow.
  *
  * @param {object} [options]
@@ -188,6 +204,7 @@ async function runStarterpackConfigurator({
         const { config, primarySpec } = resolvePrimarySpec(loadSpecsConfig());
         applyAnswersToSpec(primarySpec, answers);
         persistUpdatedConfig(config);
+        generateInitialDocs();
     } catch (error) {
         Logger.error('Configuration aborted due to an unexpected error.', error.message);
         process.exit(1);
