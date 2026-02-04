@@ -65,12 +65,11 @@ ul.toc ul {
 
 /* Hover effect */
 ul.toc a:hover {
-    background: #f9f9f9;
-    /* Lighter background on hover */
+    /* Use theme-aware variable so dark mode works correctly */
+    background: var(--card-hover-bg, #f9f9f9);
     padding-left: 1em;
     /* Slight padding increase on hover */
-    border-left: 3px solid #007bff;
-    /* Highlight border on hover */
+    border-left: 3px solid var(--bs-primary, #007bff);
 }
 
 /* Second-level items numbering */
@@ -101,12 +100,12 @@ ul.toc a:focus {
 /* Add a subtle visual cue for active/selected item */
 ul.toc li a.active,
 ul.toc li a[aria-current="page"] {
-    border-left: 3px solid #007bff;
+    border-left: 3px solid var(--bs-primary, #007bff);
     /* Highlight active item */
     font-weight: 500;
     /* Make active item slightly bolder */
-    background: #f0f0f0;
-    /* Light background for active item */
+    background: var(--card-hover-bg, #f0f0f0);
+    /* Theme-aware background for active item */
 }
 
 /* Remove bottom border from last list item */
