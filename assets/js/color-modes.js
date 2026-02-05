@@ -53,7 +53,7 @@
     themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
 
     if (focus) {
-      themeSwitcher.focus()
+      themeSwitcher.focus({ preventScroll: true })
     }
   }
 
