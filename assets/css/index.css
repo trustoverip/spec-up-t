@@ -359,6 +359,16 @@ dd td img {
   transition: opacity 0.15s ease-in-out;
 }
 
+/* Ensure SVG icons in the button inherit current text color */
+.menu-toggle-btn svg {
+  fill: currentColor;
+}
+
+/* Dark mode: provide better contrast for the menu button */
+[data-bs-theme="dark"] .menu-toggle-btn {
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.5);
+}
+
 /* Hide the fixed button when offcanvas is open (offcanvas adds backdrop to body) */
 body.offcanvas-backdrop .menu-toggle-btn,
 body:has(.offcanvas.show) .menu-toggle-btn,
