@@ -338,6 +338,11 @@ dl.terms-and-definitions-list span.term-external::after {
   left: 0.2rem;
 }
 
+/* Dark mode: invert the transclusion arrow icon */
+[data-bs-theme="dark"] dl.terms-and-definitions-list span.term-external::after {
+  filter: invert(1);
+}
+
 /* Inline span styling for transclusions */
 dl.terms-and-definitions-list span.term-external {
   padding-left: 1.5rem;
@@ -473,6 +478,11 @@ a.iref-go-to-glossary-button .iref-button-icon {
   height: 0.8rem;
   display: inline-block;
   content: "";
+}
+
+/* Dark mode: invert the iref button icon */
+[data-bs-theme="dark"] a.iref-go-to-glossary-button .iref-button-icon {
+  filter: invert(1);
 }
 
 /* iref not found message */
