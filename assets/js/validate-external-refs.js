@@ -1105,9 +1105,48 @@ function initializeValidator() {
     }, 3000);
 }
 
-// Initialize when DOM is ready
+/** localStorage key used to persist the external-ref validation toggle state */
+const VALEXTREF_STORAGE_KEY = 'spec-up-t:valextref';
+
+/**
+ * Checks if external reference validation is enabled via localStorage.
+ *
+ * @returns {boolean} - True if validation should run
+ */
+function isExternalRefValidationEnabled() {
+    return localStorage.getItem(VALEXTREF_STORAGE_KEY) === 'true';
+}
+
+/**
+ * Initialises the Experimental toggle in the slide-in settings menu.
+ * Reads persisted state from localStorage and reflects it in the checkbox.
+ * On change: saves the new state to localStorage and reloads the page.
+ */
+function initExperimentalToggle() {
+    const toggle = document.getElementById('toggle-valextref');
+    if (!toggle) return;
+
+    // Reflect the current enabled state in the checkbox
+    toggle.checked = isExternalRefValidationEnabled();
+
+    toggle.addEventListener('change', () => {
+        localStorage.setItem(VALEXTREF_STORAGE_KEY, toggle.checked ? 'true' : 'false');
+        window.location.reload();
+    });
+}
+
+// Always wire up the toggle so users can change the setting regardless of current state
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeValidator);
+    document.addEventListener('DOMContentLoaded', initExperimentalToggle);
 } else {
-    initializeValidator();
+    initExperimentalToggle();
+}
+
+// Only run the actual validation when the feature is enabled
+if (isExternalRefValidationEnabled()) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeValidator);
+    } else {
+        initializeValidator();
+    }
 }
