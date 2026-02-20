@@ -1105,54 +1105,22 @@ function initializeValidator() {
     }, 3000);
 }
 
-/** localStorage key used to persist the valextref toggle state */
+/** localStorage key used to persist the external-ref validation toggle state */
 const VALEXTREF_STORAGE_KEY = 'spec-up-t:valextref';
 
 /**
- * Checks if external reference validation is enabled.
- * Checks the URL parameter first, then falls back to localStorage.
- * Explicitly passing ?valextref=false always disables it for that page load.
+ * Checks if external reference validation is enabled via localStorage.
  *
  * @returns {boolean} - True if validation should run
  */
 function isExternalRefValidationEnabled() {
-    const params = new URLSearchParams(window.location.search);
-    const urlValue = params.get('valextref');
-
-    // Explicit URL param takes priority over localStorage
-    if (urlValue !== null) {
-        // '' or 'true' → enabled; 'false' → disabled
-        return urlValue !== 'false';
-    }
-
-    // Fall back to localStorage for persistence across navigation
     return localStorage.getItem(VALEXTREF_STORAGE_KEY) === 'true';
-}
-
-/**
- * Builds a new URL that adds or removes the valextref query parameter
- * while preserving all other params and the hash fragment (anchor).
- *
- * @param {boolean} enabled - Whether to add or remove the parameter
- * @returns {string} - The new full URL string
- */
-function buildValextrefUrl(enabled) {
-    const params = new URLSearchParams(window.location.search);
-    if (enabled) {
-        params.set('valextref', 'true');
-    } else {
-        params.delete('valextref');
-    }
-    const newSearch = params.toString() ? '?' + params.toString() : '';
-    // Re-attach the hash so existing anchors keep working after reload
-    return window.location.origin + window.location.pathname + newSearch + window.location.hash;
 }
 
 /**
  * Initialises the Experimental toggle in the slide-in settings menu.
  * Reads persisted state from localStorage and reflects it in the checkbox.
- * On change: updates localStorage, rewrites the URL (preserving any anchor),
- * and reloads so the validation code picks up the correct URL parameter.
+ * On change: saves the new state to localStorage and reloads the page.
  */
 function initExperimentalToggle() {
     const toggle = document.getElementById('toggle-valextref');
@@ -1162,11 +1130,8 @@ function initExperimentalToggle() {
     toggle.checked = isExternalRefValidationEnabled();
 
     toggle.addEventListener('change', () => {
-        const enabled = toggle.checked;
-        // Persist choice so it survives navigation to pages without the URL param
-        localStorage.setItem(VALEXTREF_STORAGE_KEY, enabled ? 'true' : 'false');
-        // Navigate to the updated URL (with or without ?valextref) and reload
-        window.location.href = buildValextrefUrl(enabled);
+        localStorage.setItem(VALEXTREF_STORAGE_KEY, toggle.checked ? 'true' : 'false');
+        window.location.reload();
     });
 }
 
