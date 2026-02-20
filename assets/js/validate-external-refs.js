@@ -1105,9 +1105,28 @@ function initializeValidator() {
     }, 3000);
 }
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeValidator);
-} else {
-    initializeValidator();
+/**
+ * Checks if external reference validation is enabled via URL parameter
+ * Runs only when ?valextref or ?valextref=true is present in the URL
+ * Explicitly passing ?valextref=false disables it
+ *
+ * @returns {boolean} - True if validation should run
+ */
+function isExternalRefValidationEnabled() {
+    const params = new URLSearchParams(window.location.search);
+    const value = params.get('valextref');
+    // null  → parameter absent → disabled
+    // ''    → ?valextref (no value) → enabled
+    // 'true' → ?valextref=true → enabled
+    // 'false' → ?valextref=false → disabled
+    return value !== null && value !== 'false';
+}
+
+// Initialize when DOM is ready, but only if the URL parameter opts in
+if (isExternalRefValidationEnabled()) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeValidator);
+    } else {
+        initializeValidator();
+    }
 }
