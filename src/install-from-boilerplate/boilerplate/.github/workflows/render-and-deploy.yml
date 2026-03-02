@@ -1,0 +1,61 @@
+name: Render and Deploy to GitHub Pages
+
+# Triggered automatically on every push to main, or manually via the Actions tab.
+# This workflow renders the specification and deploys the output to GitHub Pages
+# without committing the generated docs/ directory back to the repository.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Only allow one deployment at a time; do not cancel in-progress runs so that
+# a completed deploy is never replaced by a stale one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # ── 1. Build ─────────────────────────────────────────────────────────────────
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies 🔧
+        run: npm install
+
+      # Run the render script, which writes output to the path defined in
+      # specs.json (output_path, typically ./docs/).
+      - name: Render specification
+        run: npm run render
+
+      # Package the rendered output as a Pages artifact so the deploy job can
+      # publish it.  The path must match output_path in specs.json.
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+  # ── 2. Deploy ────────────────────────────────────────────────────────────────
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    # The github-pages environment exposes the live URL in the Actions summary.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write      # Required to deploy to GitHub Pages
+      id-token: write   # Required for OIDC-based Pages deployment
+    steps:
+      - name: Deploy to GitHub Pages 🚀
+        id: deployment
+        uses: actions/deploy-pages@v4
