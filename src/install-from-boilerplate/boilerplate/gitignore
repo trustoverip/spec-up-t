@@ -1,11 +1,38 @@
+# Dependencies
 node_modules/
+
+# Logs
 *.log
-dist
+
+# Editor / OS temporaries & backups
 *.bak
 *.tmp
-.DS_Store
-.env
-coverage
-build
+
+# Environment / secrets
+.env*
+
+# Test coverage
+coverage/
+
+# Various caches & history
 .history/
-/.cache/
+.cache/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r          # (the \r is intentional — it's a hidden carriage-return file)
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk           # Windows shortcuts (optional, but very common noise)
+
+# Linux / Ubuntu / general Unix-like
+*~              # Editor backup files (Vim, Nano, etc.)
+.*.swp          # Vim swap files
+.*.swo
+.fuse_hidden*   # Sometimes appears with fuse mounts
