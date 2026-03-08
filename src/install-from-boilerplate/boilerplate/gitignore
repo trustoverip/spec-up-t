@@ -1,3 +1,10 @@
+
+# This file represents the recommended .gitignore for Spec-Up-T projects.
+# If you only need to ignore something locally and don’t want to
+# commit the rule, you can add the pattern to your repository’s
+# `.git/info/exclude` file instead of modifying the shared .gitignore.
+# Entries in `.git/info/exclude` stay completely local.
+
 # Dependencies
 node_modules/
 
