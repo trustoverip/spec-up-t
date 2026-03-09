@@ -1,3 +1,8 @@
+#######################
+#
+# BEGIN SPEC-UP-T rules
+#
+#######################
 
 # This file represents the recommended .gitignore for Spec-Up-T projects.
 # If you only need to ignore something locally and don’t want to
@@ -45,3 +50,9 @@ $RECYCLE.BIN/
 .*.swp          # Vim swap files
 .*.swo
 .fuse_hidden*   # Sometimes appears with fuse mounts
+
+#######################
+#
+# END SPEC-UP-T rules
+#
+#######################
