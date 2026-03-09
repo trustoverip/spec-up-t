@@ -81,11 +81,29 @@ function saveLabel(labelsFile, dirName, label) {
 }
 
 /**
- * Main flow: prompt for a label, create the version directory, copy the snapshot,
+ * Main flow: resolve the label, create the version directory, copy the snapshot,
  * save the label, and regenerate the versions index.
+ *
+ * Label resolution order:
+ *  1. FREEZE_LABEL environment variable — set by the menu.yml GitHub Actions workflow
+ *     so that GitHubUi (or any non-interactive caller) can supply a custom label.
+ *  2. Interactive readline prompt — only used when stdin is a real TTY (local CLI).
+ *  3. Default label (e.g. "v3") — fallback for non-interactive environments without
+ *     an explicit FREEZE_LABEL (e.g. running freeze directly inside a CI script).
  */
 async function run() {
-    const label = await prompt('Enter a label for this snapshot', defaultLabel);
+    let label;
+
+    if (process.env.FREEZE_LABEL) {
+        // Non-interactive path: label supplied by caller via environment variable
+        label = process.env.FREEZE_LABEL;
+    } else if (process.stdin.isTTY) {
+        // Interactive path: prompt the user, defaulting to the auto-generated name
+        label = await prompt('Enter a label for this snapshot', defaultLabel);
+    } else {
+        // Non-interactive path without an explicit label: use the auto-generated default
+        label = defaultLabel;
+    }
 
     if (!fs.existsSync(newVersionDir)) {
         fs.mkdirSync(newVersionDir, { recursive: true });
