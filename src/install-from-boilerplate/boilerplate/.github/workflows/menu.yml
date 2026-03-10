@@ -24,6 +24,10 @@ on:
       triggered_by:
         description: 'Triggered by'
         required: false
+      freeze_label:
+        description: 'Label for the snapshot (freeze action only). Leave empty to use the auto-generated version number.'
+        required: false
+        default: ''
 
 jobs:
   build-and-deploy-spec:
@@ -81,7 +85,9 @@ jobs:
               npm run todocx
               ;;
             freeze)
-              npm run freeze
+              # Pass the label to freeze-spec-data.js via environment variable.
+              # If freeze_label is empty the script falls back to the auto-generated default.
+              FREEZE_LABEL="${{ github.event.inputs.freeze_label }}" npm run freeze
               ;;
             custom-update)
               npm run custom-update
