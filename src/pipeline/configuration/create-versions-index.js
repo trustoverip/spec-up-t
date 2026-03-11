@@ -29,6 +29,11 @@ function createVersionsIndex(outputPath) {
     // Get all directories in the destination directory
     const dirs = fs.readdirSync(versionsDir).filter(file => fs.statSync(path.join(versionsDir, file)).isDirectory());
 
+    // Load persisted labels written by freeze-spec-data.js.
+    // Falls back to an empty object when no labels file exists yet.
+    const labelsFile = path.join(versionsDir, 'labels.json');
+    const labels = fs.existsSync(labelsFile) ? fs.readJsonSync(labelsFile) : {};
+
     // Generate HTML content
     let htmlContent = `
 <!DOCTYPE html>
@@ -58,7 +63,9 @@ function createVersionsIndex(outputPath) {
         htmlContent += `    <li class="list-group-item">No versions available</li>\n`;
     } else {
         dirs.forEach(dir => {
-            htmlContent += `    <li class="list-group-item"><a href="${dir}/">Version ${dir}</a></li>\n`;
+            // Use the stored label when available; fall back to the directory name
+            const linkText = labels[dir] || `Version ${dir}`;
+            htmlContent += `    <li class="list-group-item"><a href="${dir}/">${linkText}</a></li>\n`;
         });
     }
 
