@@ -27,9 +27,8 @@ jobs:
     # after the run completes. The 'permissions' block declares what this token
     # is allowed to do — GitHub denies operations outside these scopes.
     permissions:
-      contents: write       # Required by peaceiris/actions-gh-pages to push to gh-pages
-      pages: write          # Required to configure GitHub Pages source via API
-      administration: write # Required to set repository homepage field
+      contents: write # Required by peaceiris/actions-gh-pages to push to gh-pages
+      pages: write    # Required to configure GitHub Pages source via API
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -90,7 +89,9 @@ jobs:
 
       # Set the repository Website field to the GitHub Pages URL so it
       # appears in the About section on the repository landing page.
-      # Also uses GITHUB_TOKEN with 'administration: write' permission.
+      # Uses GITHUB_TOKEN — works when the workflow has sufficient repo access.
+      # If this step fails (e.g. on forked or restricted repos), it is non-critical;
+      # the homepage can also be set manually in the repository's About section.
       - name: Set repository homepage
         run: |
           OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
