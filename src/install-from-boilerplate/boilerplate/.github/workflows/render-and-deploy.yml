@@ -22,8 +22,14 @@ jobs:
   # ── Build & Deploy ────────────────────────────────────────────────────────────
   build-and-deploy:
     runs-on: ubuntu-latest
+    # GitHub automatically generates a GITHUB_TOKEN for each workflow run.
+    # This ephemeral token is scoped only to the current repository and expires
+    # after the run completes. The 'permissions' block declares what this token
+    # is allowed to do — GitHub denies operations outside these scopes.
     permissions:
-      contents: write   # Required by peaceiris/actions-gh-pages to push to gh-pages
+      contents: write       # Required by peaceiris/actions-gh-pages to push to gh-pages
+      pages: write          # Required to configure GitHub Pages source via API
+      administration: write # Required to set repository homepage field
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -44,9 +50,57 @@ jobs:
       # Push the rendered ./docs output to the gh-pages branch.
       # peaceiris/actions-gh-pages creates the branch on first run when it
       # does not yet exist — no manual branch setup is required.
+      # Uses GITHUB_TOKEN (automatically injected by GitHub) with 'contents: write'
+      # permission to push to this repository.
       - name: Deploy to GitHub Pages 🚀
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           publish_branch: gh-pages
+
+      # Configure GitHub Pages to serve from the gh-pages branch (root /).
+      # This uses the GitHub REST API with GITHUB_TOKEN (permission: 'pages: write').
+      # It is idempotent — safe to run on every render (201=create, 409/422=exists, update).
+      # GITHUB_TOKEN is ephemeral (created per-run, expires at run end), scoped only to
+      # this repository, and never logged. GitHub accepts it because the token is issued
+      # by GitHub itself and this workflow declares 'pages: write' permission.
+      - name: Configure GitHub Pages source
+        run: |
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          REPO="${{ github.repository }}"
+
+          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: token $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/pages" \
+            -d '{"source":{"branch":"gh-pages","path":"/"}}')
+
+          # 201 = created; 409/422 = already exists, update instead
+          if [ "$HTTP_CODE" -eq 409 ] || [ "$HTTP_CODE" -eq 422 ]; then
+            curl -s -o /dev/null \
+              -X PUT \
+              -H "Authorization: token $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/pages" \
+              -d '{"source":{"branch":"gh-pages","path":"/"}}'
+          fi
+          echo "GitHub Pages source set to gh-pages branch"
+
+      # Set the repository Website field to the GitHub Pages URL so it
+      # appears in the About section on the repository landing page.
+      # Also uses GITHUB_TOKEN with 'administration: write' permission.
+      - name: Set repository homepage
+        run: |
+          OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          PAGES_URL="https://${OWNER}.github.io/${REPO_NAME}/"
+
+          curl -s -o /dev/null \
+            -X PATCH \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}" \
+            -d "{\"homepage\":\"${PAGES_URL}\"}"
+          echo "Repository homepage set to $PAGES_URL"
