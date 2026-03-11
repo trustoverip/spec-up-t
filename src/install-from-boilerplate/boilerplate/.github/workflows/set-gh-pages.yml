@@ -1,9 +1,9 @@
 name: Set GitHub Pages and Homepage
 
-# One-time setup workflow: run this manually after creating the repository.
-# It configures GitHub Pages to be served via GitHub Actions (the
-# render-and-deploy.yml workflow) and sets the repository homepage URL.
-# No gh-pages branch is required.
+# One-time setup workflow: run this AFTER the first successful
+# render-and-deploy run, which creates the gh-pages branch.
+# It configures GitHub Pages to serve from the gh-pages branch (root /)
+# and sets the repository homepage URL.
 
 on:
   workflow_dispatch:
@@ -14,10 +14,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      # Configure Pages to use GitHub Actions as the deployment source.
+      # Configure Pages to serve from the gh-pages branch (root /).
       # POST creates the resource; a 409 means it already exists, so we PUT
-      # to update the build_type to "workflow".
-      - name: Enable GitHub Pages (GitHub Actions source)
+      # to update the source to the gh-pages branch.
+      - name: Enable GitHub Pages (gh-pages branch source)
         env:
           PAT: ${{ secrets.MY_PAT }}
         run: |
@@ -26,22 +26,22 @@ jobs:
             -H "Authorization: token $PAT" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/pages \
-            -d '{"build_type":"workflow"}' \
+            -d '{"source":{"branch":"gh-pages","path":"/"}}' \
             -w "%{http_code}" -o response.json | tail -n1)
 
           if [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 200 ]; then
-            echo "GitHub Pages enabled with GitHub Actions source"
+            echo "GitHub Pages enabled with gh-pages branch as source"
           elif [ "$HTTP_CODE" -eq 409 ]; then
-            echo "Pages already exists — updating build_type to workflow..."
+            echo "Pages already exists — updating source to gh-pages branch..."
             HTTP_CODE2=$(curl -s -L \
               -X PUT \
               -H "Authorization: token $PAT" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/${{ github.repository }}/pages \
-              -d '{"build_type":"workflow"}' \
+              -d '{"source":{"branch":"gh-pages","path":"/"}}' \
               -w "%{http_code}" -o response2.json | tail -n1)
             if [ "$HTTP_CODE2" -eq 200 ] || [ "$HTTP_CODE2" -eq 204 ]; then
-              echo "GitHub Pages source updated to GitHub Actions"
+              echo "GitHub Pages source updated to gh-pages branch"
             else
               echo "Failed to update Pages: $HTTP_CODE2"
               cat response2.json

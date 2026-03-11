@@ -1,13 +1,15 @@
 name: Render and Deploy to GitHub Pages
 
-# Triggered automatically on every push to main, or manually via the Actions tab.
-# This workflow renders the specification and deploys the output to GitHub Pages
-# without committing the generated docs/ directory back to the repository.
+# Triggered automatically on every push to main or master, or manually via
+# the Actions tab (or when dispatched by menu.yml for a render action).
+# Renders the specification and pushes the output to the gh-pages branch.
+# docs/ is NEVER committed to main/master.
 
 on:
   push:
     branches:
       - main
+      - master
   workflow_dispatch:
 
 # Only allow one deployment at a time; do not cancel in-progress runs so that
@@ -17,9 +19,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ── 1. Build ─────────────────────────────────────────────────────────────────
-  build:
+  # ── Build & Deploy ────────────────────────────────────────────────────────────
+  build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # Required by peaceiris/actions-gh-pages to push to gh-pages
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -37,25 +41,12 @@ jobs:
       - name: Render specification
         run: npm run render
 
-      # Package the rendered output as a Pages artifact so the deploy job can
-      # publish it.  The path must match output_path in specs.json.
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./docs
-
-  # ── 2. Deploy ────────────────────────────────────────────────────────────────
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    # The github-pages environment exposes the live URL in the Actions summary.
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      pages: write      # Required to deploy to GitHub Pages
-      id-token: write   # Required for OIDC-based Pages deployment
-    steps:
+      # Push the rendered ./docs output to the gh-pages branch.
+      # peaceiris/actions-gh-pages creates the branch on first run when it
+      # does not yet exist — no manual branch setup is required.
       - name: Deploy to GitHub Pages 🚀
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          publish_branch: gh-pages
