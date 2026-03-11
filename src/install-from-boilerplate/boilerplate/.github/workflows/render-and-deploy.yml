@@ -22,6 +22,10 @@ jobs:
   # ── Build & Deploy ────────────────────────────────────────────────────────────
   build-and-deploy:
     runs-on: ubuntu-latest
+    # GitHub automatically generates a GITHUB_TOKEN for each workflow run.
+    # This ephemeral token is scoped only to the current repository and expires
+    # after the run completes. The 'permissions' block declares what this token
+    # is allowed to do — GitHub denies operations outside these scopes.
     permissions:
       contents: write       # Required by peaceiris/actions-gh-pages to push to gh-pages
       pages: write          # Required to configure GitHub Pages source via API
@@ -46,6 +50,8 @@ jobs:
       # Push the rendered ./docs output to the gh-pages branch.
       # peaceiris/actions-gh-pages creates the branch on first run when it
       # does not yet exist — no manual branch setup is required.
+      # Uses GITHUB_TOKEN (automatically injected by GitHub) with 'contents: write'
+      # permission to push to this repository.
       - name: Deploy to GitHub Pages 🚀
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -54,7 +60,11 @@ jobs:
           publish_branch: gh-pages
 
       # Configure GitHub Pages to serve from the gh-pages branch (root /).
-      # This is idempotent — safe to run on every render.
+      # This uses the GitHub REST API with GITHUB_TOKEN (permission: 'pages: write').
+      # It is idempotent — safe to run on every render (201=create, 409/422=exists, update).
+      # GITHUB_TOKEN is ephemeral (created per-run, expires at run end), scoped only to
+      # this repository, and never logged. GitHub accepts it because the token is issued
+      # by GitHub itself and this workflow declares 'pages: write' permission.
       - name: Configure GitHub Pages source
         run: |
           TOKEN="${{ secrets.GITHUB_TOKEN }}"
@@ -80,6 +90,7 @@ jobs:
 
       # Set the repository Website field to the GitHub Pages URL so it
       # appears in the About section on the repository landing page.
+      # Also uses GITHUB_TOKEN with 'administration: write' permission.
       - name: Set repository homepage
         run: |
           OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
