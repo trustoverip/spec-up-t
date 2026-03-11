@@ -36,10 +36,10 @@ jobs:
       - name: Install dependencies 🔧
         run: npm install
 
-      # Run the render script, which writes output to the path defined in
-      # specs.json (output_path, typically ./docs/).
-      - name: Render specification
-        run: npm run render
+      # Collect external references — this also renders the specification and
+      # writes output to the path defined in specs.json (output_path, typically ./docs/).
+      - name: Collect external references and render
+        run: npm run collectExternalReferences
 
       # Push the rendered ./docs output to the gh-pages branch.
       # peaceiris/actions-gh-pages creates the branch on first run when it
