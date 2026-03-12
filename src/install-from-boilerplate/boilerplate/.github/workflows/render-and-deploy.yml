@@ -10,6 +10,22 @@ on:
     branches:
       - main
       - master
+    # Do not trigger on workflow file changes (.github/). Each workflow file
+    # is uploaded as a separate commit during repo creation, which would cause
+    # multiple competing runs in the same concurrency group. Real spec content
+    # changes (spec/, specs.json, package.json, etc.) still trigger a render.
+    # The initial render after repo creation is handled by an explicit dispatch.
+    # The trigger matrix is now:
+    #
+    # Event --> Triggers render?
+    #
+    # Push spec content (spec, specs.json, etc.) --> ✅ yes
+    # Push `.github/workflows/*.yml` (repo creation) --> ❌ no
+    # `workflow_dispatch` (GitHubUi "render" button, or menu.yml) --> ✅ yes
+    # PR into main/master --> ❌ not triggered (no `pull_request:` event)
+
+    paths-ignore:
+      - '.github/**'
   workflow_dispatch:
 
 # Only allow one deployment at a time; do not cancel in-progress runs so that
