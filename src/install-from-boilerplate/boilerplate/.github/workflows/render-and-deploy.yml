@@ -14,8 +14,10 @@ on:
 
 # Only allow one deployment at a time; do not cancel in-progress runs so that
 # a completed deploy is never replaced by a stale one.
+# NOTE: do NOT use 'pages' as the group name — that conflicts with GitHub's own
+# internal Pages deployment concurrency group and causes spurious cancellations.
 concurrency:
-  group: pages
+  group: render-and-deploy-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -64,7 +66,10 @@ jobs:
       # GITHUB_TOKEN is ephemeral (created per-run, expires at run end), scoped only to
       # this repository, and never logged. GitHub accepts it because the token is issued
       # by GitHub itself and this workflow declares 'pages: write' permission.
+      # continue-on-error: the API call may return a conflict on the very first run while
+      # GitHub is still processing the new gh-pages branch — this is non-fatal.
       - name: Configure GitHub Pages source
+        continue-on-error: true
         run: |
           TOKEN="${{ secrets.GITHUB_TOKEN }}"
           REPO="${{ github.repository }}"
@@ -93,6 +98,7 @@ jobs:
       # If this step fails (e.g. on forked or restricted repos), it is non-critical;
       # the homepage can also be set manually in the repository's About section.
       - name: Set repository homepage
+        continue-on-error: true
         run: |
           OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
