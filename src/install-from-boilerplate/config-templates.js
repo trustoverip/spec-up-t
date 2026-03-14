@@ -10,6 +10,11 @@
  * - description: brief explanation of the template structure
  * - directory: folder name inside boilerplate-templates/, or null for default
  */
+
+
+/**
+ * IMPORTANT: When adding new templates, also update the template selection logic in the GitHubUi file `CreateSpecUpProject.vue`.
+ */
 const templates = [
     {
         id: 'default',
@@ -19,7 +24,7 @@ const templates = [
     },
     {
         id: 'boilerplate-template-01',
-        name: 'Standard Specification (Intro, Body, Coda)',
+        name: 'Trust over IP Specification (Intro, Body, Coda)',
         description: 'Structured with introduction, body, and concluding sections',
         directory: 'boilerplate-template-01'
     },
