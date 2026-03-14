@@ -12,6 +12,11 @@ const Logger = require('../utils/logger');
  */
 function copyBoilerplate(template) {
     const sourceDir = path.join(__dirname, './', 'boilerplate');
+    // // Use process.cwd() so the destination is always the consuming project root,
+    // // regardless of whether spec-up-t is installed from npm or via `npm link`.
+    // // I am not sure if this works in all cases. Needs testing.
+    // const projectRoot = process.cwd();
+
     const projectRoot = path.join(__dirname, '../../../../');
 
     // Step 1: Copy everything from the default boilerplate
