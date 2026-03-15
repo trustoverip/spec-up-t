@@ -1,7 +1,7 @@
 # [Your Specification Title]
 
 ::: warning Warning Notice
-  This content is created with Artificial Intelligence and is only an example.
+  This content is created with Artificial Intelligence, based on information about ToIP available online.
 :::
 
 ## Introduction

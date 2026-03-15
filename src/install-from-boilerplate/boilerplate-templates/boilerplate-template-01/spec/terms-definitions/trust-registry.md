@@ -4,4 +4,4 @@
 
 ~ *Note: This is an example term included for demonstration purposes. Replace this definition with precise, normative language appropriate to your specification.*
 
-~ See also: [[ref: governance framework]], [[xref: ToIPTechArch, issuer]].
+~ See also: [[ref: governance framework]], [[xref: toipglos, issuer]].

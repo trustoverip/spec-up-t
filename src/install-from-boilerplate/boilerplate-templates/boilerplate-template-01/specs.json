@@ -23,9 +23,9 @@
             },
             "external_specs": [
                 {
-                    "external_spec": "ToIPTechArch",
-                    "gh_page": "https://trustoverip.github.io/TechArch/",
-                    "url": "https://github.com/trustoverip/TechArch"
+                    "external_spec": "toipglos",
+                    "gh_page": "https://glossary.trustoverip.org/",
+                    "url": "https://github.com/trustoverip/ctwg-main-glossary"
                 }
             ],
             "katex": false,
