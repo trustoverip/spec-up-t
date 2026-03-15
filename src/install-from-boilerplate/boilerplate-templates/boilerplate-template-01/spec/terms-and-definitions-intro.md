@@ -2,4 +2,4 @@
 
 ## Terms and definitions
 
-This is the terms and definitions section
+This section defines key terms used throughout this specification. Terms marked with cross-references (xref) or term-references (tref) link to definitions in other ToIP specifications.

@@ -1,14 +1,14 @@
 {
     "specs": [
         {
-            "title": "Spec-Up-T Starterpack",
-            "description": "Create technical specifications in markdown. Based on the original Spec-Up, extended with Terminology tooling",
+            "title": "[Your Specification Title]",
+            "description": "A Trust over IP Foundation specification. Replace this description with a summary of your specification.",
             "author": "Trust over IP Foundation",
             "spec_directory": "./spec",
             "spec_terms_directory": "terms-definitions",
             "output_path": "./docs",
             "markdown_paths": [
-                "spec-intro.md",
+                "spec-head.md",
                 "terms-and-definitions-intro.md",
                 "spec-body.md",
                 "spec-coda.md"
@@ -19,18 +19,13 @@
             "source": {
                 "host": "github",
                 "account": "trustoverip",
-                "repo": "spec-up-t-starter-pack"
+                "repo": "your-spec-repo"
             },
             "external_specs": [
                 {
-                    "external_spec": "ExtRef1",
-                    "gh_page": "https://trustoverip.github.io/spec-up-t-demo-external-ref-1/",
-                    "url": "https://github.com/trustoverip/spec-up-t-demo-external-ref-1"
-                },
-                {
-                    "external_spec": "ExtRef2",
-                    "gh_page": "https://trustoverip.github.io/spec-up-t-demo-external-ref-2/",
-                    "url": "https://github.com/trustoverip/spec-up-t-demo-external-ref-2"
+                    "external_spec": "ToIPTechArch",
+                    "gh_page": "https://trustoverip.github.io/TechArch/",
+                    "url": "https://github.com/trustoverip/TechArch"
                 }
             ],
             "katex": false,

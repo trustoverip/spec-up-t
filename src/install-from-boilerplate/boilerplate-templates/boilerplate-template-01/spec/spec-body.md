@@ -1,67 +1,52 @@
-## Specification Body
+## Requirements
 
-This section contains the main content of the specification. Add your technical details, requirements, and descriptions here.
+*This section contains the normative requirements of the specification. Replace the examples below with your actual requirements.*
 
-### Blockquote
+### General Requirements
 
-> To be, or not to be, that is the question:
-Whether 'tis nobler in the mind to suffer
-The slings and arrows of outrageous fortune,
-Or to take arms against a sea of troubles
-And by opposing end them. To die—to sleep,
-No more;
+The following requirements apply to all conforming implementations:
 
-### Notices
+1. Implementations MUST ...
+2. Implementations SHOULD ...
+3. Implementations MAY ...
 
-::: note Basic Note
-  Check this out.
+### Protocol Requirements
+
+*Add detailed technical or protocol requirements here.*
+
+::: note Informative Note
+  Requirements marked with MUST are normative. Requirements marked with SHOULD are recommended but not mandatory. Requirements marked with MAY are optional.
 :::
 
-::: warning Warning Notice
-  Houston, I think we have a problem
+::: todo Open Issue
+  Placeholder — replace with actual open items or remove this block before publication.
 :::
 
-::: todo Really Important
-  Get this done!
+## Architecture Overview
+
+*Provide an architectural description of the system or protocol defined by this specification. Diagrams and tables are encouraged.*
+
+### The ToIP Stack Context
+
+This specification operates within the [ToIP Technology Architecture Specification](https://trustoverip.github.io/TechArch/) layered model. The ToIP stack comprises four layers:
+
+| Layer | Name | Description |
+|------:|:-----|:------------|
+| 4 | Application Ecosystem | Trust applications and governance frameworks |
+| 3 | Trust Task | Credential exchange and trust negotiation |
+| 2 | Trust Spanning | Peer-to-peer messaging between agents |
+| 1 | Trust Support | Verifiable data registries and DID infrastructure |
+
+*Indicate which layer(s) this specification addresses.*
+
+## Security Considerations
+
+*Describe relevant security properties, threat models, and mitigations.*
+
+::: warning Security Note
+  Implementers MUST carefully review the security considerations before deployment.
 :::
 
-::: example Code Example
+## Privacy Considerations
 
-```json
-// Some comment in JSON
-{
-  "foo": "bar",
-  "baz": 2
-}
-```
-
-:::
-
-### Content Insertion
-
-Use the following format to pull in content from other files in your project:
-
-This text has been inserted here from another file: [[insert: assets/test.text]]
-
-You can even insert content within more complex blocks, like the JSON object below which is being pulled in and rendered in a syntax-highlighted example block:
-
-::: example Code Example
-
-```json
-[[insert: assets/test.json]]
-```
-
-:::
-
-### Tables
-
-|              Stage | Direct Products | ATP Yields |
-| -----------------: | --------------: | ---------: |
-|         Glycolysis |           2 ATP |            |
-|                 ^^ |          2 NADH |   3--5 ATP |
-| Pyruvaye oxidation |          2 NADH |      5 ATP |
-|  Citric acid cycle |           2 ATP |            |
-|                 ^^ |          6 NADH |     15 ATP |
-|                 ^^ |         2 FADH2 |      3 ATP |
-|     **30--32** ATP |                 |            |
-[Net ATP yields per hexose]
+*Describe how privacy is preserved and any data-minimization requirements.*
