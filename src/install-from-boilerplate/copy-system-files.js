@@ -14,8 +14,14 @@ function copySystemFiles() {
     systemFiles.forEach(item => {
         const srcPath = path.join(sourceDir, item);
 
+        // // Use process.cwd() so the destination is always the consuming project root,
+        // // regardless of whether spec-up-t is installed from npm or via `npm link`.
+        // // I am not sure if this works in all cases. Needs testing.
+        // const destPath = path.join(process.cwd(), item);
+
         // Root of the project
         const destPath = path.join(__dirname, '../../../../', item);
+
 
         try {
             fs.cpSync(srcPath, destPath, { recursive: true });
