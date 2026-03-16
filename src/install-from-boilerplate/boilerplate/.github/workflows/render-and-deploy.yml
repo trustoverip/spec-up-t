@@ -62,7 +62,7 @@ jobs:
       # Collect external references — this also renders the specification and
       # writes output to the path defined in specs.json (output_path, typically ./docs/).
       # The render pipeline (prepare-spec-configuration.js) automatically copies
-      # spec-versions/ → docs/versions/ so frozen snapshots are always included.
+      # snapshots/ → docs/versions/ so frozen snapshots are always included.
       - name: Collect external references and render
         run: npm run collectExternalReferences
 

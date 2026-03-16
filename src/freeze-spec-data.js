@@ -17,10 +17,10 @@ const outputPath = config.specs[0].output_path;
 
 const sourceFile = path.join(outputPath, 'index.html');
 
-// spec-versions/ lives at the repo root and is committed to the main branch.
+// snapshots/ lives at the repo root and is committed to the main branch.
 // This is the source of truth — it survives gh-pages resets and fresh CI checkouts.
 // docs/versions/ is the derived, deployed copy and is always rebuilt from here.
-const destDir = 'spec-versions';
+const destDir = 'snapshots';
 
 // A snapshot can only be created when the specification has been built at least once.
 // If index.html is missing, the user must run `npm run menu 1` (or `npm run menu 4`) first.
@@ -121,10 +121,10 @@ async function run() {
 
     Logger.success(`Created a freezed specification version in ${destFile}`);
 
-    // Sync spec-versions/ → docs/versions/ so the local preview reflects the
+    // Sync snapshots/ → docs/versions/ so the local preview reflects the
     // new snapshot immediately, then regenerate the versions index page.
-    const syncSpecVersions = require('./pipeline/configuration/sync-spec-versions.js');
-    syncSpecVersions(outputPath);
+    const syncSnapshots = require('./pipeline/configuration/sync-snapshots.js');
+    syncSnapshots(outputPath);
 
     const createVersionsIndex = require('./pipeline/configuration/create-versions-index.js');
     createVersionsIndex(outputPath);
