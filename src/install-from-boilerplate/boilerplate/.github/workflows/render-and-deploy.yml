@@ -64,6 +64,44 @@ jobs:
       - name: Collect external references and render
         run: npm run collectExternalReferences
 
+      # Preserve frozen specification snapshots (versions/) from gh-pages.
+      # peaceiris/actions-gh-pages replaces the entire gh-pages branch, so without
+      # this step any previously frozen versions would be lost on every deploy.
+      - name: Preserve versions from gh-pages
+        run: |
+          git fetch origin gh-pages 2>/dev/null || true
+          if ! git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
+            echo "gh-pages branch does not exist — skipping versions preservation"
+            exit 0
+          fi
+          mkdir -p /tmp/gh-pages-extract
+          git archive origin/gh-pages -- versions/ 2>/dev/null \
+            | tar -x -C /tmp/gh-pages-extract 2>/dev/null || true
+          if [ -d "/tmp/gh-pages-extract/versions" ]; then
+            mkdir -p docs/versions
+            cp -r /tmp/gh-pages-extract/versions/* docs/versions/
+            echo "Versions directory preserved from gh-pages"
+          else
+            echo "No versions directory found on gh-pages — nothing to preserve"
+          fi
+          rm -rf /tmp/gh-pages-extract
+
+      # Preserve the CNAME file from gh-pages before deploying.
+      # peaceiris/actions-gh-pages replaces the entire gh-pages branch with the
+      # contents of ./docs. A fresh CI checkout of main never contains docs/CNAME
+      # (docs/ is gitignored), so without this step any previously committed CNAME
+      # would be silently deleted on every render.
+      - name: Preserve CNAME from gh-pages
+        run: |
+          git fetch origin gh-pages 2>/dev/null || true
+          CNAME_CONTENT=$(git show origin/gh-pages:CNAME 2>/dev/null || echo "")
+          if [ -n "$CNAME_CONTENT" ]; then
+            echo "$CNAME_CONTENT" > docs/CNAME
+            echo "CNAME preserved: $CNAME_CONTENT"
+          else
+            echo "No CNAME found on gh-pages — nothing to preserve"
+          fi
+
       # Push the rendered ./docs output to the gh-pages branch.
       # peaceiris/actions-gh-pages creates the branch on first run when it
       # does not yet exist — no manual branch setup is required.
