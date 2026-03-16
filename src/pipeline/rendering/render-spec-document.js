@@ -40,6 +40,12 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     // Get the branch name from which the index.html was generated
     const buildBranch = getCurrentBranch();
 
+    // Read spec-up-t version from its own package.json for build info display
+    const specUpTVersion = require('../../../package.json').version;
+
+    // Capture Node.js runtime version for build info display
+    const nodeVersion = process.version;
+
     // Read all markdown files into an array
     const docs = await Promise.all(
       (spec.markdown_paths || ['spec.md']).map(_path =>
@@ -166,6 +172,8 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
       currentDate: currentDate,
       universalTimestamp: universalTimestamp,
       buildBranch: buildBranch,
+      specUpTVersion: specUpTVersion,
+      nodeVersion: nodeVersion,
       githubRepoInfo: getGithubRepoInfo(spec)
     });
 
