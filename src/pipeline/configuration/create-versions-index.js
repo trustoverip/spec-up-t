@@ -75,15 +75,16 @@ function createVersionsIndex(outputPath) {
 </html>
 `;
 
-    // Write the HTML content to the index file asynchronously
+    // Write the HTML content to the index file synchronously.
+    // Using writeFileSync ensures the file exists on disk before the render pipeline
+    // continues and before GitHub Actions deploys docs/ to gh-pages.
     const indexPath = path.join(versionsDir, 'index.html');
-    fs.writeFile(indexPath, htmlContent, (err) => {
-        if (err) {
-            Logger.error(`Error writing index file: ${err}`);
-        } else {
-            Logger.success(`Index file created at ${indexPath}`);
-        }
-    });
+    try {
+        fs.writeFileSync(indexPath, htmlContent);
+        Logger.success(`Index file created at ${indexPath}`);
+    } catch (err) {
+        Logger.error(`Error writing index file: ${err}`);
+    }
 }
 
 // Export the function

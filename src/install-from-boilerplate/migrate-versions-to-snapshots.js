@@ -1,11 +1,11 @@
 /**
- * @file migrate-versions-to-spec-versions.js
+ * @file migrate-versions-to-snapshots.js
  * @description One-time migration helper for repositories that were created under the
  * old "commit docs/" regime. Those repos store frozen snapshots inside docs/versions/.
  *
- * Starting with the issue270 changes, snapshots are stored in spec-versions/ (tracked,
+ * Starting with the issue270 changes, snapshots are stored in snapshots/ (tracked,
  * at the repo root) instead of docs/versions/ (gitignored, ephemeral). This migration
- * copies any snapshots found in docs/versions/ into spec-versions/ so they are not
+ * copies any snapshots found in docs/versions/ into snapshots/ so they are not
  * lost when the user eventually removes docs/ from git tracking.
  *
  * - Safe to run more than once: already-migrated versions are not overwritten.
@@ -19,12 +19,12 @@ const path = require('path');
 const Logger = require('../utils/logger');
 
 /**
- * Migrates frozen snapshots from docs/versions/ to spec-versions/.
+ * Migrates frozen snapshots from docs/versions/ to snapshots/.
  * @param {string} outputPath - The output directory defined in specs.json (e.g. './docs').
  */
-function migrateVersionsToSpecVersions(outputPath) {
+function migrateVersionsToSnapshots(outputPath) {
     const src = path.join(outputPath, 'versions');
-    const dest = 'spec-versions';
+    const dest = 'snapshots';
 
     if (!fs.existsSync(src)) {
         // No old snapshots to migrate — nothing to do.
@@ -45,7 +45,7 @@ function migrateVersionsToSpecVersions(outputPath) {
 
     let migratedCount = 0;
 
-    // Copy each version directory that does not already exist in spec-versions/.
+    // Copy each version directory that does not already exist in snapshots/.
     versionDirs.forEach(dir => {
         const srcDir = path.join(src, dir);
         const destDir = path.join(dest, dir);
@@ -56,20 +56,20 @@ function migrateVersionsToSpecVersions(outputPath) {
         }
     });
 
-    // Always keep labels.json up to date in spec-versions/.
+    // Always keep labels.json up to date in snapshots/.
     const srcLabels = path.join(src, 'labels.json');
     const destLabels = path.join(dest, 'labels.json');
 
     if (fs.existsSync(srcLabels)) {
         if (!fs.existsSync(destLabels)) {
-            // No labels.json in spec-versions/ yet — copy the whole file.
+            // No labels.json in snapshots/ yet — copy the whole file.
             fs.copySync(srcLabels, destLabels);
         } else {
-            // Merge: preserve any entries already in spec-versions/labels.json
+            // Merge: preserve any entries already in snapshots/labels.json
             // and add any entries from docs/versions/labels.json that are missing.
             const existing = fs.readJsonSync(destLabels);
             const legacy = fs.readJsonSync(srcLabels);
-            const merged = { ...legacy, ...existing }; // spec-versions wins on conflict
+            const merged = { ...legacy, ...existing }; // snapshots wins on conflict
             fs.writeJsonSync(destLabels, merged, { spaces: 2 });
         }
     }
@@ -82,4 +82,4 @@ function migrateVersionsToSpecVersions(outputPath) {
     }
 }
 
-module.exports = migrateVersionsToSpecVersions;
+module.exports = migrateVersionsToSnapshots;
