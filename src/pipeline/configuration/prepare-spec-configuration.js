@@ -34,6 +34,12 @@ async function initializeConfig(options = {}) {
     const createExternalSpecsList = require('./create-external-specs-list.js');
     const externalSpecsList = createExternalSpecsList(config);
 
+    // Copy any frozen snapshots from the tracked spec-versions/ directory into
+    // the output path before regenerating the versions index. This is what makes
+    // locally-created or CI-created freezes survive a fresh checkout and redeploy.
+    const syncSpecVersions = require('./sync-spec-versions.js');
+    syncSpecVersions(config.specs[0].output_path);
+
     const createVersionsIndex = require('./create-versions-index.js');
     createVersionsIndex(config.specs[0].output_path);
 

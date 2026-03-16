@@ -85,8 +85,13 @@ jobs:
               npm run todocx
               ;;
             freeze)
-              # Pass the label to freeze-spec-data.js via environment variable.
-              # If freeze_label is empty the script falls back to the auto-generated default.
+              # A fresh CI checkout has no docs/ (gitignored), so we must render
+              # first to give freeze-spec-data.js the docs/index.html it needs.
+              # freeze-spec-data.js then writes the snapshot to spec-versions/,
+              # which is tracked in git. The commit+push step below commits
+              # spec-versions/ to the main branch, which triggers
+              # render-and-deploy.yml to deploy the full spec (including versions).
+              npm run collectExternalReferences
               FREEZE_LABEL="${{ github.event.inputs.freeze_label }}" npm run freeze
               ;;
             custom-update)
@@ -126,6 +131,8 @@ jobs:
               git commit -m "Collect external references" || echo "No changes to commit"
               ;;
             freeze)
+              # spec-versions/ is tracked in git — committing it triggers
+              # render-and-deploy.yml, which deploys the full spec with versions.
               git commit -m "Freeze specification" || echo "No changes to commit"
               ;;
             custom-update)

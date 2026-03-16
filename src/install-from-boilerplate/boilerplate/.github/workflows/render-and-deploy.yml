@@ -61,8 +61,26 @@ jobs:
 
       # Collect external references — this also renders the specification and
       # writes output to the path defined in specs.json (output_path, typically ./docs/).
+      # The render pipeline (prepare-spec-configuration.js) automatically copies
+      # spec-versions/ → docs/versions/ so frozen snapshots are always included.
       - name: Collect external references and render
         run: npm run collectExternalReferences
+
+      # Preserve the CNAME file from gh-pages before deploying.
+      # peaceiris/actions-gh-pages replaces the entire gh-pages branch with the
+      # contents of ./docs. A fresh CI checkout of main never contains docs/CNAME
+      # (docs/ is gitignored), so without this step any previously committed CNAME
+      # would be silently deleted on every render.
+      - name: Preserve CNAME from gh-pages
+        run: |
+          git fetch origin gh-pages 2>/dev/null || true
+          CNAME_CONTENT=$(git show origin/gh-pages:CNAME 2>/dev/null || echo "")
+          if [ -n "$CNAME_CONTENT" ]; then
+            echo "$CNAME_CONTENT" > docs/CNAME
+            echo "CNAME preserved: $CNAME_CONTENT"
+          else
+            echo "No CNAME found on gh-pages — nothing to preserve"
+          fi
 
       # Push the rendered ./docs output to the gh-pages branch.
       # peaceiris/actions-gh-pages creates the branch on first run when it
