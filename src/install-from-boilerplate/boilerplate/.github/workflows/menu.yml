@@ -85,29 +85,13 @@ jobs:
               npm run todocx
               ;;
             freeze)
-              # The freeze action creates a point-in-time snapshot of the specification.
-              # Since docs/ is gitignored and not in the repo, we must:
-              # 1. Render fresh (freeze needs docs/index.html to copy)
-              # 2. Preserve existing frozen versions from gh-pages
-              # 3. Create the new snapshot
-              # Deployment to gh-pages happens in a dedicated step below.
+              # A fresh CI checkout has no docs/ (gitignored), so we must render
+              # first to give freeze-spec-data.js the docs/index.html it needs.
+              # freeze-spec-data.js then writes the snapshot to spec-versions/,
+              # which is tracked in git. The commit+push step below commits
+              # spec-versions/ to the main branch, which triggers
+              # render-and-deploy.yml to deploy the full spec (including versions).
               npm run collectExternalReferences
-
-              # Preserve existing versions from gh-pages so they are not lost
-              git fetch origin gh-pages 2>/dev/null || true
-              if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
-                mkdir -p /tmp/gh-pages-extract
-                git archive origin/gh-pages -- versions/ 2>/dev/null \
-                  | tar -x -C /tmp/gh-pages-extract 2>/dev/null || true
-                if [ -d "/tmp/gh-pages-extract/versions" ]; then
-                  mkdir -p docs/versions
-                  cp -r /tmp/gh-pages-extract/versions/* docs/versions/
-                  echo "Existing versions preserved from gh-pages"
-                fi
-                rm -rf /tmp/gh-pages-extract
-              fi
-
-              # Create the new snapshot
               FREEZE_LABEL="${{ github.event.inputs.freeze_label }}" npm run freeze
               ;;
             custom-update)
@@ -121,29 +105,6 @@ jobs:
               exit 1
               ;;
           esac
-
-      # ── Freeze-specific deployment ──────────────────────────────────────────
-      # The freeze action renders and snapshots locally into docs/, which is
-      # gitignored. Instead of committing to main, we deploy directly to gh-pages
-      # (the same mechanism render-and-deploy.yml uses for normal renders).
-      - name: Preserve CNAME from gh-pages (freeze deployment)
-        if: success() && github.event.inputs.action_type == 'freeze'
-        run: |
-          CNAME_CONTENT=$(git show origin/gh-pages:CNAME 2>/dev/null || echo "")
-          if [ -n "$CNAME_CONTENT" ]; then
-            echo "$CNAME_CONTENT" > docs/CNAME
-            echo "CNAME preserved: $CNAME_CONTENT"
-          else
-            echo "No CNAME found on gh-pages — nothing to preserve"
-          fi
-
-      - name: Deploy freeze to GitHub Pages 🚀
-        if: success() && github.event.inputs.action_type == 'freeze'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          publish_branch: gh-pages
 
       - name: Commit and push changes
         if: success()
@@ -170,7 +131,9 @@ jobs:
               git commit -m "Collect external references" || echo "No changes to commit"
               ;;
             freeze)
-              echo "Freeze deployed directly to gh-pages — no commit to main needed"
+              # spec-versions/ is tracked in git — committing it triggers
+              # render-and-deploy.yml, which deploys the full spec with versions.
+              git commit -m "Freeze specification" || echo "No changes to commit"
               ;;
             custom-update)
               git commit -m "Custom update: Copy files from spec-up-t" || echo "No changes to commit"
