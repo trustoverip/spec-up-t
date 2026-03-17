@@ -131,8 +131,10 @@ jobs:
               git commit -m "Collect external references" || echo "No changes to commit"
               ;;
             freeze)
-              # snapshots/ is tracked in git — committing it triggers
-              # render-and-deploy.yml, which deploys the full spec with versions.
+              # snapshots/ is tracked in git and will be committed.
+              # Note: a GITHUB_TOKEN push does NOT automatically trigger other workflows
+              # (GitHub security restriction). render-and-deploy.yml is dispatched
+              # explicitly in the "Deploy frozen snapshots to GitHub Pages" step below.
               git commit -m "Freeze specification" || echo "No changes to commit"
               ;;
             custom-update)
@@ -145,6 +147,23 @@ jobs:
           
           # Push changes
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
+
+      # After a freeze commit, render-and-deploy.yml must be dispatched explicitly.
+      # GitHub blocks other workflow runs triggered by GITHUB_TOKEN pushes (security
+      # restriction), so the push in "Commit and push changes" alone is not enough
+      # to propagate the new snapshot to the gh-pages branch.
+      # Dispatching render-and-deploy.yml here ensures:
+      #   1. The full render pipeline runs (including snapshots/ → docs/versions/ sync).
+      #   2. The updated docs/ (with the new frozen version) is deployed to gh-pages.
+      - name: Deploy frozen snapshots to GitHub Pages
+        if: success() && github.event.inputs.action_type == 'freeze'
+        run: |
+          curl -s -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/render-and-deploy.yml/dispatches" \
+            -d "{\"ref\":\"${{ github.ref_name }}\"}"
+          echo "render-and-deploy.yml dispatched — frozen snapshots will be deployed to gh-pages"
 
       - name: Clean up
         if: always()
