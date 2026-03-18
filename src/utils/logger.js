@@ -131,6 +131,9 @@ class Logger {
         console.log(); // Extra newline for readability
     }
 
+    /**
+     * Information messages - blue
+     */
     static info(message, ...args) {
         console.log(chalk.blue('📋'), chalk.blue(message), ...args);
         messageCollector.addMessage('info', message, args);
