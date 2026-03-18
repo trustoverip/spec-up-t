@@ -19,6 +19,34 @@ const path = require('path');
 const Logger = require('../utils/logger');
 
 /**
+ * Extracts snapshot labels from a hand-edited docs/versions/index.html.
+ * Parses every anchor whose href points to a version directory (e.g. "v1/")
+ * and maps the directory name to the visible link text.
+ *
+ * Example input:  <a href="v1/">KERI Release 1.0</a>
+ * Example output: { "v1": "KERI Release 1.0" }
+ *
+ * The "Latest version" link (href="../") is intentionally ignored.
+ *
+ * @param {string} indexHtmlPath - Absolute path to docs/versions/index.html.
+ * @returns {Object} Map of version directory names to label strings.
+ */
+function extractLabelsFromIndexHtml(indexHtmlPath) {
+    const labels = {};
+    const html = fs.readFileSync(indexHtmlPath, 'utf8');
+    // Match: href="v1/" or href="v1" (with or without trailing slash)
+    const linkPattern = /href="(v\d+)\/?">([^<]+)<\/a>/g;
+    let match = linkPattern.exec(html);
+    while (match !== null) {
+        const dirName = match[1];
+        const linkText = match[2].trim();
+        labels[dirName] = linkText;
+        match = linkPattern.exec(html);
+    }
+    return labels;
+}
+
+/**
  * Migrates frozen snapshots from docs/versions/ to snapshots/.
  * @param {string} outputPath - The output directory defined in specs.json (e.g. './docs').
  */
@@ -57,21 +85,29 @@ function migrateVersionsToSnapshots(outputPath) {
     });
 
     // Always keep labels.json up to date in snapshots/.
+    // Priority order (highest wins):
+    //   1. Labels already in snapshots/labels.json (from previous migrations or freezes)
+    //   2. Labels extracted from hand-edited docs/versions/index.html
+    //   3. Labels from docs/versions/labels.json (auto-generated source)
     const srcLabels = path.join(src, 'labels.json');
+    const srcIndexHtml = path.join(src, 'index.html');
     const destLabels = path.join(dest, 'labels.json');
 
-    if (fs.existsSync(srcLabels)) {
-        if (!fs.existsSync(destLabels)) {
-            // No labels.json in snapshots/ yet — copy the whole file.
-            fs.copySync(srcLabels, destLabels);
-        } else {
-            // Merge: preserve any entries already in snapshots/labels.json
-            // and add any entries from docs/versions/labels.json that are missing.
-            const existing = fs.readJsonSync(destLabels);
-            const legacy = fs.readJsonSync(srcLabels);
-            const merged = { ...legacy, ...existing }; // snapshots wins on conflict
-            fs.writeJsonSync(destLabels, merged, { spaces: 2 });
-        }
+    // Start from labels.json if it exists
+    const legacyLabels = fs.existsSync(srcLabels) ? fs.readJsonSync(srcLabels) : {};
+
+    // Overlay with labels parsed from index.html — these may be hand-edited
+    const htmlLabels = fs.existsSync(srcIndexHtml)
+        ? extractLabelsFromIndexHtml(srcIndexHtml)
+        : {};
+
+    // Existing snapshots/labels.json wins on any conflict
+    const existingDestLabels = fs.existsSync(destLabels) ? fs.readJsonSync(destLabels) : {};
+
+    const merged = { ...legacyLabels, ...htmlLabels, ...existingDestLabels };
+
+    if (Object.keys(merged).length > 0) {
+        fs.writeJsonSync(destLabels, merged, { spaces: 2 });
     }
 
     if (migratedCount > 0) {
