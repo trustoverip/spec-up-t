@@ -118,6 +118,21 @@ function migrateVersionsToSnapshots(outputPath) {
                 context: 'Remove old docs from git tracking'
             }
         );
+        Logger.action(
+            'Configure GitHub Pages deployment',
+            {
+                hint: 'Update your repository settings to deploy from gh-pages branch',
+                steps: [
+                    'Go to your repository on GitHub',
+                    'Click Settings',
+                    'In the left sidebar, click Pages',
+                    'Under Build and deployment, set Source to Deploy from a branch',
+                    'Select the gh-pages branch and / (root) folder',
+                    'Click Save'
+                ],
+                context: 'Enable GitHub Pages to serve your snapshots from the gh-pages branch'
+            }
+        );
     }
 }
 
