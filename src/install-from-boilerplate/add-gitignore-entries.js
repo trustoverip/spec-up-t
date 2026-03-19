@@ -30,10 +30,17 @@ async function updateGitignore(gitignorePath, filesToAdd) {
         // Split the content into lines and remove empty lines
         const gitignoreLines = gitignoreContent.split('\n').filter(line => line.trim() !== '');
 
-        // Add files to .gitignore if they are not already present
+        // Add files to .gitignore if they are not already present.
+        // Strip inline comments from existing lines before comparing, so that
+        // entries like "*.lnk  # some comment" are not duplicated.
         filesToAdd.forEach(file => {
-            if (!gitignoreLines.some(line => line.trim() === file.trim())) {
-                gitignoreLines.push(file.trim());
+            const pattern = file.trim();
+            const alreadyPresent = gitignoreLines.some(line => {
+                const linePattern = line.trim().split('#')[0].trim();
+                return linePattern === pattern;
+            });
+            if (!alreadyPresent) {
+                gitignoreLines.push(pattern);
             }
         });
 

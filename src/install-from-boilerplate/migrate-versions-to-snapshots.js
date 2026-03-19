@@ -111,9 +111,12 @@ function migrateVersionsToSnapshots(outputPath) {
     }
 
     if (migratedCount > 0) {
-        Logger.success(
-            `Migrated ${migratedCount} snapshot(s) from ${src} to ${dest}/. ` +
-            `You can now safely run: git rm -r --cached ${outputPath}`
+        Logger.action(
+            `Migrated ${migratedCount} snapshot(s) from ${src} to ${dest}/.`,
+            {
+                hint: `git rm -r --cached ${outputPath}`,
+                context: 'Remove old docs from git tracking'
+            }
         );
     }
 }

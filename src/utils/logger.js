@@ -131,6 +131,66 @@ class Logger {
         console.log(); // Extra newline for readability
     }
 
+    /**
+     * Action required messages - red with pointing hand icon
+     * 
+     * Indicates that the user must take action to proceed.
+     * More urgent than a warning, used when user intervention is required.
+     * 
+     * @param {string} message - The main action required message
+     * @param {...any} args - Additional arguments. Can include:
+     *   - Regular values (strings, numbers, objects) for message formatting
+     *   - An options object (if last arg is object with 'hint', 'context', or 'details' keys):
+     *     - hint: Clear instruction on what action to take
+     *     - context: Additional context about why action is needed
+     *     - details: Technical details or related information
+     * 
+     * @example
+     * Logger.action('Configuration required before proceeding', { 
+     *   context: 'specs.json is incomplete',
+     *   hint: 'Add the "title" and "github_url" fields to specs.json',
+     *   details: 'See https://example.com/docs' 
+     * });
+     */
+    static action(message, ...args) {
+        // Extract options object if present (last arg with special keys)
+        const lastArg = args[args.length - 1];
+        const isOptionsObject = lastArg && typeof lastArg === 'object' &&
+            (lastArg.hint || lastArg.context || lastArg.details);
+
+        const options = isOptionsObject ? args.pop() : {};
+        const regularArgs = args;
+
+        // Display main action required message - red to signal urgency
+        console.log(chalk.red('👉'), chalk.red(message), ...regularArgs);
+
+        // Display context if provided - explains why action is needed
+        if (options.context) {
+            console.log(chalk.red('   Context:'), chalk.gray(options.context));
+        }
+
+        // Display technical details if provided - helps understand the situation
+        if (options.details) {
+            const detailsStr = typeof options.details === 'object'
+                ? JSON.stringify(options.details, null, 2)
+                : String(options.details);
+            console.log(chalk.red('   Details:'), chalk.gray(detailsStr));
+        }
+
+        // Display hint if provided - critical instruction on what to do
+        if (options.hint) {
+            console.log(chalk.red('   👉 Action:'), chalk.red(options.hint));
+        }
+
+        // Collect message with all context for healthcheck/JSON output
+        messageCollector.addMessage('action', message, [...regularArgs, options]);
+
+        console.log(); // Extra newline for readability
+    }
+
+    /**
+     * Information messages - blue
+     */
     static info(message, ...args) {
         console.log(chalk.blue('📋'), chalk.blue(message), ...args);
         messageCollector.addMessage('info', message, args);
