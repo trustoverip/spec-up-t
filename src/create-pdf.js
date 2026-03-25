@@ -508,6 +508,20 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
             }
         });
 
+        // Force code blocks to wrap so they don't run off the page in the PDF.
+        // Must target both <pre> AND its inner <code> because Prism CSS sets
+        // white-space:pre on code[class*="language-"] independently.
+        // overflow:hidden prevents Puppeteer from shrinking the whole page to fit.
+        await page.evaluate(() => {
+            document.querySelectorAll('pre, pre > code, code[class*="language-"]').forEach(el => {
+                el.style.setProperty('white-space', 'pre-wrap', 'important');
+                el.style.setProperty('word-break', 'break-all', 'important');
+                el.style.setProperty('overflow-wrap', 'break-word', 'important');
+                el.style.setProperty('overflow', 'hidden', 'important');
+                el.style.setProperty('max-width', '100%', 'important');
+            });
+        });
+
         Logger.process('Generating PDF with proper TOC page numbers...');
 
         // First, generate a draft PDF to calculate the page positions of each heading
