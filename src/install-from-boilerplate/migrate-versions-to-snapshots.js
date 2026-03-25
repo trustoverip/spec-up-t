@@ -122,7 +122,7 @@ function migrateVersionsToSnapshots(outputPath) {
             'Configure GitHub Pages deployment',
             {
                 hint: 'Update your repository settings to deploy from gh-pages branch',
-                steps: [
+                details: [
                     'Go to your repository on GitHub',
                     'Click Settings',
                     'In the left sidebar, click Pages',
