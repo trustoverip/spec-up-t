@@ -308,14 +308,6 @@ function collectExternalReferences(options = {}) {
     const { externalSpecsRepos, hasExternalSpecsField } = normalizedConfig;
     const GITHUB_API_TOKEN = options.pat || process.env.GITHUB_API_TOKEN;
 
-    if (!GITHUB_API_TOKEN) {
-        Logger.warn('No GitHub Personal Access Token (PAT) found. Running without authentication', {
-            context: 'GitHub API requests will use unauthenticated access',
-            hint: 'Set GITHUB_PAT environment variable to increase rate limit from 60 to 5000 requests/hour. See: https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token',
-            details: 'You may hit rate limits when fetching many external references'
-        });
-    }
-
     // Communicate that the expected external_specs array is missing entirely.
     if (!hasExternalSpecsField) {
         Logger.info(
