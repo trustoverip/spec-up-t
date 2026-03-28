@@ -240,6 +240,10 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
         const pdfStylesExist = fs.existsSync(pdfStylesPath);
         const pdfStylesCss = pdfStylesExist ? fs.readFileSync(pdfStylesPath, 'utf8') : '';
 
+        // Path to project-level custom CSS (never overwritten by updates)
+        const customCssPath = path.resolve(process.cwd(), 'assets/custom.css');
+        const customCss = fs.existsSync(customCssPath) ? fs.readFileSync(customCssPath, 'utf8') : '';
+
         // Navigate to the HTML file
         await page.goto(fileUrl, { waitUntil: 'networkidle2' });
 
@@ -302,7 +306,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
         });
 
         // Inject Bootstrap CSS and PDF styles CSS - No inline styling
-        await page.evaluate((bootstrapCss, pdfStylesCss) => {
+        await page.evaluate((bootstrapCss, pdfStylesCss, customCss) => {
             // Add bootstrap if it exists
             if (bootstrapCss) {
                 const bootstrapStyle = document.createElement('style');
@@ -319,9 +323,17 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                 document.head.appendChild(style);
             }
 
+            // Inject custom.css last so project overrides win over everything else
+            if (customCss) {
+                const customStyle = document.createElement('style');
+                customStyle.id = 'custom-css';
+                customStyle.innerHTML = customCss;
+                document.head.appendChild(customStyle);
+            }
+
             // Add print-specific class
             document.body.classList.add('pdf-document', 'print');
-        }, bootstrapCss, pdfStylesCss);
+        }, bootstrapCss, pdfStylesCss, customCss);
 
         // Add necessary Bootstrap classes to elements
         await page.evaluate(() => {
