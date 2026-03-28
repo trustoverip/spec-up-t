@@ -99,7 +99,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
         if (logo) {
             const logoContainer = document.createElement('a');
             logoContainer.href = logoLink;
-            logoContainer.className = 'd-block mb-3';
+            logoContainer.className = 'd-block mb-3 logo-container';
             const logoImg = document.createElement('img');
             logoImg.src = logo;
             logoImg.className = 'img-fluid';

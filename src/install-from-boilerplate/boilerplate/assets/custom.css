@@ -1,0 +1,14 @@
+/* ==========================================================================
+   Custom CSS — Override any default styles here.
+   
+   This file is loaded AFTER all other stylesheets, so your rules take
+   precedence.  It is never overwritten by spec-up-t updates.
+
+   Examples:
+
+   Make the PDF logo smaller:
+   .pdf-logo { max-width: 80px; }
+
+   Make the header logo bigger:
+   header img { max-height: 60px; }
+   ========================================================================== */

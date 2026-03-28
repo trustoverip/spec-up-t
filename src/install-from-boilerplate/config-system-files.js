@@ -9,4 +9,10 @@ const systemFiles = [
     'assets/test.text',
 ];
 
-module.exports = { systemFiles };
+// Files that are only copied when they do not already exist in the consuming
+// project, so user customisations are never overwritten by updates.
+const systemFilesNoOverwrite = [
+    'assets/custom.css',
+];
+
+module.exports = { systemFiles, systemFilesNoOverwrite };
