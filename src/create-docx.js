@@ -118,6 +118,20 @@ function processNode(node, elements = []) {
             }
             break;
 
+        case 'pre':
+            // Treat the entire pre block as a single monospace paragraph.
+            // Recursing into children would produce one paragraph per Prism token span.
+            if (node.textContent.trim()) {
+                elements.push(new Paragraph({
+                    children: [new TextRun({
+                        text: node.textContent,
+                        font: 'Courier New',
+                        size: 18 // 9pt (half-points)
+                    })]
+                }));
+            }
+            break;
+
         case 'blockquote':
             elements.push(new Paragraph({
                 text: node.textContent.trim(),
