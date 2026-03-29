@@ -94,15 +94,15 @@ async function applyAccessibilityTags(page) {
 async function createTOCIfNeeded(page, logo, logoLink, title, description) {
     await page.evaluate((logo, logoLink, title, description) => {
         const titleWrapper = document.createElement('div');
-        titleWrapper.className = 'text-center mb-5 pb-4 border-bottom';
+        titleWrapper.className = 'text-center mb-5 pb-4 border-bottom pdf-cover';
 
         if (logo) {
             const logoContainer = document.createElement('a');
             logoContainer.href = logoLink;
-            logoContainer.className = 'd-block mb-3 logo-container';
+            logoContainer.className = 'd-block mb-3 pdf-logo-container';
             const logoImg = document.createElement('img');
             logoImg.src = logo;
-            logoImg.className = 'img-fluid';
+            logoImg.className = 'img-fluid pdf-logo';
             logoContainer.appendChild(logoImg);
             titleWrapper.appendChild(logoContainer);
         }
@@ -117,7 +117,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
         if (description) {
             const descriptionElement = document.createElement('p');
             descriptionElement.textContent = description;
-            descriptionElement.className = 'lead mb-0';
+            descriptionElement.className = 'lead mb-0 pdf-description';
             titleWrapper.appendChild(descriptionElement);
         }
 
@@ -135,17 +135,17 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                 // Create TOC container
                 const tocContainer = document.createElement('div');
                 tocContainer.id = 'toc';
-                tocContainer.className = 'toc-container';
+                tocContainer.className = 'toc-container pdf-toc';
 
                 // Create TOC heading
                 const tocHeading = document.createElement('h2');
                 tocHeading.textContent = 'Contents';
-                tocHeading.className = 'toc-heading';
+                tocHeading.className = 'toc-heading pdf-toc-heading';
                 tocContainer.appendChild(tocHeading);
 
                 // Create TOC list
                 const tocList = document.createElement('ul');
-                tocList.className = 'toc-list';
+                tocList.className = 'toc-list pdf-toc-list';
                 tocContainer.appendChild(tocList);
 
                 // Add all headings to the TOC
