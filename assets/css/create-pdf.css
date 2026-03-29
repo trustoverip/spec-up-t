@@ -186,13 +186,18 @@ body.pdf-document .pdf-toc-heading {
   margin-top: 0 !important;
 }
 
-/* TOC list items. */
+/* TOC list items.
+   padding is split into individual properties so that the inline style.paddingLeft
+   set by JS for nesting depth is NOT overridden by !important on a shorthand. */
 .pdf-document #toc li,
 .pdf-document #pdf-toc li {
   position: relative !important;
   width: 100% !important;
   margin: 0 0 0.5rem 0 !important;
-  padding: 0 20px 0 0 !important;
+  padding-top: 0 !important;
+  padding-right: 20px !important;
+  padding-bottom: 0 !important;
+  /* padding-left: intentionally omitted — JS sets it as inline style for nesting depth */
   line-height: 1.9 !important;
   display: flex !important;
   align-items: baseline !important;
@@ -423,10 +428,12 @@ body.pdf-document pre > code {
   page-break-inside: avoid !important;
 }
 
+/* !important needed to beat Bootstrap .table variant classes that set their own
+   background/color via higher-specificity rules or CSS custom properties. */
 .pdf-document thead th,
 .pdf-document th {
-  background-color: #003366;
-  color: #ffffff;
+  background-color: #003366 !important;
+  color: #ffffff !important;
   font-weight: 700;
   text-align: left;
   padding: 0.5em 0.9em;
@@ -489,14 +496,15 @@ body.pdf-document dd {
   page-break-after: avoid !important;
 }
 
-/* Always show collapsed definition meta-info content in PDF. */
+/* Always show collapsed definition meta-info content in PDF.
+   Padding is zeroed to avoid stacking extra space above the attribute table. */
 .pdf-document dl > dd.meta-info-content-wrapper,
 .pdf-document dl > dd.collapsed.meta-info-content-wrapper {
   display: block !important;
   max-height: none !important;
   height: auto !important;
   overflow: visible !important;
-  padding: 0.5rem 0 !important;
+  padding: 0 !important;
   margin: 0 !important;
   line-height: normal !important;
 }
@@ -524,13 +532,22 @@ body.pdf-document dd {
 }
 
 .pdf-document dl.terms-and-definitions-list dd table {
-  margin: 0.5em 0 !important;
+  margin: 0 0 0.35em 0 !important;
   border-collapse: collapse !important;
 }
 
 .pdf-document dl.terms-and-definitions-list dd table th,
 .pdf-document dl.terms-and-definitions-list dd table td {
   border: 0.5pt solid #888 !important;
+}
+
+/* The page's own terms-and-definitions.css targets these th's with higher specificity
+   (0,1,4,0) via var(--table-header-bg), overriding our generic rule.
+   We match that specificity + add !important to ensure a consistent dark navy header. */
+.pdf-document dl.terms-and-definitions-list dd table th {
+  background-color: #003366 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
 }
 
 
