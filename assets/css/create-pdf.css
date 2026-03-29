@@ -1,13 +1,48 @@
-/* PDF Styling for optimized print layout */
-/* Target the pdf-document class that's added during PDF generation */
+/* create-pdf.css — Default PDF styles for Spec-Up-T
+   ===================================================
+   Applied when body carries the .pdf-document class (added by create-pdf.js).
+   Loaded before the project's custom.css, so project-level overrides win.
 
-/* ===== GENERAL LAYOUT STYLING ===== */
+   Sections:
+    1. Page geometry
+    2. Base document
+    3. Layout & containers
+    4. Cover page
+    5. Table of Contents
+    6. Page number styling (TOC)
+    7. Headings
+    8. Body text & links
+    9. Inline code & code blocks
+   10. Tables
+   11. Lists
+   12. Definition lists
+   13. Blockquotes & horizontal rules
+   14. Utility
+*/
+
+
+/* ===== 1. PAGE GEOMETRY ===== */
+
+/* The right margin is wider (25 mm) to give TOC page numbers room to breathe. */
+@page {
+  margin: 18mm 25mm 20mm 15mm;
+}
+
+
+/* ===== 2. BASE DOCUMENT ===== */
+
 .pdf-document * {
   box-sizing: border-box !important;
 }
 
-/* Basic layout settings */
+/* Typography informed by W3C Technical Report and IETF RFC conventions:
+   clean sans-serif type, navy-blue accent colour, conservative spacing. */
 body.pdf-document {
+  font-family: "Arial", "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.65;
+  color: #1a1a1a;
+  background: #ffffff;
   max-width: 100% !important;
   width: 100% !important;
   margin: 0 !important;
@@ -15,7 +50,10 @@ body.pdf-document {
   overflow-x: hidden !important;
 }
 
-/* Content container sizing */
+
+/* ===== 3. LAYOUT & CONTAINERS ===== */
+
+/* Prevent Bootstrap containers from capping content width in PDF. */
 .pdf-document .container,
 .pdf-document main,
 .pdf-document section,
@@ -36,7 +74,7 @@ body.pdf-document {
   padding-right: 0 !important;
 }
 
-/* Force columns to full width */
+/* Force Bootstrap grid columns to full width. */
 .pdf-document .col,
 .pdf-document [class*="col-"] {
   flex: 0 0 100% !important;
@@ -44,66 +82,13 @@ body.pdf-document {
   padding: 0 !important;
 }
 
-/* ===== COMMON ELEMENT STYLING ===== */
-
-/* Basic styling for tables */
-.pdf-document table {
-  width: 100% !important;
-  max-width: 100% !important;
-  margin-bottom: 1rem;
-  table-layout: fixed !important;
-  page-break-inside: avoid !important;
-}
-
-/* Title styling */
-.pdf-document .pdf-title {
-  font-size: 24pt !important;
-  margin-bottom: 0.5rem !important;
-}
-
-/* Consistent image handling */
+/* Responsive images. */
 .pdf-document img {
   max-width: 100% !important;
   height: auto !important;
 }
 
-/* Links in PDF */
-.pdf-document a {
-  color: #000 !important;
-  text-decoration: none !important;
-  border-bottom: none !important;
-}
-
-/* Code blocks: wrap long lines so they stay within the page.
-   overflow: hidden prevents Puppeteer from shrink-to-fitting the whole page.
-   word-break: break-all breaks mid-token when a single token exceeds page width.
-   Targets both pre and the inner code element (Prism sets white-space:pre on both). */
-.pdf-document pre,
-.pdf-document pre[class*="language-"],
-.pdf-document pre code,
-.pdf-document pre[class*="language-"] code,
-.pdf-document code[class*="language-"] {
-  white-space: pre-wrap !important;
-  word-break: break-all !important;
-  overflow-wrap: break-word !important;
-  max-width: 100% !important;
-  overflow: hidden !important;
-}
-
-/* Page break control */
-.pdf-document h1,
-.pdf-document h2,
-.pdf-document h3,
-.pdf-document h4 {
-  page-break-after: avoid !important;
-  page-break-inside: avoid !important;
-}
-
-.pdf-document figure {
-  page-break-inside: avoid !important;
-}
-
-/* Make fixed elements static for PDF */
+/* Convert fixed-position elements to static so they don't float outside the page. */
 .pdf-document .fixed-top,
 .pdf-document .fixed-bottom,
 .pdf-document .sticky-top,
@@ -112,88 +97,130 @@ body.pdf-document {
   position: static !important;
 }
 
-/* Hide elements not needed in PDF */
+/* Hide UI-only elements that have no place in a printed document. */
 .pdf-document .offcanvas.show,
 .pdf-document .meta-info-toggle-button {
   display: none !important;
 }
 
-/* ===== TABLE OF CONTENTS STYLING ===== */
+
+/* ===== 4. COVER PAGE ===== */
+
+body.pdf-document .pdf-cover {
+  text-align: center;
+  border-bottom: 3px solid #003366;
+  padding-bottom: 3rem;
+  margin-bottom: 4.5rem;
+  page-break-after: always;
+  break-after: page;
+}
+
+body.pdf-document .pdf-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #003366;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  margin-top: 0.5em;
+  margin-bottom: 0.6em;
+}
+
+body.pdf-document .pdf-description {
+  font-size: 1rem;
+  color: #555555;
+  font-style: italic;
+}
+
+
+/* ===== 5. TABLE OF CONTENTS ===== */
+
+/* TOC occupies its own page and uses a bordered panel style. */
 .pdf-document #toc,
 .pdf-document #pdf-toc {
   break-before: page !important;
   page-break-before: always !important;
-  padding: 2rem 0 1rem !important;
+  border: 1px solid #c8d4e8;
+  border-left: 4px solid #003366;
+  padding: 1.5em 2em !important;
+  background-color: #f7f9fd;
   margin-bottom: 2rem !important;
 }
 
-/* Content after TOC starts on new page */
+/* First section after the TOC starts on a fresh page. */
 .pdf-document #toc + *,
 .pdf-document #pdf-toc + * {
   break-before: page !important;
   page-break-before: always !important;
 }
 
-/* TOC header */
+/* TOC heading ("Contents"). The :not() excludes it from the body h2 rule below. */
 .pdf-document #toc h2,
-.pdf-document #pdf-toc h2 {
-  font-size: 24pt !important;
-  text-align: center !important;
-  margin-bottom: 1.5rem !important;
-  font-weight: bold !important;
-  border-bottom: 1px solid #000 !important;
-  padding-bottom: 0.5rem !important;
+.pdf-document #pdf-toc h2,
+body.pdf-document .pdf-toc-heading {
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  color: #003366 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid #003366 !important;
+  padding-bottom: 0.5em !important;
+  margin-bottom: 0.8em !important;
+  text-align: left !important;
 }
 
-/* TOC list basics */
+/* TOC list base. */
 .pdf-document #toc ul,
 .pdf-document #pdf-toc ul {
-  margin: 0 !important;
+  font-size: 0.88rem;
+  line-height: 1.9;
+  list-style: none !important;
   padding: 0 !important;
-  list-style-type: none !important;
+  margin: 0 !important;
   width: 100% !important;
 }
 
-/* TOC nested lists */
+/* Nested lists add left indent. */
 .pdf-document #toc ul ul,
 .pdf-document #pdf-toc ul ul {
-  padding-left: 1rem !important;
-  margin: 0.2rem 0 0.2rem 1rem !important;
+  padding-left: 1.5em !important;
+  margin-top: 0 !important;
 }
 
-/* TOC list items */
+/* TOC list items. */
 .pdf-document #toc li,
 .pdf-document #pdf-toc li {
   position: relative !important;
   width: 100% !important;
   margin: 0 0 0.5rem 0 !important;
   padding: 0 20px 0 0 !important;
-  line-height: 1.5 !important;
+  line-height: 1.9 !important;
   display: flex !important;
   align-items: baseline !important;
 }
 
-/* TOC list styles for different levels */
+/* Top-level entries are semi-bold. */
 .pdf-document #toc > ul > li,
 .pdf-document #pdf-toc > ul > li {
-  font-weight: bold !important;
+  font-weight: 600 !important;
   margin-bottom: 0.7rem !important;
 }
 
+/* Second-level entries. */
 .pdf-document #toc > ul > li > ul > li,
 .pdf-document #pdf-toc > ul > li > ul > li {
-  font-weight: normal !important;
+  font-weight: 400 !important;
   margin-bottom: 0.5rem !important;
-  margin-left: 0.5rem !important;
 }
 
+/* Third-level entries. */
 .pdf-document #toc > ul > li > ul > li > ul > li,
 .pdf-document #pdf-toc > ul > li > ul > li > ul > li {
-  font-style: italic !important;
+  font-size: 0.85rem;
+  color: #555555;
   margin-bottom: 0.3rem !important;
 }
 
-/* TOC items with nested lists */
+/* Items that contain a nested list stack vertically. */
 .pdf-document #toc li:has(> ul),
 .pdf-document #pdf-toc li:has(> ul) {
   flex-direction: column !important;
@@ -206,11 +233,11 @@ body.pdf-document {
   width: 100% !important;
 }
 
-/* TOC link styling */
+/* TOC links. */
 .pdf-document #toc ul li a,
 .pdf-document #pdf-toc ul li a,
 .pdf-document #pdf-toc .toc-title {
-  color: #000 !important;
+  color: #1a1a1a !important;
   text-decoration: none !important;
   font-weight: normal !important;
   white-space: nowrap !important;
@@ -221,7 +248,7 @@ body.pdf-document {
   background-color: transparent !important;
 }
 
-/* Dotted leader line */
+/* Dotted leader line between entry title and page number. */
 .pdf-document #toc ul li .dotted-leader,
 .pdf-document #pdf-toc ul li .dotted-leader,
 .pdf-document #pdf-toc .toc-leader {
@@ -232,7 +259,7 @@ body.pdf-document {
   bottom: 0.3rem !important;
 }
 
-/* TOC row layout */
+/* Row layout inside a single TOC entry. */
 .pdf-document #pdf-toc .toc-row {
   display: flex !important;
   width: 100% !important;
@@ -240,64 +267,229 @@ body.pdf-document {
   position: relative !important;
 }
 
-/* ===== PAGE NUMBER STYLING ===== */
-/* Page margin for right side numbers */
-@page {
-  margin-right: 25mm !important;
-}
 
-/* Page number styling - simplified and consolidated */
+/* ===== 6. PAGE NUMBERS (TOC) ===== */
+
 .pdf-document .page-number,
 .pdf-document #pdf-toc .toc-page-number,
 .pdf-document #toc ul li span.page-number,
 .pdf-document #pdf-toc ul li span.page-number {
   display: inline-block !important;
+  position: absolute !important;
+  right: 0 !important;
   text-align: right !important;
-  font-size: 11pt !important;
-  background-color: white !important;
+  font-size: 0.88rem !important;
+  background-color: #f7f9fd !important;
   padding: 0 4px !important;
   margin: 0 !important;
   min-width: 2rem !important;
-  white-space: nowrap !important;
   font-weight: normal !important;
-  z-index: 9999 !important;
 }
 
-/* Page number positioning */
-.pdf-document #pdf-toc ul li > div:last-child,
-.pdf-document #toc ul li > div:last-child {
-  position: absolute !important;
-  right: 0 !important;
-  background-color: white !important;
-  padding: 0 5px !important;
-  z-index: 100 !important;
-  width: 3rem !important;
-  min-width: 3rem !important;
-  max-width: 3rem !important;
-  flex-shrink: 0 !important;
-  margin-left: auto !important;
-  text-align: right !important;
+
+/* ===== 7. HEADINGS ===== */
+
+body.pdf-document h1:not(.pdf-title):not(.toc-heading) {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #003366;
+  border-top: 3px solid #003366;
+  padding-top: 0.6em;
+  margin-top: 2.5em;
+  margin-bottom: 0.9em;
+  page-break-after: avoid !important;
+  page-break-inside: avoid !important;
 }
 
-/* ===== DEFINITION LIST STYLING ===== */
-/* Clean definition list styling */
+/* The :not() prevents this rule from restyling the TOC heading. */
+body.pdf-document h2:not(.toc-heading):not(.pdf-toc-heading) {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #003366;
+  border-bottom: 1.5px solid #003366;
+  padding-bottom: 0.2em;
+  margin-top: 2.2em;
+  margin-bottom: 0.7em;
+  page-break-after: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+body.pdf-document h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-top: 1.7em;
+  margin-bottom: 0.5em;
+  page-break-after: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+body.pdf-document h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #333333;
+  margin-top: 1.4em;
+  margin-bottom: 0.4em;
+  page-break-after: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+body.pdf-document h5,
+body.pdf-document h6 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555555;
+  margin-top: 1.2em;
+  margin-bottom: 0.3em;
+}
+
+
+/* ===== 8. BODY TEXT & LINKS ===== */
+
+body.pdf-document p {
+  margin-bottom: 0.8em;
+  text-align: justify;
+  hyphens: auto;
+  orphans: 3;
+  widows: 3;
+}
+
+.pdf-document a {
+  color: #1a1a1a !important;
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+
+/* ===== 9. INLINE CODE & CODE BLOCKS ===== */
+
+body.pdf-document :not(pre) > code {
+  font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.84em;
+  background-color: #edf0f7;
+  border: 1px solid #c8d4e8;
+  border-radius: 3px;
+  padding: 0.12em 0.32em;
+  color: #003366;
+}
+
+/* Code blocks: wrap long lines so they stay within the page.
+   Targets both <pre> and the inner <code> because Prism sets
+   white-space:pre on code[class*="language-"] independently.
+   overflow:hidden stops Puppeteer from shrink-fitting the entire page. */
+.pdf-document pre,
+.pdf-document pre[class*="language-"],
+.pdf-document pre code,
+.pdf-document pre[class*="language-"] code,
+.pdf-document code[class*="language-"] {
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+body.pdf-document pre {
+  font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.82rem;
+  background-color: #f4f6fb;
+  border: 1px solid #cdd6ea;
+  border-left: 3px solid #003366;
+  border-radius: 0 3px 3px 0;
+  padding: 0.85em 1.1em;
+  margin: 0.8em 0 1.2em;
+  line-height: 1.5;
+}
+
+body.pdf-document pre > code {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  border-radius: 0 !important;
+}
+
+
+/* ===== 10. TABLES ===== */
+
+.pdf-document table {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 1em 0 1.5em;
+  table-layout: fixed !important;
+  page-break-inside: avoid !important;
+}
+
+.pdf-document thead th,
+.pdf-document th {
+  background-color: #003366;
+  color: #ffffff;
+  font-weight: 700;
+  text-align: left;
+  padding: 0.5em 0.9em;
+  border: 1px solid #003366;
+}
+
+.pdf-document td {
+  padding: 0.4em 0.9em;
+  border: 1px solid #c0cce0;
+  vertical-align: top;
+}
+
+.pdf-document tbody tr:nth-child(even) td {
+  background-color: #f4f7fb;
+}
+
+
+/* ===== 11. LISTS ===== */
+
+body.pdf-document ul,
+body.pdf-document ol {
+  padding-left: 1.8em;
+  margin-bottom: 0.75em;
+}
+
+body.pdf-document li {
+  margin-bottom: 0.25em;
+}
+
+
+/* ===== 12. DEFINITION LISTS ===== */
+
+body.pdf-document dt {
+  font-weight: 700;
+  color: #003366;
+  margin-top: 0.7em;
+}
+
+body.pdf-document dd {
+  margin-left: 2em;
+  margin-bottom: 0.4em;
+}
+
+/* Clean up the terms-and-definitions layout for print. */
 .pdf-document dl.terms-and-definitions-list > dt,
 .pdf-document dl.terms-and-definitions-list > dd {
   background-color: transparent !important;
+  background-image: none !important;
   border: none !important;
   border-radius: 0 !important;
   padding: 0.5rem 0 !important;
-  color: #000 !important;
+  color: #1a1a1a !important;
   page-break-inside: avoid !important;
 }
 
 .pdf-document dl.terms-and-definitions-list > dt {
   margin-top: 1em !important;
   font-weight: bold !important;
+  color: #003366 !important;
   page-break-after: avoid !important;
 }
 
-/* Always show definitions content in PDF */
+/* Always show collapsed definition meta-info content in PDF. */
 .pdf-document dl > dd.meta-info-content-wrapper,
 .pdf-document dl > dd.collapsed.meta-info-content-wrapper {
   display: block !important;
@@ -309,26 +501,28 @@ body.pdf-document {
   line-height: normal !important;
 }
 
-/* Clean styling for transclusion */
+/* Transclusion: strip coloured backgrounds from external/local terms.
+   These rules override any !important background set by the page's own styles
+   because our stylesheet is injected later in document order. */
 .pdf-document dt.term-external,
 .pdf-document dd.term-external,
 .pdf-document dt.term-local,
 .pdf-document dd.term-local {
   background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
 }
 
-/* Remove unwanted elements */
+/* Remove auto-generated content markers. */
 .pdf-document dl.terms-and-definitions-list > dt::before,
 .pdf-document dl.terms-and-definitions-list > dd::before {
   display: none !important;
 }
 
-/* Definition paragraphs */
 .pdf-document dl.terms-and-definitions-list dd p {
   padding-left: 0 !important;
 }
 
-/* Definition tables */
 .pdf-document dl.terms-and-definitions-list dd table {
   margin: 0.5em 0 !important;
   border-collapse: collapse !important;
@@ -337,6 +531,31 @@ body.pdf-document {
 .pdf-document dl.terms-and-definitions-list dd table th,
 .pdf-document dl.terms-and-definitions-list dd table td {
   border: 0.5pt solid #888 !important;
+}
+
+
+/* ===== 13. BLOCKQUOTES & HORIZONTAL RULES ===== */
+
+body.pdf-document blockquote {
+  border-left: 4px solid #003366;
+  margin-left: 0;
+  padding-left: 1.2em;
+  color: #555555;
+  font-style: italic;
+}
+
+body.pdf-document hr {
+  border: none;
+  border-top: 1px solid #d0d8e8;
+  margin: 1.8em 0;
+}
+
+
+/* ===== 14. UTILITY ===== */
+
+/* Avoid splitting figures across pages. */
+.pdf-document figure {
+  page-break-inside: avoid !important;
 }
 
 
