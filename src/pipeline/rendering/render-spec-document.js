@@ -14,6 +14,7 @@ const { getGithubRepoInfo, getCurrentBranch } = require('../../utils/git-info.js
 const { templateTags } = require('../../utils/regex-patterns.js');
 
 const { createScriptElementWithXTrefDataForEmbeddingInHtml, applyReplacers } = require('./render-utils.js');
+const { warnOnHeadingHierarchyViolations } = require('./heading-hierarchy-validator.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
   let { externalReferences } = sharedVars;
@@ -149,6 +150,9 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     // Handles backslash escape mechanism for substitution tags
     // Phase 3: Post-processing - Restore escaped sequences as literals
     renderedHtml = restoreEscapedTags(renderedHtml);
+
+    // Warn about heading hierarchy violations (W3C accessibility)
+    warnOnHeadingHierarchyViolations(renderedHtml, Logger);
 
     // External references are now stored in allXTrefs instead of DOM HTML
     // No longer need to inject external references HTML into the template
