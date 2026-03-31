@@ -151,7 +151,7 @@ module.exports = async function (options = {}) {
           const katexDist = findKatexDist();
           assetTags.body += `<script>/* katex */${fs.readFileSync(path.join(katexDist, 'katex.min.js'),
             'utf8')}</script>`;
-          assetTags.body += `<style>/* katex */${fs.readFileSync(path.join(katexDist, 'katex.min.css'),
+          assetTags.head += `<style>/* katex */${fs.readFileSync(path.join(katexDist, 'katex.min.css'),
             'utf8')}</style>`;
 
           fs.copySync(path.join(katexDist, 'fonts'), path.join(spec.destination, 'fonts'));
