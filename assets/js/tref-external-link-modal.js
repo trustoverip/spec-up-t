@@ -19,8 +19,8 @@
     const SELECTOR_X_TERM = 'a.x-term-reference';
     const SELECTOR_META_LINK = 'dd.meta-info-content-wrapper a';
 
-    /** Delay before auto-navigating (milliseconds) */
-    const AUTO_NAVIGATE_DELAY_MS = 10000;
+    /** Delay before auto-navigating (seconds) */
+    const AUTO_NAVIGATE_DELAY_S = 10;
 
     /**
      * Returns true when the given href points to a different hostname,
@@ -66,7 +66,7 @@
      * @param {string} href - The external URL being navigated to
      * @param {string} specName - Human-readable name of the destination spec
      * @param {Function} onClose - Callback invoked when the modal should close
-     * @returns {HTMLElement} The overlay element, ready to append to the body
+     * @returns {{ overlay: HTMLElement, noticeEl: HTMLElement }} overlay and the live notice element
      */
     function buildModalOverlay(href, specName, onClose) {
         /* Overlay */
@@ -85,17 +85,20 @@
         const description = document.createElement('p');
         const specStrong = document.createElement('strong');
         specStrong.textContent = specName;
-        description.append('Leaving this specification for ', specStrong);
+        description.append('', specStrong);
 
         /* URL display */
         const urlEl = document.createElement('p');
         urlEl.className = 'tref-nav-url';
         urlEl.textContent = href;
 
-        /* Notice */
+        /* Notice with live countdown */
         const notice = document.createElement('p');
         notice.className = 'tref-nav-notice';
-        notice.textContent = 'Navigating automatically\u2026';
+        const countdownSpan = document.createElement('span');
+        countdownSpan.className = 'tref-nav-countdown';
+        countdownSpan.textContent = String(AUTO_NAVIGATE_DELAY_S);
+        notice.append('Navigating in ', countdownSpan, '\u2009s\u2026');
 
         /* Actions row */
         const actions = document.createElement('div');
@@ -132,28 +135,39 @@
             }
         }, { once: true });
 
-        return overlay;
+        return { overlay, countdownSpan };
     }
 
     /**
      * Shows the external-navigation modal for the given href.
-     * Auto-navigates after AUTO_NAVIGATE_DELAY_MS unless cancelled.
+     * Auto-navigates after AUTO_NAVIGATE_DELAY_S seconds unless cancelled.
+     * A live countdown ticks every second.
      *
      * @param {string} href - The external URL to navigate to
      * @param {string} specName - Human-readable name of the destination spec
      */
     function showTrefNavModal(href, specName) {
         function doClose() {
-            clearTimeout(timer);
+            clearTimeout(navTimer);
+            clearInterval(tickInterval);
             overlay.remove();
         }
 
-        const overlay = buildModalOverlay(href, specName, doClose);
+        const { overlay, countdownSpan } = buildModalOverlay(href, specName, doClose);
         document.body.appendChild(overlay);
 
-        const timer = setTimeout(function () {
+        let remaining = AUTO_NAVIGATE_DELAY_S;
+
+        /* Tick every second to update the displayed countdown */
+        const tickInterval = setInterval(function () {
+            remaining -= 1;
+            countdownSpan.textContent = String(remaining);
+        }, 1000);
+
+        const navTimer = setTimeout(function () {
+            clearInterval(tickInterval);
             window.location.href = href;
-        }, AUTO_NAVIGATE_DELAY_MS);
+        }, AUTO_NAVIGATE_DELAY_S * 1000);
     }
 
     /**

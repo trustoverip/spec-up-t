@@ -46,6 +46,11 @@
     font-size: 0.9em;
 }
 
+.tref-nav-modal .tref-nav-countdown {
+    font-weight: bold;
+    font-style: normal;
+}
+
 .tref-nav-modal .tref-nav-actions {
     display: flex;
     gap: 0.5rem;
