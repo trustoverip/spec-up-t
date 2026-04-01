@@ -355,7 +355,7 @@ $$
     <button type="button">Second Tab</button>
   </nav>
 
-  <section>
+  <div>
 
 ```json
 {
@@ -364,8 +364,8 @@ $$
 }
 ```
 
-  </section>
-  <section>
+  </div>
+  <div>
 
 ```json
 {
@@ -374,7 +374,7 @@ $$
 }
 ```
 
-  </section>
+  </div>
 </tab-panels>
 
 ### Fancy Links
