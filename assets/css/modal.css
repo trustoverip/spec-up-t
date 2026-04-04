@@ -33,3 +33,26 @@
     line-height: 1;
     cursor: pointer;
 }
+
+/* External-navigation modal (tref / xref links leaving the current spec) */
+.tref-nav-modal .tref-nav-url {
+    word-break: break-all;
+    font-size: 0.85em;
+    opacity: 0.75;
+}
+
+.tref-nav-modal .tref-nav-notice {
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.tref-nav-modal .tref-nav-countdown {
+    font-weight: bold;
+    font-style: normal;
+}
+
+.tref-nav-modal .tref-nav-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}

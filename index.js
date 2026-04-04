@@ -119,9 +119,17 @@ module.exports = async function (options = {}) {
           js: { head: '', body: '' }
         });
 
+        // Read the consuming project's custom.css (if present) and inline it so
+        // it overrides all other styles in both dev and production builds.
+        const projectCustomCssPath = path.join(process.cwd(), 'assets', 'custom.css');
+        const projectCustomCss = fs.existsSync(projectCustomCssPath)
+          ? `<style>/* custom.css */${fs.readFileSync(projectCustomCssPath, 'utf8')}</style>`
+          : '';
+
         if (options.dev) {
           assetTags.head = assets.head.css.map(_path => `<link href="${_path}" rel="stylesheet"/>`).join('') +
             customAssets.css +
+            projectCustomCss +
             assets.head.js.map(_path => `<script src="${_path}"></script>`).join('') +
             customAssets.js.head;
           assetTags.body = assets.body.js.map(_path => `<script src="${_path}" data-manual></script>`).join('') +
@@ -131,6 +139,7 @@ module.exports = async function (options = {}) {
           assetTags.head = `
           <style>${fs.readFileSync(modulePath + '/assets/compiled/head.css', 'utf8')}</style>
           ${customAssets.css}
+          ${projectCustomCss}
           <script>${fs.readFileSync(modulePath + '/assets/compiled/head.js', 'utf8')}</script>
           ${customAssets.js.head}
         `;
@@ -142,7 +151,7 @@ module.exports = async function (options = {}) {
           const katexDist = findKatexDist();
           assetTags.body += `<script>/* katex */${fs.readFileSync(path.join(katexDist, 'katex.min.js'),
             'utf8')}</script>`;
-          assetTags.body += `<style>/* katex */${fs.readFileSync(path.join(katexDist, 'katex.min.css'),
+          assetTags.head += `<style>/* katex */${fs.readFileSync(path.join(katexDist, 'katex.min.css'),
             'utf8')}</style>`;
 
           fs.copySync(path.join(katexDist, 'fonts'), path.join(spec.destination, 'fonts'));

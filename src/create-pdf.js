@@ -4,17 +4,7 @@ const path = require('path');
 const pdfLib = require('pdf-lib');
 const Logger = require('./utils/logger');
 
-// ISO compliance configuration
-const ISO_CONFIG = {
-    embedFonts: true,
-    deviceIndependentColor: true,
-    tagged: true, // For PDF/UA accessibility
-    pdfVersion: '1.7', // ISO 32000-1 compliant
-    metadata: {
-        format: 'PDF/A-2b', // Archive-friendly format
-        conformance: 'B' // Basic conformance level
-    }
-};
+
 
 /**
  * Creates ISO-compliant PDF metadata
@@ -37,13 +27,8 @@ function createISOMetadata(config) {
  * Configures Puppeteer page for ISO compliance
  */
 async function configurePageForISO(page) {
-    // Set device-independent color profile and font embedding
+    // emulateMediaType ensures @media print rules from the page's own CSS apply.
     await page.emulateMediaType('print');
-    await page.evaluateOnNewDocument(() => {
-        // Force device-independent color rendering
-        document.documentElement.style.colorRendering = 'optimizeQuality';
-        document.documentElement.style.textRendering = 'optimizeLegibility';
-    });
 }
 
 /**
@@ -94,15 +79,15 @@ async function applyAccessibilityTags(page) {
 async function createTOCIfNeeded(page, logo, logoLink, title, description) {
     await page.evaluate((logo, logoLink, title, description) => {
         const titleWrapper = document.createElement('div');
-        titleWrapper.className = 'text-center mb-5 pb-4 border-bottom';
+        titleWrapper.className = 'text-center mb-5 pb-4 border-bottom pdf-cover';
 
         if (logo) {
             const logoContainer = document.createElement('a');
             logoContainer.href = logoLink;
-            logoContainer.className = 'd-block mb-3';
+            logoContainer.className = 'd-block mb-3 pdf-logo-container';
             const logoImg = document.createElement('img');
             logoImg.src = logo;
-            logoImg.className = 'img-fluid';
+            logoImg.className = 'img-fluid pdf-logo';
             logoContainer.appendChild(logoImg);
             titleWrapper.appendChild(logoContainer);
         }
@@ -117,7 +102,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
         if (description) {
             const descriptionElement = document.createElement('p');
             descriptionElement.textContent = description;
-            descriptionElement.className = 'lead mb-0';
+            descriptionElement.className = 'lead mb-0 pdf-description';
             titleWrapper.appendChild(descriptionElement);
         }
 
@@ -135,17 +120,17 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                 // Create TOC container
                 const tocContainer = document.createElement('div');
                 tocContainer.id = 'toc';
-                tocContainer.className = 'toc-container';
+                tocContainer.className = 'toc-container pdf-toc';
 
                 // Create TOC heading
                 const tocHeading = document.createElement('h2');
                 tocHeading.textContent = 'Contents';
-                tocHeading.className = 'toc-heading';
+                tocHeading.className = 'toc-heading pdf-toc-heading';
                 tocContainer.appendChild(tocHeading);
 
                 // Create TOC list
                 const tocList = document.createElement('ul');
-                tocList.className = 'toc-list';
+                tocList.className = 'toc-list pdf-toc-list';
                 tocContainer.appendChild(tocList);
 
                 // Add all headings to the TOC
@@ -230,15 +215,19 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
         const filePath = path.resolve(process.cwd(), outputPath, 'index.html');
         const fileUrl = `file://${filePath}`;
 
-        // Path to Bootstrap CSS
-        const bootstrapCssPath = path.resolve(process.cwd(), 'assets/css/bootstrap.min.css');
-        const bootstrapExists = fs.existsSync(bootstrapCssPath);
-        let bootstrapCss = bootstrapExists ? fs.readFileSync(bootstrapCssPath, 'utf8') : '';
+        // Package-level CSS — these ship with spec-up-t and must be resolved
+        // relative to this script, not relative to process.cwd().
+        const pkgRoot = path.resolve(__dirname, '..');
+        const bootstrapCssPath = path.join(pkgRoot, 'assets', 'css', 'embedded-libraries', 'bootstrap.min.css');
+        const bootstrapCss = fs.existsSync(bootstrapCssPath) ? fs.readFileSync(bootstrapCssPath, 'utf8') : '';
 
-        // Path to PDF styles CSS
-        const pdfStylesPath = path.resolve(process.cwd(), 'assets/css/create-pdf.css');
-        const pdfStylesExist = fs.existsSync(pdfStylesPath);
-        const pdfStylesCss = pdfStylesExist ? fs.readFileSync(pdfStylesPath, 'utf8') : '';
+        const pdfStylesPath = path.join(pkgRoot, 'assets', 'css', 'create-pdf.css');
+        const pdfStylesCss = fs.existsSync(pdfStylesPath) ? fs.readFileSync(pdfStylesPath, 'utf8') : '';
+
+        // Project-level custom CSS — lives in the consuming project and is never
+        // overwritten by spec-up-t updates. Loaded last so overrides win.
+        const customCssPath = path.resolve(process.cwd(), 'assets', 'custom.css');
+        const customCss = fs.existsSync(customCssPath) ? fs.readFileSync(customCssPath, 'utf8') : '';
 
         // Navigate to the HTML file
         await page.goto(fileUrl, { waitUntil: 'networkidle2' });
@@ -274,39 +263,12 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
             );
         }
 
-        // Force larger width on page content BEFORE injecting styles
-        await page.evaluate(() => {
-            // Select main content containers and expand them
-            const containers = document.querySelectorAll('.container, main, section, article, .content');
-            containers.forEach(container => {
-                container.style.maxWidth = '95%';
-                container.style.width = '95%';
-                container.style.margin = '0 auto';
-                container.style.padding = '0';
-            });
-
-            // Override any Bootstrap column constraints
-            const columns = document.querySelectorAll('[class*="col-"]');
-            columns.forEach(col => {
-                col.style.maxWidth = '100%';
-                col.style.width = '100%';
-                col.style.paddingLeft = '0';
-                col.style.paddingRight = '0';
-            });
-
-            // Ensure body takes full width
-            document.body.style.maxWidth = '100%';
-            document.body.style.width = '100%';
-            document.body.style.padding = '0';
-            document.body.style.margin = '0';
-        });
-
-        // Inject Bootstrap CSS and PDF styles CSS - No inline styling
-        await page.evaluate((bootstrapCss, pdfStylesCss) => {
+        // Inject Bootstrap CSS and PDF styles CSS
+        await page.evaluate((bootstrapCss, pdfStylesCss, customCss) => {
             // Add bootstrap if it exists
             if (bootstrapCss) {
                 const bootstrapStyle = document.createElement('style');
-                bootstrapStyle.innerHTML = bootstrapCss;
+                bootstrapStyle.textContent = bootstrapCss;
                 bootstrapStyle.setAttribute('data-bootstrap', 'true');
                 document.head.appendChild(bootstrapStyle);
             }
@@ -315,13 +277,21 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
             if (pdfStylesCss) {
                 const style = document.createElement('style');
                 style.id = 'pdf-styles';
-                style.innerHTML = pdfStylesCss;
+                style.textContent = pdfStylesCss;
                 document.head.appendChild(style);
+            }
+
+            // Inject custom.css last so project overrides win over everything else
+            if (customCss) {
+                const customStyle = document.createElement('style');
+                customStyle.id = 'custom-css';
+                customStyle.textContent = customCss;
+                document.head.appendChild(customStyle);
             }
 
             // Add print-specific class
             document.body.classList.add('pdf-document', 'print');
-        }, bootstrapCss, pdfStylesCss);
+        }, bootstrapCss, pdfStylesCss, customCss);
 
         // Add necessary Bootstrap classes to elements
         await page.evaluate(() => {
@@ -343,127 +313,61 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
         // Inject logo, title, and description AND handle TOC creation if needed
         await createTOCIfNeeded(page, logo, logoLink, title, description);
 
-        // Direct manipulation of definition lists and TOC to ensure proper styling in PDF
+        // Remove the .collapsed class from definition meta-info wrappers so CSS can show them.
+        // All visual properties (display, overflow, background, borders) are handled by create-pdf.css.
         await page.evaluate(() => {
-            // Process all definition lists
-            const definitionLists = document.querySelectorAll('dl.terms-and-definitions-list');
-            definitionLists.forEach(list => {
-                // Process all terms and definitions - target all dt and dd elements regardless of class
-                const terms = list.querySelectorAll('dt, dd');
-                terms.forEach(term => {
-                    // Remove background and borders with !important to override any existing styles
-                    term.setAttribute('style', term.getAttribute('style') + '; background: transparent !important; background-color: transparent !important; background-image: none !important; border: none !important; border-radius: 0 !important; padding: 0.5rem 0 !important;');
-                });
-
-                // Ensure all meta-info content is visible
-                const metaInfoContents = list.querySelectorAll('dd.meta-info-content-wrapper');
-                metaInfoContents.forEach(content => {
-                    content.style.display = 'block';
-                    content.style.maxHeight = 'none';
-                    content.style.height = 'auto';
-                    content.style.overflow = 'visible';
-                    content.style.padding = '0.5rem 0';
-                    content.style.margin = '0';
-                    content.style.lineHeight = 'normal';
-
-                    // Remove the collapsed class if present
-                    content.classList.remove('collapsed');
-                });
-
-                // Hide all meta-info toggle buttons
-                const toggleButtons = list.querySelectorAll('.meta-info-toggle-button');
-                toggleButtons.forEach(button => {
-                    button.style.display = 'none';
-                });
+            document.querySelectorAll('dl.terms-and-definitions-list dd.meta-info-content-wrapper').forEach(content => {
+                content.classList.remove('collapsed');
             });
 
-            // Special handling for ALL transcluded terms with blue background - no class restrictions
-            document.querySelectorAll('.term-external, .term-local').forEach(el => {
-                // Use the most aggressive approach possible to override the blue background
-                el.setAttribute('style', el.getAttribute('style') + '; background: transparent !important; background-color: transparent !important; background-image: none !important;');
-
-                // Also process any child elements to ensure complete removal of background
-                Array.from(el.children).forEach(child => {
-                    child.setAttribute('style', child.getAttribute('style') + '; background: transparent !important; background-color: transparent !important; background-image: none !important;');
-                });
-            });
-
-            // Remove any inline styles that might be setting backgrounds
-            document.querySelectorAll('style').forEach(styleTag => {
-                let cssText = styleTag.textContent;
-                // If the style tag contains term-external styles, modify them
-                if (cssText.includes('term-external') && cssText.includes('background')) {
-                    cssText = cssText.replace(/dt\.term-external[^}]+}/g,
-                        'dt.term-external, dd.term-external, dt.term-local, dd.term-local { background: transparent !important; background-color: transparent !important; background-image: none !important; }');
-                    styleTag.textContent = cssText;
-                }
-            });            // Format Table of Contents for book-like layout
+            // Rebuild the original #toc as a print-optimised #pdf-toc with dotted leaders and page numbers.
             const toc = document.getElementById('toc');
             if (toc) {
-                // Make sure TOC is visible
-                toc.style.display = 'block';
-                toc.style.visibility = 'visible';
-                toc.style.opacity = '1';
+                // Keep the original hidden so the new one is the only TOC rendered.
+                toc.style.display = 'none';
 
-                // Create a new TOC div for the PDF using a completely different approach
                 const pdfToc = document.createElement('div');
                 pdfToc.id = 'pdf-toc';
 
-                // Ensure TOC has a header
+                // Class excluded by the body h2 rule so it doesn't inherit section-heading styles.
                 const tocHeading = document.createElement('h2');
+                tocHeading.className = 'pdf-toc-heading';
                 tocHeading.textContent = 'Contents';
-                tocHeading.style.textAlign = 'center';
-                tocHeading.style.fontWeight = 'bold';
-                tocHeading.style.marginBottom = '1.5rem';
-                tocHeading.style.paddingBottom = '0.5rem';
-                tocHeading.style.borderBottom = '1px solid #000';
                 pdfToc.appendChild(tocHeading);
 
-                // Create a fresh TOC structure - completely rebuilding it
                 const tocList = document.createElement('ul');
-                tocList.style.listStyleType = 'none';
-                tocList.style.padding = '0';
-                tocList.style.margin = '0';
                 pdfToc.appendChild(tocList);
 
-                // Find all section headings to include in the TOC
-                // Look for both original TOC entries and also scan document headings
-                const tocOriginalLinks = toc.querySelectorAll('a');
+                // Mirror the link structure from the original TOC.
+                toc.querySelectorAll('a').forEach(link => {
+                    const href = link.getAttribute('href');
+                    const targetId = href.substring(1);
 
-                // Process each TOC link to create a new TOC item
-                tocOriginalLinks.forEach((link, index) => {
                     const li = document.createElement('li');
+
                     const rowDiv = document.createElement('div');
                     rowDiv.className = 'toc-row';
 
                     const title = document.createElement('a');
-                    title.href = link.getAttribute('href');
+                    title.href = href;
                     title.textContent = link.textContent;
                     title.className = 'toc-title';
-                    title.setAttribute('data-target-id', link.getAttribute('href').substring(1)); // Store the target id
-                    // Ensure no blue color or underline for TOC links
-                    title.style.color = '#000';
-                    title.style.textDecoration = 'none';
-                    title.style.borderBottom = 'none';
-                    title.style.backgroundColor = 'transparent';
+                    title.setAttribute('data-target-id', targetId);
 
                     const leader = document.createElement('div');
                     leader.className = 'toc-leader';
 
-                    // Create page number placeholder - we'll fill in actual page numbers later
+                    // Page number is populated later by the tooltip-extraction step.
                     const pageNumber = document.createElement('span');
                     pageNumber.className = 'toc-page-number';
-                    pageNumber.textContent = ''; // Empty for now
-                    pageNumber.setAttribute('data-for-id', link.getAttribute('href').substring(1));
-                    pageNumber.style.position = 'absolute';
-                    pageNumber.style.right = '0';
+                    pageNumber.setAttribute('data-for-id', targetId);
 
                     rowDiv.appendChild(title);
                     rowDiv.appendChild(leader);
                     li.appendChild(rowDiv);
                     li.appendChild(pageNumber);
 
-                    // Determine nesting level from original TOC
+                    // Mirror indentation from the nesting depth in the original TOC.
                     let level = 0;
                     let parent = link.closest('li');
                     while (parent) {
@@ -475,8 +379,6 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                             break;
                         }
                     }
-
-                    // Apply indentation based on level
                     if (level > 0) {
                         li.style.paddingLeft = (level * 15) + 'px';
                     }
@@ -484,62 +386,20 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                     tocList.appendChild(li);
                 });
 
-                // Insert the new TOC at the beginning of the document after the title
+                // Insert the rebuilt TOC immediately after the cover page.
                 const titleWrapper = document.querySelector('.text-center.mb-5.pb-4.border-bottom');
                 if (titleWrapper && titleWrapper.nextSibling) {
                     document.body.insertBefore(pdfToc, titleWrapper.nextSibling);
                 } else {
                     document.body.insertBefore(pdfToc, document.body.firstChild);
                 }
-
-                // Force page break before TOC
-                pdfToc.style.breakBefore = 'page';
-                pdfToc.style.pageBreakBefore = 'always';
-
-                // Force page break after TOC
-                const tocNext = pdfToc.nextElementSibling;
-                if (tocNext) {
-                    tocNext.style.breakBefore = 'page';
-                    tocNext.style.pageBreakBefore = 'always';
-                }
-
-                // Hide the original TOC
-                toc.style.display = 'none';
             }
-        });
-
-        // Force code blocks to wrap so they don't run off the page in the PDF.
-        // Must target both <pre> AND its inner <code> because Prism CSS sets
-        // white-space:pre on code[class*="language-"] independently.
-        // overflow:hidden prevents Puppeteer from shrinking the whole page to fit.
-        await page.evaluate(() => {
-            document.querySelectorAll('pre, pre > code, code[class*="language-"]').forEach(el => {
-                el.style.setProperty('white-space', 'pre-wrap', 'important');
-                el.style.setProperty('word-break', 'break-all', 'important');
-                el.style.setProperty('overflow-wrap', 'break-word', 'important');
-                el.style.setProperty('overflow', 'hidden', 'important');
-                el.style.setProperty('max-width', '100%', 'important');
-            });
         });
 
         Logger.process('Generating PDF with proper TOC page numbers...');
 
-        // First, generate a draft PDF to calculate the page positions of each heading
-        const draftPdfBuffer = await page.pdf({
-            format: 'A4',
-            displayHeaderFooter: true,
-            footerTemplate: `
-                <div style="width: 100%; text-align: center; font-size: 10pt; margin-top: 10mm;">
-                    Page <span class="pageNumber"></span> of <span class="totalPages"></span>
-                </div>
-            `,
-            headerTemplate: '<div></div>',
-            preferCSSPageSize: true,
-            printBackground: true,
-            margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' }
-        });
-
-        // Now extract the page numbers from the tooltips and update the TOC entries
+        // Extract page numbers from the tooltip attributes that spec-up-t renders on TOC links,
+        // then populate the .toc-page-number spans in #pdf-toc before the final render.
         await page.evaluate(() => {
             // Find the PDF TOC 
             const pdfToc = document.getElementById('pdf-toc');
@@ -580,13 +440,6 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                     const targetId = entry.getAttribute('data-for-id');
                     if (targetId && idToPageMap[targetId]) {
                         entry.textContent = idToPageMap[targetId];
-                        // Ensure page numbers are clearly visible with proper styling
-                        entry.style.visibility = 'visible';
-                        entry.style.opacity = '1';
-                        entry.style.color = '#000';
-                        entry.style.background = '#fff';
-                        entry.style.padding = '0 4px';
-                        entry.style.fontWeight = 'normal';
                     }
                 });
             } else {

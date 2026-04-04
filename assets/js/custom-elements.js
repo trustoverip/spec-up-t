@@ -100,7 +100,7 @@ customElements.define('tab-panels', class TabPanels extends HTMLElement {
           for (let tab of tabs) tab.removeAttribute('selected');
           if (selected) selected.setAttribute('selected', '');
           let panel = Array.prototype.filter.call(this.children, node => {
-            if (node.tagName === 'SECTION') {
+            if (node.tagName === 'DIV') {
               node.removeAttribute('selected');
               return true;
             }
