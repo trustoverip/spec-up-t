@@ -15,6 +15,7 @@ const { templateTags } = require('../../utils/regex-patterns.js');
 
 const { createScriptElementWithXTrefDataForEmbeddingInHtml, applyReplacers } = require('./render-utils.js');
 const { warnOnHeadingHierarchyViolations } = require('./heading-hierarchy-validator.js');
+const { copyStaticRoot } = require('./copy-static-root.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
   let { externalReferences } = sharedVars;
@@ -187,6 +188,9 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     // Use promisified version instead of callback
     await fs.promises.writeFile(outputPath, templateInterpolated, 'utf8');
     Logger.success(`Successfully wrote ${outputPath}`);
+
+    // Copy any deployment root files (CNAME, robots.txt, …) from spec/static-root/
+    copyStaticRoot(spec.spec_directory, spec.destination);
 
     validateReferences(global.references, global.definitions, renderedHtml);
     global.references = [];
