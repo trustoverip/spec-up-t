@@ -43,7 +43,7 @@ function copyStaticRoot(specDirectory, destination) {
     const dest = path.join(destination, entry.name);
 
     fs.copySync(src, dest);
-    Logger.success(`Copied static-root file → docs: ${entry.name}`);
+    Logger.success(`Copied static-root file → ${destination}: ${entry.name}`);
   }
 }
 
