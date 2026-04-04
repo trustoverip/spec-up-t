@@ -7,6 +7,7 @@ const { gitIgnoreEntries } = require('./config-gitignore-entries');
 const { updateGitignore } = require('./add-gitignore-entries');
 const updateDependencies = require('./update-dependencies');
 const migrateVersionsToSnapshots = require('./migrate-versions-to-snapshots');
+const renameBuildDirToLegacy = require('./rename-docs-to-legacy');
 const Logger = require('../utils/logger');
 
 
@@ -27,6 +28,7 @@ const customUpdate = () => {
         const config = fs.readJsonSync('specs.json');
         const outputPath = config.specs[0].output_path;
         migrateVersionsToSnapshots(outputPath);
+        renameBuildDirToLegacy(outputPath);
     } catch (error) {
         // specs.json missing or malformed — skip migration silently.
         Logger.info('Skipping versions migration: could not read specs.json');
