@@ -68,7 +68,10 @@
     "yargs": "^17.7.2"
   },
   "overrides": {
-    "braces": ">=3.0.3"
+    "braces": ">=3.0.3",
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": ">=9.0.7"
+    }
   },
   "devDependencies": {
     "jest": "^30.3.0",
