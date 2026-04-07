@@ -83,6 +83,7 @@
   "scripts": {
     "test": "jest",
     "test:coverage": "jest --coverage",
+    "compile": "gulp compile",
     "knip": "knip"
   }
 }
