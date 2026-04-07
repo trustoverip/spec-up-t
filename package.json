@@ -74,12 +74,15 @@
     }
   },
   "devDependencies": {
+    "@types/node": "^25.5.2",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
-    "knip": "^6.3.0"
+    "knip": "^6.3.0",
+    "typescript": "^6.0.2"
   },
   "scripts": {
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "knip": "knip"
   }
 }
