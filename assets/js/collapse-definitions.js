@@ -182,9 +182,9 @@ function collapseDefinitions() {
             button.classList.add('collapse-all-defs-button', 'btn-outline-secondary', 'd-print-none', 'btn', 'p-0', 'fs-5', 'd-flex', 'align-items-center', 'justify-content-center');
             // Create a container for all three state indicators
             button.innerHTML = `<span class="state-indicator" data-state="0">①</span><span class="state-indicator" data-state="1">②</span><span class="state-indicator" data-state="2">③</span>`;
-            button.setAttribute('id', 'toggleButton');
-            button.setAttribute('title', buttonTitleText);
-            button.setAttribute('data-state', '2'); // Start with all definitions visible
+            button.id = 'toggleButton';
+            button.title = buttonTitleText;
+            button.dataset.state = '2'; // Start with all definitions visible
 
             // Set initial active state
             button.querySelector('.state-indicator[data-state="2"]').classList.add('active');
