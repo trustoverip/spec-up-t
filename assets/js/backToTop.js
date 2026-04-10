@@ -22,11 +22,9 @@ function backToTop() {
 
    function debounce(func, wait) {
       let timeout;
-      return function executedFunction() {
-         const context = this;
-         const args = arguments;
+      return function executedFunction(...args) {
          clearTimeout(timeout);
-         timeout = setTimeout(() => func.apply(context, args), wait);
+         timeout = setTimeout(() => func.apply(this, args), wait);
       };
    }
 
