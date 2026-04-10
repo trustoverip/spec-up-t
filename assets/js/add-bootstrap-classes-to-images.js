@@ -27,11 +27,8 @@ function addBootstrapClassesToImages() {
       // Check if not already wrapped
       const figure = document.createElement('figure');
       figure.classList.add('figure', 'text-center');
-      
-      // Get the original parent and replace the image with the figure
-      const parent = image.parentElement;
-      parent.replaceChild(figure, image);
-      
+      image.replaceWith(figure);
+
       // Add the image to the figure
       figure.appendChild(image);
       
