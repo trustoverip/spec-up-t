@@ -19,6 +19,7 @@ const { copyStaticRoot } = require('./copy-static-root.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
   let { externalReferences } = sharedVars;
+  let renderedHtml;
 
   try {
     global.noticeTitles = {};
@@ -111,16 +112,16 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     let suppressNext = false;
     console.error = (...args) => {
       const message = args[0]?.toString() || '';
-      
+
       // Check if this is the first console.error call with the error message
-      if (message.includes('markdown-it-attrs: Error in pattern') && 
-          message.includes('tables') && 
-          message.includes('colsnum')) {
+      if (message.includes('markdown-it-attrs: Error in pattern') &&
+        message.includes('tables') &&
+        message.includes('colsnum')) {
         // Suppress this error and the next stack trace
         suppressNext = true;
         return;
       }
-      
+
       // Check if this is the stack trace following the suppressed error
       if (suppressNext) {
         suppressNext = false;
@@ -129,7 +130,7 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
           return;
         }
       }
-      
+
       // Let all other errors through
       originalConsoleError.apply(console, args);
     };
