@@ -969,7 +969,7 @@ function buildChangesTable(results) {
 function createResultRow(result, index) {
     const row = document.createElement('tr');
     row.classList.add(`result-${result.type}`);
-    row.setAttribute('data-result-index', index);
+    row.dataset.resultIndex = index;
     
     // Status cell with icon
     const statusCell = document.createElement('td');
