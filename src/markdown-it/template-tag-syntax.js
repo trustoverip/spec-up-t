@@ -73,7 +73,7 @@ function applyTemplateTagSyntax(md, templates = []) {
     }
     
     // Find the matching closing marker ]]
-    var indexOfClosingBrace = state.src.indexOf(closeString, start);
+    const indexOfClosingBrace = state.src.indexOf(closeString, start);
     
     if (indexOfClosingBrace > 0) {
       // Extract the content between [[ and ]]
