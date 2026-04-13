@@ -12,7 +12,7 @@
       .then(issues => {
         let count = issues.length;
         document.querySelectorAll('[data-issue-count]').forEach(node => {
-          node.setAttribute('data-issue-count', count)
+          node.dataset.issueCount = count;
         });
         repo_issue_list.innerHTML = issues.map(issue => {
           return `<li class="repo-issue">
