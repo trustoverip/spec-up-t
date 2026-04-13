@@ -48,7 +48,7 @@ function createVersionsIndex(outputPath) {
     body { font-family: 'Heebo', Arial, sans-serif; background: #A9DDE0}
     ul { list-style-type: none; padding: 0; }
     li { margin: 10px 0; }
-    a { text-decoration: none; color: #007BFF; }
+    a { text-decoration: none; color: #0071eb; }
     a:hover { text-decoration: underline; }
   </style>
 </head>

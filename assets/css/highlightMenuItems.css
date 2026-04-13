@@ -7,6 +7,6 @@
 /* Use more specific selector to override base TOC styles */
 ul.toc li a.menu-item-highlighted {
   background-color: rgba(29, 109, 174, 0.08);
-  border-left: 3px solid #007bff;
+  border-left: 3px solid #0071eb;
   padding-left: 1em;
 }
