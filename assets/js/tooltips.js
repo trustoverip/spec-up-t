@@ -53,7 +53,7 @@
      * - [[tref: ., myterm]] creates: <a class="term-reference" data-local-href="#myterm">myterm</a>
      * - [[tref: external, myterm]] creates: <a class="term-reference" data-local-href="#term:external:myterm">myterm</a>
      */
-    const id = anchor.getAttribute('data-local-href') || anchor.getAttribute('href') || '';
+    const id = anchor.dataset.localHref || anchor.getAttribute('href') || '';
     
     /**
      * ATTEMPT TO FIND LOCAL DOM ELEMENT
@@ -196,7 +196,7 @@
        */
       
       // Handle xref terms from allXTrefs data (when no DOM element found)
-      const href = anchor.getAttribute('data-local-href') || '';
+      const href = anchor.dataset.localHref || '';
       
       /**
        * PARSE EXTERNAL REFERENCE FORMAT
