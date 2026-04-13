@@ -516,7 +516,7 @@ describe('validate-external-refs', () => {
         // Test: Can data-local-href be parsed for spec and term?
         it('should parse data-local-href for spec and term names', () => {
             const xref = document.querySelector('a.x-term-reference');
-            const localHref = xref.getAttribute('data-local-href');
+            const localHref = xref.dataset.localHref;
             const match = localHref.match(/#term:([^:]+):(.+)/);
             expect(match).not.toBeNull();
             expect(match[1]).toBe('TestSpec');
