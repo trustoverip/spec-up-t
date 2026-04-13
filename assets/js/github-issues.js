@@ -11,7 +11,7 @@
       .then(response => response.json())
       .then(issues => {
         let count = issues.length;
-        document.querySelectorAll('[data-issue-count]').forEach(node => {
+        document.dataset.issueCount.forEach(node => {
           node.dataset.issueCount = count;
         });
         repo_issue_list.innerHTML = issues.map(issue => {
