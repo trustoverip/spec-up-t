@@ -437,7 +437,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
 
                 // Now update the TOC page numbers using the extracted values
                 tocEntries.forEach(entry => {
-                    const targetId = entry.getAttribute('data-for-id');
+                    const targetId = entry.dataset.forId;
                     if (targetId && idToPageMap[targetId]) {
                         entry.textContent = idToPageMap[targetId];
                     }
@@ -483,7 +483,8 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
 
                 // Update TOC entries with calculated page numbers
                 tocEntries.forEach(entry => {
-                    const targetId = entry.getAttribute('data-for-id');
+                    const targetId = entry.dataset.forId;
+
                     if (targetId && idToPosition[targetId] && idToPosition[targetId].page) {
                         entry.textContent = idToPosition[targetId].page;
                     }
