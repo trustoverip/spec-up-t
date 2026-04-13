@@ -545,7 +545,7 @@ describe('validate-external-refs', () => {
             const xref = document.getElementById('test-xref');
             const indicator = document.createElement('span');
             indicator.classList.add('external-ref-validation-indicator');
-            xref.insertAdjacentElement('afterend', indicator);
+            xref.after(indicator);
             
             expect(xref.nextElementSibling).toBe(indicator);
         });
