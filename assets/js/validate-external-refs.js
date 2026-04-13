@@ -760,7 +760,8 @@ function findCachedXtrefForXref(element) {
     }
     
     // Extract spec and term from data-local-href (format: #term:specName:termName)
-    const localHref = element.getAttribute('data-local-href') || '';
+    const localHref = element.dataset.localHref || '';
+
     const match = localHref.match(/#term:([^:]+):(.+)/);
     
     if (!match) {
