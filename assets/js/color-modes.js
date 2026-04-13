@@ -21,9 +21,9 @@
 
   const setTheme = theme => {
     if (theme === 'auto') {
-      document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+      document.documentElement.dataset.bsTheme = (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     } else {
-      document.documentElement.setAttribute('data-bs-theme', theme)
+      document.documentElement.dataset.bsTheme = theme
     }
   }
 
