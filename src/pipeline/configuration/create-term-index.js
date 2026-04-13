@@ -26,18 +26,19 @@ function createTermIndex() {
         const fs = require('fs-extra');
         const path = require('path');
         const configPath = 'specs.json';
+        let config;
         
         // Check if specs.json exists
         if (!fs.existsSync(configPath)) {
             Logger.warn(`Config file '${configPath}' not found. Using default configuration.`);
-            var config = { specs: [] };
+            config = { specs: [] };
         } else {
             // Read config with try-catch to handle parsing errors
             try {
-                var config = fs.readJsonSync(configPath);
+                config = fs.readJsonSync(configPath);
             } catch (readError) {
                 Logger.warn(`Error reading config file: ${readError.message}. Using default configuration.`);
-                var config = { specs: [] };
+                config = { specs: [] };
             }
         }
         
