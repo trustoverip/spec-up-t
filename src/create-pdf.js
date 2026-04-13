@@ -269,7 +269,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
             if (bootstrapCss) {
                 const bootstrapStyle = document.createElement('style');
                 bootstrapStyle.textContent = bootstrapCss;
-                bootstrapStyle.setAttribute('data-bootstrap', 'true');
+                bootstrapStyle.dataset.bootstrap = 'true';
                 document.head.appendChild(bootstrapStyle);
             }
 
@@ -352,7 +352,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                     title.href = href;
                     title.textContent = link.textContent;
                     title.className = 'toc-title';
-                    title.setAttribute('data-target-id', targetId);
+                    title.dataset.targetId = targetId;
 
                     const leader = document.createElement('div');
                     leader.className = 'toc-leader';
@@ -360,7 +360,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                     // Page number is populated later by the tooltip-extraction step.
                     const pageNumber = document.createElement('span');
                     pageNumber.className = 'toc-page-number';
-                    pageNumber.setAttribute('data-for-id', targetId);
+                    pageNumber.dataset.forId = targetId;
 
                     rowDiv.appendChild(title);
                     rowDiv.appendChild(leader);
