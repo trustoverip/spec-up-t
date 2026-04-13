@@ -654,7 +654,7 @@ function insertIndicatorAfterElement(element, indicator) {
     if (element.nextElementSibling?.classList.contains(VALIDATOR_CONFIG.classes.indicator)) {
         return; // Already has an indicator
     }
-    element.insertAdjacentElement('afterend', indicator);
+    element.after(indicator);
     // Attach click handler if this indicator has details
     attachClickHandler(indicator);
 }

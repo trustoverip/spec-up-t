@@ -70,7 +70,7 @@
     document.querySelectorAll('[data-bs-theme-value]')
       .forEach(toggle => {
         toggle.addEventListener('click', () => {
-          const theme = toggle.getAttribute('data-bs-theme-value')
+          const theme = toggle.dataset.bsThemeValue
           setStoredTheme(theme)
           setTheme(theme)
           showActiveTheme(theme, true)
