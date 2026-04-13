@@ -51,8 +51,8 @@
  * Draws attention to broken references
  */
 .external-ref-validation-indicator.external-ref-missing .indicator-icon {
-    background-color: #dc3545;
-    color: white;
+    background-color: #db293b;
+    color: #fff;
     box-shadow: 0 0 8px rgba(220, 53, 69, 0.6), inset 0 0 4px rgba(0, 0, 0, 0.2);
     animation: pulse-red 2s infinite;
 }
@@ -62,8 +62,8 @@
  * Indicates content drift that may need review
  */
 .external-ref-validation-indicator.external-ref-changed .indicator-icon {
-    background-color: #ff6b35;
-    color: white;
+    background-color: #E03100;
+    color: #fff;
     box-shadow: 0 0 10px rgba(255, 107, 53, 0.7), inset 0 0 4px rgba(0, 0, 0, 0.2);
     animation: pulse-orange 2s infinite;
 }
@@ -74,7 +74,7 @@
  */
 .external-ref-validation-indicator.external-ref-error .indicator-icon {
     background-color: #6c757d;
-    color: white;
+    color: #fff;
     box-shadow: 0 0 6px rgba(108, 117, 125, 0.5);
 }
 
@@ -83,8 +83,8 @@
  * Confirms the reference is current (optional visibility)
  */
 .external-ref-validation-indicator.external-ref-valid .indicator-icon {
-    background-color: #28a745;
-    color: white;
+    background-color: #218739;
+    color: #fff;
     opacity: 1;
     box-shadow: 0 0 6px rgba(40, 167, 69, 0.4);
 }
