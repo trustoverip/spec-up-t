@@ -151,14 +151,3 @@ Example of how to use these variables in your CSS:
     /* Soft grey-blue text for informative in dark mode */
 
 }
-
-/*/~ Optional: Respect system preference ~/
-@media (prefers-color-scheme: dark) {
-    :root {
-        --card-bg: #212529;
-        --card-text: #f8f9fa;
-        --card-border: rgba(255, 255, 255, 0.125);
-        --card-shadow: rgba(0, 0, 0, 0.2);
-        --card-hover-bg: #343a40;
-    }
-}*/
