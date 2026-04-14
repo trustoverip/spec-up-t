@@ -89,7 +89,7 @@ function collapseDefinitions() {
      */
     function toggleVisibility() {
         const buttons = document.querySelectorAll('.collapse-all-defs-button');
-        const currentState = parseInt(buttons[0].dataset.state || 0);
+        const currentState = Number.parseInt(buttons[0].dataset.state || 0);
         // Cycle through 3 states: 0 (all hidden), 1 (only regular visible), 2 (all visible)
         const newState = (currentState + 1) % 3;
 
@@ -105,7 +105,7 @@ function collapseDefinitions() {
                     button.title = 'Show basic definitions';
                     // Update which state indicator is active
                     button.querySelectorAll('.state-indicator').forEach(indicator => {
-                        if (parseInt(indicator.dataset.state) === 0) {
+                        if (Number.parseInt(indicator.dataset.state) === 0) {
                             indicator.classList.add('active');
                         } else {
                             indicator.classList.remove('active');
@@ -129,7 +129,7 @@ function collapseDefinitions() {
                     button.title = 'Show all definitions';
                     // Update which state indicator is active
                     button.querySelectorAll('.state-indicator').forEach(indicator => {
-                        if (parseInt(indicator.dataset.state) === 1) {
+                        if (Number.parseInt(indicator.dataset.state) === 1) {
                             indicator.classList.add('active');
                         } else {
                             indicator.classList.remove('active');
@@ -152,7 +152,7 @@ function collapseDefinitions() {
                     button.title = 'Hide all definitions';
                     // Update which state indicator is active
                     button.querySelectorAll('.state-indicator').forEach(indicator => {
-                        if (parseInt(indicator.dataset.state) === 2) {
+                        if (Number.parseInt(indicator.dataset.state) === 2) {
                             indicator.classList.add('active');
                         } else {
                             indicator.classList.remove('active');
