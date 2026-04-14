@@ -95,24 +95,32 @@
 .external-ref-validation-indicator:hover .indicator-icon {
     transform: scale(1.15);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    animation-play-state: paused;
+    opacity: 1;
 }
 
 /**
  * Pulse animations for attention-grabbing indicators
  */
 @keyframes pulse-red {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 8px rgba(220, 53, 69, 0.6), inset 0 0 4px rgba(0, 0, 0, 0.2);
     }
+
     50% {
         box-shadow: 0 0 15px rgba(220, 53, 69, 0.9), inset 0 0 4px rgba(0, 0, 0, 0.2);
     }
 }
 
 @keyframes pulse-orange {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 10px rgba(255, 107, 53, 0.7), inset 0 0 4px rgba(0, 0, 0, 0.2);
     }
+
     50% {
         box-shadow: 0 0 18px rgba(255, 107, 53, 1), inset 0 0 4px rgba(0, 0, 0, 0.2);
     }
@@ -277,7 +285,7 @@
         transform: none;
         font-size: 0.8rem;
     }
-    
+
     .validation-details::before,
     .validation-details::after {
         left: 15px;
@@ -310,9 +318,12 @@
  * Subtle pulse animation for attention-drawing indicators
  */
 @keyframes validation-pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
     }
+
     50% {
         opacity: 0.6;
     }
@@ -321,12 +332,6 @@
 .external-ref-missing .indicator-icon,
 .external-ref-changed .indicator-icon {
     animation: validation-pulse 2s ease-in-out infinite;
-}
-
-/* Pause animation on hover to reduce distraction */
-.external-ref-validation-indicator:hover .indicator-icon {
-    animation-play-state: paused;
-    opacity: 1;
 }
 
 /* ===== Integration with Term Styling ===== */
@@ -341,25 +346,26 @@ dt.term-external .external-ref-validation-indicator {
 /**
  * Ensure indicators work well within inline text (for xrefs)
  */
-a.x-term-reference + .external-ref-validation-indicator {
+a.x-term-reference+.external-ref-validation-indicator {
     margin-right: 0.25em;
 }
 
 /* ===== Print Styles ===== */
 
 @media print {
+
     /* Hide interactive elements but show status text */
     .validation-details {
         display: none !important;
     }
-    
+
     /* Show a simpler indicator for print */
     .external-ref-missing::after {
         content: ' [MISSING]';
         color: #dc3545;
         font-size: 0.7em;
     }
-    
+
     .external-ref-changed::after {
         content: ' [CHANGED]';
         color: #ffc107;
@@ -514,9 +520,12 @@ a.x-term-reference + .external-ref-validation-indicator {
  * Highlight animation when scrolling to a reference
  */
 @keyframes highlight-flash {
-    0%, 100% {
+
+    0%,
+    100% {
         background-color: transparent;
     }
+
     50% {
         background-color: rgba(255, 193, 7, 0.3);
     }
