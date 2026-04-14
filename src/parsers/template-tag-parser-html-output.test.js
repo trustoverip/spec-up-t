@@ -36,10 +36,10 @@ describe('Template Tag Parser - HTML Output Validation', () => {
       currentFile: 'test.md'
     };
 
-    global.definitions = mockGlobal.definitions;
-    global.references = mockGlobal.references;
-    global.specGroups = mockGlobal.specGroups;
-    global.noticeTitles = mockGlobal.noticeTitles;
+    globalThis.definitions = mockGlobal.definitions;
+    globalThis.references = mockGlobal.references;
+    globalThis.specGroups = mockGlobal.specGroups;
+    globalThis.noticeTitles = mockGlobal.noticeTitles;
   });
 
   describe('parseDef - HTML structure validation', () => {

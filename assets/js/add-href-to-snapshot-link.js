@@ -12,12 +12,12 @@ function addHrefToSnapshotLink() {
    // Get the current URL of the page using URL object for proper parsing
    let urlWithoutParams;
    try {
-      const url = new URL(window.location.href);
+      const url = new URL(globalThis.location.href);
       // Get pathname and origin, ignoring query parameters and hash
       urlWithoutParams = url.origin + url.pathname;
    } catch (e) {
       // Fallback to string manipulation if URL parsing fails
-      const currentUrl = window.location.href;
+      const currentUrl = globalThis.location.href;
       urlWithoutParams = currentUrl.split('?')[0].split('#')[0];
    }
 

@@ -20,7 +20,7 @@
  * 
  * @example
  * // Use with anchor from URL hash
- * highlightHeadingSection(window.location.hash);
+ * highlightHeadingSection(globalThis.location.hash);
  */
 function highlightHeadingSection(anchor) {
     // Validate input parameter
@@ -220,17 +220,17 @@ function initializeAnchorHighlighting() {
     document.addEventListener('click', handleAnchorClick);
     
     // Also handle direct navigation to anchors (e.g., page load with hash)
-    if (window.location.hash) {
+    if (globalThis.location.hash) {
         // Delay to ensure DOM is fully loaded
         setTimeout(() => {
-            highlightHeadingSection(window.location.hash);
+            highlightHeadingSection(globalThis.location.hash);
         }, 200);
     }
     
     // Handle browser back/forward navigation
-    window.addEventListener('hashchange', () => {
-        if (window.location.hash) {
-            highlightHeadingSection(window.location.hash);
+    globalThis.addEventListener('hashchange', () => {
+        if (globalThis.location.hash) {
+            highlightHeadingSection(globalThis.location.hash);
         } else {
             removeExistingHighlights();
         }

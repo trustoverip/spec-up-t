@@ -29,7 +29,7 @@ function backToTop() {
    }
 
    function handleScroll() {
-      if (window.scrollY > 300) {
+      if (globalThis.scrollY > 300) {
          backToTopBtn.style.display = "flex";
       } else {
          backToTopBtn.style.display = "none";
@@ -37,7 +37,7 @@ function backToTop() {
    }
    const debouncedSearchAndHighlight = debounce(handleScroll, 600);
 
-   window.addEventListener("scroll", function () {
+   globalThis.addEventListener("scroll", function () {
       debouncedSearchAndHighlight();
    });
 }

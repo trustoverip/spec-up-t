@@ -9,7 +9,7 @@ function adjustFontSize() {
 
    function adjust(change) {
       // Get current font size from body (in pixels)
-      let currentSize = parseFloat(window.getComputedStyle(body).fontSize);
+      let currentSize = parseFloat(globalThis.getComputedStyle(body).fontSize);
 
       // Calculate new size
       let newSize = currentSize + change;

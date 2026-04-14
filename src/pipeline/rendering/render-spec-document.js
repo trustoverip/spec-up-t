@@ -22,8 +22,8 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
   let renderedHtml;
 
   try {
-    global.noticeTitles = {};
-    global.specGroups = {};
+    globalThis.noticeTitles = {};
+    globalThis.specGroups = {};
     Logger.info('Rendering: ' + spec.title);
 
     function interpolate(template, variables) {
@@ -81,8 +81,8 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
 
     // Set up file tracking for definitions before rendering
     for (let i = 0; i < docs.length; i++) {
-      global.currentFile = spec.markdown_paths[i] || 'unknown';
-      docs[i] = `<!-- file: ${global.currentFile} -->\n${docs[i]}`;
+      globalThis.currentFile = spec.markdown_paths[i] || 'unknown';
+      docs[i] = `<!-- file: ${globalThis.currentFile} -->\n${docs[i]}`;
     }
 
     // Concatenate all file contents into one string, separated by newlines
@@ -163,7 +163,7 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
       title: spec.title,
       description: spec.description,
       author: spec.author,
-      toc: global.toc,
+      toc: globalThis.toc,
       render: renderedHtml,
       assetsHead: assets.head,
       assetsBody: assets.body,
@@ -193,9 +193,9 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     // Copy any deployment root files (CNAME, robots.txt, …) from spec/static-root/
     copyStaticRoot(spec.spec_directory, spec.destination);
 
-    validateReferences(global.references, global.definitions, renderedHtml);
-    global.references = [];
-    global.definitions = [];
+    validateReferences(globalThis.references, globalThis.definitions, renderedHtml);
+    globalThis.references = [];
+    globalThis.definitions = [];
   } catch (e) {
     Logger.error("Render error: " + e.message);
     throw e;

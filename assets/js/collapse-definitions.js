@@ -234,7 +234,7 @@ function collapseDefinitions() {
              */
             button.style.position = 'fixed';
             button.style.top = `${buttonRect.top}px`;
-            button.style.right = `${window.innerWidth - buttonRect.right}px`;
+            button.style.right = `${globalThis.innerWidth - buttonRect.right}px`;
             button.style.zIndex = '1000';
 
             // Toggle visibility which might change layout
@@ -260,8 +260,8 @@ function collapseDefinitions() {
                 const newButtonRect = button.getBoundingClientRect();
 
                 // Calculate and apply precise scroll adjustment to maintain visual position
-                window.scrollTo({
-                    top: window.scrollY + (newButtonRect.top - buttonRect.top),
+                globalThis.scrollTo({
+                    top: globalThis.scrollY + (newButtonRect.top - buttonRect.top),
                     behavior: 'instant'
                 });
             });

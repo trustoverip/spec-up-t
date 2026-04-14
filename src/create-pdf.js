@@ -455,7 +455,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                 headingsWithIds.forEach(heading => {
                     const rect = heading.getBoundingClientRect();
                     idToPosition[heading.id] = {
-                        top: rect.top + window.scrollY,
+                        top: rect.top + globalThis.scrollY,
                         id: heading.id
                     };
                 });

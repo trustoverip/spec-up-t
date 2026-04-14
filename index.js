@@ -18,8 +18,8 @@ module.exports = async function (options = {}) {
   try {
   const { initializeConfig } = require('./src/pipeline/configuration/prepare-spec-configuration.js');
     let toc = '';
-    global.toc = '';
-    const setToc = (html) => { toc = html || ''; global.toc = toc; };
+    globalThis.toc = '';
+    const setToc = (html) => { toc = html || ''; globalThis.toc = toc; };
     let {
       config,
       externalSpecsList,
@@ -32,10 +32,10 @@ module.exports = async function (options = {}) {
       noticeTitles
     } = await initializeConfig(options);
 
-    global.definitions = definitions;
-    global.references = references;
-    global.specGroups = specGroups;
-    global.noticeTitles = noticeTitles;
+    globalThis.definitions = definitions;
+    globalThis.references = references;
+    globalThis.specGroups = specGroups;
+    globalThis.noticeTitles = noticeTitles;
 
     const fs = require('fs-extra');
     const path = require('path');

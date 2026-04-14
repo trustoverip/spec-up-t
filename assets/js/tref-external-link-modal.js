@@ -31,7 +31,7 @@
      */
     function isExternalUrl(href) {
         try {
-            return new URL(href, window.location.href).hostname !== window.location.hostname;
+            return new URL(href, globalThis.location.href).hostname !== globalThis.location.hostname;
         } catch {
             return false;
         }
@@ -166,7 +166,7 @@
 
         const navTimer = setTimeout(function () {
             clearInterval(tickInterval);
-            window.location.href = href;
+            globalThis.location.href = href;
         }, AUTO_NAVIGATE_DELAY_S * 1000);
     }
 

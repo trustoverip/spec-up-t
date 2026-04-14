@@ -32,10 +32,10 @@ const modulePath = findPkgDir(__dirname);
 const specCorpus = fs.readJsonSync(path.join(modulePath, 'assets/compiled/refs.json'));
 
 // Global variables (shared across renders)
-let definitions = global.definitions;
-let references = global.references;
-let specGroups = global.specGroups;
-let noticeTitles = global.noticeTitles;
+let definitions = globalThis.definitions;
+let references = globalThis.references;
+let specGroups = globalThis.specGroups;
+let noticeTitles = globalThis.noticeTitles;
 
 /**
  * Creates and configures a markdown-it instance with extensions and plugins.
@@ -45,8 +45,8 @@ let noticeTitles = global.noticeTitles;
  */
 function createMarkdownParser(config, setToc) {
   // Create parser functions with bound dependencies - cleaner than classes
-  const templateTagParser = createTemplateTagParser(config, global);
-  const specParser = createSpecParser(specCorpus, global);
+  const templateTagParser = createTemplateTagParser(config, globalThis);
+  const specParser = createSpecParser(specCorpus, globalThis);
 
   let md = MarkdownIt({
     html: true,
@@ -73,7 +73,7 @@ function createMarkdownParser(config, setToc) {
       }
     ]);
 
-  md = configurePlugins(md, config, containers, noticeTypes, global.noticeTitles, setToc);
+  md = configurePlugins(md, config, containers, noticeTypes, globalThis.noticeTitles, setToc);
 
   return md;
 }

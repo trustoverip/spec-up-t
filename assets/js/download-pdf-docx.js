@@ -65,7 +65,7 @@
   }
 
   // Expose minimal global for backward compatibility shims
-  window.SpecUpDownloads = { addButtons };
+  globalThis.SpecUpDownloads = { addButtons };
 
   // Auto-run on DOM ready (safe if called multiple times)
   document.addEventListener("DOMContentLoaded", addButtons, { once: false });

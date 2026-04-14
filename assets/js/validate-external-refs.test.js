@@ -10,7 +10,7 @@
  */
 
 // Mock the global allXTrefs before requiring the module
-global.allXTrefs = {
+globalThis.allXTrefs = {
     xtrefs: [
         {
             externalSpec: 'TestSpec',

@@ -1132,7 +1132,7 @@ function initExperimentalToggle() {
 
     toggle.addEventListener('change', () => {
         localStorage.setItem(VALEXTREF_STORAGE_KEY, toggle.checked ? 'true' : 'false');
-        window.location.reload();
+        globalThis.location.reload();
     });
 }
 

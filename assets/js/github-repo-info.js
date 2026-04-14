@@ -127,11 +127,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Make functions available globally if not using modules
-if (typeof window !== 'undefined') {
-    window.getGithubRepoInfo = getGithubRepoInfo;
-    window.getGithubUrl = getGithubUrl;
-    window.getCurrentBranchUrl = getCurrentBranchUrl;
-    window.populateRepoInfoInSettings = populateRepoInfoInSettings;
+if (typeof globalThis !== 'undefined' && typeof globalThis.document !== 'undefined') {
+    globalThis.getGithubRepoInfo = getGithubRepoInfo;
+    globalThis.getGithubUrl = getGithubUrl;
+    globalThis.getCurrentBranchUrl = getCurrentBranchUrl;
+    globalThis.populateRepoInfoInSettings = populateRepoInfoInSettings;
 }
 
 // Export for module usage

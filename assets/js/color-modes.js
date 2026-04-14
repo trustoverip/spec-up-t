@@ -16,12 +16,12 @@
       return storedTheme
     }
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
 
   const setTheme = theme => {
     if (theme === 'auto') {
-      document.documentElement.dataset.bsTheme = (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      document.documentElement.dataset.bsTheme = (globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     } else {
       document.documentElement.dataset.bsTheme = theme
     }
@@ -57,14 +57,14 @@
     }
   }
 
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     const storedTheme = getStoredTheme()
     if (storedTheme !== 'light' && storedTheme !== 'dark') {
       setTheme(getPreferredTheme())
     }
   })
 
-  window.addEventListener('DOMContentLoaded', () => {
+  globalThis.addEventListener('DOMContentLoaded', () => {
     showActiveTheme(getPreferredTheme())
 
     document.querySelectorAll('[data-bs-theme-value]')

@@ -24,11 +24,11 @@ describe('Markdown Parser Integration', () => {
     };
 
     // Initialize global state required by the template tag parser
-    global.definitions = [];
-    global.references = [];
-    global.specGroups = {};
-    global.noticeTitles = {};
-    global.currentFile = 'test.md';
+    globalThis.definitions = [];
+    globalThis.references = [];
+    globalThis.specGroups = {};
+    globalThis.noticeTitles = {};
+    globalThis.currentFile = 'test.md';
   });
 
   // Test: Can the system create a markdown parser using the functional approach?

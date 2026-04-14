@@ -134,7 +134,7 @@ function insertTrefs(allXTrefs) {
                   const url = new URL(a.href);
                   
                   // Keep links to different domains
-                  if (url.hostname !== window.location.hostname) {
+                  if (url.hostname !== globalThis.location.hostname) {
                      return;
                   }
                   

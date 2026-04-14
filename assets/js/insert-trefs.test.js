@@ -20,7 +20,7 @@ const subjectCode = fs.readFileSync(
 
 // Polyfill requestAnimationFrame with a plain setTimeout so we can flush it
 // with a simple Promise tick in tests.
-global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+globalThis.requestAnimationFrame = (cb) => setTimeout(cb, 0);
 
 /**
  * Flush the requestAnimationFrame queue (runs pending 0 ms timers).
@@ -50,7 +50,7 @@ describe('insert-trefs.js', () => {
     document.body.innerHTML = '';
     // Use html:true so that <dd> blocks in xref.content survive md.render()
     // unchanged and can be queried with querySelectorAll('dd').
-    global.md = new MarkdownIt({ html: true });
+    globalThis.md = new MarkdownIt({ html: true });
     loadSubject();
   });
 
@@ -64,7 +64,7 @@ describe('insert-trefs.js', () => {
         </dl>
       `;
 
-      global.insertTrefs({
+      globalThis.insertTrefs({
         xtrefs: [
           {
             term: 'test-term',
@@ -95,7 +95,7 @@ describe('insert-trefs.js', () => {
         </dl>
       `;
 
-      global.insertTrefs({ xtrefs: [] });
+      globalThis.insertTrefs({ xtrefs: [] });
       await waitForRaf();
 
       const metaInfo = document.querySelector('dd.term-external.meta-info-content-wrapper');
@@ -114,7 +114,7 @@ describe('insert-trefs.js', () => {
         </dl>
       `;
 
-      global.insertTrefs({ xtrefs: [{ term: 'test-term', content: '<dd>New definition</dd>' }] });
+      globalThis.insertTrefs({ xtrefs: [{ term: 'test-term', content: '<dd>New definition</dd>' }] });
       await waitForRaf();
 
       // Should remain exactly 1 – no second wrapper was inserted.
@@ -131,7 +131,7 @@ describe('insert-trefs.js', () => {
       const listener = jest.fn();
       document.addEventListener('trefs-inserted', listener);
 
-      global.insertTrefs({ xtrefs: [] });
+      globalThis.insertTrefs({ xtrefs: [] });
       await waitForRaf();
 
       expect(listener).toHaveBeenCalledTimes(1);
@@ -149,7 +149,7 @@ describe('insert-trefs.js', () => {
       let detail;
       document.addEventListener('trefs-inserted', (e) => { detail = e.detail; }, { once: true });
 
-      global.insertTrefs({ xtrefs: [] });
+      globalThis.insertTrefs({ xtrefs: [] });
       await waitForRaf();
 
       expect(detail.count).toBe(2);
@@ -164,7 +164,7 @@ describe('insert-trefs.js', () => {
 
     it('calls the callback when the trefs-inserted event fires', () => {
       const callback = jest.fn();
-      global.initializeOnTrefsInserted(callback);
+      globalThis.initializeOnTrefsInserted(callback);
       document.dispatchEvent(new CustomEvent('trefs-inserted', { detail: { count: 1 } }));
 
       expect(callback).toHaveBeenCalledTimes(1);
@@ -172,7 +172,7 @@ describe('insert-trefs.js', () => {
 
     it('does not invoke the callback more than once on repeated events', () => {
       const callback = jest.fn();
-      global.initializeOnTrefsInserted(callback);
+      globalThis.initializeOnTrefsInserted(callback);
       document.dispatchEvent(new CustomEvent('trefs-inserted', { detail: { count: 1 } }));
       document.dispatchEvent(new CustomEvent('trefs-inserted', { detail: { count: 1 } }));
 
@@ -181,7 +181,7 @@ describe('insert-trefs.js', () => {
 
     it('falls back and calls the callback after 1 second if the event never fires', () => {
       const callback = jest.fn();
-      global.initializeOnTrefsInserted(callback);
+      globalThis.initializeOnTrefsInserted(callback);
 
       jest.advanceTimersByTime(1000);
 
@@ -190,7 +190,7 @@ describe('insert-trefs.js', () => {
 
     it('does not trigger the fallback if the event already fired', () => {
       const callback = jest.fn();
-      global.initializeOnTrefsInserted(callback);
+      globalThis.initializeOnTrefsInserted(callback);
       document.dispatchEvent(new CustomEvent('trefs-inserted', { detail: { count: 1 } }));
 
       jest.advanceTimersByTime(1000);
