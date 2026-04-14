@@ -19,20 +19,16 @@ function findDeepestSpan(element) {
    return currentElement;
 }
 
+// Simple path join utility for client-side JS (normalizes separators, handles leading/trailing /)
+function pathJoin(...segments) {
+   // Filter out empty segments and join with '/'
+   return segments.filter(segment => segment).join('/').replace(/\/+/g, '/');
+}
+
 function editTermButtons() {
-   // Simple path join utility for client-side JS (normalizes separators, handles leading/trailing /)
-   function pathJoin(...segments) {
-      // Filter out empty segments and join with '/'
-      return segments.filter(segment => segment).join('/').replace(/\/+/g, '/');
-   }
-
-
-
-
-
    // Get GitHub repo info from meta tag
    const repoInfo = getGithubRepoInfo();
-   
+
    // Early return if no repo info available
    if (!repoInfo) {
       console.warn('GitHub repository information not available, edit buttons will not be added');
