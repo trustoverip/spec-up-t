@@ -277,21 +277,21 @@ dd td img {
   background-color: #b71c1c;
   /* Dark red */
   border-color: #c62828;
-  color: #ef9a9a;
+  color: #FAD1D1;
 }
 
 [data-bs-theme="dark"] .alert-warning {
-  background-color: #f57f17;
+  background-color: #A84F00;
   /* Dark yellow */
   border-color: #ffb300;
-  color: #ffe082;
+  color: #FFE8A3;
 }
 
 [data-bs-theme="dark"] .alert-info {
   background-color: #01579b;
   /* Dark blue */
   border-color: #0277bd;
-  color: #81d4fa;
+  color: #85d4f9;
 }
 
 [data-bs-theme="dark"] .alert-light {
