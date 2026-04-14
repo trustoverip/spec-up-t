@@ -6,6 +6,14 @@
    Styling in /assets/css/backToTop.css
 */
 
+function debounce(func, wait) {
+   let timeout;
+   return function executedFunction(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+   };
+}
+
 function backToTop() {
    /*****************/
    /* CONFIGURATION */
@@ -19,14 +27,6 @@ function backToTop() {
    backToTopBtn.href = "#content";
    backToTopBtn.innerHTML = `↑`;
    document.body.appendChild(backToTopBtn);
-
-   function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-         clearTimeout(timeout);
-         timeout = setTimeout(() => func.apply(this, args), wait);
-      };
-   }
 
    function handleScroll() {
       if (globalThis.scrollY > 300) {
