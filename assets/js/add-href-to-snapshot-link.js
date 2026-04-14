@@ -16,6 +16,7 @@ function addHrefToSnapshotLink() {
       // Get pathname and origin, ignoring query parameters and hash
       urlWithoutParams = url.origin + url.pathname;
    } catch (e) {
+      console.warn('URL parsing failed, using fallback', e);
       // Fallback to string manipulation if URL parsing fails
       const currentUrl = globalThis.location.href;
       urlWithoutParams = currentUrl.split('?')[0].split('#')[0];
