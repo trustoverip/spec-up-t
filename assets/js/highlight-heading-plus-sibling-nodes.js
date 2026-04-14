@@ -70,7 +70,7 @@ function highlightHeadingSection(anchor) {
 function getHeadingLevel(element) {
     const tagName = element.tagName.toLowerCase();
     const headingMatch = tagName.match(/^h([2-6])$/);
-    return headingMatch ? parseInt(headingMatch[1], 10) : null;
+    return headingMatch ? Number.parseInt(headingMatch[1], 10) : null;
 }
 
 /**
