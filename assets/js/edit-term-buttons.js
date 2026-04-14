@@ -8,20 +8,18 @@
  * @since 2024-06-09
  */
 
-function editTermButtons() {
-   // Function to find the deepest <span>
-   // Spec-Up is generating nested spans. The deepest span is the main term, and that is what we need.
-   function findDeepestSpan(element) {
-      let currentElement = element;
-      // While there is a <span> child, keep going deeper
-      while (currentElement.querySelector('span[id^="term:"]')) {
-         currentElement = currentElement.querySelector('span[id^="term:"]');
-      }
-      return currentElement;
+// Function to find the deepest <span>
+// Spec-Up is generating nested spans. The deepest span is the main term, and that is what we need.
+function findDeepestSpan(element) {
+   let currentElement = element;
+   // While there is a <span> child, keep going deeper
+   while (currentElement.querySelector('span[id^="term:"]')) {
+      currentElement = currentElement.querySelector('span[id^="term:"]');
    }
+   return currentElement;
+}
 
-
-
+function editTermButtons() {
    // Simple path join utility for client-side JS (normalizes separators, handles leading/trailing /)
    function pathJoin(...segments) {
       // Filter out empty segments and join with '/'
