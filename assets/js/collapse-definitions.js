@@ -12,6 +12,38 @@
  */
 
 /**
+ * Determines if a definition is a special type (e.g., a "See also" or "Source" note)
+ * @param {string} content - The content of the definition to check
+ * @returns {boolean} True if the content starts with a special prefix
+ */
+function isSpecialDefinition(content) {
+    const definitionHidePrefixes = [
+        "Source",
+        "See also",
+        "More in",
+        "Also see",
+        "See:",
+        "Mind you:",
+        "Explanation:",
+        "See also",
+        "See more",
+        "See more in",
+        "See more about",
+        "See more on",
+        "See more at",
+        "More:",
+        "Note:",
+        "Paraphrased by",
+        "Beware:",
+        "eSSIF-Lab: ",
+        "W3C VC:",
+        "NIST:",
+        "Supporting definitions:"
+    ];
+    return definitionHidePrefixes.some(prefix => content.startsWith(prefix));
+}
+
+/**
  * Sets up collapsible definition lists with toggle buttons.
  * Handles the creation of buttons, event listeners, and visibility states.
  * This is the main initialization function that's called when the DOM is ready
@@ -40,38 +72,6 @@ function collapseDefinitions() {
 
     let { dds, dts, regularDds, specialDds } = queryElements();
     const buttonTitleText = 'Change how much info is shown';
-
-    /**
-     * Determines if a definition is a special type (e.g., a "See also" or "Source" note)
-     * @param {string} content - The content of the definition to check
-     * @returns {boolean} True if the content starts with a special prefix
-     */
-    function isSpecialDefinition(content) {
-        const definitionHidePrefixes = [
-            "Source",
-            "See also",
-            "More in",
-            "Also see",
-            "See:",
-            "Mind you:",
-            "Explanation:",
-            "See also",
-            "See more",
-            "See more in",
-            "See more about",
-            "See more on",
-            "See more at",
-            "More:",
-            "Note:",
-            "Paraphrased by",
-            "Beware:",
-            "eSSIF-Lab: ",
-            "W3C VC:",
-            "NIST:",
-            "Supporting definitions:"
-        ];
-        return definitionHidePrefixes.some(prefix => content.startsWith(prefix));
-    }
 
     specialDds.forEach(dd => {
         dd.classList.add('terms-def-extra-info');
