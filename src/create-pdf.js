@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const puppeteer = require('puppeteer');
-const path = require('path');
+const path = require('node:path');
 const pdfLib = require('pdf-lib');
 const Logger = require('./utils/logger');
 

@@ -6,7 +6,7 @@
 
 const MarkdownIt = require('markdown-it');
 const containers = require('markdown-it-container');
-const path = require('path');
+const path = require('node:path');
 const fs = require('fs-extra');
 const findPkgDir = require('find-pkg-dir');
 

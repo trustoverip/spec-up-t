@@ -5,7 +5,7 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 
 const { fetchExternalSpecs, validateReferences, mergeXrefTermsIntoAllXTrefs } = require('../references/external-references-service.js');
 const { processEscapedTags, restoreEscapedTags } = require('../preprocessing/escape-placeholder-utils.js');

@@ -24,7 +24,7 @@ const Logger = require('../../utils/logger.js');
 function createTermIndex() {
     try {
         const fs = require('fs-extra');
-        const path = require('path');
+        const path = require('node:path');
         const configPath = 'specs.json';
         let config;
         

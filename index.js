@@ -38,7 +38,7 @@ module.exports = async function (options = {}) {
     globalThis.noticeTitles = noticeTitles;
 
     const fs = require('fs-extra');
-    const path = require('path');
+    const path = require('node:path');
     const gulp = require('gulp');
 
     const {

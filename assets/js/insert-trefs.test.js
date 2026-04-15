@@ -8,8 +8,8 @@
  * the global / window object, exactly as they would in a browser.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const MarkdownIt = require('markdown-it');
 
 // Read the source once; it is re-executed per test via indirect eval.

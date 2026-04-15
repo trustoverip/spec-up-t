@@ -35,8 +35,8 @@ Object.defineProperty(document, 'readyState', {
 });
 
 // Read and evaluate the source file to get the functions
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // We'll test the functions by extracting their logic
 // Since the module doesn't export, we test via DOM manipulation

@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const Logger = require('./utils/logger');
 
 // Resolve the path to specs.json in the root directory

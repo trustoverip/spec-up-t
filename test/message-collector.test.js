@@ -8,7 +8,7 @@
 const messageCollector = require('../src/utils/message-collector');
 const Logger = require('../src/utils/logger');
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 
 describe('Message Collector', () => {
     // Clean up before and after each test
