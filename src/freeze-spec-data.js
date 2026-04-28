@@ -7,7 +7,7 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 const readline = require('node:readline');
 const Logger = require('./utils/logger');
 const { versions } = require('./utils/regex-patterns');

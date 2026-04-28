@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const puppeteer = require('puppeteer');
-const path = require('path');
+const path = require('node:path');
 const pdfLib = require('pdf-lib');
 const Logger = require('./utils/logger');
 
@@ -269,7 +269,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
             if (bootstrapCss) {
                 const bootstrapStyle = document.createElement('style');
                 bootstrapStyle.textContent = bootstrapCss;
-                bootstrapStyle.setAttribute('data-bootstrap', 'true');
+                bootstrapStyle.dataset.bootstrap = 'true';
                 document.head.appendChild(bootstrapStyle);
             }
 
@@ -352,7 +352,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                     title.href = href;
                     title.textContent = link.textContent;
                     title.className = 'toc-title';
-                    title.setAttribute('data-target-id', targetId);
+                    title.dataset.targetId = targetId;
 
                     const leader = document.createElement('div');
                     leader.className = 'toc-leader';
@@ -360,7 +360,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                     // Page number is populated later by the tooltip-extraction step.
                     const pageNumber = document.createElement('span');
                     pageNumber.className = 'toc-page-number';
-                    pageNumber.setAttribute('data-for-id', targetId);
+                    pageNumber.dataset.forId = targetId;
 
                     rowDiv.appendChild(title);
                     rowDiv.appendChild(leader);
@@ -437,7 +437,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
 
                 // Now update the TOC page numbers using the extracted values
                 tocEntries.forEach(entry => {
-                    const targetId = entry.getAttribute('data-for-id');
+                    const targetId = entry.dataset.forId;
                     if (targetId && idToPageMap[targetId]) {
                         entry.textContent = idToPageMap[targetId];
                     }
@@ -455,7 +455,7 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
                 headingsWithIds.forEach(heading => {
                     const rect = heading.getBoundingClientRect();
                     idToPosition[heading.id] = {
-                        top: rect.top + window.scrollY,
+                        top: rect.top + globalThis.scrollY,
                         id: heading.id
                     };
                 });
@@ -483,7 +483,8 @@ async function createTOCIfNeeded(page, logo, logoLink, title, description) {
 
                 // Update TOC entries with calculated page numbers
                 tocEntries.forEach(entry => {
-                    const targetId = entry.getAttribute('data-for-id');
+                    const targetId = entry.dataset.forId;
+
                     if (targetId && idToPosition[targetId] && idToPosition[targetId].page) {
                         entry.textContent = idToPosition[targetId].page;
                     }

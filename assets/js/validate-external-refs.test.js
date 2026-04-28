@@ -10,7 +10,7 @@
  */
 
 // Mock the global allXTrefs before requiring the module
-global.allXTrefs = {
+globalThis.allXTrefs = {
     xtrefs: [
         {
             externalSpec: 'TestSpec',
@@ -35,8 +35,8 @@ Object.defineProperty(document, 'readyState', {
 });
 
 // Read and evaluate the source file to get the functions
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // We'll test the functions by extracting their logic
 // Since the module doesn't export, we test via DOM manipulation
@@ -516,7 +516,7 @@ describe('validate-external-refs', () => {
         // Test: Can data-local-href be parsed for spec and term?
         it('should parse data-local-href for spec and term names', () => {
             const xref = document.querySelector('a.x-term-reference');
-            const localHref = xref.getAttribute('data-local-href');
+            const localHref = xref.dataset.localHref;
             const match = localHref.match(/#term:([^:]+):(.+)/);
             expect(match).not.toBeNull();
             expect(match[1]).toBe('TestSpec');
@@ -545,7 +545,7 @@ describe('validate-external-refs', () => {
             const xref = document.getElementById('test-xref');
             const indicator = document.createElement('span');
             indicator.classList.add('external-ref-validation-indicator');
-            xref.insertAdjacentElement('afterend', indicator);
+            xref.after(indicator);
             
             expect(xref.nextElementSibling).toBe(indicator);
         });

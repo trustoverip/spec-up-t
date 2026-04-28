@@ -8,7 +8,7 @@
  * @requires readline-sync - Module to pause the script and wait for user input.
  */
 
-const fs = require('fs');
+const fs = require('node:fs');
 const readlineSync = require('readline-sync');
 const Logger = require('./utils/logger');
 

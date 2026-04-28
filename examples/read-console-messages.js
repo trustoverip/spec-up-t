@@ -9,7 +9,7 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 
 async function analyzeConsoleMessages() {
     const messagePath = path.join(process.cwd(), '.cache', 'console-messages.json');

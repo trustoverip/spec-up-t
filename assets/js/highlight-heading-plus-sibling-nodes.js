@@ -20,7 +20,7 @@
  * 
  * @example
  * // Use with anchor from URL hash
- * highlightHeadingSection(window.location.hash);
+ * highlightHeadingSection(globalThis.location.hash);
  */
 function highlightHeadingSection(anchor) {
     // Validate input parameter
@@ -70,7 +70,7 @@ function highlightHeadingSection(anchor) {
 function getHeadingLevel(element) {
     const tagName = element.tagName.toLowerCase();
     const headingMatch = tagName.match(/^h([2-6])$/);
-    return headingMatch ? parseInt(headingMatch[1], 10) : null;
+    return headingMatch ? Number.parseInt(headingMatch[1], 10) : null;
 }
 
 /**
@@ -158,7 +158,7 @@ function removeExistingHighlights() {
         while (highlight.firstChild) {
             parent.insertBefore(highlight.firstChild, highlight);
         }
-        parent.removeChild(highlight);
+        highlight.remove();
         removedCount++;
     });
 
@@ -220,17 +220,17 @@ function initializeAnchorHighlighting() {
     document.addEventListener('click', handleAnchorClick);
     
     // Also handle direct navigation to anchors (e.g., page load with hash)
-    if (window.location.hash) {
+    if (globalThis.location.hash) {
         // Delay to ensure DOM is fully loaded
         setTimeout(() => {
-            highlightHeadingSection(window.location.hash);
+            highlightHeadingSection(globalThis.location.hash);
         }, 200);
     }
     
     // Handle browser back/forward navigation
-    window.addEventListener('hashchange', () => {
-        if (window.location.hash) {
-            highlightHeadingSection(window.location.hash);
+    globalThis.addEventListener('hashchange', () => {
+        if (globalThis.location.hash) {
+            highlightHeadingSection(globalThis.location.hash);
         } else {
             removeExistingHighlights();
         }

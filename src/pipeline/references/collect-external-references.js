@@ -8,7 +8,7 @@
  */
 
 require('dotenv').config();
-const path = require('path');
+const path = require('node:path');
 const fs = require('fs-extra');
 const readlineSync = require('readline-sync');
 

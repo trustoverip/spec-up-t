@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 const { JSDOM } = require('jsdom');
 const { Document, Packer, Paragraph, TextRun, HeadingLevel, TableOfContents, Table, TableRow, TableCell, WidthType, AlignmentType } = require('docx');
 const Logger = require('./utils/logger');

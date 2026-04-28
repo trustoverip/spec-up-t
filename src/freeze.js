@@ -18,7 +18,7 @@
  *   and tests remain focused there.
  */
 
-const path = require('path');
+const path = require('node:path');
 
 // The implementation `freeze-spec-data.js` now lives in the same `src` folder
 // as this wrapper, so require it directly from __dirname.

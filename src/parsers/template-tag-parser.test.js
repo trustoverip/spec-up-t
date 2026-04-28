@@ -38,10 +38,10 @@ describe('Template Tag Parsing Functions', () => {
     };
 
     // Set up global state
-    global.definitions = mockGlobal.definitions;
-    global.references = mockGlobal.references;
-    global.specGroups = mockGlobal.specGroups;
-    global.noticeTitles = mockGlobal.noticeTitles;
+    globalThis.definitions = mockGlobal.definitions;
+    globalThis.references = mockGlobal.references;
+    globalThis.specGroups = mockGlobal.specGroups;
+    globalThis.noticeTitles = mockGlobal.noticeTitles;
   });
 
   // Test: Can the system parse definition markup into proper HTML?

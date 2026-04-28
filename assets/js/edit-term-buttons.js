@@ -8,33 +8,27 @@
  * @since 2024-06-09
  */
 
+// Function to find the deepest <span>
+// Spec-Up is generating nested spans. The deepest span is the main term, and that is what we need.
+function findDeepestSpan(element) {
+   let currentElement = element;
+   // While there is a <span> child, keep going deeper
+   while (currentElement.querySelector('span[id^="term:"]')) {
+      currentElement = currentElement.querySelector('span[id^="term:"]');
+   }
+   return currentElement;
+}
+
+// Simple path join utility for client-side JS (normalizes separators, handles leading/trailing /)
+function pathJoin(...segments) {
+   // Filter out empty segments and join with '/'
+   return segments.filter(segment => segment).join('/').replace(/\/+/g, '/');
+}
+
 function editTermButtons() {
-   // Function to find the deepest <span>
-   // Spec-Up is generating nested spans. The deepest span is the main term, and that is what we need.
-   function findDeepestSpan(element) {
-      let currentElement = element;
-      // While there is a <span> child, keep going deeper
-      while (currentElement.querySelector('span[id^="term:"]')) {
-         currentElement = currentElement.querySelector('span[id^="term:"]');
-      }
-      return currentElement;
-   }
-
-
-
-   // Simple path join utility for client-side JS (normalizes separators, handles leading/trailing /)
-   function pathJoin(...segments) {
-      // Filter out empty segments and join with '/'
-      return segments.filter(segment => segment).join('/').replace(/\/+/g, '/');
-   }
-
-
-
-
-
    // Get GitHub repo info from meta tag
    const repoInfo = getGithubRepoInfo();
-   
+
    // Early return if no repo info available
    if (!repoInfo) {
       console.warn('GitHub repository information not available, edit buttons will not be added');
