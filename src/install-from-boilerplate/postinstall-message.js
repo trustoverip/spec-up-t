@@ -1,5 +1,5 @@
 // load path module
-const path = require('path');
+const path = require('node:path');
 // get current directory name
 const dirName = path.basename(path.resolve(__dirname, '../../../../'));
 

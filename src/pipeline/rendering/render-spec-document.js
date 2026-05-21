@@ -5,7 +5,7 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 
 const { fetchExternalSpecs, validateReferences, mergeXrefTermsIntoAllXTrefs } = require('../references/external-references-service.js');
 const { processEscapedTags, restoreEscapedTags } = require('../preprocessing/escape-placeholder-utils.js');
@@ -15,13 +15,15 @@ const { templateTags } = require('../../utils/regex-patterns.js');
 
 const { createScriptElementWithXTrefDataForEmbeddingInHtml, applyReplacers } = require('./render-utils.js');
 const { warnOnHeadingHierarchyViolations } = require('./heading-hierarchy-validator.js');
+const { copyStaticRoot } = require('./copy-static-root.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
   let { externalReferences } = sharedVars;
+  let renderedHtml;
 
   try {
-    global.noticeTitles = {};
-    global.specGroups = {};
+    globalThis.noticeTitles = {};
+    globalThis.specGroups = {};
     Logger.info('Rendering: ' + spec.title);
 
     function interpolate(template, variables) {
@@ -79,8 +81,8 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
 
     // Set up file tracking for definitions before rendering
     for (let i = 0; i < docs.length; i++) {
-      global.currentFile = spec.markdown_paths[i] || 'unknown';
-      docs[i] = `<!-- file: ${global.currentFile} -->\n${docs[i]}`;
+      globalThis.currentFile = spec.markdown_paths[i] || 'unknown';
+      docs[i] = `<!-- file: ${globalThis.currentFile} -->\n${docs[i]}`;
     }
 
     // Concatenate all file contents into one string, separated by newlines
@@ -110,16 +112,16 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     let suppressNext = false;
     console.error = (...args) => {
       const message = args[0]?.toString() || '';
-      
+
       // Check if this is the first console.error call with the error message
-      if (message.includes('markdown-it-attrs: Error in pattern') && 
-          message.includes('tables') && 
-          message.includes('colsnum')) {
+      if (message.includes('markdown-it-attrs: Error in pattern') &&
+        message.includes('tables') &&
+        message.includes('colsnum')) {
         // Suppress this error and the next stack trace
         suppressNext = true;
         return;
       }
-      
+
       // Check if this is the stack trace following the suppressed error
       if (suppressNext) {
         suppressNext = false;
@@ -128,7 +130,7 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
           return;
         }
       }
-      
+
       // Let all other errors through
       originalConsoleError.apply(console, args);
     };
@@ -161,7 +163,7 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
       title: spec.title,
       description: spec.description,
       author: spec.author,
-      toc: global.toc,
+      toc: globalThis.toc,
       render: renderedHtml,
       assetsHead: assets.head,
       assetsBody: assets.body,
@@ -188,9 +190,12 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     await fs.promises.writeFile(outputPath, templateInterpolated, 'utf8');
     Logger.success(`Successfully wrote ${outputPath}`);
 
-    validateReferences(global.references, global.definitions, renderedHtml);
-    global.references = [];
-    global.definitions = [];
+    // Copy any deployment root files (CNAME, robots.txt, …) from spec/static-root/
+    copyStaticRoot(spec.spec_directory, spec.destination);
+
+    validateReferences(globalThis.references, globalThis.definitions, renderedHtml);
+    globalThis.references = [];
+    globalThis.definitions = [];
   } catch (e) {
     Logger.error("Render error: " + e.message);
     throw e;

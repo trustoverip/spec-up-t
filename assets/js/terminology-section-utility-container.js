@@ -40,30 +40,7 @@ function initializeTerminologyUtilityContainer() {
     /* DOM CONSTRUCTION - COMPLETE LAYOUT STRUCTURE */
     /*************************************************/
 
-    /* ===== ROW 1: ALPHABET INDEX ===== */
-    // ALPHABET INDEX TEMPORARILY DISABLED
-    // const alphabetRow = document.createElement("div");
-    // alphabetRow.className = "row mb-2";
-    // 
-    // const alphabetCol = document.createElement("div");
-    // alphabetCol.className = "col-12";
-    // 
-    // const alphabetIndexContainer = document.createElement("div");
-    // alphabetIndexContainer.className = "d-flex flex-wrap justify-content-center gap-2";
-
-    // // Create alphabet links
-    // Object.keys(alphabetIndex).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).forEach(char => {
-    //     const link = document.createElement("a");
-    //     link.href = `#${alphabetIndex[char]}`;
-    //     link.textContent = char;
-    //     link.className = "btn btn-outline-secondary btn-sm";
-    //     alphabetIndexContainer.appendChild(link);
-    // });
-
-    // alphabetCol.appendChild(alphabetIndexContainer);
-    // alphabetRow.appendChild(alphabetCol);
-
-    /* ===== ROW 2: UTILITIES (TERM COUNT + FILTERS + SEARCH) ===== */
+    /* ===== ROW: UTILITIES (TERM COUNT + FILTERS + SEARCH) ===== */
     const utilityRow = document.createElement("div");
     utilityRow.className = "row g-2";
     utilityRow.id = "utility-row";
@@ -114,7 +91,6 @@ function initializeTerminologyUtilityContainer() {
     const snapshotLink = document.createElement('a');
     snapshotLink.id = 'snapshot-link-in-content';
     snapshotLink.className = 'btn btn-outline-primary btn-sm';
-    // snapshotLink.href = './versions/';
     snapshotLink.href = '#';
     snapshotLink.textContent = 'Versions';
     centerCol.appendChild(snapshotLink);
@@ -185,6 +161,27 @@ function initializeTerminologyUtilityContainer() {
     // ALPHABET INDEX TEMPORARILY DISABLED
     // terminologySectionUtilityContainer.appendChild(alphabetRow);
     terminologySectionUtilityContainer.appendChild(utilityRow);
+
+    // Keep hash navigation offset in sync with sticky utility UI height.
+    const updateAnchorScrollOffset = () => {
+        const stickyBottom = terminologySectionUtilityContainer.getBoundingClientRect().bottom;
+        const offset = Math.max(72, Math.ceil(stickyBottom + 12));
+        document.documentElement.style.setProperty('--anchor-scroll-offset', `${offset}px`);
+    };
+
+    let resizeRafId = null;
+    const scheduleOffsetUpdate = () => {
+        if (resizeRafId !== null) {
+            return;
+        }
+        resizeRafId = requestAnimationFrame(() => {
+            resizeRafId = null;
+            updateAnchorScrollOffset();
+        });
+    };
+
+    updateAnchorScrollOffset();
+    globalThis.addEventListener('resize', scheduleOffsetUpdate, { passive: true });
 
     /*****************************************/
     /* INITIALIZE FUNCTIONALITY COMPONENTS  */

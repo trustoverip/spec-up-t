@@ -654,7 +654,7 @@ function insertIndicatorAfterElement(element, indicator) {
     if (element.nextElementSibling?.classList.contains(VALIDATOR_CONFIG.classes.indicator)) {
         return; // Already has an indicator
     }
-    element.insertAdjacentElement('afterend', indicator);
+    element.after(indicator);
     // Attach click handler if this indicator has details
     attachClickHandler(indicator);
 }
@@ -760,7 +760,8 @@ function findCachedXtrefForXref(element) {
     }
     
     // Extract spec and term from data-local-href (format: #term:specName:termName)
-    const localHref = element.getAttribute('data-local-href') || '';
+    const localHref = element.dataset.localHref || '';
+
     const match = localHref.match(/#term:([^:]+):(.+)/);
     
     if (!match) {
@@ -968,7 +969,7 @@ function buildChangesTable(results) {
 function createResultRow(result, index) {
     const row = document.createElement('tr');
     row.classList.add(`result-${result.type}`);
-    row.setAttribute('data-result-index', index);
+    row.dataset.resultIndex = index;
     
     // Status cell with icon
     const statusCell = document.createElement('td');
@@ -1131,7 +1132,7 @@ function initExperimentalToggle() {
 
     toggle.addEventListener('change', () => {
         localStorage.setItem(VALEXTREF_STORAGE_KEY, toggle.checked ? 'true' : 'false');
-        window.location.reload();
+        globalThis.location.reload();
     });
 }
 

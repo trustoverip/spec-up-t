@@ -5,14 +5,14 @@
 
   // Get GitHub repo info from meta tag
   const repoInfo = getGithubRepoInfo();
-  
+
   if (repoInfo) {
     fetch(`https://api.github.com/repos/${repoInfo.username}/${repoInfo.repo}/issues`)
       .then(response => response.json())
       .then(issues => {
         let count = issues.length;
         document.querySelectorAll('[data-issue-count]').forEach(node => {
-          node.setAttribute('data-issue-count', count)
+          node.dataset.issueCount = count;
         });
         repo_issue_list.innerHTML = issues.map(issue => {
           return `<li class="repo-issue">

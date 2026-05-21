@@ -21,8 +21,8 @@
  *   node run-healthcheck.js --format html --output health-report.html
  */
 
-const fs = require('fs').promises;
-const path = require('path');
+const fs = require('node:fs').promises;
+const path = require('node:path');
 
 /**
  * Parse command line arguments

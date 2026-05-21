@@ -6,6 +6,12 @@
  * @description Handles search logic and highlighting (DOM is constructed in main module)
  */
 
+function scrollToElementCenter(element) {
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
 /**
  * Attaches search functionality to the provided DOM elements
  * @param {HTMLInputElement} searchInput - The search input element
@@ -57,12 +63,6 @@ function attachSearchFunctionality(searchInput, goToPreviousMatchButton, goToNex
         const hasMatches = totalMatches > 0;
         goToPreviousMatchButton.disabled = !hasMatches;
         goToNextMatchButton.disabled = !hasMatches;
-    }
-
-    function scrollToElementCenter(element) {
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
     }
 
     function removeHighlights() {

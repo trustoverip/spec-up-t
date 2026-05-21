@@ -69,7 +69,7 @@ ul.toc a:hover {
     background: var(--card-hover-bg, #f9f9f9);
     padding-left: 1em;
     /* Slight padding increase on hover */
-    border-left: 3px solid var(--bs-primary, #007bff);
+    border-left: 3px solid var(--bs-primary, #0071eb);
 }
 
 /* Second-level items numbering */
@@ -84,7 +84,7 @@ ul.toc>li>ul>li>ul>li>a {
 
 /* Accessibility: Focus styles - improved for keyboard navigation */
 ul.toc a:focus {
-    outline: 2px solid #007bff;
+    outline: 2px solid #0071eb;
     outline-offset: -2px;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
     position: relative;
@@ -100,7 +100,7 @@ ul.toc a:focus {
 /* Add a subtle visual cue for active/selected item */
 ul.toc li a.active,
 ul.toc li a[aria-current="page"] {
-    border-left: 3px solid var(--bs-primary, #007bff);
+    border-left: 3px solid var(--bs-primary, #0071eb);
     /* Highlight active item */
     font-weight: 500;
     /* Make active item slightly bolder */
@@ -149,9 +149,9 @@ ul.toc li:last-child a {
 
 /* Improved focus styles for keyboard navigation */
 .collapse-toggle:focus {
-    outline: 2px solid #007bff;
+    outline: 2px solid #0071eb;
     outline-offset: 1px;
-    border-color: #007bff;
+    border-color: #0071eb;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
@@ -210,7 +210,7 @@ ul.toc li:last-child a {
     display: block;
     padding: 15px 23px 14px;
     background-color: #fff;
-    color: #007bff;
+    color: #0071EB;
     z-index: 100000;
     font-size: 1em;
     font-weight: bold;

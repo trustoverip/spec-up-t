@@ -5,7 +5,7 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 const findPkgDir = require('find-pkg-dir');
 
 const { initialize } = require('../../init.js');

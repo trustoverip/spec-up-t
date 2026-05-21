@@ -14,7 +14,7 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 const Logger = require('../../utils/logger.js');
 
 /**

@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('node:fs');
 const { spawnSync } = require('child_process');
 const Logger = require('./logger');
 

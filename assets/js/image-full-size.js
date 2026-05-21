@@ -14,7 +14,7 @@ const imageFullSize = () => {
   function removeContainer() {
     let container = document.querySelector('.image-container-full-page');
     if (container) {
-      document.body.removeChild(container);
+      container.remove();
     }
   }
 

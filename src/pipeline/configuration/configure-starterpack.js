@@ -6,8 +6,8 @@
  * programmatically or executed directly from the command line.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const readline = require('readline');
 
 const Logger = require('../../utils/logger');

@@ -66,33 +66,63 @@ async function removeForbiddenControlCharacters(filePath) {
   }
 }
 
+/**
+ * Wraps a Gulp pipeline stream (ending with gulp.dest) in a Promise that
+ * resolves when the stream's 'finish' event fires.
+ *
+ * merge-stream@2.0.0 relies on native Node.js stream semantics, but
+ * modern vinyl-fs / gulp.dest() uses streamx internally, which calls
+ * output.end() on the merged PassThrough when the *first* pipeline
+ * finishes — even with {end: false}. This causes the 'finish' event to
+ * fire before slower pipelines (e.g. the large body.js bundle) have
+ * written their files, creating a race with removeForbiddenControlCharacters.
+ *
+ * Running each pipeline as an individual Promise and awaiting all three
+ * sequentially avoids that race entirely.
+ *
+ * @param {NodeJS.ReadWriteStream} stream - The final stream in a pipeline
+ * @returns {Promise<void>}
+ */
+function streamToPromise(stream) {
+  return new Promise((resolve, reject) => {
+    stream.on('finish', resolve);
+    stream.on('error', reject);
+  });
+}
+
 async function compileAssets() {
   await fs.ensureDir(compileLocation);
-  return new Promise(resolve => {
-    mergeStreams(
+
+  await Promise.all([
+    streamToPromise(
       gulp.src(assets.head.css)
         .pipe(cleanCSS())
         .pipe(concat('head.css'))
-        .pipe(gulp.dest(compileLocation)),
+        .pipe(gulp.dest(compileLocation))
+    ),
+    streamToPromise(
       gulp.src(assets.head.js)
         .pipe(terser())
         .pipe(concat('head.js'))
-        .pipe(gulp.dest(compileLocation)),
+        .pipe(gulp.dest(compileLocation))
+    ),
+    streamToPromise(
       gulp.src(assets.body.js)
         .pipe(terser())
         .pipe(concat('body.js'))
         .pipe(gulp.dest(compileLocation))
-    ).on('finish', async function () {
-      // Post-process compiled JavaScript files to remove forbidden control characters
-      try {
-        await removeForbiddenControlCharacters(`${compileLocation}/head.js`);
-        await removeForbiddenControlCharacters(`${compileLocation}/body.js`);
-      } catch (error) {
-        console.error('Failed to clean compiled files:', error);
-      }
-      resolve();
-    })
-  });
+    ),
+  ]);
+
+  // Post-process compiled JavaScript files to remove forbidden control characters.
+  // This must run after ALL pipelines have finished writing — hence the sequential
+  // await above instead of the previous merge-stream approach.
+  try {
+    await removeForbiddenControlCharacters(`${compileLocation}/head.js`);
+    await removeForbiddenControlCharacters(`${compileLocation}/body.js`);
+  } catch (error) {
+    console.error('Failed to clean compiled files:', error);
+  }
 }
 
 function runCommand(cmd) {

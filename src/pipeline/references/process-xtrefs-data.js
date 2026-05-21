@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { fetchAllTermsFromIndex } = require('./fetch-terms-from-index');
 const { getPath } = require('../../../config/paths');
 const Logger = require('../../utils/logger');
