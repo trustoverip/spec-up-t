@@ -8,9 +8,9 @@ const fs = require('fs-extra');
 const gulp = require('gulp');
 const concat = require('gulp-concat');
 const terser = require('gulp-terser');
-const mergeStreams = require('merge-stream');
 const cleanCSS = require('gulp-clean-css');
 const axios = require('axios').default;
+const { finished } = require('stream/promises');
 const assets = fs.readJsonSync('./config/asset-map.json');
 
 let compileLocation = 'assets/compiled';
@@ -68,31 +68,31 @@ async function removeForbiddenControlCharacters(filePath) {
 
 async function compileAssets() {
   await fs.ensureDir(compileLocation);
-  return new Promise(resolve => {
-    mergeStreams(
+
+  // Await each pipeline explicitly — merge-stream is unreliable with gulp 5/streamx.
+  await Promise.all([
+    finished(
       gulp.src(assets.head.css)
         .pipe(cleanCSS())
         .pipe(concat('head.css'))
-        .pipe(gulp.dest(compileLocation)),
+        .pipe(gulp.dest(compileLocation))
+    ),
+    finished(
       gulp.src(assets.head.js)
         .pipe(terser())
         .pipe(concat('head.js'))
-        .pipe(gulp.dest(compileLocation)),
+        .pipe(gulp.dest(compileLocation))
+    ),
+    finished(
       gulp.src(assets.body.js)
         .pipe(terser())
         .pipe(concat('body.js'))
         .pipe(gulp.dest(compileLocation))
-    ).on('finish', async function () {
-      // Post-process compiled JavaScript files to remove forbidden control characters
-      try {
-        await removeForbiddenControlCharacters(`${compileLocation}/head.js`);
-        await removeForbiddenControlCharacters(`${compileLocation}/body.js`);
-      } catch (error) {
-        console.error('Failed to clean compiled files:', error);
-      }
-      resolve();
-    })
-  });
+    )
+  ]);
+
+  await removeForbiddenControlCharacters(`${compileLocation}/head.js`);
+  await removeForbiddenControlCharacters(`${compileLocation}/body.js`);
 }
 
 function runCommand(cmd) {
