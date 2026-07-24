@@ -107,7 +107,7 @@ async function fetchExternalSpecs(spec) {
   } catch (e) {
     Logger.error("Unexpected error in fetchExternalSpecs", {
       context: 'Failed while fetching terms from external specifications',
-      hint: 'Check your internet connection and verify all external_specs URLs in specs.json are valid. Run with GITHUB_PAT set if accessing private repos',
+      hint: 'Check your internet connection and verify all external_specs URLs in specs.json are valid. Run with GITHUB_API_TOKEN set if accessing private repos',
       details: e.message
     });
     return [];
