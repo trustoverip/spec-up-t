@@ -10,28 +10,16 @@
 function addBootstrapClassesToImages() {
   const images = document.querySelectorAll('#content img');
   images.forEach(image => {
-    // Add Bootstrap responsive image class
-    image.classList.add('img-fluid');
-    
-    // Optional: Add rounded corners
-    image.classList.add('rounded');
-    
-    // Optional: Add subtle shadow for better appearance
-    image.classList.add('shadow-sm');
-    
-    // Add appropriate margins
-    image.classList.add('my-3');
+    // Add Bootstrap responsive image class and appearance utilities
+    image.classList.add('img-fluid', 'rounded', 'shadow-sm', 'my-3');
     
     // Create a figure element for images that are not already in one
     if (!image.closest('figure') && !image.parentElement.classList.contains('image-container')) {
       // Check if not already wrapped
       const figure = document.createElement('figure');
       figure.classList.add('figure', 'text-center');
-      
-      // Get the original parent and replace the image with the figure
-      const parent = image.parentElement;
-      parent.replaceChild(figure, image);
-      
+      image.replaceWith(figure);
+
       // Add the image to the figure
       figure.appendChild(image);
       

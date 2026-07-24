@@ -14,20 +14,31 @@
       .then((r) => r.ok)
       .catch(() => false);
 
-  const fileIconSvg =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" class="me-1" viewBox="0 0 16 16">\
-      <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0H4zm0 1h5v4h4v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zm7 4h-1V2l3 3h-2z"/>\
+  // PDF icon with recognizable red color
+  const pdfIconSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="me-1">\
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" fill="#e74c3c"/>\
+      <path d="M14 2v6h6" fill="none" stroke="#c0392b" stroke-width="1.5"/>\
+      <text x="12" y="17" font-size="6" font-weight="bold" text-anchor="middle" fill="white">PDF</text>\
     </svg>';
 
-  function createButton(href, title, cls) {
+  // DOCX/Word icon with recognizable blue color
+  const docxIconSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="me-1">\
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" fill="#2b579a"/>\
+      <path d="M14 2v6h6" fill="none" stroke="#1e4378" stroke-width="1.5"/>\
+      <text x="12" y="17" font-size="5" font-weight="bold" text-anchor="middle" fill="white">DOCX</text>\
+    </svg>';
+
+  function createButton(href, title, cls, icon, label) {
     const a = document.createElement("a");
-    a.classList.add(cls, "btn", "d-block", "btn-sm", "btn-outline-secondary");
+    a.classList.add(cls, "btn", "btn-sm");
     a.target = "_blank";
     a.rel = "noopener noreferrer";
     a.href = href;
     a.title = title;
     a.setAttribute("aria-label", title);
-    a.innerHTML = fileIconSvg;
+    a.innerHTML = icon + '<span class="button-label visually-hidden">' + label + '</span>';
     return a;
   }
 
@@ -36,8 +47,8 @@
     if (!container) return;
 
     const items = [
-      { href: "./index.pdf", title: "Download this page as a PDF", cls: "button-pdf-download" },
-      { href: "./index.docx", title: "Download this page as a DOCX", cls: "button-docx-download" },
+      { href: "./index.pdf", title: "Download this page as a PDF", cls: "button-pdf-download", icon: pdfIconSvg, label: "PDF" },
+      { href: "./index.docx", title: "Download this page as a DOCX", cls: "button-docx-download", icon: docxIconSvg, label: "DOCX" },
     ];
 
     const exists = await Promise.all(items.map((i) => checkExists(i.href)));
@@ -47,14 +58,14 @@
     items.forEach((item, idx) => {
       if (!exists[idx]) return;
       if (buttonExists(item.cls)) return;
-      const btn = createButton(item.href, item.title, item.cls);
+      const btn = createButton(item.href, item.title, item.cls, item.icon, item.label);
       container.insertBefore(btn, anchor);
       anchor = btn;
     });
   }
 
   // Expose minimal global for backward compatibility shims
-  window.SpecUpDownloads = { addButtons };
+  globalThis.SpecUpDownloads = { addButtons };
 
   // Auto-run on DOM ready (safe if called multiple times)
   document.addEventListener("DOMContentLoaded", addButtons, { once: false });

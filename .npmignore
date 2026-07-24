@@ -1,0 +1,6 @@
+# Ignore IDE-specific SonarLint binding metadata and local scanner workspace files.
+# These files can cause duplicate project bindings or stale connected-mode state
+# when npm packages are installed into other workspaces and SonarQube/SonarLint
+# tries to resolve project configuration.
+.sonarlint
+.scannerwork

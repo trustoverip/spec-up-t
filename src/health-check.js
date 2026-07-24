@@ -15,7 +15,7 @@
  * @deprecated The old implementation is replaced by spec-up-t-healthcheck
  */
 
-const path = require('path');
+const path = require('node:path');
 const {spawn} = require('child_process');
 
 /**

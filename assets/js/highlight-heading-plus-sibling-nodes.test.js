@@ -126,12 +126,12 @@ describe('highlight-heading-plus-sibling-nodes', () => {
   describe('initializeAnchorHighlighting', () => {
     // Test: Does the system automatically highlight sections based on URL hash changes?
     it('sets up event listeners and highlights on hash', () => {
-      window.location.hash = '#h2-1';
+      globalThis.location.hash = '#h2-1';
       // Remove highlights if any
       removeExistingHighlights();
       initializeAnchorHighlighting();
       // Simulate hashchange
-      window.dispatchEvent(new HashChangeEvent('hashchange'));
+      globalThis.dispatchEvent(new HashChangeEvent('hashchange'));
       expect(document.querySelector('.highlight2')).not.toBeNull();
     });
   });

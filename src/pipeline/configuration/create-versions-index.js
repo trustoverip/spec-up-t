@@ -13,7 +13,7 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 const Logger = require('../../utils/logger.js');
 
 function createVersionsIndex(outputPath) {
@@ -29,6 +29,11 @@ function createVersionsIndex(outputPath) {
     // Get all directories in the destination directory
     const dirs = fs.readdirSync(versionsDir).filter(file => fs.statSync(path.join(versionsDir, file)).isDirectory());
 
+    // Load persisted labels written by freeze-spec-data.js.
+    // Falls back to an empty object when no labels file exists yet.
+    const labelsFile = path.join(versionsDir, 'labels.json');
+    const labels = fs.existsSync(labelsFile) ? fs.readJsonSync(labelsFile) : {};
+
     // Generate HTML content
     let htmlContent = `
 <!DOCTYPE html>
@@ -43,7 +48,7 @@ function createVersionsIndex(outputPath) {
     body { font-family: 'Heebo', Arial, sans-serif; background: #A9DDE0}
     ul { list-style-type: none; padding: 0; }
     li { margin: 10px 0; }
-    a { text-decoration: none; color: #007BFF; }
+    a { text-decoration: none; color: #0071eb; }
     a:hover { text-decoration: underline; }
   </style>
 </head>
@@ -58,7 +63,9 @@ function createVersionsIndex(outputPath) {
         htmlContent += `    <li class="list-group-item">No versions available</li>\n`;
     } else {
         dirs.forEach(dir => {
-            htmlContent += `    <li class="list-group-item"><a href="${dir}/">Version ${dir}</a></li>\n`;
+            // Use the stored label when available; fall back to the directory name
+            const linkText = labels[dir] || `Version ${dir}`;
+            htmlContent += `    <li class="list-group-item"><a href="${dir}/">${linkText}</a></li>\n`;
         });
     }
 
@@ -68,15 +75,16 @@ function createVersionsIndex(outputPath) {
 </html>
 `;
 
-    // Write the HTML content to the index file asynchronously
+    // Write the HTML content to the index file synchronously.
+    // Using writeFileSync ensures the file exists on disk before the render pipeline
+    // continues and before GitHub Actions deploys docs/ to gh-pages.
     const indexPath = path.join(versionsDir, 'index.html');
-    fs.writeFile(indexPath, htmlContent, (err) => {
-        if (err) {
-            Logger.error(`Error writing index file: ${err}`);
-        } else {
-            Logger.success(`Index file created at ${indexPath}`);
-        }
-    });
+    try {
+        fs.writeFileSync(indexPath, htmlContent);
+        Logger.success(`Index file created at ${indexPath}`);
+    } catch (err) {
+        Logger.error(`Error writing index file: ${err}`);
+    }
 }
 
 // Export the function

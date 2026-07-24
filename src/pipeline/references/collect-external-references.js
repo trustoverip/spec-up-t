@@ -8,7 +8,7 @@
  */
 
 require('dotenv').config();
-const path = require('path');
+const path = require('node:path');
 const fs = require('fs-extra');
 const readlineSync = require('readline-sync');
 
@@ -253,9 +253,21 @@ function processExternalReferences(config, GITHUB_API_TOKEN) {
         });
     });
 
+    // Filter out xtrefs that don't exist in any current file
     allXTrefs.xtrefs = allXTrefs.xtrefs.filter(existingXTref =>
         isXTrefInAnyFile(existingXTref, fileContents)
     );
+
+    // Clean up sourceFiles arrays to remove deleted files
+    // This ensures that if a file is deleted, its entry is removed from all sourceFiles arrays
+    allXTrefs.xtrefs.forEach(xtref => {
+        if (xtref.sourceFiles && Array.isArray(xtref.sourceFiles)) {
+            const currentFiles = Array.from(fileContents.keys());
+            xtref.sourceFiles = xtref.sourceFiles.filter(sf => 
+                currentFiles.includes(sf.file)
+            );
+        }
+    });
 
     fileContents.forEach((content, filename) => {
         addNewXTrefsFromMarkdown(content, allXTrefs, filename, processXTrefObject, externalSpecsRepos);
@@ -295,14 +307,6 @@ function collectExternalReferences(options = {}) {
 
     const { externalSpecsRepos, hasExternalSpecsField } = normalizedConfig;
     const GITHUB_API_TOKEN = options.pat || process.env.GITHUB_API_TOKEN;
-
-    if (!GITHUB_API_TOKEN) {
-        Logger.warn('No GitHub Personal Access Token (PAT) found. Running without authentication', {
-            context: 'GitHub API requests will use unauthenticated access',
-            hint: 'Set GITHUB_PAT environment variable to increase rate limit from 60 to 5000 requests/hour. See: https://trustoverip.github.io/spec-up-t-website/docs/getting-started/github-token',
-            details: 'You may hit rate limits when fetching many external references'
-        });
-    }
 
     // Communicate that the expected external_specs array is missing entirely.
     if (!hasExternalSpecsField) {

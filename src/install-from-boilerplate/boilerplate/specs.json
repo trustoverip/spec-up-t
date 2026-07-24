@@ -19,21 +19,18 @@
             "source": {
                 "host": "github",
                 "account": "trustoverip",
-                "repo": "spec-up-t-starter-pack",
-                "branch": "main"
+                "repo": "spec-up-t-starter-pack"
             },
             "external_specs": [
                 {
                     "external_spec": "ExtRef1",
                     "gh_page": "https://trustoverip.github.io/spec-up-t-demo-external-ref-1/",
-                    "url": "https://github.com/trustoverip/spec-up-t-demo-external-ref-1",
-                    "terms_dir": "spec/terms-definitions"
+                    "url": "https://github.com/trustoverip/spec-up-t-demo-external-ref-1"
                 },
                 {
                     "external_spec": "ExtRef2",
                     "gh_page": "https://trustoverip.github.io/spec-up-t-demo-external-ref-2/",
-                    "url": "https://github.com/trustoverip/spec-up-t-demo-external-ref-2",
-                    "terms_dir": "spec/terms-definitions"
+                    "url": "https://github.com/trustoverip/spec-up-t-demo-external-ref-2"
                 }
             ],
             "katex": false,

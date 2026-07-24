@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const Logger = require('./utils/logger');
 
 // Resolve the path to specs.json in the root directory
@@ -41,7 +41,6 @@ function askMode() {
 const questions = [
     'Enter URL of the repository: ',
     'Enter URL of the GitHub page: ',
-    'Enter the directory where the terms can be found: ',
     'Enter short unique name: ',
 ];
 
@@ -64,9 +63,6 @@ function askQuestion(index) {
                 inputs.gh_page = answer;
                 break;
             case 2:
-                inputs.terms_dir = answer;
-                break;
-            case 3:
                 inputs.external_spec = answer;
                 break;
         }
@@ -92,7 +88,6 @@ function showReferences() {
         Logger.highlight(`Short name: ${spec.external_spec}`);
         Logger.info(`GitHub Page: ${spec.gh_page}`);
         Logger.info(`URL: ${spec.url}`);
-        Logger.info(`Terms Directory: ${spec.terms_dir}`);
         Logger.separator();
     });
     rl.close();

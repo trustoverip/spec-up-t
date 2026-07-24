@@ -11,6 +11,11 @@
 const { execSync } = require('child_process');
 const Logger = require('./logger');
 
+// Fixed PATH for security: only system directories, not user-writable
+const FIXED_PATH = process.platform === 'win32'
+    ? 'C:\\Windows\\system32;C:\\Windows'
+    : '/usr/bin:/bin:/usr/sbin:/sbin';
+
 /**
  * Gets the current Git branch name
  * 
@@ -21,7 +26,8 @@ function getCurrentBranch() {
         const branch = execSync('git branch --show-current', { 
             encoding: 'utf8',
             timeout: 5000,
-            stdio: ['pipe', 'pipe', 'pipe']
+            stdio: ['pipe', 'pipe', 'pipe'],
+            env: { ...process.env, PATH: FIXED_PATH }
         }).trim();
         
         if (branch) {
@@ -33,7 +39,8 @@ function getCurrentBranch() {
         const head = execSync('git rev-parse --abbrev-ref HEAD', {
             encoding: 'utf8',
             timeout: 5000,
-            stdio: ['pipe', 'pipe', 'pipe']
+            stdio: ['pipe', 'pipe', 'pipe'],
+            env: { ...process.env, PATH: FIXED_PATH }
         }).trim();
         
         if (head && head !== 'HEAD') {

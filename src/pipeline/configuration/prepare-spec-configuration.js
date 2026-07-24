@@ -5,7 +5,7 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 const findPkgDir = require('find-pkg-dir');
 
 const { initialize } = require('../../init.js');
@@ -33,6 +33,12 @@ async function initializeConfig(options = {}) {
 
     const createExternalSpecsList = require('./create-external-specs-list.js');
     const externalSpecsList = createExternalSpecsList(config);
+
+    // Copy any frozen snapshots from the tracked snapshots/ directory into
+    // the output path before regenerating the versions index. This is what makes
+    // locally-created or CI-created freezes survive a fresh checkout and redeploy.
+    const syncSnapshots = require('./sync-snapshots.js');
+    syncSnapshots(config.specs[0].output_path);
 
     const createVersionsIndex = require('./create-versions-index.js');
     createVersionsIndex(config.specs[0].output_path);

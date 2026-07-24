@@ -3,8 +3,8 @@
  * @description Fetches term definitions from an external specification repository using either the published GitHub Pages site or the raw repository fallback.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { JSDOM } = require('jsdom');
 const axios = require('axios');
 const { getPath } = require('../../../config/paths');

@@ -355,7 +355,7 @@ $$
     <button type="button">Second Tab</button>
   </nav>
 
-  <section>
+  <div>
 
 ```json
 {
@@ -364,8 +364,8 @@ $$
 }
 ```
 
-  </section>
-  <section>
+  </div>
+  <div>
 
 ```json
 {
@@ -374,7 +374,7 @@ $$
 }
 ```
 
-  </section>
+  </div>
 </tab-panels>
 
 ### Fancy Links
@@ -392,6 +392,3 @@ Spec-Up automatically upgrades the links of certain sites, like GitHub. GitHub i
 - **Releases**
   - Source: `https://github.com/decentralized-identity/sidetree/releases/tag/v0.9.1`
   - Render: https://github.com/decentralized-identity/sidetree/releases/tag/v0.9.1
-- **Projects**
-  - Source: `https://github.com/decentralized-identity/sidetree/projects/1`
-  - Render: https://github.com/decentralized-identity/sidetree/projects/1

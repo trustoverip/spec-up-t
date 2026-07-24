@@ -155,6 +155,104 @@ That's all about these references.`,
     });
 });
 
+describe('Cleanup of deleted files from sourceFiles array', () => {
+
+    // Test: Are deleted files removed from sourceFiles arrays?
+    it('should remove deleted files from sourceFiles array when files no longer exist', () => {
+        // Setup: Create an allXTrefs structure with multiple source files
+        const allXTrefs = { 
+            xtrefs: [
+                {
+                    externalSpec: 'ExtRef1',
+                    term: 'greenhouse',
+                    trefAliases: [],
+                    xrefAliases: [],
+                    sourceFiles: [
+                        { file: 'composability.md', type: 'tref' },
+                        { file: 'greenhouse.md', type: 'tref' },
+                        { file: 'soil.md', type: 'xref' }
+                    ]
+                },
+                {
+                    externalSpec: 'ExtRef2',
+                    term: 'propagation',
+                    trefAliases: [],
+                    xrefAliases: [],
+                    sourceFiles: [
+                        { file: 'composability.md', type: 'xref' },
+                        { file: 'greenhouse.md', type: 'xref' },
+                        { file: 'soil.md', type: 'xref' }
+                    ]
+                }
+            ] 
+        };
+
+        // Simulate: composability.md has been deleted
+        const fileContents = new Map([
+            ['greenhouse.md', '[[tref:ExtRef1,greenhouse]] [[xref:ExtRef2,propagation]]'],
+            ['soil.md', '[[xref:ExtRef1,greenhouse]] [[xref:ExtRef2,propagation]]']
+        ]);
+
+        // Filter out xtrefs that don't exist in any file (none should be removed)
+        allXTrefs.xtrefs = allXTrefs.xtrefs.filter(xtref =>
+            require('./pipeline/references/xtref-utils').isXTrefInAnyFile(xtref, fileContents)
+        );
+
+        // Clean up sourceFiles arrays to remove deleted files
+        allXTrefs.xtrefs.forEach(xtref => {
+            if (xtref.sourceFiles && Array.isArray(xtref.sourceFiles)) {
+                const currentFiles = Array.from(fileContents.keys());
+                xtref.sourceFiles = xtref.sourceFiles.filter(sf => 
+                    currentFiles.includes(sf.file)
+                );
+            }
+        });
+
+        // Verify: composability.md should be removed from all sourceFiles arrays
+        expect(allXTrefs.xtrefs.length).toBe(2);
+        
+        expect(allXTrefs.xtrefs[0].sourceFiles).toEqual([
+            { file: 'greenhouse.md', type: 'tref' },
+            { file: 'soil.md', type: 'xref' }
+        ]);
+        
+        expect(allXTrefs.xtrefs[1].sourceFiles).toEqual([
+            { file: 'greenhouse.md', type: 'xref' },
+            { file: 'soil.md', type: 'xref' }
+        ]);
+    });
+
+    it('should handle case where all files are deleted for a term', () => {
+        // Setup: Create a term with only one source file
+        const allXTrefs = { 
+            xtrefs: [
+                {
+                    externalSpec: 'ExtRef1',
+                    term: 'orphan-term',
+                    trefAliases: [],
+                    xrefAliases: [],
+                    sourceFiles: [
+                        { file: 'deleted-file.md', type: 'tref' }
+                    ]
+                }
+            ] 
+        };
+
+        // Simulate: All files deleted
+        const fileContents = new Map([
+            ['other-file.md', 'Some content without the orphan term']
+        ]);
+
+        // Filter out xtrefs that don't exist in any file
+        allXTrefs.xtrefs = allXTrefs.xtrefs.filter(xtref =>
+            require('./pipeline/references/xtref-utils').isXTrefInAnyFile(xtref, fileContents)
+        );
+
+        // This xtref should be completely removed since it doesn't exist in any file
+        expect(allXTrefs.xtrefs.length).toBe(0);
+    });
+});
+
 
 // Tests for extracting and collecting external references from markdown
 describe('addNewXTrefsFromMarkdown', () => {

@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 const { JSDOM } = require('jsdom');
 const { Document, Packer, Paragraph, TextRun, HeadingLevel, TableOfContents, Table, TableRow, TableCell, WidthType, AlignmentType } = require('docx');
 const Logger = require('./utils/logger');
@@ -114,6 +114,20 @@ function processNode(node, elements = []) {
                         size: 100,
                         type: WidthType.PERCENTAGE
                     }
+                }));
+            }
+            break;
+
+        case 'pre':
+            // Treat the entire pre block as a single monospace paragraph.
+            // Recursing into children would produce one paragraph per Prism token span.
+            if (node.textContent.trim()) {
+                elements.push(new Paragraph({
+                    children: [new TextRun({
+                        text: node.textContent,
+                        font: 'Courier New',
+                        size: 18 // 9pt (half-points)
+                    })]
                 }));
             }
             break;

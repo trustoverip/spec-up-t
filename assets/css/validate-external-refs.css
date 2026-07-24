@@ -51,8 +51,8 @@
  * Draws attention to broken references
  */
 .external-ref-validation-indicator.external-ref-missing .indicator-icon {
-    background-color: #dc3545;
-    color: white;
+    background-color: #db293b;
+    color: #fff;
     box-shadow: 0 0 8px rgba(220, 53, 69, 0.6), inset 0 0 4px rgba(0, 0, 0, 0.2);
     animation: pulse-red 2s infinite;
 }
@@ -62,8 +62,8 @@
  * Indicates content drift that may need review
  */
 .external-ref-validation-indicator.external-ref-changed .indicator-icon {
-    background-color: #ff6b35;
-    color: white;
+    background-color: #E03100;
+    color: #fff;
     box-shadow: 0 0 10px rgba(255, 107, 53, 0.7), inset 0 0 4px rgba(0, 0, 0, 0.2);
     animation: pulse-orange 2s infinite;
 }
@@ -74,7 +74,7 @@
  */
 .external-ref-validation-indicator.external-ref-error .indicator-icon {
     background-color: #6c757d;
-    color: white;
+    color: #fff;
     box-shadow: 0 0 6px rgba(108, 117, 125, 0.5);
 }
 
@@ -83,8 +83,8 @@
  * Confirms the reference is current (optional visibility)
  */
 .external-ref-validation-indicator.external-ref-valid .indicator-icon {
-    background-color: #28a745;
-    color: white;
+    background-color: #218739;
+    color: #fff;
     opacity: 1;
     box-shadow: 0 0 6px rgba(40, 167, 69, 0.4);
 }
@@ -95,24 +95,32 @@
 .external-ref-validation-indicator:hover .indicator-icon {
     transform: scale(1.15);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    animation-play-state: paused;
+    opacity: 1;
 }
 
 /**
  * Pulse animations for attention-grabbing indicators
  */
 @keyframes pulse-red {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 8px rgba(220, 53, 69, 0.6), inset 0 0 4px rgba(0, 0, 0, 0.2);
     }
+
     50% {
         box-shadow: 0 0 15px rgba(220, 53, 69, 0.9), inset 0 0 4px rgba(0, 0, 0, 0.2);
     }
 }
 
 @keyframes pulse-orange {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 10px rgba(255, 107, 53, 0.7), inset 0 0 4px rgba(0, 0, 0, 0.2);
     }
+
     50% {
         box-shadow: 0 0 18px rgba(255, 107, 53, 1), inset 0 0 4px rgba(0, 0, 0, 0.2);
     }
@@ -171,10 +179,9 @@
 }
 
 /**
- * Show details on hover
+ * Show details on click (when the active class is applied via JavaScript)
  */
-.external-ref-validation-indicator.has-details:hover .validation-details,
-.external-ref-validation-indicator.has-details:focus .validation-details {
+.external-ref-validation-indicator.has-details.active .validation-details {
     display: block;
 }
 
@@ -278,7 +285,7 @@
         transform: none;
         font-size: 0.8rem;
     }
-    
+
     .validation-details::before,
     .validation-details::after {
         left: 15px;
@@ -311,9 +318,12 @@
  * Subtle pulse animation for attention-drawing indicators
  */
 @keyframes validation-pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
     }
+
     50% {
         opacity: 0.6;
     }
@@ -322,12 +332,6 @@
 .external-ref-missing .indicator-icon,
 .external-ref-changed .indicator-icon {
     animation: validation-pulse 2s ease-in-out infinite;
-}
-
-/* Pause animation on hover to reduce distraction */
-.external-ref-validation-indicator:hover .indicator-icon {
-    animation-play-state: paused;
-    opacity: 1;
 }
 
 /* ===== Integration with Term Styling ===== */
@@ -342,28 +346,228 @@ dt.term-external .external-ref-validation-indicator {
 /**
  * Ensure indicators work well within inline text (for xrefs)
  */
-a.x-term-reference + .external-ref-validation-indicator {
+a.x-term-reference+.external-ref-validation-indicator {
     margin-right: 0.25em;
 }
 
 /* ===== Print Styles ===== */
 
 @media print {
+
     /* Hide interactive elements but show status text */
     .validation-details {
         display: none !important;
     }
-    
+
     /* Show a simpler indicator for print */
     .external-ref-missing::after {
         content: ' [MISSING]';
         color: #dc3545;
         font-size: 0.7em;
     }
-    
+
     .external-ref-changed::after {
         content: ' [CHANGED]';
         color: #ffc107;
         font-size: 0.7em;
     }
+}
+
+/* ===== External Reference Changes Report ===== */
+
+/**
+ * Container for the changes report in the settings panel
+ */
+.external-ref-changes-report {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 6px;
+    background: var(--bs-body-bg, #fff);
+}
+
+/**
+ * Table styling for the changes report
+ */
+.external-ref-changes-table {
+    margin-bottom: 0;
+    font-size: 0.8rem;
+}
+
+.external-ref-changes-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bs-secondary-bg, #e9ecef);
+    border-bottom: 2px solid var(--bs-border-color, #dee2e6);
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 0.4rem;
+}
+
+.external-ref-changes-table td {
+    padding: 0.4rem;
+    vertical-align: middle;
+}
+
+/**
+ * Column widths
+ */
+.external-ref-changes-table .col-status {
+    width: 40px;
+    text-align: center;
+}
+
+.external-ref-changes-table .col-term {
+    min-width: 80px;
+    max-width: 120px;
+}
+
+.external-ref-changes-table .col-spec {
+    min-width: 60px;
+    max-width: 100px;
+}
+
+.external-ref-changes-table .col-similarity {
+    width: 50px;
+    text-align: center;
+}
+
+.external-ref-changes-table .col-action {
+    width: 40px;
+    text-align: center;
+}
+
+/**
+ * Status icons in the table
+ */
+.status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5em;
+    height: 1.5em;
+    font-size: 1rem;
+}
+
+/**
+ * Term name styling
+ */
+.term-name {
+    display: block;
+    font-weight: 500;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/**
+ * Spec badge styling
+ */
+.spec-badge {
+    display: inline-block;
+    padding: 0.15em 0.4em;
+    font-size: 0.7rem;
+    background: var(--bs-secondary-bg, #e9ecef);
+    border-radius: 4px;
+    word-break: break-word;
+}
+
+/**
+ * Similarity value styling
+ */
+.similarity-value {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--bs-warning, #ffc107);
+}
+
+.similarity-na {
+    color: var(--bs-secondary, #6c757d);
+    font-size: 0.8rem;
+}
+
+/**
+ * Go to reference button
+ */
+.go-to-ref-btn {
+    padding: 0.15rem 0.35rem;
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+/**
+ * Row highlighting based on status
+ */
+.external-ref-changes-table tr.result-changed {
+    background-color: rgba(255, 193, 7, 0.08);
+}
+
+.external-ref-changes-table tr.result-missing {
+    background-color: rgba(220, 53, 69, 0.08);
+}
+
+.external-ref-changes-table tr.result-error {
+    background-color: rgba(108, 117, 125, 0.08);
+}
+
+.external-ref-changes-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/**
+ * Highlight animation when scrolling to a reference
+ */
+@keyframes highlight-flash {
+
+    0%,
+    100% {
+        background-color: transparent;
+    }
+
+    50% {
+        background-color: rgba(255, 193, 7, 0.3);
+    }
+}
+
+.highlight-ref {
+    animation: highlight-flash 0.5s ease-in-out 3;
+    outline: 2px solid var(--bs-warning, #ffc107);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ===== Dark Mode Support for Report ===== */
+
+[data-bs-theme="dark"] .external-ref-changes-report {
+    border-color: var(--bs-gray-700, #495057);
+}
+
+[data-bs-theme="dark"] .external-ref-changes-table th {
+    background: var(--bs-gray-800, #343a40);
+}
+
+[data-bs-theme="dark"] .spec-badge {
+    background: var(--bs-gray-700, #495057);
+}
+
+[data-bs-theme="dark"] .external-ref-changes-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .external-ref-changes-table tr.result-changed {
+    background-color: rgba(255, 193, 7, 0.15);
+}
+
+[data-bs-theme="dark"] .external-ref-changes-table tr.result-missing {
+    background-color: rgba(220, 53, 69, 0.15);
+}
+
+[data-bs-theme="dark"] .external-ref-changes-table tr.result-error {
+    background-color: rgba(108, 117, 125, 0.15);
+}
+
+[data-bs-theme="dark"] .highlight-ref {
+    background-color: rgba(255, 193, 7, 0.4);
 }

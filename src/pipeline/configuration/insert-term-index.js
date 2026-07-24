@@ -17,7 +17,7 @@
 
 function insertTermIndex() {
     const fs = require('fs-extra');
-    const path = require('path');
+    const path = require('node:path');
     const config = fs.readJsonSync(path.join('specs.json'));
     const terms = fs.readJsonSync(path.join('.cache', 'term-index.json'));
     const outputPathJSON = path.join('.cache', 'specs-generated.json');

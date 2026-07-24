@@ -109,12 +109,16 @@ function parseDef(globalState, token, primary, currentFile) {
   // Generate HTML spans for each term/alias combination
   // This creates anchor points that can be referenced by links
   // IDs stay intact - we create an ID for the original term and each alias
+  // Track seen IDs to avoid duplicate IDs (W3C validation requirement)
+  const seenIds = new Set();
   return token.info.args.reduce((acc, syn) => {
     // Generate a unique term ID by normalizing the synonym: replace whitespace with hyphens and convert to lowercase. The ID is used for fragment identifier (hash) in the URL, which in turn can be used for an anchor in a web page.
     // Apply sanitization to remove special characters that would break CSS selectors
     const normalizedSyn = syn.replace(whitespace.oneOrMore, '-').toLowerCase();
     const sanitizedSyn = utils.sanitizeTermId(normalizedSyn);
     const termId = `term:${sanitizedSyn}`;
+    if (seenIds.has(termId)) return acc;
+    seenIds.add(termId);
     return `<span id="${termId}">${acc}</span>`;
   }, displayText);
 }
@@ -239,6 +243,8 @@ function parseTref(token) {
   // We need to create IDs for the term and all aliases (skip the externalSpec at index 0)
   const termsAndAliases = [termName, ...aliases];
 
+  // Track seen IDs to avoid duplicate IDs (W3C validation requirement)
+  const seenIds = new Set();
   return termsAndAliases.reduce((acc, syn, index) => {
     // Generate a unique term ID by normalizing the synonym: replace whitespace with hyphens and convert to lowercase
     // Apply sanitization to remove special characters that would break CSS selectors
@@ -250,6 +256,12 @@ function parseTref(token) {
     const titleAttr = index === 0 && aliases.length > 0 ? ` title="Externally defined as ${termName}"` : '';
     // Add class and data attributes only to the outermost span (last one created)
     const outerAttrs = index === termsAndAliases.length - 1 ? ` data-original-term="${termName}" class="term-external"` : '';
+    if (seenIds.has(termId)) {
+      // Preserve outer attributes on the existing span even when skipping the duplicate ID
+      if (outerAttrs) return acc.replace('<span id="' + termId + '"', '<span id="' + termId + '"' + outerAttrs);
+      return acc;
+    }
+    seenIds.add(termId);
     return `<span id="${termId}"${outerAttrs}${titleAttr}>${acc}</span>`;
   }, displayText);
 }

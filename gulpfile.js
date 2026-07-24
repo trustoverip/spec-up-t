@@ -66,6 +66,30 @@ async function removeForbiddenControlCharacters(filePath) {
   }
 }
 
+/**
+ * Wraps a Gulp pipeline stream (ending with gulp.dest) in a Promise that
+ * resolves when the stream's 'finish' event fires.
+ *
+ * merge-stream@2.0.0 relies on native Node.js stream semantics, but
+ * modern vinyl-fs / gulp.dest() uses streamx internally, which calls
+ * output.end() on the merged PassThrough when the *first* pipeline
+ * finishes — even with {end: false}. This causes the 'finish' event to
+ * fire before slower pipelines (e.g. the large body.js bundle) have
+ * written their files, creating a race with removeForbiddenControlCharacters.
+ *
+ * Running each pipeline as an individual Promise and awaiting all three
+ * sequentially avoids that race entirely.
+ *
+ * @param {NodeJS.ReadWriteStream} stream - The final stream in a pipeline
+ * @returns {Promise<void>}
+ */
+function streamToPromise(stream) {
+  return new Promise((resolve, reject) => {
+    stream.on('finish', resolve);
+    stream.on('error', reject);
+  });
+}
+
 async function compileAssets() {
   await fs.ensureDir(compileLocation);
 

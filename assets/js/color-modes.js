@@ -16,14 +16,14 @@
       return storedTheme
     }
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
 
   const setTheme = theme => {
     if (theme === 'auto') {
-      document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+      document.documentElement.dataset.bsTheme = (globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     } else {
-      document.documentElement.setAttribute('data-bs-theme', theme)
+      document.documentElement.dataset.bsTheme = theme
     }
   }
 
@@ -53,24 +53,24 @@
     themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
 
     if (focus) {
-      themeSwitcher.focus()
+      themeSwitcher.focus({ preventScroll: true })
     }
   }
 
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     const storedTheme = getStoredTheme()
     if (storedTheme !== 'light' && storedTheme !== 'dark') {
       setTheme(getPreferredTheme())
     }
   })
 
-  window.addEventListener('DOMContentLoaded', () => {
+  globalThis.addEventListener('DOMContentLoaded', () => {
     showActiveTheme(getPreferredTheme())
 
     document.querySelectorAll('[data-bs-theme-value]')
       .forEach(toggle => {
         toggle.addEventListener('click', () => {
-          const theme = toggle.getAttribute('data-bs-theme-value')
+          const theme = toggle.dataset.bsThemeValue
           setStoredTheme(theme)
           setTheme(theme)
           showActiveTheme(theme, true)

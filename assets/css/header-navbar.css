@@ -27,7 +27,3 @@
 [data-issue-count][data-animate]:not([data-issue-count=""]) {
     animation: display-show 1s;
 }
-
-#header button, #header button *, #header a:not(#logo), #header a:not(#logo) * {
-    background: #a9dde0;
-}

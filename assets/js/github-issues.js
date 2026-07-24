@@ -3,33 +3,33 @@
 
   /* GitHub Issues */
 
-  let source = specConfig.source;
-  if (source) {
-    if (source.host === 'github') {
-      fetch(`https://api.github.com/repos/${source.account + '/' + source.repo}/issues`)
-        .then(response => response.json())
-        .then(issues => {
-          let count = issues.length;
-          document.querySelectorAll('[data-issue-count]').forEach(node => {
-            node.setAttribute('data-issue-count', count)
-          });
-          repo_issue_list.innerHTML = issues.map(issue => {
-            return `<li class="repo-issue">
-              <detail-box>
-                <div>${md.render(issue.body || '')}</div>
-                <header class="repo-issue-title">
-                  <span class="repo-issue-number">${issue.number}</span>
-                  <span class="repo-issue-link">
-                    <a href="${issue.html_url}" target="_blank">${issue.title}</a>
-                  </span>
-                  <span detail-box-toggle></span>
-                </header>
-              </detail-box>
-            </li>`
-          }).join('');
-          Prism.highlightAllUnder(repo_issue_list);
-        })
-    }
+  // Get GitHub repo info from meta tag
+  const repoInfo = getGithubRepoInfo();
+
+  if (repoInfo) {
+    fetch(`https://api.github.com/repos/${repoInfo.username}/${repoInfo.repo}/issues`)
+      .then(response => response.json())
+      .then(issues => {
+        let count = issues.length;
+        document.querySelectorAll('[data-issue-count]').forEach(node => {
+          node.dataset.issueCount = count;
+        });
+        repo_issue_list.innerHTML = issues.map(issue => {
+          return `<li class="repo-issue">
+            <detail-box>
+              <div>${md.render(issue.body || '')}</div>
+              <header class="repo-issue-title">
+                <span class="repo-issue-number">${issue.number}</span>
+                <span class="repo-issue-link">
+                  <a href="${issue.html_url}" target="_blank">${issue.title}</a>
+                </span>
+                <span detail-box-toggle></span>
+              </header>
+            </detail-box>
+          </li>`
+        }).join('');
+        Prism.highlightAllUnder(repo_issue_list);
+      })
   }
 
 })();

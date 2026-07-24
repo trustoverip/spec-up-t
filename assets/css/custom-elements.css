@@ -134,10 +134,10 @@ tab-panels > nav > *[selected] {
   opacity: 0.9999;
 }
 
-tab-panels > section {
+tab-panels > div {
   display: none;
 }
 
-tab-panels > section[selected] {
+tab-panels > div[selected] {
   display: block;
 }

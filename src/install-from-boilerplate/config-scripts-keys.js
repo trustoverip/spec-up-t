@@ -8,7 +8,7 @@ const configScriptsKeys = {
     "freeze": "node -e \"require('spec-up-t/src/freeze-spec-data.js')\"",
     "references": "node -e \"require('spec-up-t/src/pipeline/references/external-references-service.js')\"",
     "help": "cat ./node_modules/spec-up-t/src/install-from-boilerplate/help.txt",
-    "menu": "bash ./node_modules/spec-up-t/src/install-from-boilerplate/menu.sh",
+    "menu": "bash ./menu-wrapper.sh",
     "addremovexrefsource": "node --no-warnings -e \"require('spec-up-t/src/add-remove-xref-source.js')\"",
     "configure": "node --no-warnings -e \"require('spec-up-t/src/configure.js')\"",
     "healthCheck": "node --no-warnings ./node_modules/spec-up-t/src/health-check.js",

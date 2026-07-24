@@ -12,6 +12,38 @@
  */
 
 /**
+ * Determines if a definition is a special type (e.g., a "See also" or "Source" note)
+ * @param {string} content - The content of the definition to check
+ * @returns {boolean} True if the content starts with a special prefix
+ */
+function isSpecialDefinition(content) {
+    const definitionHidePrefixes = [
+        "Source",
+        "See also",
+        "More in",
+        "Also see",
+        "See:",
+        "Mind you:",
+        "Explanation:",
+        "See also",
+        "See more",
+        "See more in",
+        "See more about",
+        "See more on",
+        "See more at",
+        "More:",
+        "Note:",
+        "Paraphrased by",
+        "Beware:",
+        "eSSIF-Lab: ",
+        "W3C VC:",
+        "NIST:",
+        "Supporting definitions:"
+    ];
+    return definitionHidePrefixes.some(prefix => content.startsWith(prefix));
+}
+
+/**
  * Sets up collapsible definition lists with toggle buttons.
  * Handles the creation of buttons, event listeners, and visibility states.
  * This is the main initialization function that's called when the DOM is ready
@@ -41,38 +73,6 @@ function collapseDefinitions() {
     let { dds, dts, regularDds, specialDds } = queryElements();
     const buttonTitleText = 'Change how much info is shown';
 
-    /**
-     * Determines if a definition is a special type (e.g., a "See also" or "Source" note)
-     * @param {string} content - The content of the definition to check
-     * @returns {boolean} True if the content starts with a special prefix
-     */
-    function isSpecialDefinition(content) {
-        const definitionHidePrefixes = [
-            "Source",
-            "See also",
-            "More in",
-            "Also see",
-            "See:",
-            "Mind you:",
-            "Explanation:",
-            "See also",
-            "See more",
-            "See more in",
-            "See more about",
-            "See more on",
-            "See more at",
-            "More:",
-            "Note:",
-            "Paraphrased by",
-            "Beware:",
-            "eSSIF-Lab: ",
-            "W3C VC:",
-            "NIST:",
-            "Supporting definitions:"
-        ];
-        return definitionHidePrefixes.some(prefix => content.startsWith(prefix));
-    }
-
     specialDds.forEach(dd => {
         dd.classList.add('terms-def-extra-info');
     });
@@ -89,7 +89,7 @@ function collapseDefinitions() {
      */
     function toggleVisibility() {
         const buttons = document.querySelectorAll('.collapse-all-defs-button');
-        const currentState = parseInt(buttons[0].dataset.state || 0);
+        const currentState = Number.parseInt(buttons[0].dataset.state || 0);
         // Cycle through 3 states: 0 (all hidden), 1 (only regular visible), 2 (all visible)
         const newState = (currentState + 1) % 3;
 
@@ -105,7 +105,7 @@ function collapseDefinitions() {
                     button.title = 'Show basic definitions';
                     // Update which state indicator is active
                     button.querySelectorAll('.state-indicator').forEach(indicator => {
-                        if (parseInt(indicator.dataset.state) === 0) {
+                        if (Number.parseInt(indicator.dataset.state) === 0) {
                             indicator.classList.add('active');
                         } else {
                             indicator.classList.remove('active');
@@ -129,7 +129,7 @@ function collapseDefinitions() {
                     button.title = 'Show all definitions';
                     // Update which state indicator is active
                     button.querySelectorAll('.state-indicator').forEach(indicator => {
-                        if (parseInt(indicator.dataset.state) === 1) {
+                        if (Number.parseInt(indicator.dataset.state) === 1) {
                             indicator.classList.add('active');
                         } else {
                             indicator.classList.remove('active');
@@ -152,7 +152,7 @@ function collapseDefinitions() {
                     button.title = 'Hide all definitions';
                     // Update which state indicator is active
                     button.querySelectorAll('.state-indicator').forEach(indicator => {
-                        if (parseInt(indicator.dataset.state) === 2) {
+                        if (Number.parseInt(indicator.dataset.state) === 2) {
                             indicator.classList.add('active');
                         } else {
                             indicator.classList.remove('active');
@@ -182,9 +182,9 @@ function collapseDefinitions() {
             button.classList.add('collapse-all-defs-button', 'btn-outline-secondary', 'd-print-none', 'btn', 'p-0', 'fs-5', 'd-flex', 'align-items-center', 'justify-content-center');
             // Create a container for all three state indicators
             button.innerHTML = `<span class="state-indicator" data-state="0">①</span><span class="state-indicator" data-state="1">②</span><span class="state-indicator" data-state="2">③</span>`;
-            button.setAttribute('id', 'toggleButton');
-            button.setAttribute('title', buttonTitleText);
-            button.setAttribute('data-state', '2'); // Start with all definitions visible
+            button.id = 'toggleButton';
+            button.title = buttonTitleText;
+            button.dataset.state = '2'; // Start with all definitions visible
 
             // Set initial active state
             button.querySelector('.state-indicator[data-state="2"]').classList.add('active');
@@ -234,7 +234,7 @@ function collapseDefinitions() {
              */
             button.style.position = 'fixed';
             button.style.top = `${buttonRect.top}px`;
-            button.style.right = `${window.innerWidth - buttonRect.right}px`;
+            button.style.right = `${globalThis.innerWidth - buttonRect.right}px`;
             button.style.zIndex = '1000';
 
             // Toggle visibility which might change layout
@@ -260,8 +260,8 @@ function collapseDefinitions() {
                 const newButtonRect = button.getBoundingClientRect();
 
                 // Calculate and apply precise scroll adjustment to maintain visual position
-                window.scrollTo({
-                    top: window.scrollY + (newButtonRect.top - buttonRect.top),
+                globalThis.scrollTo({
+                    top: globalThis.scrollY + (newButtonRect.top - buttonRect.top),
                     behavior: 'instant'
                 });
             });

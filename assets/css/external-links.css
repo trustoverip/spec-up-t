@@ -14,3 +14,9 @@ article a[href^="https://"]:not(.btn)::after {
     background-size: contain;
     display: inline-block;
 }
+
+/* Dark mode: invert the external link icon */
+[data-bs-theme="dark"] article a[href^="http"]:not(.btn)::after,
+[data-bs-theme="dark"] article a[href^="https://"]:not(.btn)::after {
+    filter: invert(1);
+}

@@ -19,7 +19,7 @@ function validateReferences(references, definitions, render) {
   if (unresolvedRefs.length > 0) {
     Logger.warn(`Unresolved References: ${unresolvedRefs.join(',')}`, {
       context: 'These terms are referenced in your spec but not defined',
-      hint: 'Add [[def: term]] definitions or [[tref: repo, term]] transclusion for these terms in your terminology files, or check for typos in [[ref: term]] references',
+      hint: 'Add [[def: term]] definitions or [[tref: repo, term]] transclusion for these terms or alter existing definitions, optionally by adding aliases, in your terminology files, or check for typos in [[ref: term]] references',
       details: `Count: ${unresolvedRefs.length} unresolved term(s)`
     });
   }

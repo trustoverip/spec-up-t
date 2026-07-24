@@ -6,8 +6,8 @@
  * programmatically or executed directly from the command line.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const readline = require('readline');
 
 const Logger = require('../../utils/logger');
@@ -19,6 +19,9 @@ const defaultQuestions = [
     { field: 'title', prompt: 'Enter title', defaultValue: 'Spec-Up-T Starterpack' },
     { field: 'description', prompt: 'Enter description', defaultValue: 'Create technical specifications in markdown. Based on the original Spec-Up, extended with Terminology tooling' },
     { field: 'author', prompt: 'Enter author', defaultValue: 'Trust over IP Foundation' },
+    { field: 'logo', prompt: 'Enter logo URL', defaultValue: 'https://raw.githubusercontent.com/trustoverip/spec-up-t/refs/heads/master/src/install-from-boilerplate/boilerplate/static/logo.svg' },
+    { field: 'logo_link', prompt: 'Enter logo link URL', defaultValue: 'https://github.com/trustoverip/spec-up-t' },
+    { field: 'favicon', prompt: 'Enter favicon URL', defaultValue: 'https://raw.githubusercontent.com/trustoverip/spec-up-t/refs/heads/master/src/install-from-boilerplate/boilerplate/static/favicon.ico' },
     { field: 'account', prompt: 'Enter account', defaultValue: 'trustoverip' },
     { field: 'repo', prompt: 'Enter repo', defaultValue: 'spec-up-t-starter-pack' }
 ];
@@ -154,6 +157,22 @@ function persistUpdatedConfig(config) {
 }
 
 /**
+ * Generates the initial documentation output by running the render command.
+ */
+function generateInitialDocs() {
+    const { execSync } = require('child_process');
+    
+    try {
+        Logger.info('\n🔨 Generating initial documentation...\n');
+        execSync('npm run render 4', { cwd: process.cwd(), stdio: 'inherit' });
+        Logger.success('Documentation generated in docs/ directory');
+    } catch (error) {
+        Logger.error('Error: Could not generate documentation.', error.message);
+        process.exit(1);
+    }
+}
+
+/**
  * Runs the interactive configuration workflow.
  *
  * @param {object} [options]
@@ -185,6 +204,7 @@ async function runStarterpackConfigurator({
         const { config, primarySpec } = resolvePrimarySpec(loadSpecsConfig());
         applyAnswersToSpec(primarySpec, answers);
         persistUpdatedConfig(config);
+        generateInitialDocs();
     } catch (error) {
         Logger.error('Configuration aborted due to an unexpected error.', error.message);
         process.exit(1);

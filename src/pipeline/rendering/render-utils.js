@@ -5,7 +5,7 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 const { templateTags, paths, whitespace } = require('../../utils/regex-patterns.js');
 
 // Constants used in rendering and processing

@@ -137,15 +137,6 @@
         <!-- Right-aligned elements -->
         <div class="d-flex align-items-center service-menu d-print-none">
 
-            <!-- Settings side menu -->
-            <button id="repo_settings" class="btn btn-sm btn-outline-secondary ms-2" type="button"
-                data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings" aria-controls="offcanvasSettings">
-                <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                    <use href="#gear-wide-connected"></use>
-                </svg>
-                <span class="visually-hidden">Settings</span>
-            </button>
-
             <!-- Dark / Light theme selector -->
             <div class="dropdown bd-mode-toggle">
                 <button
@@ -209,9 +200,9 @@
         <div class="row">
             <div class="sidebar d-print-none border border-right col-md-4 col-lg-3 bg-body-tertiary">
                 <div class="offcanvas-md offcanvas-start bg-body-tertiary p-2 pt-5" tabindex="-1" id="sidebarMenu"
-                    aria-labelledby="sidebarMenuLabel">
+                    role="navigation" aria-labelledby="sidebarMenuLabel">
                     <div class="offcanvas-header">
-                        <h5 id="sidebarMenuLabel">Table of Contents</h5>
+                        <p class="offcanvas-title" id="sidebarMenuLabel">Table of Contents</p>
                         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
                             data-bs-target="#sidebarMenu" aria-label="Close"></button>
                     </div>
@@ -235,9 +226,9 @@
         </div>
     </div>
 
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasIssues" aria-labelledby="offcanvasIssuesLabel">
+    <div class="offcanvas offcanvas-end" role="dialog" tabindex="-1" id="offcanvasIssues" aria-labelledby="offcanvasIssuesLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title mt-0" id="offcanvasIssuesLabel">Issues</h5>
+            <p class="offcanvas-title mt-0" id="offcanvasIssuesLabel">Issues</p>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -247,9 +238,19 @@
         </div>
     </div>
 
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettingsLabel">
+    <!-- Menu toggle button - hamburger icon fixed at right edge for slide-in panel -->
+    <button id="repo_settings" class="btn btn-sm btn-outline-secondary menu-toggle-btn d-print-none" type="button"
+        data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings" aria-controls="offcanvasSettings"
+        title="Open menu">
+        <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+            <use href="#list"></use>
+        </svg>
+        <span class="visually-hidden">Open menu</span>
+    </button>
+
+    <div class="offcanvas offcanvas-end" role="dialog" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettingsLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title mt-0" id="offcanvasSettingsLabel">Settings</h5>
+            <p class="offcanvas-title mt-0" id="offcanvasSettingsLabel">Settings</p>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body p-0">
@@ -289,11 +290,63 @@
             </div>
             <hr>
             <div class="ps-3 pe-3">
-                <p class="mb-2 fw-bold">External Specifications:</p>
+                <p class="mb-2 fw-bold">External Glossaries:</p>
                 ${externalSpecsList}
             </div>
             <hr>
-            <p class="ps-3 pe-3" id="w3c-state">W3C Recommendation, ${currentDate}</p>
+            <!-- External Reference Changes Report Section -->
+            <div class="ps-3 pe-3" id="external-ref-changes-section" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <p class="mb-0 fw-bold">External Reference Changes:</p>
+                    <span id="external-ref-changes-badge" class="badge bg-warning text-dark">0</span>
+                </div>
+                <p class="small text-muted mb-2">Terms whose definitions have changed since the last build:</p>
+                <div id="external-ref-changes-container" class="external-ref-changes-report">
+                    <!-- Report table will be populated by JavaScript -->
+                </div>
+                <div id="external-ref-validation-status" class="small text-muted mt-2">
+                    <i class="bi bi-hourglass-split me-1"></i>
+                    Validating external references...
+                </div>
+            </div>
+            <hr id="external-ref-changes-divider" style="display: none;">
+            <p class="d-none ps-3 pe-3" id="w3c-state">W3C Recommendation, ${currentDate}</p>
+            <!-- Build Information Section -->
+            <div class="ps-3 pe-3">
+                <p class="mb-2 fw-bold">Build Information:</p>
+                <div id="build-info" class="small text-muted">
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="bi bi-calendar-event me-2"></i>
+                        <time class="timestamp" datetime="${universalTimestamp}">
+                            Generated: ${universalTimestamp}
+                        </time>
+                    </div>
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="bi bi-signpost-split me-2"></i>
+                        <span>Source branch: <strong>${buildBranch}</strong></span>
+                    </div>
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="bi bi-box me-2"></i>
+                        <span>spec-up-t: <strong>v${specUpTVersion}</strong></span>
+                    </div>
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="bi bi-cpu me-2"></i>
+                        <span>Node.js: <strong>${nodeVersion}</strong></span>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <!-- Experimental Features Section -->
+            <div class="ps-3 pe-3" id="experimental-section">
+                <p class="mb-2 fw-bold">Experimental:</p>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="toggle-valextref">
+                    <label class="form-check-label small" for="toggle-valextref">
+                        Validate external references
+                    </label>
+                </div>
+                <p class="small text-muted mt-1 mb-0">Checks if referenced terms still match their source definitions. May slow down page load.</p>
+            </div>
         </div>
     </div>
 
