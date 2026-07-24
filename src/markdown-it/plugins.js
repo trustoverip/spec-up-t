@@ -112,15 +112,30 @@ function configurePlugins(md, config, containers, noticeTypes, noticeTitles, set
   // Enhances code blocks with colorized syntax.
   md.use(require('markdown-it-prism'));
 
-  // Generate table of contents with anchors
-  // Automatically creates TOC from headings, with customizable symbols.
-  md.use(require('markdown-it-toc-and-anchor').default, {
-    tocClassName: 'toc',
-    tocFirstLevel: 2,
-    tocLastLevel: 4,
-    tocCallback: (_md, _tokens, html) => setToc(html),
-    anchorLinkSymbol: config.specs[0].anchor_symbol || '§',
-    anchorClassName: 'toc-anchor d-print-none'
+  // Heading permalinks + TOC (via callback for template injection).
+  // Replaces markdown-it-toc-and-anchor, which is incompatible with markdown-it 14.
+  const markdownItAnchor = require('markdown-it-anchor');
+  md.use(markdownItAnchor, {
+    permalink: markdownItAnchor.permalink.linkInsideHeader({
+      symbol: config.specs[0].anchor_symbol || '§',
+      class: 'toc-anchor d-print-none',
+      placement: 'before',
+      space: true
+    })
+  });
+  md.use(require('markdown-it-toc-done-right'), {
+    listClass: 'toc',
+    listType: 'ul',
+    level: [2, 3, 4],
+    // Permalink spacing can leak into heading text; keep TOC labels clean.
+    format: (heading, htmlencode) => htmlencode(heading.trim()),
+    callback: (html) => {
+      // Keep the legacy shape expected by #toc CSS/JS: bare <ul class="toc">…</ul>
+      const match = html && html.match(/<ul class="toc">[\s\S]*<\/ul>/);
+      let tocHtml = match ? match[0] : (html || '');
+      tocHtml = tocHtml.replace(/<ul class="toc">/g, '<ul>').replace('<ul>', '<ul class="toc">');
+      setToc(tocHtml);
+    }
   });
 
   // Enable KaTeX for math rendering (e.g., $$...$$)

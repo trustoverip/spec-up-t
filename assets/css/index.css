@@ -1,8 +1,15 @@
+:root {
+  /* Fallback; JS updates this to match the sticky utility container height */
+  --anchor-scroll-offset: 96px;
+}
+
 html {
   scroll-behavior: smooth;
-  /* This creates a padding zone at the top for anchor scroll calculations *
-   * Elements will be scrolled so they appear 50vh from the top of viewport */
-  scroll-padding-top: 50vh;
+  scroll-padding-top: var(--anchor-scroll-offset);
+}
+
+*:target {
+  scroll-margin-top: var(--anchor-scroll-offset);
 }
 
 /*

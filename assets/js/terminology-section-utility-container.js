@@ -91,7 +91,6 @@ function initializeTerminologyUtilityContainer() {
     const snapshotLink = document.createElement('a');
     snapshotLink.id = 'snapshot-link-in-content';
     snapshotLink.className = 'btn btn-outline-primary btn-sm';
-    // snapshotLink.href = './versions/';
     snapshotLink.href = '#';
     snapshotLink.textContent = 'Versions';
     centerCol.appendChild(snapshotLink);
@@ -162,6 +161,27 @@ function initializeTerminologyUtilityContainer() {
     // ALPHABET INDEX TEMPORARILY DISABLED
     // terminologySectionUtilityContainer.appendChild(alphabetRow);
     terminologySectionUtilityContainer.appendChild(utilityRow);
+
+    // Keep hash navigation offset in sync with sticky utility UI height.
+    const updateAnchorScrollOffset = () => {
+        const stickyBottom = terminologySectionUtilityContainer.getBoundingClientRect().bottom;
+        const offset = Math.max(72, Math.ceil(stickyBottom + 12));
+        document.documentElement.style.setProperty('--anchor-scroll-offset', `${offset}px`);
+    };
+
+    let resizeRafId = null;
+    const scheduleOffsetUpdate = () => {
+        if (resizeRafId !== null) {
+            return;
+        }
+        resizeRafId = requestAnimationFrame(() => {
+            resizeRafId = null;
+            updateAnchorScrollOffset();
+        });
+    };
+
+    updateAnchorScrollOffset();
+    globalThis.addEventListener('resize', scheduleOffsetUpdate, { passive: true });
 
     /*****************************************/
     /* INITIALIZE FUNCTIONALITY COMPONENTS  */
