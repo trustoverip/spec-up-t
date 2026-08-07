@@ -1,7 +1,7 @@
 const systemFiles = [
     'README.md',
     '.env.example',
-    'menu-wrapper.sh',
+    'menu-wrapper.js',
     '.github/workflows/menu.yml',
     '.github/workflows/render-and-deploy.yml',
     '.github/workflows/set-gh-pages.yml',
