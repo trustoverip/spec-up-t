@@ -156,9 +156,6 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     // Warn about heading hierarchy violations (W3C accessibility)
     warnOnHeadingHierarchyViolations(renderedHtml, Logger);
 
-    // External references are now stored in allXTrefs instead of DOM HTML
-    // No longer need to inject external references HTML into the template
-
     const templateInterpolated = interpolate(template, {
       title: spec.title,
       description: spec.description,
@@ -168,7 +165,6 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
       assetsHead: assets.head,
       assetsBody: assets.body,
       assetsSvg: assets.svg,
-      externalReferences: '', // No longer inject DOM HTML - xrefs are in allXTrefs
       xtrefsData: createScriptElementWithXTrefDataForEmbeddingInHtml(),
       specLogo: spec.logo,
       specFavicon: spec.favicon,
