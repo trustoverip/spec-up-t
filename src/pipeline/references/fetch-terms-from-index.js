@@ -76,13 +76,25 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
 
             try {
                 const mainBranchUrl = `https://api.github.com/repos/${owner}/${repo}/branches/main`;
-                const branchResponse = await axios.get(mainBranchUrl, { headers });
-                if (branchResponse.status === 200) {
+                let branchResponse;
+                try {
+                    branchResponse = await axios.get(mainBranchUrl, { headers });
+                } catch (authError) {
+                    if (authError.response && authError.response.status === 401) {
+                        // Token is present but invalid; retry without auth since the repo is public.
+                        Logger.warn(`GITHUB_API_TOKEN is invalid or expired — retrying branch lookup without authentication`);
+                        branchResponse = await axios.get(mainBranchUrl);
+                    } else {
+                        throw authError;
+                    }
+                }
+                if (branchResponse && branchResponse.status === 200) {
                     commitHash = branchResponse.data.commit.sha;
                     Logger.success(`Got commit hash from main branch: ${commitHash}`);
                 }
             } catch (error) {
-                Logger.error(`Could not get commit hash from main branch: ${error.message}`);
+                // Commit hash is optional — warn and continue rather than blocking the build.
+                Logger.warn(`Could not get commit hash from main branch: ${error.message}`);
             }
         } else {
             Logger.warn('No GitHub Pages URL provided, falling back to repository method');
@@ -194,6 +206,8 @@ async function fetchAllTermsFromIndex(token, owner, repo, options = {}) {
             } else if (error.response.status === 403 && error.response.headers['x-ratelimit-remaining'] === '0') {
                 const resetTime = new Date(Number(error.response.headers['x-ratelimit-reset']) * 1000);
                 Logger.error(`GitHub API rate limit exceeded. Try again after ${resetTime.toLocaleString()}`);
+            } else if (error.response.status === 401) {
+                Logger.error(`GitHub API authentication failed. Verify that GITHUB_API_TOKEN is valid and has read access to the repository.`);
             } else {
                 Logger.error(`Error fetching data: ${error.response.status} ${error.response.statusText}`);
             }
