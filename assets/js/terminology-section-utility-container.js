@@ -55,7 +55,7 @@ function initializeTerminologyUtilityContainer() {
     numberOfTerms.textContent = `${dtElements.length} terms`;
     leftCol.appendChild(numberOfTerms);
 
-    // Center column: Filters and Versions button
+    // Center column: Filters
     const centerCol = document.createElement("div");
     centerCol.className = "col d-flex flex-wrap align-items-center gap-3";
 
@@ -86,14 +86,6 @@ function initializeTerminologyUtilityContainer() {
     checkboxesContainer.appendChild(localTermsCheckboxDiv);
     checkboxesContainer.appendChild(externalTermsCheckboxDiv);
     centerCol.appendChild(checkboxesContainer);
-
-    // Snapshot link
-    const snapshotLink = document.createElement('a');
-    snapshotLink.id = 'snapshot-link-in-content';
-    snapshotLink.className = 'btn btn-outline-primary btn-sm';
-    snapshotLink.href = '#';
-    snapshotLink.textContent = 'Versions';
-    centerCol.appendChild(snapshotLink);
 
     // Right column: Search
     const rightCol = document.createElement("div");
