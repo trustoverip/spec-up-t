@@ -167,15 +167,17 @@ function attachSearchFunctionality(searchInput, goToPreviousMatchButton, goToNex
     goToNextMatchButton.addEventListener('click', () => navigateMatches('next'));
     goToPreviousMatchButton.addEventListener('click', () => navigateMatches('prev'));
 
-    // Global keyboard navigation (Arrow keys work anywhere on the page)
+    const searchUi = searchInput.closest('#container-search') || searchInput;
+
+    // Keyboard navigation when search UI is focused (do not steal arrow keys globally)
     document.addEventListener('keyup', (event) => {
-        if (totalMatches > 0) {
+        if (totalMatches > 0 && searchUi.contains(document.activeElement) && document.activeElement !== searchInput) {
             switch (event.key) {
                 case "ArrowRight":
-                    goToNextMatchButton.click(); // Simulate a click on button
+                    goToNextMatchButton.click();
                     break;
                 case "ArrowLeft":
-                    goToPreviousMatchButton.click(); // Simulate a click on button
+                    goToPreviousMatchButton.click();
                     break;
             }
         }

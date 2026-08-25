@@ -60,8 +60,12 @@ function initializeTerminologyUtilityContainer() {
     centerCol.className = "col d-flex flex-wrap align-items-center gap-3";
 
     // Filter checkboxes container
-    const checkboxesContainer = document.createElement('div');
-    checkboxesContainer.className = 'd-flex gap-3';
+    const checkboxesContainer = document.createElement('fieldset');
+    checkboxesContainer.className = 'd-flex gap-3 border-0 p-0 m-0';
+    const filtersLegend = document.createElement('legend');
+    filtersLegend.className = 'visually-hidden';
+    filtersLegend.textContent = 'Show terms';
+    checkboxesContainer.appendChild(filtersLegend);
     
     // Local terms checkbox
     const localTermsCheckboxDiv = document.createElement('div');
@@ -99,11 +103,12 @@ function initializeTerminologyUtilityContainer() {
 
     // Search input
     const searchInput = document.createElement("input");
-    searchInput.setAttribute("type", "text");
+    searchInput.setAttribute("type", "search");
     searchInput.setAttribute("id", "search");
     searchInput.classList.add("form-control");
-    searchInput.setAttribute("placeholder", "🔍 (terms only)");
+    searchInput.setAttribute("placeholder", "Filter terms");
     searchInput.setAttribute("aria-label", "Search terms");
+    searchInput.setAttribute("aria-describedby", "total-matches-search");
     searchInput.setAttribute("autocomplete", "off");
     searchContainer.appendChild(searchInput);
 
