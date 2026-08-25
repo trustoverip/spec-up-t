@@ -75,7 +75,7 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     // Find the index of the terms-and-definitions-intro.md file
     const termsIndex = (spec.markdown_paths || ['spec.md']).indexOf('terms-and-definitions-intro.md');
     if (termsIndex !== -1) {
-      // Append the HTML string to the content of terms-and-definitions-intro.md. This string is used to create a div that is used to insert an alphabet index, and a div that is used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
+      // Marker used as the starting point of the terminology index. The newlines are essential for the correct rendering of the markdown.
       docs[termsIndex] += '\n\n<div id="terminology-section-start"></div>\n\n';
     }
 

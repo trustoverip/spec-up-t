@@ -1,5 +1,5 @@
 :root {
-  /* Fallback; JS updates this to match the sticky utility container height */
+  /* Offset for sticky header when scrolling to in-page anchors */
   --anchor-scroll-offset: 96px;
 }
 
