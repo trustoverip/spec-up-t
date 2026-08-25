@@ -218,7 +218,6 @@
 
             <main class="col-md-8 ms-sm-auto col-lg-9 px-md-4 pt-5">
                 <article id="content" class="">
-                    <div id="terminology-section-utility-container" class="d-print-none alert alert-primary p-3"></div>
                     ${render}
                 </article>
 
@@ -290,6 +289,14 @@
             </div>
             <hr>
             <div class="ps-3 pe-3">
+                <p class="mb-2 fw-bold">Versions:</p>
+                <a id="snapshot-link-in-content" href="#"
+                    class="btn btn-sm btn-outline-secondary ms-0">
+                    Versions
+                </a>
+            </div>
+            <hr>
+            <div class="ps-3 pe-3">
                 <p class="mb-2 fw-bold">External Glossaries:</p>
                 ${externalSpecsList}
             </div>
@@ -348,10 +355,6 @@
                 <p class="small text-muted mt-1 mb-0">Checks if referenced terms still match their source definitions. May slow down page load.</p>
             </div>
         </div>
-    </div>
-
-    <div style="display: none;">
-        ${externalReferences}
     </div>
 
     <script>window.specConfig = ${ spec }</script>
