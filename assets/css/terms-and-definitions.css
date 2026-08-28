@@ -12,6 +12,25 @@ h6 {
   margin-top: 1.5em !important;
 }
 
+/* ====== TERMINOLOGY SECTION CONTAINER ====== */
+/* Hidden while empty so the bar does not flash before JS decides to fill or remove it */
+#terminology-section-utility-container:empty {
+  display: none;
+}
+
+#terminology-section-utility-container {
+  margin: 1em auto;
+  width: 100%;
+}
+
+@media (min-width: 576px) {
+  #terminology-section-utility-container {
+    position: sticky;
+    top: 3.5em;
+    z-index: 10;
+  }
+}
+
 /* ====== ANCHOR LINKS ====== */
 .toc-anchor {
   font-size: 0.875em;
