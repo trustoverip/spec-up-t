@@ -8,7 +8,7 @@
 
 function scrollToElementCenter(element) {
     if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.scrollIntoView({ behavior: 'auto', block: 'center' });
     }
 }
 

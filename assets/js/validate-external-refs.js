@@ -1074,7 +1074,7 @@ function scrollToElement(element) {
     // Small delay to let the offcanvas close
     setTimeout(() => {
         // Scroll to the element
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.scrollIntoView({ behavior: 'auto', block: 'center' });
         
         // Add a temporary highlight effect
         element.classList.add('highlight-ref');
