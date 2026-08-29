@@ -218,6 +218,7 @@
 
             <main class="col-md-8 ms-sm-auto col-lg-9 px-md-4 pt-5">
                 <article id="content" class="">
+                    <div id="terminology-section-utility-container" class="d-print-none alert alert-primary p-3"></div>
                     ${render}
                 </article>
 
@@ -353,6 +354,13 @@
                     </label>
                 </div>
                 <p class="small text-muted mt-1 mb-0">Checks if referenced terms still match their source definitions. May slow down page load.</p>
+                <div class="form-check form-switch mt-3">
+                    <input class="form-check-input" type="checkbox" role="switch" id="toggle-terms-utility-bar">
+                    <label class="form-check-label small" for="toggle-terms-utility-bar">
+                        Terms search and filters
+                    </label>
+                </div>
+                <p class="small text-muted mt-1 mb-0">Shows a search bar and local/remote term filters above the terminology section.</p>
             </div>
         </div>
     </div>

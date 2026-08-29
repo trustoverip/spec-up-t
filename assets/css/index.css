@@ -1,10 +1,11 @@
 :root {
-  /* Offset for sticky header when scrolling to in-page anchors */
+  /* Fallback; JS updates this to match the sticky utility bar height when that bar is enabled */
   --anchor-scroll-offset: 96px;
+  /* Override Bootstrap's :root { scroll-behavior: smooth } */
+  scroll-behavior: auto;
 }
 
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: var(--anchor-scroll-offset);
 }
 

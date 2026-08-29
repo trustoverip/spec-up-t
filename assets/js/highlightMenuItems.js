@@ -69,7 +69,7 @@ function highlightMenuItems() {
             if (itemRect.top < tocRect.top || itemRect.bottom > tocRect.bottom) {
                // Scroll the TOC container, not the whole page
                const scrollOffset = itemRect.top - tocRect.top - (tocRect.height / 2) + (itemRect.height / 2);
-               tocContainer.scrollBy({ top: scrollOffset, behavior: 'smooth' });
+               tocContainer.scrollBy({ top: scrollOffset, behavior: 'auto' });
             }
          }
 

@@ -1,0 +1,49 @@
+/*
+ * Search bar, input, nav, nr of results
+ */
+
+
+/*
+ * Search results, matches, and highlighting
+ */
+
+/* Basic styles */
+.highlight-matches-search {
+  font-size: 1em;
+  outline: 3px solid #1d6dae39;
+  outline-offset: 5px;
+
+  /* Works in tandem with the setTimeout in JS: */
+  transition: outline 0.3s ease-in-out;
+}
+
+.highlight-matches-search.active {
+  outline: 3px solid #1d6dae;
+  /* Works in tandem with the setTimeout in JS: */
+  transition: outline 0.3s ease-in-out;
+}
+
+/* Specific styles */
+.highlight-matches-DIF-search {
+  background-color: #1d6dae11;
+}
+
+.highlight-matches-ToIP-search {
+  background-color: #a9dde0b0;
+}
+
+.highlight-matches-BTC-search {
+  background-color: #f19019a1;
+}
+
+.highlight-matches-KERI-search {
+  background-color: #b5d070d5;
+}
+
+.highlight-matches-SSI-search {
+  background-color: yellow;
+}
+
+.highlight-matches-GLEIF-search {
+  background-color: #52dac6a6;
+}
