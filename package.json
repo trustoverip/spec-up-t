@@ -2,7 +2,7 @@
   "name": "spec-up-t",
   "version": "1.9.0",
   "description": "Technical specification drafting tool that generates rich specification documents from markdown. Forked from https://github.com/decentralized-identity/spec-up by Daniel Buchner (https://github.com/csuwildcat)",
-  "main": "./index",
+  "main": "./index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/trustoverip/spec-up-t.git"
@@ -26,13 +26,10 @@
     "node": ">=22.12.0"
   },
   "dependencies": {
-    "@octokit/plugin-throttling": "11.0.5",
     "@traptitech/markdown-it-katex": "3.6.0",
     "axios": "1.20.0",
     "chalk": "4.1.2",
     "cheerio": "1.2.0",
-    "dedent": "1.7.2",
-    "diff": "9.0.0",
     "docx": "9.7.1",
     "dotenv": "17.4.2",
     "find-pkg-dir": "2.0.0",
@@ -42,6 +39,7 @@
     "gulp-concat": "2.6.1",
     "gulp-terser": "2.1.0",
     "jsdom": "26.1.0",
+    "katex": "0.16.47",
     "markdown-it": "14.3.0",
     "markdown-it-anchor": "9.2.1",
     "markdown-it-attrs": "5.0.1",
@@ -51,7 +49,6 @@
     "markdown-it-icons": "0.4.1",
     "markdown-it-ins": "4.0.0",
     "markdown-it-mark": "4.0.0",
-    "markdown-it-modify-token": "1.0.2",
     "markdown-it-multimd-table": "4.2.3",
     "markdown-it-prism": "4.0.0",
     "markdown-it-references": "1.0.0-alpha.10",
@@ -60,9 +57,7 @@
     "markdown-it-task-lists": "2.1.1",
     "markdown-it-textual-uml": "0.1.9",
     "markdown-it-toc-done-right": "4.2.0",
-    "octokit": "5.0.5",
     "pdf-lib": "1.17.1",
-    "pkg-dir": "8.0.0",
     "prismjs": "1.30.0",
     "puppeteer": "25.9.0",
     "readline-sync": "1.4.10",
@@ -86,6 +81,7 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "compile": "gulp compile",
-    "knip": "knip"
+    "knip": "knip",
+    "knip:deps": "knip --dependencies"
   }
 }
