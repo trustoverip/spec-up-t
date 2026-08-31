@@ -69,48 +69,55 @@
      * @returns {{ overlay: HTMLElement, noticeEl: HTMLElement }} overlay and the live notice element
      */
     function buildModalOverlay(href, specName, onClose) {
-        /* Overlay */
         const overlay = document.createElement('div');
         overlay.className = 'spec-up-t-modal-overlay';
 
-        /* Modal box — reuses existing .spec-up-t-modal styles */
         const modal = document.createElement('div');
         modal.className = 'spec-up-t-modal tref-nav-modal';
+        modal.id = 'tref-nav-dialog';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', 'tref-nav-heading');
+        modal.setAttribute('aria-describedby', 'tref-nav-description tref-nav-sr-notice');
+        modal.tabIndex = -1;
 
-        /* Heading */
         const heading = document.createElement('h2');
+        heading.id = 'tref-nav-heading';
         heading.textContent = 'Navigating to external specification';
 
-        /* Description */
         const description = document.createElement('p');
+        description.id = 'tref-nav-description';
         const specStrong = document.createElement('strong');
         specStrong.textContent = specName;
-        description.append('', specStrong);
+        description.append('You are leaving this specification to open ', specStrong, '.');
 
-        /* URL display */
         const urlEl = document.createElement('p');
         urlEl.className = 'tref-nav-url';
         urlEl.textContent = href;
 
-        /* Notice with live countdown */
         const notice = document.createElement('p');
         notice.className = 'tref-nav-notice';
+        notice.setAttribute('aria-hidden', 'true');
         const countdownSpan = document.createElement('span');
         countdownSpan.className = 'tref-nav-countdown';
         countdownSpan.textContent = String(AUTO_NAVIGATE_DELAY_S);
         notice.append('Navigating in ', countdownSpan, '\u2009s\u2026');
 
-        /* Actions row */
+        const srNotice = document.createElement('p');
+        srNotice.id = 'tref-nav-sr-notice';
+        srNotice.className = 'visually-hidden';
+        srNotice.setAttribute('aria-live', 'polite');
+        srNotice.textContent = `This page will navigate automatically in ${AUTO_NAVIGATE_DELAY_S} seconds unless you cancel.`;
+
         const actions = document.createElement('div');
         actions.className = 'tref-nav-actions';
 
-        /* "Go now" button — plain anchor so the browser handles navigation */
         const goBtn = document.createElement('a');
         goBtn.className = 'btn btn-primary tref-nav-go-btn';
         goBtn.href = href;
+        goBtn.rel = 'noopener noreferrer';
         goBtn.textContent = 'Go now';
 
-        /* "Cancel" button */
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'btn btn-secondary tref-nav-cancel-btn';
         cancelBtn.type = 'button';
@@ -118,24 +125,28 @@
         cancelBtn.addEventListener('click', onClose);
 
         actions.append(goBtn, cancelBtn);
-        modal.append(heading, description, urlEl, notice, actions);
+        modal.append(heading, description, urlEl, notice, srNotice, actions);
         overlay.appendChild(modal);
 
-        /* Close on backdrop click */
         overlay.addEventListener('click', function (event) {
             if (event.target === overlay) {
                 onClose();
             }
         });
 
-        /* Close on Escape key */
-        document.addEventListener('keydown', function (event) {
+        function onKeydown(event) {
             if (event.key === 'Escape') {
+                event.preventDefault();
                 onClose();
+                return;
             }
-        }, { once: true });
+            handleFocusTrap(event, modal);
+        }
 
-        return { overlay, countdownSpan };
+        document.addEventListener('keydown', onKeydown);
+        overlay._removeKeydown = () => document.removeEventListener('keydown', onKeydown);
+
+        return { overlay, countdownSpan, modal };
     }
 
     /**
@@ -147,14 +158,26 @@
      * @param {string} specName - Human-readable name of the destination spec
      */
     function showTrefNavModal(href, specName) {
+        const previouslyFocused = document.activeElement;
+        const previousOverflow = document.body.style.overflow;
+
         function doClose() {
             clearTimeout(navTimer);
             clearInterval(tickInterval);
+            if (overlay._removeKeydown) {
+                overlay._removeKeydown();
+            }
+            document.body.style.overflow = previousOverflow;
             overlay.remove();
+            if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+                previouslyFocused.focus();
+            }
         }
 
-        const { overlay, countdownSpan } = buildModalOverlay(href, specName, doClose);
+        const { overlay, countdownSpan, modal } = buildModalOverlay(href, specName, doClose);
+        document.body.style.overflow = 'hidden';
         document.body.appendChild(overlay);
+        modal.focus();
 
         let remaining = AUTO_NAVIGATE_DELAY_S;
 

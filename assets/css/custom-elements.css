@@ -65,6 +65,10 @@ detail-box > header [detail-box-toggle] {
   height: 2em;
   text-align: center;
   cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
 }
 
 detail-box > header [detail-box-toggle]:before {
@@ -113,8 +117,13 @@ tab-panels > nav > * {
 }
 
 tab-panels > nav > *:focus {
-  outline: none;
+  outline: 2px solid #0071eb;
+  outline-offset: 2px;
   background: #ccc;
+}
+
+tab-panels > nav > *:focus:not(:focus-visible) {
+  outline: none;
 }
 
 tab-panels > nav > *:first-child {

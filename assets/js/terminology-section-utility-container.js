@@ -114,11 +114,12 @@ function initializeTerminologyUtilityContainer() {
     searchContainer.setAttribute("role", "search");
 
     const searchInput = document.createElement("input");
-    searchInput.setAttribute("type", "text");
+    searchInput.setAttribute("type", "search");
     searchInput.setAttribute("id", "search");
     searchInput.classList.add("form-control");
-    searchInput.setAttribute("placeholder", "🔍 (terms only)");
+    searchInput.setAttribute("placeholder", "Filter terms");
     searchInput.setAttribute("aria-label", "Search terms");
+    searchInput.setAttribute("aria-describedby", "total-matches-search");
     searchInput.setAttribute("autocomplete", "off");
     searchContainer.appendChild(searchInput);
 

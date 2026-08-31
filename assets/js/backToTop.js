@@ -25,7 +25,9 @@ function backToTop() {
    const backToTopBtn = document.createElement("a");
    backToTopBtn.id = "back-to-top-a1zncgtqfpzsig8";
    backToTopBtn.href = "#content";
-   backToTopBtn.innerHTML = `↑`;
+   backToTopBtn.setAttribute("aria-label", "Back to top");
+   backToTopBtn.title = "Back to top";
+   backToTopBtn.innerHTML = `<span aria-hidden="true">↑</span>`;
    document.body.appendChild(backToTopBtn);
 
    function handleScroll() {

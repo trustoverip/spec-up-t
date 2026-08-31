@@ -9,6 +9,20 @@ html {
   scroll-padding-top: var(--anchor-scroll-offset);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 *:target {
   scroll-margin-top: var(--anchor-scroll-offset);
 }
@@ -32,6 +46,15 @@ body:not([hashscroll]) dt:has(:target) {
 dl.terms-and-definitions-list>.highlight {
   background-color: yellow !important;
   transition: background-color 0.3s ease-in-out;
+}
+
+#content:focus {
+  outline: none;
+}
+
+#content img[role="button"]:focus-visible {
+  outline: 2px solid #0071eb;
+  outline-offset: 2px;
 }
 
 svg[icon] {
@@ -383,6 +406,7 @@ body:has(.offcanvas.show) .menu-toggle-btn,
 body:has(.offcanvas.showing) .menu-toggle-btn {
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
 }
 
 /* Hide in print mode */
