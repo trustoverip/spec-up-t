@@ -1005,7 +1005,7 @@ function createResultRow(result, index) {
     actionCell.classList.add('col-action');
     const goButton = document.createElement('button');
     goButton.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'go-to-ref-btn');
-    goButton.innerHTML = '<i class="bi bi-arrow-right-circle"></i>';
+    goButton.innerHTML = '<i class="bi bi-arrow-right-circle" aria-hidden="true"></i>';
     goButton.setAttribute('title', 'Go to reference');
     goButton.setAttribute('aria-label', `Go to ${result.term} reference`);
     goButton.addEventListener('click', () => scrollToElement(result.element));
@@ -1024,13 +1024,13 @@ function createResultRow(result, index) {
 function getStatusIcon(type) {
     switch (type) {
         case 'changed':
-            return '<span class="status-icon status-changed" aria-label="Changed">🔄</span>';
+            return '<span class="status-icon status-changed" role="img" aria-label="Changed">🔄</span>';
         case 'missing':
-            return '<span class="status-icon status-missing" aria-label="Missing">⚠️</span>';
+            return '<span class="status-icon status-missing" role="img" aria-label="Missing">⚠️</span>';
         case 'error':
-            return '<span class="status-icon status-error" aria-label="Error">❌</span>';
+            return '<span class="status-icon status-error" role="img" aria-label="Error">❌</span>';
         default:
-            return '<span class="status-icon" aria-label="Unknown">❓</span>';
+            return '<span class="status-icon" role="img" aria-label="Unknown">❓</span>';
     }
 }
 

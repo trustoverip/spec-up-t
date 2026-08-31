@@ -14,11 +14,21 @@
  * @param {HTMLElement} element - The DD element that contains the meta information
  * @returns {void}
  */
+let metaInfoToggleCounter = 0;
+
 function createToggleButton(element) {
     const toggleButton = document.createElement('button');
+    toggleButton.type = 'button';
     toggleButton.classList.add('meta-info-toggle-button', 'btn', 'fs-1', 'd-flex', 'align-items-center','justify-content-center');
-    toggleButton.innerHTML = '<i class="bi bi-info-circle" style="margin-top: -0.5em;"></i>';
-    toggleButton.title = 'Meta info';
+    toggleButton.innerHTML = '<i class="bi bi-info-circle" style="margin-top: -0.5em;" aria-hidden="true"></i>';
+    toggleButton.title = 'Show term metadata';
+    toggleButton.setAttribute('aria-label', 'Show term metadata');
+    toggleButton.setAttribute('aria-expanded', 'false');
+
+    metaInfoToggleCounter += 1;
+    const panelId = element.id || `meta-info-panel-${metaInfoToggleCounter}`;
+    element.id = panelId;
+    toggleButton.setAttribute('aria-controls', panelId);
 
     // Add event listener to the button
     toggleButton.addEventListener('click', function (e) {
@@ -32,11 +42,17 @@ function createToggleButton(element) {
         if (isCollapsed) {
             // If collapsed, expand it
             element.classList.remove('collapsed');
+            toggleButton.setAttribute('aria-expanded', 'true');
+            toggleButton.setAttribute('aria-label', 'Hide term metadata');
+            toggleButton.title = 'Hide term metadata';
             // Force reflow to ensure transition works properly
             element.getBoundingClientRect();
         } else {
             // If expanded, collapse it
             element.classList.add('collapsed');
+            toggleButton.setAttribute('aria-expanded', 'false');
+            toggleButton.setAttribute('aria-label', 'Show term metadata');
+            toggleButton.title = 'Show term metadata';
         }
     });
 

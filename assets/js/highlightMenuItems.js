@@ -11,12 +11,14 @@ function highlightMenuItems() {
       // Remove highlight from all menu items first
       document.querySelectorAll('#toc a').forEach(item => {
          item.classList.remove("menu-item-highlighted");
+         item.removeAttribute('aria-current');
       });
 
       // Highlight the new menu item
       const menuItem = document.querySelector(`#toc a[href="#${heading.id}"]`);
       if (menuItem) {
          menuItem.classList.add("menu-item-highlighted");
+         menuItem.setAttribute('aria-current', 'true');
          
          // Expand all parent items that contain this menu item
          let parentLi = menuItem.closest('li');
