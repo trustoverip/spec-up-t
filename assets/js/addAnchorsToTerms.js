@@ -24,9 +24,11 @@ function addAnchorsToTerms() {
 
         const dt = findMainTermSpan(item);
         const id = dt.getAttribute('id');
+        const termName = (dt.textContent || id || 'term').trim();
         const a = document.createElement('a');
         a.setAttribute('href', `#${id}`);
         a.setAttribute('class', 'toc-anchor d-print-none');
+        a.setAttribute('aria-label', `Permalink to ${termName}`);
         a.innerHTML = (globalThis.specConfig.anchor_symbol || '§') + ' ';
         dt.parentNode.insertBefore(a, dt);
     });

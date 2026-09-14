@@ -39,7 +39,10 @@
    * - Fires when mouse enters the element (more reliable than 'mouseenter')
    * - Works on both mouse and touch devices
    */
-  delegateEvent('pointerover', '.term-reference, .spec-reference', (e, anchor) => {
+  delegateEvent('pointerover', '.term-reference, .spec-reference', setupTermTooltip, { passive: true });
+  delegateEvent('focusin', '.term-reference, .spec-reference', setupTermTooltip);
+
+  function setupTermTooltip(e, anchor) {
     /**
      * EXTRACT TARGET INFORMATION
      * =========================
@@ -254,9 +257,16 @@
      * - Tooltip appears on hover and includes rich formatting
      */
     if (tip.content) {
-      tipMap.set(anchor, tippy(anchor, tip))
-    };
-  }, { passive: true }); // passive: true improves scroll performance
+      const instance = tippy(anchor, {
+        ...tip,
+        trigger: 'mouseenter focus'
+      });
+      tipMap.set(anchor, instance);
+      if (e.type === 'focusin') {
+        instance.show();
+      }
+    }
+  }
 
   /**
    * MODULE SUMMARY

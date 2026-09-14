@@ -99,7 +99,8 @@ ul.toc a:focus {
 
 /* Add a subtle visual cue for active/selected item */
 ul.toc li a.active,
-ul.toc li a[aria-current="page"] {
+ul.toc li a[aria-current="page"],
+ul.toc li a[aria-current="true"] {
     border-left: 3px solid var(--bs-primary, #0071eb);
     /* Highlight active item */
     font-weight: 500;
@@ -203,10 +204,18 @@ ul.toc li:last-child a {
 }
 
 /* But make it visible on focus - for keyboard users */
-.screen-reader-text:focus {
+.screen-reader-text:focus,
+.visually-hidden-focusable.screen-reader-text:focus {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: auto;
     height: auto;
     clip: auto;
+    clip-path: none;
+    margin: 0;
+    overflow: visible;
+    white-space: normal;
     display: block;
     padding: 15px 23px 14px;
     background-color: #fff;

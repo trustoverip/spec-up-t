@@ -34,6 +34,11 @@
     cursor: pointer;
 }
 
+.spec-up-t-modal-close:focus-visible {
+    outline: 2px solid #0071eb;
+    outline-offset: 2px;
+}
+
 /* External-navigation modal (tref / xref links leaving the current spec) */
 .tref-nav-modal .tref-nav-url {
     word-break: break-all;

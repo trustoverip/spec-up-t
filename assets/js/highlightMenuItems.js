@@ -11,12 +11,14 @@ function highlightMenuItems() {
       // Remove highlight from all menu items first
       document.querySelectorAll('#toc a').forEach(item => {
          item.classList.remove("menu-item-highlighted");
+         item.removeAttribute('aria-current');
       });
 
       // Highlight the new menu item
       const menuItem = document.querySelector(`#toc a[href="#${heading.id}"]`);
       if (menuItem) {
          menuItem.classList.add("menu-item-highlighted");
+         menuItem.setAttribute('aria-current', 'true');
          
          // Expand all parent items that contain this menu item
          let parentLi = menuItem.closest('li');
@@ -69,7 +71,7 @@ function highlightMenuItems() {
             if (itemRect.top < tocRect.top || itemRect.bottom > tocRect.bottom) {
                // Scroll the TOC container, not the whole page
                const scrollOffset = itemRect.top - tocRect.top - (tocRect.height / 2) + (itemRect.height / 2);
-               tocContainer.scrollBy({ top: scrollOffset, behavior: 'smooth' });
+               tocContainer.scrollBy({ top: scrollOffset, behavior: 'auto' });
             }
          }
 

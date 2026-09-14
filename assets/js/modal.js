@@ -7,46 +7,69 @@
  * showModal('<h2>This is a Modal</h2><p>You can put any content here.</p>');
  */
 function showModal(content) {
-   // Create the modal overlay
+   const previouslyFocused = document.activeElement;
+   const previousOverflow = document.body.style.overflow;
+
    const overlay = document.createElement('div');
    overlay.className = 'spec-up-t-modal-overlay';
 
-   // Create the modal container
    const modal = document.createElement('div');
    modal.className = 'spec-up-t-modal';
+   modal.setAttribute('role', 'dialog');
+   modal.setAttribute('aria-modal', 'true');
+   modal.setAttribute('aria-label', 'Dialog');
+   modal.tabIndex = -1;
 
-   // Create the close button
    const closeButton = document.createElement('button');
+   closeButton.type = 'button';
    closeButton.className = 'spec-up-t-modal-close';
-   closeButton.innerHTML = '&times;';
-   closeButton.onclick = closeModal;
+   closeButton.setAttribute('aria-label', 'Close dialog');
+   closeButton.innerHTML = '<span aria-hidden="true">&times;</span>';
+   closeButton.addEventListener('click', closeModal);
 
-   // Add the content to the modal
    modal.innerHTML = content;
    modal.appendChild(closeButton);
-
-   // Add the modal to the overlay
    overlay.appendChild(modal);
-
-   // Add the overlay to the document body
    document.body.appendChild(overlay);
+   document.body.style.overflow = 'hidden';
 
-   // Function to close the modal
-   function closeModal() {
-      document.body.removeChild(overlay);
+   function onKeydown(event) {
+      if (event.key === 'Escape') {
+         event.preventDefault();
+         closeModal();
+         return;
+      }
+      handleFocusTrap(event, modal);
    }
 
-   // Close modal when clicked outside the modal
-   overlay.onclick = function (event) {
+   document.addEventListener('keydown', onKeydown);
+
+   overlay.addEventListener('click', function (event) {
       if (event.target === overlay) {
          closeModal();
       }
-   };
+   });
 
-   // Close modal with escape key
-   document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') {
-         closeModal();
+   const heading = modal.querySelector('h1, h2, h3, h4, h5, h6');
+   if (heading) {
+      if (!heading.id) {
+         heading.id = 'spec-up-t-modal-title';
       }
-   }, { once: true });
+      modal.setAttribute('aria-labelledby', heading.id);
+      modal.removeAttribute('aria-label');
+   }
+
+   const focusable = getFocusableElements(modal);
+   (focusable[0] || modal).focus();
+
+   function closeModal() {
+      document.removeEventListener('keydown', onKeydown);
+      document.body.style.overflow = previousOverflow;
+      if (overlay.parentNode) {
+         overlay.parentNode.removeChild(overlay);
+      }
+      if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+         previouslyFocused.focus();
+      }
+   }
 }

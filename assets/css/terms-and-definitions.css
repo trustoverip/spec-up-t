@@ -13,6 +13,11 @@ h6 {
 }
 
 /* ====== TERMINOLOGY SECTION CONTAINER ====== */
+/* Hidden while empty so the bar does not flash before JS decides to fill or remove it */
+#terminology-section-utility-container:empty {
+  display: none;
+}
+
 #terminology-section-utility-container {
   margin: 1em auto;
   width: 100%;
@@ -23,7 +28,6 @@ h6 {
     position: sticky;
     top: 3.5em;
     z-index: 10;
-    /* Higher z-index to ensure it stays on top */
   }
 }
 

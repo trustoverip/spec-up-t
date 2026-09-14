@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         htmlElement.classList.add('dense-info');
         containerToggle.querySelector('i').classList.remove('bi-arrows-angle-expand');
         containerToggle.querySelector('i').classList.add('bi-arrows-angle-contract');
+        containerToggle.setAttribute('aria-pressed', 'true');
     }
     
     // Add click event listener to toggle button
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
             htmlElement.classList.add('dense-info');
             containerToggle.querySelector('i').classList.remove('bi-arrows-angle-expand');
             containerToggle.querySelector('i').classList.add('bi-arrows-angle-contract');
+            containerToggle.setAttribute('aria-pressed', 'true');
             localStorage.setItem('container_width_preference', 'container-fluid');
         } else {
             // Switch to fixed container
@@ -34,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             htmlElement.classList.remove('dense-info');
             containerToggle.querySelector('i').classList.remove('bi-arrows-angle-contract');
             containerToggle.querySelector('i').classList.add('bi-arrows-angle-expand');
+            containerToggle.setAttribute('aria-pressed', 'false');
             localStorage.setItem('container_width_preference', 'container');
         }
     });

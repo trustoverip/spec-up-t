@@ -1,11 +1,26 @@
 :root {
-  /* Fallback; JS updates this to match the sticky utility container height */
+  /* Fallback; JS updates this to match the sticky utility bar height when that bar is enabled */
   --anchor-scroll-offset: 96px;
+  /* Override Bootstrap's :root { scroll-behavior: smooth } */
+  scroll-behavior: auto;
 }
 
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: var(--anchor-scroll-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 *:target {
@@ -31,6 +46,15 @@ body:not([hashscroll]) dt:has(:target) {
 dl.terms-and-definitions-list>.highlight {
   background-color: yellow !important;
   transition: background-color 0.3s ease-in-out;
+}
+
+#content:focus {
+  outline: none;
+}
+
+#content img[role="button"]:focus-visible {
+  outline: 2px solid #0071eb;
+  outline-offset: 2px;
 }
 
 svg[icon] {
@@ -382,6 +406,7 @@ body:has(.offcanvas.show) .menu-toggle-btn,
 body:has(.offcanvas.showing) .menu-toggle-btn {
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
 }
 
 /* Hide in print mode */

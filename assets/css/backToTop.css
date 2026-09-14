@@ -30,3 +30,8 @@
   justify-content: center;
   z-index: 2;
 }
+
+#back-to-top-a1zncgtqfpzsig8:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}

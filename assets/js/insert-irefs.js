@@ -125,6 +125,7 @@ function processIrefPlaceholders() {
             glossaryLink.className = 'iref-go-to-glossary-button btn btn-sm btn-outline-secondary py-1';
             glossaryLink.innerHTML = 'Glossary';
             glossaryLink.title = `Go to original definition of ${originalTerm}`;
+            glossaryLink.setAttribute('aria-label', `Go to original definition of ${originalTerm}`);
 
             // Append the button to the cloned dt
             clonedDt.appendChild(glossaryLink);

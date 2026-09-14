@@ -71,8 +71,6 @@ function collapseDefinitions() {
     }
 
     let { dds, dts, regularDds, specialDds } = queryElements();
-    const buttonTitleText = 'Change how much info is shown';
-
     specialDds.forEach(dd => {
         dd.classList.add('terms-def-extra-info');
     });
@@ -103,6 +101,7 @@ function collapseDefinitions() {
                 buttons.forEach(button => {
                     button.dataset.state = 0;
                     button.title = 'Show basic definitions';
+                    button.setAttribute('aria-label', 'Show basic definitions');
                     // Update which state indicator is active
                     button.querySelectorAll('.state-indicator').forEach(indicator => {
                         if (Number.parseInt(indicator.dataset.state) === 0) {
@@ -127,6 +126,7 @@ function collapseDefinitions() {
                 buttons.forEach(button => {
                     button.dataset.state = 1;
                     button.title = 'Show all definitions';
+                    button.setAttribute('aria-label', 'Show all definitions');
                     // Update which state indicator is active
                     button.querySelectorAll('.state-indicator').forEach(indicator => {
                         if (Number.parseInt(indicator.dataset.state) === 1) {
@@ -150,6 +150,7 @@ function collapseDefinitions() {
                 buttons.forEach(button => {
                     button.dataset.state = 2;
                     button.title = 'Hide all definitions';
+                    button.setAttribute('aria-label', 'Hide all definitions');
                     // Update which state indicator is active
                     button.querySelectorAll('.state-indicator').forEach(indicator => {
                         if (Number.parseInt(indicator.dataset.state) === 2) {
@@ -179,11 +180,12 @@ function collapseDefinitions() {
             }
 
             const button = document.createElement('button');
+            button.type = 'button';
             button.classList.add('collapse-all-defs-button', 'btn-outline-secondary', 'd-print-none', 'btn', 'p-0', 'fs-5', 'd-flex', 'align-items-center', 'justify-content-center');
             // Create a container for all three state indicators
-            button.innerHTML = `<span class="state-indicator" data-state="0">①</span><span class="state-indicator" data-state="1">②</span><span class="state-indicator" data-state="2">③</span>`;
-            button.id = 'toggleButton';
-            button.title = buttonTitleText;
+            button.innerHTML = `<span class="state-indicator" data-state="0" aria-hidden="true">①</span><span class="state-indicator" data-state="1" aria-hidden="true">②</span><span class="state-indicator" data-state="2" aria-hidden="true">③</span>`;
+            button.title = 'Hide all definitions';
+            button.setAttribute('aria-label', 'Hide all definitions');
             button.dataset.state = '2'; // Start with all definitions visible
 
             // Set initial active state

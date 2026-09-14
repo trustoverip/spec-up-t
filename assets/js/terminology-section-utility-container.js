@@ -3,38 +3,59 @@
  * @author Kor Dwarshuis
  * @version 1.0.0
  * @since 2024-08-31
- * @description Coordinates all terminology section utility container components
+ * @description Coordinates search and local/remote filters for the terminology section.
+ * Gated by an Experimental toggle in the slide-in settings menu (default off).
  */
 
+/** localStorage key used to persist the terms utility bar toggle state */
+const TERMS_UTILITY_BAR_STORAGE_KEY = 'spec-up-t:terms-utility-bar';
+
 /**
- * Initializes the complete terminology section utility container
- * This function coordinates all the components in the correct order
+ * Checks if the terms search and filter bar is enabled via localStorage.
+ * Missing or any value other than 'true' means the feature is off.
+ *
+ * @returns {boolean} True if the utility bar should be shown
+ */
+function isTermsUtilityBarEnabled() {
+    return localStorage.getItem(TERMS_UTILITY_BAR_STORAGE_KEY) === 'true';
+}
+
+/**
+ * Wires the Experimental toggle in the slide-in settings menu.
+ * Reads persisted state from localStorage and reflects it in the checkbox.
+ * On change: saves the new state and reloads the page so the bar is built or removed.
+ */
+function initTermsUtilityBarToggle() {
+    const toggle = document.getElementById('toggle-terms-utility-bar');
+    if (!toggle) {
+        return;
+    }
+
+    toggle.checked = isTermsUtilityBarEnabled();
+
+    toggle.addEventListener('change', () => {
+        localStorage.setItem(TERMS_UTILITY_BAR_STORAGE_KEY, toggle.checked ? 'true' : 'false');
+        globalThis.location.reload();
+    });
+}
+
+/**
+ * Builds the terminology utility bar (term count, local/remote filters, search)
+ * and attaches the filter and search behaviours.
  */
 function initializeTerminologyUtilityContainer() {
-    // Check if the terms and definitions list exists
     const termsListElement = document.querySelector(".terms-and-definitions-list");
     const dtElements = termsListElement ? termsListElement.querySelectorAll("dt") : [];
 
     if (dtElements.length === 0) {
-        // Hide the container if no terms exist
         hideShowUtilityContainer();
         return;
     }
 
     const terminologySectionUtilityContainer = document.getElementById("terminology-section-utility-container");
-    
-    // Build alphabet index data
-    const alphabetIndex = {};
-    dtElements.forEach(dt => {
-        const span = dt.querySelector("span");
-        if (span?.id) {
-            const termId = span.id;
-            const firstChar = termId.charAt(termId.indexOf("term:") + 5).toUpperCase();
-            if (!alphabetIndex[firstChar]) {
-                alphabetIndex[firstChar] = span.id;
-            }
-        }
-    });
+    if (!terminologySectionUtilityContainer) {
+        return;
+    }
 
     /*************************************************/
     /* DOM CONSTRUCTION - COMPLETE LAYOUT STRUCTURE */
@@ -44,26 +65,23 @@ function initializeTerminologyUtilityContainer() {
     const utilityRow = document.createElement("div");
     utilityRow.className = "row g-2";
     utilityRow.id = "utility-row";
-    
+
     // Left column: Term count
     const leftCol = document.createElement("div");
     leftCol.className = "col-auto d-flex align-items-center";
 
-    // Term count
     const numberOfTerms = document.createElement("small");
     numberOfTerms.className = "text-muted mb-0";
     numberOfTerms.textContent = `${dtElements.length} terms`;
     leftCol.appendChild(numberOfTerms);
 
-    // Center column: Filters and Versions button
+    // Center column: Filters
     const centerCol = document.createElement("div");
     centerCol.className = "col d-flex flex-wrap align-items-center gap-3";
 
-    // Filter checkboxes container
     const checkboxesContainer = document.createElement('div');
     checkboxesContainer.className = 'd-flex gap-3';
-    
-    // Local terms checkbox
+
     const localTermsCheckboxDiv = document.createElement('div');
     localTermsCheckboxDiv.className = 'form-check';
     localTermsCheckboxDiv.innerHTML = `
@@ -72,8 +90,7 @@ function initializeTerminologyUtilityContainer() {
             Local
         </label>
     `;
-    
-    // External terms checkbox
+
     const externalTermsCheckboxDiv = document.createElement('div');
     externalTermsCheckboxDiv.className = 'form-check';
     externalTermsCheckboxDiv.innerHTML = `
@@ -82,44 +99,33 @@ function initializeTerminologyUtilityContainer() {
             Remote
         </label>
     `;
-    
+
     checkboxesContainer.appendChild(localTermsCheckboxDiv);
     checkboxesContainer.appendChild(externalTermsCheckboxDiv);
     centerCol.appendChild(checkboxesContainer);
-
-    // Snapshot link
-    const snapshotLink = document.createElement('a');
-    snapshotLink.id = 'snapshot-link-in-content';
-    snapshotLink.className = 'btn btn-outline-primary btn-sm';
-    snapshotLink.href = '#';
-    snapshotLink.textContent = 'Versions';
-    centerCol.appendChild(snapshotLink);
 
     // Right column: Search
     const rightCol = document.createElement("div");
     rightCol.className = "col-auto d-flex justify-content-end";
 
-    // Search container
     const searchContainer = document.createElement("div");
     searchContainer.setAttribute("id", "container-search");
     searchContainer.classList.add("input-group", "input-group-sm");
     searchContainer.setAttribute("role", "search");
 
-    // Search input
     const searchInput = document.createElement("input");
-    searchInput.setAttribute("type", "text");
+    searchInput.setAttribute("type", "search");
     searchInput.setAttribute("id", "search");
     searchInput.classList.add("form-control");
-    searchInput.setAttribute("placeholder", "🔍 (terms only)");
+    searchInput.setAttribute("placeholder", "Filter terms");
     searchInput.setAttribute("aria-label", "Search terms");
+    searchInput.setAttribute("aria-describedby", "total-matches-search");
     searchInput.setAttribute("autocomplete", "off");
     searchContainer.appendChild(searchInput);
 
-    // Search button group
     const buttonGroup = document.createElement("div");
     buttonGroup.classList.add("input-group-text", "p-0");
 
-    // Previous match button
     const goToPreviousMatchButton = document.createElement("button");
     goToPreviousMatchButton.setAttribute("id", "one-match-backward-search");
     goToPreviousMatchButton.classList.add("btn", "btn-outline-secondary");
@@ -130,7 +136,6 @@ function initializeTerminologyUtilityContainer() {
     goToPreviousMatchButton.innerHTML = '<span aria-hidden="true">▲</span>';
     buttonGroup.appendChild(goToPreviousMatchButton);
 
-    // Next match button
     const goToNextMatchButton = document.createElement("button");
     goToNextMatchButton.setAttribute("id", "one-match-forward-search");
     goToNextMatchButton.classList.add("btn", "btn-outline-secondary");
@@ -141,7 +146,6 @@ function initializeTerminologyUtilityContainer() {
     goToNextMatchButton.innerHTML = '<span aria-hidden="true">▼</span>';
     buttonGroup.appendChild(goToNextMatchButton);
 
-    // Matches counter
     const totalMatchesSpan = document.createElement("span");
     totalMatchesSpan.setAttribute("id", "total-matches-search");
     totalMatchesSpan.classList.add("input-group-text");
@@ -157,9 +161,6 @@ function initializeTerminologyUtilityContainer() {
     utilityRow.appendChild(centerCol);
     utilityRow.appendChild(rightCol);
 
-    /* ===== ASSEMBLE COMPLETE STRUCTURE ===== */
-    // ALPHABET INDEX TEMPORARILY DISABLED
-    // terminologySectionUtilityContainer.appendChild(alphabetRow);
     terminologySectionUtilityContainer.appendChild(utilityRow);
 
     // Keep hash navigation offset in sync with sticky utility UI height.
@@ -187,14 +188,17 @@ function initializeTerminologyUtilityContainer() {
     /* INITIALIZE FUNCTIONALITY COMPONENTS  */
     /*****************************************/
 
-    // Initialize functionalities (these will attach to the DOM elements we just created)
-    // ALPHABET INDEX TEMPORARILY DISABLED
-    // attachAlphabetIndexFunctionality();
     attachTermFilterFunctionality(checkboxesContainer);
     attachSearchFunctionality(searchInput, goToPreviousMatchButton, goToNextMatchButton, totalMatchesSpan);
 }
 
-// Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
+    initTermsUtilityBarToggle();
+
+    if (!isTermsUtilityBarEnabled()) {
+        hideShowUtilityContainer();
+        return;
+    }
+
     initializeTerminologyUtilityContainer();
 });

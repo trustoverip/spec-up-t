@@ -1,6 +1,5 @@
 const fs = require('fs-extra');
-const { configScriptsKeys } = require('./config-scripts-keys');
-const { configOverwriteScriptsKeys } = require('./config-scripts-keys');
+const { configScriptsKeys, configOverwriteScriptsKeys } = require('./config-scripts-keys');
 const addScriptsKeys = require('./add-scripts-keys');
 const copySystemFiles = require('./copy-system-files');
 const { gitIgnoreEntries } = require('./config-gitignore-entries');
@@ -11,14 +10,19 @@ const renameBuildDirToLegacy = require('./rename-docs-to-legacy');
 const Logger = require('../utils/logger');
 
 
-addScriptsKeys(configScriptsKeys, configOverwriteScriptsKeys);
-copySystemFiles();
-updateGitignore(gitIgnoreEntries.gitignorePath, gitIgnoreEntries.filesToAdd);
-
 // We can use this file to do any custom updates during post-install.
-const customUpdate = () => {
+const customUpdate = async () => {
+    // Copy/replace boilerplate system files, replace workflows 1:1, and
+    // remove stale files (e.g. menu-wrapper.sh) before touching package.json.
+    copySystemFiles();
+
+    // Must complete before updateDependencies — both write package.json.
+    addScriptsKeys(configScriptsKeys, configOverwriteScriptsKeys);
+
+    await updateGitignore(gitIgnoreEntries.gitignorePath, gitIgnoreEntries.filesToAdd);
+
     // Update dependencies based on package.spec-up-t.json
-    updateDependencies();
+    await updateDependencies();
 
     // One-time migration: repos that stored snapshots in docs/versions/ (the old
     // "commit docs/" regime) need their snapshots moved to snapshots/ so they
@@ -35,7 +39,6 @@ const customUpdate = () => {
     }
 }
 
-// Call custom update
-customUpdate();
-
-Logger.success("Custom update done");
+customUpdate()
+    .then(() => Logger.success("Custom update done"))
+    .catch((error) => Logger.error('Custom update failed:', error));

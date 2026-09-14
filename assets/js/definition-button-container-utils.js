@@ -38,6 +38,8 @@ function getOrCreateButtonContainer(dtElement) {
     if (!buttonContainer) {
         buttonContainer = document.createElement('div');
         buttonContainer.classList.add('definition-buttons-container');
+        buttonContainer.setAttribute('role', 'group');
+        buttonContainer.setAttribute('aria-label', 'Term actions');
         dtElement.appendChild(buttonContainer);
     }
     

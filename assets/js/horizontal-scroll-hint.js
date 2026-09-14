@@ -86,6 +86,13 @@ const horizontalScrollHint = (elements) => {
         opacity: 0;
         transition: opacity 1s ease-in-out;
       }
+
+      @media (prefers-reduced-motion: reduce) {
+        .scrollHint {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
     `;
     document.head.appendChild(style);
   }
@@ -114,6 +121,7 @@ const horizontalScrollHint = (elements) => {
         const scrollHint = document.createElement('p');
         scrollHint.classList.add('scrollHint');
         scrollHint.innerHTML = `<img class='scrollHintImage' style='width: 40px; vertical-align: middle; padding: 0;margin: 0 !important;' src='${fingerHorizontalScrollingImage}' alt='' /> Scroll to the right`;
+        scrollHint.setAttribute('aria-hidden', 'true');
         scrollHint.style.animation = 'arrow-tweet-panel-pulse 0.82s ease-in-out infinite';
 
         el.appendChild(scrollHint);
@@ -122,8 +130,10 @@ const horizontalScrollHint = (elements) => {
         function showHideScrollHint() {
           if (el.scrollWidth > el.clientWidth) {
             scrollHint.style.opacity = '1';
+            scrollHint.setAttribute('aria-hidden', 'false');
           } else {
             scrollHint.style.opacity = '0';
+            scrollHint.setAttribute('aria-hidden', 'true');
           }
         }
 

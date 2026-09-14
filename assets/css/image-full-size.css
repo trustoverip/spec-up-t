@@ -30,6 +30,15 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
+.image-container-full-page:focus {
+  outline: none;
+}
+
+.image-container-full-page:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

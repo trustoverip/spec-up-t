@@ -44,7 +44,6 @@ function initCollapsibleMenu() {
         linkElement.parentNode.insertBefore(toggleBtn, linkElement.nextSibling);
         
         // Connect the link and the toggle button for better accessibility
-        hasChildren.setAttribute('role', 'group');
         hasChildren.setAttribute('aria-labelledby', linkElement.id || `toc-item-${index}`);
         
         // If the link doesn't have an ID, add one for reference

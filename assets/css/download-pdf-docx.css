@@ -26,6 +26,12 @@
   transform: scale(1.05);
 }
 
+.button-pdf-download:focus-visible,
+.button-docx-download:focus-visible {
+  outline: 2px solid #0071eb;
+  outline-offset: 2px;
+}
+
 .button-pdf-download svg,
 .button-docx-download svg {
   display: block;
