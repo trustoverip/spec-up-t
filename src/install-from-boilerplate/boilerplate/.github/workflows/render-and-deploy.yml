@@ -49,12 +49,12 @@ jobs:
       pages: write    # Required to configure GitHub Pages source via API
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies 🔧
         run: npm install
@@ -63,7 +63,15 @@ jobs:
       # writes output to the path defined in specs.json (output_path, typically ./docs/).
       # The render pipeline (prepare-spec-configuration.js) automatically copies
       # snapshots/ → docs/versions/ so frozen snapshots are always included.
+      #
+      # GITHUB_API_TOKEN authenticates the GitHub API calls that resolve external
+      # term references (see .env.example). Without it the pipeline runs against the
+      # 60-requests-per-hour unauthenticated limit, which specs with external
+      # glossaries can exhaust. The ephemeral GITHUB_TOKEN is sufficient when the
+      # glossary repos are public and only read access is needed.
       - name: Collect external references and render
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run collectExternalReferences
 
       # Preserve the CNAME file from gh-pages before deploying.
@@ -88,40 +96,62 @@ jobs:
       # Uses GITHUB_TOKEN (automatically injected by GitHub) with 'contents: write'
       # permission to push to this repository.
       - name: Deploy to GitHub Pages 🚀
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           publish_branch: gh-pages
 
       # Configure GitHub Pages to serve from the gh-pages branch (root /).
-      # This uses the GitHub REST API with GITHUB_TOKEN (permission: 'pages: write').
-      # It is idempotent — safe to run on every render (201=create, 409/422=exists, update).
-      # GITHUB_TOKEN is ephemeral (created per-run, expires at run end), scoped only to
-      # this repository, and never logged. GitHub accepts it because the token is issued
-      # by GitHub itself and this workflow declares 'pages: write' permission.
-      # continue-on-error: the API call may return a conflict on the very first run while
-      # GitHub is still processing the new gh-pages branch — this is non-fatal.
+      # POST creates the Pages site; anything else means it already exists (or the
+      # write was refused), so try PUT. Both calls use the run's ephemeral
+      # GITHUB_TOKEN with the 'pages: write' permission declared above.
+      #
+      # This step asserts the OUTCOME, not the call. GitHub documents the Pages
+      # settings endpoints as requiring an administrator, a maintainer, or the
+      # "manage GitHub Pages settings" permission, and it is not established that a
+      # workflow token's 'pages: write' satisfies that — a refusal here is plausible.
+      # Only one thing actually matters: that Pages ends up pointed at gh-pages. So
+      # the step logs the HTTP codes for diagnosis, then reads the settings back and
+      # fails if, and only if, the source is wrong. A refused write over an already
+      # correct setting is harmless and keeps the run green; a genuinely mispointed
+      # site fails the run rather than publishing a render nobody can see.
       - name: Configure GitHub Pages source
-        continue-on-error: true
         run: |
+          set -uo pipefail
           TOKEN="${{ secrets.GITHUB_TOKEN }}"
-          REPO="${{ github.repository }}"
+          API="https://api.github.com/repos/${{ github.repository }}/pages"
+          BODY='{"source":{"branch":"gh-pages","path":"/"}}'
 
-          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
-            -X POST \
+          POST_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
             -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/$REPO/pages" \
-            -d '{"source":{"branch":"gh-pages","path":"/"}}')
+            "$API" -d "$BODY")
+          echo "POST /pages -> $POST_CODE"
 
-          # 201 = created; 409/422 = already exists, update instead
-          if [ "$HTTP_CODE" -eq 409 ] || [ "$HTTP_CODE" -eq 422 ]; then
-            curl -s -o /dev/null \
-              -X PUT \
+          if [ "$POST_CODE" != "201" ]; then
+            PUT_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X PUT \
               -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/$REPO/pages" \
-              -d '{"source":{"branch":"gh-pages","path":"/"}}'
+              "$API" -d "$BODY")
+            echo "PUT /pages -> $PUT_CODE"
           fi
-          echo "GitHub Pages source set to gh-pages branch"
+
+          GET_CODE=$(curl -s -o pages.json -w "%{http_code}" \
+            -H "Authorization: token $TOKEN" \
+            -H "Accept: application/vnd.github+json" "$API")
+          echo "GET /pages -> $GET_CODE"
+
+          if [ "$GET_CODE" != "200" ]; then
+            echo "::error::Cannot read Pages settings (HTTP $GET_CODE) — the site may not be configured at all."
+            exit 1
+          fi
+
+          BRANCH=$(jq -r '.source.branch' pages.json)
+          SRC_PATH=$(jq -r '.source.path' pages.json)
+          echo "Pages source is $BRANCH $SRC_PATH"
+
+          if [ "$BRANCH" != "gh-pages" ] || [ "$SRC_PATH" != "/" ]; then
+            echo "::error::Pages serves from $BRANCH $SRC_PATH, not gh-pages /. The render reached gh-pages but the site will not show it. Repoint it under Settings > Pages."
+            exit 1
+          fi

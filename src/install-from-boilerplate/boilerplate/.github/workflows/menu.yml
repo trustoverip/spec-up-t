@@ -37,14 +37,14 @@ jobs:
       actions: write    # Needed to dispatch render-and-deploy.yml
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
-          persist-credentials: true  # We’ll use MY_PAT for push
+          persist-credentials: true  # The push step below authenticates with GITHUB_TOKEN
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Extract output_path from JSON
         id: extract-output
@@ -65,7 +65,10 @@ jobs:
 
       - name: Run selected script
         env:
-          MY_PAT: ${{ secrets.MY_PAT }} # Make the secret available as an env var
+          # freeze_label is free-form dispatch input. Bind it to an env var rather
+          # than interpolating it into the shell command, so a label containing
+          # shell metacharacters cannot inject commands into this step.
+          FREEZE_LABEL_INPUT: ${{ github.event.inputs.freeze_label }}
         run: |
           case "${{ github.event.inputs.action_type }}" in
             render)
@@ -92,7 +95,7 @@ jobs:
               # snapshots/ to the main branch, which triggers
               # render-and-deploy.yml to deploy the full spec (including versions).
               npm run collectExternalReferences
-              FREEZE_LABEL="${{ github.event.inputs.freeze_label }}" npm run freeze
+              FREEZE_LABEL="$FREEZE_LABEL_INPUT" npm run freeze
               ;;
             custom-update)
               npm run custom-update
