@@ -7,9 +7,9 @@
  * therefore not part of the repository. Repos that were set up before this
  * convention was introduced still have the old docs/ directory tracked in git.
  *
- * This module renames that tracked directory to docs-legacy/ and creates a commit
- * so the history is preserved. After this step the normal gitignore rules take
- * over and any freshly generated docs/ will not be tracked.
+ * This module renames that tracked directory to docs-legacy/. It does not
+ * commit — menu.yml / the user commit the rename. After this step the normal
+ * gitignore rules take over and any freshly generated docs/ will not be tracked.
  *
  * - Safe to run more than once: skipped when docs-legacy/ already exists.
  * - Skipped when the output directory is not tracked by git at all.
@@ -55,8 +55,9 @@ function isGitTracked(dirPath) {
 }
 
 /**
- * Renames the build output directory to <outputDir>-legacy/ and commits the
- * rename when the directory is currently tracked by git.
+ * Renames the build output directory to <outputDir>-legacy/ when the directory
+ * is currently tracked by git. Leaves the working tree dirty for the caller
+ * (menu.yml or the user) to commit.
  *
  * @param {string} outputDir - The output directory path as defined in specs.json
  *   (e.g. './docs' or 'docs'). Leading './' is stripped before use.
@@ -81,13 +82,8 @@ function renameBuildDirToLegacy(outputDir) {
         // Rename the directory inside git's index so the history is preserved.
         execSync(`git mv "${dirName}" "${legacyDirName}"`, EXEC_OPTS);
 
-        // Commit the rename so the consuming repo's history stays clean.
-        execSync(
-            `git commit -m "Rename directory from ${dirName} to ${legacyDirName}"`,
-            EXEC_OPTS
-        );
-
-        Logger.success(`Renamed ${dirName} to ${legacyDirName} and committed`);
+        Logger.success(`Renamed ${dirName} to ${legacyDirName} (not committed)`);
+        Logger.info(`Commit the rename when you are ready, e.g. git add ${legacyDirName} && git commit`);
     } catch (error) {
         Logger.info(`Could not rename ${dirName}: ${error.message}`);
     }

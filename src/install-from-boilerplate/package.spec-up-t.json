@@ -1,0 +1,6 @@
+{
+  "description": "Recommended consumer-repo dependencies shipped with spec-up-t. The spec-up-t version is taken from this package at update time, not from this file.",
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

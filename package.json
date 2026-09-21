@@ -3,6 +3,9 @@
   "version": "1.9.0",
   "description": "Technical specification drafting tool that generates rich specification documents from markdown. Forked from https://github.com/decentralized-identity/spec-up by Daniel Buchner (https://github.com/csuwildcat)",
   "main": "./index.js",
+  "bin": {
+    "spec-up-t": "./src/cli.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/trustoverip/spec-up-t.git"
