@@ -11,6 +11,7 @@ describe('copySystemFiles', () => {
         fs.mkdirSync(path.join(destRoot, '.github', 'workflows'), { recursive: true });
         fs.mkdirSync(path.join(destRoot, 'assets'), { recursive: true });
         fs.writeFileSync(path.join(destRoot, '.github', 'workflows', 'render-specs.yml'), 'old-workflow\n');
+        fs.writeFileSync(path.join(destRoot, '.github', 'workflows', 'set-gh-pages.yml'), 'stale-pages\n');
         fs.writeFileSync(path.join(destRoot, '.github', 'workflows', 'menu.yml'), 'stale-menu\n');
         fs.writeFileSync(path.join(destRoot, 'menu-wrapper.sh'), '#!/bin/bash\n');
         fs.writeFileSync(path.join(destRoot, 'assets', 'custom.css'), 'user-custom { color: red; }\n');
@@ -29,11 +30,13 @@ describe('copySystemFiles', () => {
         expect(workflowFiles).toEqual([
             'menu.yml',
             'render-and-deploy.yml',
-            'set-gh-pages.yml',
             'zenodo-update.yml',
         ]);
         expect(fs.existsSync(path.join(workflowsDir, 'render-specs.yml'))).toBe(false);
+        expect(fs.existsSync(path.join(workflowsDir, 'set-gh-pages.yml'))).toBe(false);
         expect(fs.readFileSync(path.join(workflowsDir, 'menu.yml'), 'utf8')).not.toBe('stale-menu\n');
+        expect(fs.readFileSync(path.join(workflowsDir, 'menu.yml'), 'utf8')).toContain("node-version: '24'");
+        expect(fs.readFileSync(path.join(workflowsDir, 'render-and-deploy.yml'), 'utf8')).toContain('actions/checkout@v6');
 
         expect(fs.existsSync(path.join(destRoot, 'menu-wrapper.sh'))).toBe(false);
         expect(fs.existsSync(path.join(destRoot, 'menu-wrapper.js'))).toBe(true);

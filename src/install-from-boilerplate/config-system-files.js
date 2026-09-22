@@ -21,6 +21,8 @@ const systemFilesNoOverwrite = [
 // Stale files from previous boilerplate versions, removed on custom-update.
 const systemFilesToRemove = [
     'menu-wrapper.sh',
+    // Replaced by the Pages-source step in render-and-deploy.yml (no MY_PAT).
+    '.github/workflows/set-gh-pages.yml',
 ];
 
 module.exports = { systemFiles, systemDirsReplace, systemFilesNoOverwrite, systemFilesToRemove };

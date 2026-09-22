@@ -1,6 +1,18 @@
 ===
 
-For help go to: https://trustoverip.github.io/spec-up-t-website
+Spec-Up-T help
+https://trustoverip.github.io/spec-up-t-website
+
+Upgrade this repo to Spec-Up-T 2.x (from 1.x):
+  npx spec-up-t@2 custom-update
+
+Do not rely on the GitHubUi "Custom Update" button to jump 1.x → 2.x.
+npm update will not cross a major.
+
+On 2.x, after the first successful update:
+  npm run custom-update
+
+Escape hatch (always this package from npm, not the local install):
+  npx spec-up-t@2 custom-update
 
 ===
-

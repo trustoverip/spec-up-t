@@ -167,5 +167,9 @@ function normalizeTerminologyMarkdown(directory) {
 }
 
 module.exports = {
-    normalizeTerminologyMarkdown
+    normalizeTerminologyMarkdown,
+    processDefLines,
+    prependTildeToLines,
+    normalizeParagraphSpacing,
+    ensureTrailingNewline
 };

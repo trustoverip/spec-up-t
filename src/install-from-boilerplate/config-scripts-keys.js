@@ -12,7 +12,7 @@ const configScriptsKeys = {
     "addremovexrefsource": "node --no-warnings -e \"require('spec-up-t/src/add-remove-xref-source.js')\"",
     "configure": "node --no-warnings -e \"require('spec-up-t/src/configure.js')\"",
     "healthCheck": "node --no-warnings ./node_modules/spec-up-t/src/health-check.js",
-    "custom-update": "npm update && node -e \"require('spec-up-t/src/install-from-boilerplate/custom-update.js')\""
+    "custom-update": "node ./node_modules/spec-up-t/src/install-from-boilerplate/custom-update.js"
 };
 
 // Defines which script keys to overwrite. If a key is not present, it will not be overwritten
