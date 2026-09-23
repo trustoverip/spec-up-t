@@ -3,8 +3,8 @@
 /**
  * @file cli.js
  * @description spec-up-t command-line entry. Published as the `spec-up-t` bin
- * so consuming repos can run `npx spec-up-t@2 custom-update` without depending
- * on their (possibly stale) package.json script.
+ * so consuming repos can run `npx spec-up-t@latest custom-update` without
+ * depending on their (possibly stale) package.json script.
  *
  * This file must stay: it is the public CLI. Invoke it with
  * `npx spec-up-t <command>` or `spec-up-t <command>` from a consumer's
@@ -19,10 +19,12 @@ const HELP = `Usage: spec-up-t <command>
 Commands:
   custom-update   Upgrade this Spec-Up-T repo in place (scripts, files, deps)
 
-1.x → 2.x:
-  npx spec-up-t@2 custom-update
+From 1.x, or if npm run custom-update does nothing (old node -e script):
+  npx spec-up-t@latest custom-update
 
-On 2.x (after the first successful update):
+You do not have to install 2.0.0 first.
+
+After that, on this machine:
   npm run custom-update
 
 `;
