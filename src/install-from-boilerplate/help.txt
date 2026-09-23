@@ -16,4 +16,28 @@ run the update.
 After that command succeeds:
   npm run custom-update
 
+The command prints a plan and asks before it writes. The plan lists
+scripts, files, dependencies, .gitignore patterns, npm install, and
+per-spec snapshot or legacy-dir changes.
+
+  spec-up-t custom-update --dry-run   print the plan only
+  spec-up-t custom-update --yes       apply without asking
+
+Upgrading to 2.2.0: GitHub Actions has no prompt. Until menu.yml
+contains the line below, the GitHubUi Custom Update button prints
+the plan and the job fails. Nothing is written.
+
+  npm run custom-update -- --yes
+
+Run once locally, then commit:
+
+  npx spec-up-t@latest custom-update --yes
+
+Or add that line to the custom-update case in menu.yml by hand.
+After that commit, the button applies the plan.
+
+When a Trust over IP spec repo should take an update is a working-group
+decision (regular meeting, or sooner when a release must be applied).
+The tool does not choose. See the website page "When to run custom-update".
+
 ===

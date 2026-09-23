@@ -12,12 +12,17 @@
  */
 
 const customUpdate = require('./install-from-boilerplate/custom-update');
+const { parseCustomUpdateArgs } = require('./install-from-boilerplate/parse-custom-update-args');
 const Logger = require('./utils/logger');
 
 const HELP = `Usage: spec-up-t <command>
 
 Commands:
   custom-update   Upgrade this Spec-Up-T repo in place (scripts, files, deps)
+
+custom-update prints a plan, then asks before it writes.
+  --dry-run       Print the plan and do not write
+  --yes, -y       Apply the plan without asking (GitHub Actions; menu.yml)
 
 From 1.x, or if npm run custom-update does nothing (old node -e script):
   npx spec-up-t@latest custom-update
@@ -26,6 +31,9 @@ You do not have to install 2.0.0 first.
 
 After that, on this machine:
   npm run custom-update
+
+When a ToIP repo should take an update is a working-group decision.
+See the website page "When to run custom-update".
 
 `;
 
@@ -48,7 +56,15 @@ async function main(argv) {
     }
 
     if (command === 'custom-update') {
-        await customUpdate();
+        let options;
+        try {
+            options = parseCustomUpdateArgs(argv.slice(3));
+        } catch (error) {
+            process.stderr.write(`${error.message}\n\n${HELP}`);
+            process.exitCode = 1;
+            return;
+        }
+        await customUpdate(options);
         return;
     }
 

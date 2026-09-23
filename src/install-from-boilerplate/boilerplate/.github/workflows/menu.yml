@@ -98,7 +98,8 @@ jobs:
               FREEZE_LABEL="$FREEZE_LABEL_INPUT" npm run freeze
               ;;
             custom-update)
-              npm run custom-update
+              # --yes applies the printed plan. Actions has no prompt.
+              npm run custom-update -- --yes
               ;;
             collectExternalReferences)
               npm run collectExternalReferences

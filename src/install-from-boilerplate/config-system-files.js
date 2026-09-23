@@ -3,12 +3,12 @@ const systemFiles = [
     'menu-wrapper.js',
     'assets/test.json',
     'assets/test.text',
-];
-
-// Directories replaced 1:1 with the boilerplate. Extra files in the
-// consuming project are removed so old GitHub Actions workflows do not linger.
-const systemDirsReplace = [
-    '.github/workflows',
+    // Known boilerplate workflows are replaced file by file. Extra workflows
+    // in the consuming repo are left alone. menu.yml stays in this list so
+    // GitHubUi keeps a custom-update option.
+    '.github/workflows/menu.yml',
+    '.github/workflows/render-and-deploy.yml',
+    '.github/workflows/zenodo-update.yml',
 ];
 
 // Files that are only copied when they do not already exist in the consuming
@@ -25,4 +25,4 @@ const systemFilesToRemove = [
     '.github/workflows/set-gh-pages.yml',
 ];
 
-module.exports = { systemFiles, systemDirsReplace, systemFilesNoOverwrite, systemFilesToRemove };
+module.exports = { systemFiles, systemFilesNoOverwrite, systemFilesToRemove };
