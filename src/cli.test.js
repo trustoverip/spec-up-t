@@ -21,10 +21,24 @@ describe('spec-up-t CLI', () => {
         process.exitCode = 0;
     });
 
-    test('runs custom-update', async () => {
+    test('runs custom-update and passes flags', async () => {
         await main(['node', 'spec-up-t', 'custom-update']);
-        expect(customUpdate).toHaveBeenCalledTimes(1);
+        expect(customUpdate).toHaveBeenCalledWith({ yes: false, dryRun: false });
         expect(process.exitCode).toBe(0);
+
+        await main(['node', 'spec-up-t', 'custom-update', '--yes']);
+        expect(customUpdate).toHaveBeenLastCalledWith({ yes: true, dryRun: false });
+
+        await main(['node', 'spec-up-t', 'custom-update', '--dry-run', '-y']);
+        expect(customUpdate).toHaveBeenLastCalledWith({ yes: true, dryRun: true });
+    });
+
+    test('exits 1 for an unknown custom-update option', async () => {
+        await main(['node', 'spec-up-t', 'custom-update', '--apply']);
+        expect(stderr.mock.calls[0][0]).toContain('Unknown option: --apply');
+        expect(stderr.mock.calls[0][0]).toContain(HELP);
+        expect(process.exitCode).toBe(1);
+        expect(customUpdate).not.toHaveBeenCalled();
     });
 
     test('prints help for -h and --help', async () => {
