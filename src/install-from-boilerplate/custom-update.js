@@ -3,15 +3,18 @@
  * @description Upgrade a consuming Spec-Up-T repository in place.
  *
  * This is not a postinstall hook. First-time install is install.js.
- * This file is invoked later by:
- *   - existing scripts: node -e "require('spec-up-t/src/install-from-boilerplate/custom-update.js')"
- *   - npm run custom-update (after 2.0.0 rewrites the script)
- *   - npx spec-up-t@2 custom-update
+ * This file runs only when it is the process entry:
+ *   - npm run custom-update  →  spec-up-t custom-update  (local bin)
+ *   - npx spec-up-t@latest custom-update
  *   - node path/to/custom-update.js
  *
- * 2.0.0 still auto-runs on require() from `node -e` so GitHubUi / old
- * package.json scripts keep working. The CLI requires this module without
- * auto-running, then calls the exported function.
+ * Requiring it does not run the update. The 1.x / 2.0.0 script
+ *   node -e "require('spec-up-t/src/install-from-boilerplate/custom-update.js')"
+ * is a failed no-op: it prints the repair command and sets exit code 1.
+ * Repair (also the 1.x → 2.1.0 path; 2.0.0 is not required):
+ *   npx spec-up-t@latest custom-update
+ *
+ * The CLI requires this module and calls the export. Jest does the same.
  */
 
 const fs = require('fs-extra');
@@ -24,8 +27,12 @@ const updateDependencies = require('./update-dependencies');
 const installConsumerDependencies = require('./install-consumer-dependencies');
 const migrateVersionsToSnapshots = require('./migrate-versions-to-snapshots');
 const renameBuildDirToLegacy = require('./rename-docs-to-legacy');
-const shouldAutoRunCustomUpdate = require('./should-auto-run-custom-update');
+const isLegacyEvalRequire = require('./is-legacy-eval-require');
 const Logger = require('../utils/logger');
+
+const LEGACY_REQUIRE_MESSAGE =
+    'custom-update no longer runs from node -e require(). ' +
+    'Run: npx spec-up-t@latest custom-update';
 
 /**
  * Migrates snapshots and tracked build dirs for every spec in specs.json.
@@ -63,9 +70,9 @@ async function customUpdate() {
 
     await updateDependencies();
 
-    // Install what was just written. Must live in this function (not only in
-    // the npm-script string) so the first 2.0.0 run via node -e require()
-    // still installs.
+    // Install what was just written. Lives here so every real entry point
+    // (local bin and `node path/to/custom-update.js`) installs once.
+    // Do not also append `&& npm install` to the npm script.
     installConsumerDependencies();
 
     migrateAllSpecs();
@@ -73,11 +80,14 @@ async function customUpdate() {
     Logger.success('Custom update done');
 }
 
-if (shouldAutoRunCustomUpdate(require.main, module, process.env)) {
+if (require.main === module) {
     customUpdate().catch((error) => {
         Logger.error('Custom update failed:', error);
         process.exitCode = 1;
     });
+} else if (isLegacyEvalRequire(require.main)) {
+    Logger.error(LEGACY_REQUIRE_MESSAGE);
+    process.exitCode = 1;
 }
 
 module.exports = customUpdate;

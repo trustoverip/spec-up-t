@@ -34,9 +34,7 @@ describe('addScriptsKeys', () => {
         expect(packageJson.scripts.menu).toBe('node ./menu-wrapper.js');
         expect(packageJson.scripts.help).toMatch(/^node /);
         expect(packageJson.scripts.help).not.toMatch(/^cat /);
-        expect(packageJson.scripts['custom-update']).toBe(
-            'node ./node_modules/spec-up-t/src/install-from-boilerplate/custom-update.js'
-        );
+        expect(packageJson.scripts['custom-update']).toBe('spec-up-t custom-update');
         expect(packageJson.scripts['custom-update']).not.toMatch(/npm update/);
         expect(packageJson.scripts['custom-update']).not.toMatch(/node -e/);
     });
