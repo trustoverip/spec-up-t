@@ -16,6 +16,7 @@ const { templateTags } = require('../../utils/regex-patterns.js');
 const { createScriptElementWithXTrefDataForEmbeddingInHtml, applyReplacers } = require('./render-utils.js');
 const { warnOnHeadingHierarchyViolations } = require('./heading-hierarchy-validator.js');
 const { copyStaticRoot } = require('./copy-static-root.js');
+const { rewriteRenderedImageSources } = require('./rewrite-image-sources.js');
 
 async function render(spec, assets, sharedVars, config, template, assetsGlobal, Logger, md, externalSpecsList) {
   let { externalReferences } = sharedVars;
@@ -155,6 +156,13 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
 
     // Warn about heading hierarchy violations (W3C accessibility)
     warnOnHeadingHierarchyViolations(renderedHtml, Logger);
+
+    // Point images at the branch that produced this build.
+    const imageSources = rewriteRenderedImageSources(renderedHtml, spec, buildBranch);
+    renderedHtml = imageSources.html;
+    if (imageSources.rewrittenCount > 0) {
+      Logger.info(`Rewrote ${imageSources.rewrittenCount} image source(s) using branch ${buildBranch}`);
+    }
 
     const templateInterpolated = interpolate(template, {
       title: spec.title,
