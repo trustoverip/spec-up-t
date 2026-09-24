@@ -10,7 +10,7 @@ const path = require('node:path');
 const { fetchExternalSpecs, validateReferences, mergeXrefTermsIntoAllXTrefs } = require('../references/external-references-service.js');
 const { processEscapedTags, restoreEscapedTags } = require('../preprocessing/escape-placeholder-utils.js');
 const { sortDefinitionTermsInHtml, fixDefinitionListStructure } = require('../postprocessing/definition-list-postprocessor.js');
-const { getGithubRepoInfo, getCurrentBranch } = require('../../utils/git-info.js');
+const { getGithubRepoInfo, getCurrentBranch, getRepoRoot, getUnpublishedFiles } = require('../../utils/git-info.js');
 const { templateTags } = require('../../utils/regex-patterns.js');
 
 const { createScriptElementWithXTrefDataForEmbeddingInHtml, applyReplacers } = require('./render-utils.js');
@@ -158,10 +158,14 @@ async function render(spec, assets, sharedVars, config, template, assetsGlobal, 
     warnOnHeadingHierarchyViolations(renderedHtml, Logger);
 
     // Point images at the branch that produced this build.
-    const imageSources = rewriteRenderedImageSources(renderedHtml, spec, buildBranch);
+    const repoRoot = getRepoRoot();
+    const imageSources = rewriteRenderedImageSources(renderedHtml, spec, buildBranch, { repoRoot });
     renderedHtml = imageSources.html;
     if (imageSources.rewrittenCount > 0) {
       Logger.info(`Rewrote ${imageSources.rewrittenCount} image source(s) using branch ${buildBranch}`);
+    }
+    for (const file of getUnpublishedFiles(imageSources.rewrittenFiles, buildBranch, repoRoot)) {
+      Logger.warn(`Image ${file} is not on GitHub yet (branch ${buildBranch}). It will appear after you commit and push it.`);
     }
 
     const templateInterpolated = interpolate(template, {

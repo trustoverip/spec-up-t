@@ -50,6 +50,39 @@ describe('git-info utility', () => {
       expect(branch).toBe('revised-format');
     });
 
+    const prEnv = {
+      GITHUB_HEAD_REF: 'add-images',
+      GITHUB_REF: 'refs/pull/12/merge',
+      GITHUB_REF_NAME: '12',
+      GITHUB_SHA: '0123456789abcdef0123456789abcdef01234567'
+    };
+    const prEvent = (head, base) => ({
+      pull_request: { head: { repo: { full_name: head } }, base: { repo: { full_name: base } } }
+    });
+
+    test('uses the head branch for a pull request from the same repository', () => {
+      const branch = resolveBuildBranch({
+        gitHead: 'HEAD',
+        env: prEnv,
+        event: prEvent('trustoverip/spec', 'trustoverip/spec')
+      });
+      expect(branch).toBe('add-images');
+    });
+
+    test('uses the commit SHA for a pull request from a fork', () => {
+      const branch = resolveBuildBranch({
+        gitHead: 'HEAD',
+        env: prEnv,
+        event: prEvent('contributor/spec', 'trustoverip/spec')
+      });
+      expect(branch).toBe(prEnv.GITHUB_SHA);
+    });
+
+    test('uses the commit SHA when the pull request payload is unavailable', () => {
+      const branch = resolveBuildBranch({ gitHead: 'HEAD', env: prEnv, event: null });
+      expect(branch).toBe(prEnv.GITHUB_SHA);
+    });
+
     test('uses GITHUB_REF_NAME for a branch push', () => {
       const branch = resolveBuildBranch({
         gitHead: 'HEAD',
