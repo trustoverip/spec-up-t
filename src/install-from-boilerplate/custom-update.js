@@ -136,7 +136,11 @@ async function customUpdate(options = {}) {
     // Must complete before updateDependencies — both write package.json.
     addScriptsKeys(configScriptsKeys, configOverwriteScriptsKeys);
 
-    await updateGitignore(gitIgnoreEntries.gitignorePath, gitIgnoreEntries.filesToAdd);
+    await updateGitignore(
+        gitIgnoreEntries.gitignorePath,
+        gitIgnoreEntries.filesToAdd,
+        gitIgnoreEntries.filesToRemove,
+    );
 
     await updateDependencies();
 

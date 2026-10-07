@@ -77,7 +77,8 @@ describe('buildCustomUpdatePlan', () => {
         expect(text).toContain('remove  .github/workflows/set-gh-pages.yml');
         expect(text).toContain('Dependencies:');
         expect(text).toContain(`spec-up-t  1.9.0 -> ${self.version}`);
-        expect(plan.gitignore).toEqual(expect.arrayContaining(['docs/', 'node_modules/']));
+        expect(plan.gitignore.add).toEqual(expect.arrayContaining(['docs/', 'node_modules/', '.env', '.env.*', '!.env.example']));
+        expect(plan.gitignore.add).not.toContain('.env*');
         expect(plan.specs).toEqual({ status: 'missing', items: [] });
         expect(text).toContain('Gitignore:');
         expect(text).toContain('add     docs/');
@@ -97,8 +98,9 @@ describe('buildCustomUpdatePlan', () => {
         const plan = buildCustomUpdatePlan(destRoot);
         const text = formatCustomUpdatePlan(plan);
 
-        expect(plan.gitignore).toContain('docs/');
-        expect(plan.gitignore).not.toContain('node_modules/');
+        expect(plan.gitignore.add).toContain('docs/');
+        expect(plan.gitignore.add).not.toContain('node_modules/');
+        expect(plan.gitignore.remove).toEqual([]);
         expect(plan.specs).toEqual({
             status: 'present',
             items: [{
@@ -108,6 +110,40 @@ describe('buildCustomUpdatePlan', () => {
         });
         expect(text).toContain('copy docs/versions/v1 -> snapshots/v1');
         expect(text).not.toContain('snapshots/v2');
+    });
+
+    test('drops a trailing .env* so it cannot override !.env.example', () => {
+        fs.writeFileSync(path.join(destRoot, '.gitignore'), [
+            '.env',
+            '.env.*',
+            '!.env.example',
+            'docs/',
+            'node_modules/',
+            '.env*  # old custom-update entry',
+            '',
+        ].join('\n'));
+
+        const plan = buildCustomUpdatePlan(destRoot);
+        const text = formatCustomUpdatePlan(plan);
+
+        expect(plan.gitignore.remove).toEqual(['.env*']);
+        expect(plan.gitignore.move).toEqual([]);
+        expect(plan.gitignore.add).not.toContain('.env');
+        expect(plan.gitignore.add).not.toContain('.env.*');
+        expect(plan.gitignore.add).not.toContain('!.env.example');
+        expect(text).toContain('remove  .env*');
+        expect(text).not.toContain('add     .env*');
+    });
+
+    test('moves !.env.example below a later .env.*', () => {
+        fs.writeFileSync(path.join(destRoot, '.gitignore'), '!.env.example\n.env.*\n');
+
+        const plan = buildCustomUpdatePlan(destRoot);
+        const text = formatCustomUpdatePlan(plan);
+
+        expect(plan.gitignore.move).toEqual(['!.env.example']);
+        expect(plan.gitignore.add).not.toContain('!.env.example');
+        expect(text).toContain('move    !.env.example');
     });
 
     test('does not write when package.json is missing', async () => {
