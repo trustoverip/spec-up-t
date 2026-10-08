@@ -15,8 +15,12 @@ const gitIgnoreEntries = {
         '*.tmp',
         '.idea',
         '.vscode/',
-        // Environment / secrets
-        '.env*',
+        // Environment / secrets. A bare `.env*` also matches `.env.example`,
+        // and git keeps the last matching rule, so that pattern ignores the
+        // template this tool ships. `!.env.example` must stay after `.env.*`.
+        '.env',
+        '.env.*',
+        '!.env.example',
         // Test coverage
         'coverage/',
         // Various caches & history
@@ -37,6 +41,10 @@ const gitIgnoreEntries = {
         '.*.swp',
         '.*.swo',
         '.fuse_hidden*',
+    ],
+    // Dropped on custom-update. `.env*` undoes `!.env.example` above.
+    filesToRemove: [
+        '.env*',
     ],
 };
 

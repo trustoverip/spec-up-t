@@ -8,6 +8,7 @@ const {
 } = require('./config-system-files');
 const { configScriptsKeys, configOverwriteScriptsKeys } = require('./config-scripts-keys');
 const { gitIgnoreEntries } = require('./config-gitignore-entries');
+const { diffGitignore } = require('./add-gitignore-entries');
 const { loadCanonicalDependencies } = require('./update-dependencies');
 
 const WORKFLOWS_PREFIX = '.github/workflows/';
@@ -139,32 +140,20 @@ function planExtraWorkflows(destRoot) {
 }
 
 /**
- * Patterns updateGitignore would append. Comparison matches that function:
- * trim the line, drop the inline comment, then compare the pattern.
+ * Patterns updateGitignore would add, remove, or move.
+ * Comparison matches that function: trim the line, drop the inline comment,
+ * then compare the pattern.
  *
  * @param {string} destRoot
- * @returns {string[]}
+ * @returns {{ add: string[], remove: string[], move: string[] }}
  */
 function planGitignore(destRoot) {
     const gitignorePath = path.join(destRoot, '.gitignore');
     const content = fs.existsSync(gitignorePath)
         ? fs.readFileSync(gitignorePath, 'utf8')
         : '';
-    const lines = content.split('\n').filter((line) => line.trim() !== '');
-    const add = [];
-
-    for (const file of gitIgnoreEntries.filesToAdd) {
-        const pattern = file.trim();
-        const alreadyPresent = lines.some((line) => {
-            const linePattern = line.trim().split('#')[0].trim();
-            return linePattern === pattern;
-        });
-        if (!alreadyPresent) {
-            add.push(pattern);
-        }
-    }
-
-    return add;
+    const diff = diffGitignore(content, gitIgnoreEntries);
+    return { add: diff.add, remove: diff.remove, move: diff.move };
 }
 
 /**
@@ -379,12 +368,16 @@ function formatCustomUpdatePlan(plan) {
 
     lines.push('');
     lines.push('Gitignore:');
-    if (plan.gitignore.length === 0) {
+    const gitignore = plan.gitignore || { add: [], remove: [], move: [] };
+    const gitignoreLines = [
+        ...(gitignore.remove || []).map((pattern) => fileLine('remove', pattern)),
+        ...(gitignore.move || []).map((pattern) => fileLine('move', pattern)),
+        ...(gitignore.add || []).map((pattern) => fileLine('add', pattern)),
+    ];
+    if (gitignoreLines.length === 0) {
         lines.push('  (no new patterns)');
     } else {
-        for (const pattern of plan.gitignore) {
-            lines.push(fileLine('add', pattern));
-        }
+        lines.push(...gitignoreLines);
     }
 
     lines.push('');
