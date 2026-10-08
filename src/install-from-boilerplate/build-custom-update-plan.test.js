@@ -1,9 +1,26 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const chalk = require('chalk');
 const { buildCustomUpdatePlan, formatCustomUpdatePlan } = require('./build-custom-update-plan');
 const customUpdate = require('./custom-update');
 const { configScriptsKeys } = require('./config-scripts-keys');
+
+/**
+ * @param {string} text
+ * @returns {string}
+ */
+function stripAnsi(text) {
+    return text.replace(/\u001b\[[0-9;]*m/g, '');
+}
+
+/**
+ * @param {ReturnType<typeof buildCustomUpdatePlan>} plan
+ * @returns {string}
+ */
+function formattedPlan(plan) {
+    return stripAnsi(formatCustomUpdatePlan(plan));
+}
 
 describe('buildCustomUpdatePlan', () => {
     let destRoot;
@@ -69,7 +86,7 @@ describe('buildCustomUpdatePlan', () => {
             expect.objectContaining({ name: 'dotenv', from: '(not set)' }),
         ]));
 
-        const text = formatCustomUpdatePlan(plan);
+        const text = formattedPlan(plan);
         expect(text).toContain('Custom update plan');
         expect(text).toContain('Scripts:');
         expect(text).toContain('custom-update');
@@ -89,6 +106,19 @@ describe('buildCustomUpdatePlan', () => {
         expect(text).toContain('Specs:\n  (specs.json not found)');
     });
 
+    test('colors the plan when chalk is enabled', () => {
+        const previousLevel = chalk.level;
+        chalk.level = 1;
+        try {
+            const plan = buildCustomUpdatePlan(destRoot);
+            const colored = formatCustomUpdatePlan(plan);
+            expect(colored).toMatch(/\u001b\[/);
+            expect(stripAnsi(colored)).toContain('Custom update plan');
+        } finally {
+            chalk.level = previousLevel;
+        }
+    });
+
     test('lists new gitignore patterns and snapshot copies, and skips ones already present', () => {
         fs.writeFileSync(path.join(destRoot, '.gitignore'), 'node_modules/  # installed\n');
         fs.mkdirSync(path.join(destRoot, 'docs', 'versions', 'v1'), { recursive: true });
@@ -99,7 +129,7 @@ describe('buildCustomUpdatePlan', () => {
         }));
 
         const plan = buildCustomUpdatePlan(destRoot);
-        const text = formatCustomUpdatePlan(plan);
+        const text = formattedPlan(plan);
 
         expect(plan.gitignore.add).toContain('docs/');
         expect(plan.gitignore.add).not.toContain('node_modules/');
@@ -127,7 +157,7 @@ describe('buildCustomUpdatePlan', () => {
         ].join('\n'));
 
         const plan = buildCustomUpdatePlan(destRoot);
-        const text = formatCustomUpdatePlan(plan);
+        const text = formattedPlan(plan);
 
         expect(plan.gitignore.remove).toEqual(['.env*']);
         expect(plan.gitignore.move).toEqual([]);
@@ -142,7 +172,7 @@ describe('buildCustomUpdatePlan', () => {
         fs.writeFileSync(path.join(destRoot, '.gitignore'), '!.env.example\n.env.*\n');
 
         const plan = buildCustomUpdatePlan(destRoot);
-        const text = formatCustomUpdatePlan(plan);
+        const text = formattedPlan(plan);
 
         expect(plan.gitignore.move).toEqual(['!.env.example']);
         expect(plan.gitignore.add).not.toContain('!.env.example');
@@ -177,7 +207,7 @@ describe('buildCustomUpdatePlan', () => {
 
     test('replaces a differing workflow when forceWorkflows is set', () => {
         const plan = buildCustomUpdatePlan(destRoot, { forceWorkflows: true });
-        const text = formatCustomUpdatePlan(plan);
+        const text = formattedPlan(plan);
 
         expect(plan.files.keep).toEqual([]);
         expect(plan.files.write).toEqual(expect.arrayContaining([
@@ -191,7 +221,7 @@ describe('buildCustomUpdatePlan', () => {
         fs.rmSync(path.join(destRoot, 'package.json'));
 
         const plan = buildCustomUpdatePlan(destRoot);
-        const text = formatCustomUpdatePlan(plan);
+        const text = formattedPlan(plan);
 
         expect(plan.packageJson).toBe('missing');
         expect(plan.scripts).toEqual([]);

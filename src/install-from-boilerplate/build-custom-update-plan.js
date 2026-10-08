@@ -1,6 +1,7 @@
 const { execSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
+const chalk = require('chalk');
 const {
     systemFiles,
     systemWorkflows,
@@ -13,6 +14,29 @@ const { diffGitignore } = require('./add-gitignore-entries');
 const { loadCanonicalDependencies } = require('./update-dependencies');
 
 const WORKFLOWS_PREFIX = '.github/workflows/';
+
+/**
+ * @param {string} action
+ * @returns {(text: string) => string}
+ */
+function colorForAction(action) {
+    switch (action) {
+        case 'add':
+            return chalk.green;
+        case 'replace':
+        case 'move':
+            return chalk.yellow;
+        case 'remove':
+            return chalk.red;
+        case 'keep':
+            return chalk.magenta;
+        case 'leave':
+        case 'skip':
+            return chalk.dim;
+        default:
+            return (text) => text;
+    }
+}
 
 /**
  * @param {string} value
@@ -334,7 +358,23 @@ function buildCustomUpdatePlan(destRoot = process.cwd(), options = {}) {
  * @returns {string}
  */
 function fileLine(action, filePath) {
-    return `  ${action.padEnd(7)} ${filePath}`;
+    return colorForAction(action)(`  ${action.padEnd(7)} ${filePath}`);
+}
+
+/**
+ * @param {string} text
+ * @returns {string}
+ */
+function section(text) {
+    return chalk.bold(text);
+}
+
+/**
+ * @param {string} text
+ * @returns {string}
+ */
+function idle(text) {
+    return chalk.dim(`  ${text}`);
 }
 
 /**
@@ -342,23 +382,23 @@ function fileLine(action, filePath) {
  * @returns {string}
  */
 function formatCustomUpdatePlan(plan) {
-    const lines = ['Custom update plan', ''];
+    const lines = [chalk.bold.cyan('Custom update plan'), ''];
 
-    lines.push('Scripts:');
+    lines.push(section('Scripts:'));
     if (plan.packageJson === 'missing') {
-        lines.push('  (package.json not found)');
+        lines.push(idle('(package.json not found)'));
     } else if (plan.scripts.length === 0) {
-        lines.push('  (no changes)');
+        lines.push(idle('(no changes)'));
     } else {
         for (const change of plan.scripts) {
-            lines.push(`  ${change.key}`);
-            lines.push(`    from: ${change.from}`);
-            lines.push(`    to:   ${change.to}`);
+            lines.push(chalk.cyan(`  ${change.key}`));
+            lines.push(chalk.red(`    from: ${change.from}`));
+            lines.push(chalk.green(`    to:   ${change.to}`));
         }
     }
 
     lines.push('');
-    lines.push('Files:');
+    lines.push(section('Files:'));
     const kept = plan.files.keep || [];
     const fileLines = [
         ...plan.files.write.map((item) => fileLine(item.action, item.path)),
@@ -368,31 +408,31 @@ function formatCustomUpdatePlan(plan) {
         ...plan.files.skip.map((item) => fileLine('skip', item)),
     ];
     if (fileLines.length === 0) {
-        lines.push('  (no changes)');
+        lines.push(idle('(no changes)'));
     } else {
         lines.push(...fileLines);
     }
     if (kept.length > 0) {
         lines.push('');
-        lines.push('Kept workflows differ from the boilerplate and were not overwritten.');
-        lines.push('Re-run with --force-workflows to replace them.');
-        lines.push('Do that locally. GitHub Actions cannot push .github/workflows changes with GITHUB_TOKEN.');
+        lines.push(chalk.yellow('Kept workflows differ from the boilerplate and were not overwritten.'));
+        lines.push(chalk.yellow('Re-run with --force-workflows to replace them.'));
+        lines.push(chalk.yellow('Do that locally. GitHub Actions cannot push .github/workflows changes with GITHUB_TOKEN.'));
     }
 
     lines.push('');
-    lines.push('Dependencies:');
+    lines.push(section('Dependencies:'));
     if (plan.packageJson === 'missing') {
-        lines.push('  (package.json not found)');
+        lines.push(idle('(package.json not found)'));
     } else if (plan.dependencies.length === 0) {
-        lines.push('  (no changes)');
+        lines.push(idle('(no changes)'));
     } else {
         for (const dep of plan.dependencies) {
-            lines.push(`  ${dep.name}  ${dep.from} -> ${dep.to}`);
+            lines.push(chalk.cyan(`  ${dep.name}  ${dep.from} -> ${dep.to}`));
         }
     }
 
     lines.push('');
-    lines.push('Gitignore:');
+    lines.push(section('Gitignore:'));
     const gitignore = plan.gitignore || { add: [], remove: [], move: [] };
     const gitignoreLines = [
         ...(gitignore.remove || []).map((pattern) => fileLine('remove', pattern)),
@@ -400,28 +440,28 @@ function formatCustomUpdatePlan(plan) {
         ...(gitignore.add || []).map((pattern) => fileLine('add', pattern)),
     ];
     if (gitignoreLines.length === 0) {
-        lines.push('  (no new patterns)');
+        lines.push(idle('(no new patterns)'));
     } else {
         lines.push(...gitignoreLines);
     }
 
     lines.push('');
-    lines.push('npm install:');
-    lines.push('  npm install');
+    lines.push(section('npm install:'));
+    lines.push(chalk.cyan('  npm install'));
 
     lines.push('');
-    lines.push('Specs:');
+    lines.push(section('Specs:'));
     if (plan.specs.status === 'missing') {
-        lines.push('  (specs.json not found)');
+        lines.push(idle('(specs.json not found)'));
     } else if (plan.specs.status === 'empty') {
-        lines.push('  (specs.json has no specs)');
+        lines.push(idle('(specs.json has no specs)'));
     } else if (plan.specs.items.length === 0) {
-        lines.push('  (no snapshot copies or tracked-dir renames)');
+        lines.push(idle('(no snapshot copies or tracked-dir renames)'));
     } else {
         for (const item of plan.specs.items) {
-            lines.push(`  ${item.outputPath}`);
+            lines.push(chalk.cyan(`  ${item.outputPath}`));
             for (const action of item.actions) {
-                lines.push(`    ${action}`);
+                lines.push(chalk.yellow(`    ${action}`));
             }
         }
     }
