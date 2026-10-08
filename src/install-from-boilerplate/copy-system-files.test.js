@@ -22,7 +22,7 @@ describe('copySystemFiles', () => {
         fs.rmSync(destRoot, { recursive: true, force: true });
     });
 
-    test('replaces known workflow files, removes stale ones, and leaves extra workflows', () => {
+    test('keeps known workflow files that differ, removes stale ones, and leaves extra workflows', () => {
         copySystemFiles(destRoot);
 
         const workflowsDir = path.join(destRoot, '.github', 'workflows');
@@ -38,17 +38,22 @@ describe('copySystemFiles', () => {
         expect(fs.readFileSync(path.join(workflowsDir, 'render-specs.yml'), 'utf8')).toBe('old-workflow\n');
         expect(fs.readFileSync(path.join(workflowsDir, 'repo-specific.yml'), 'utf8')).toBe('keep-me\n');
         expect(fs.existsSync(path.join(workflowsDir, 'set-gh-pages.yml'))).toBe(false);
-        const menu = fs.readFileSync(path.join(workflowsDir, 'menu.yml'), 'utf8');
-        expect(menu).not.toBe('stale-menu\n');
-        expect(menu).toContain("node-version: '24'");
-        expect(menu).toContain('- custom-update');
-        expect(menu).toContain('npm run custom-update -- --yes');
+        expect(fs.readFileSync(path.join(workflowsDir, 'menu.yml'), 'utf8')).toBe('stale-menu\n');
         expect(fs.readFileSync(path.join(workflowsDir, 'render-and-deploy.yml'), 'utf8')).toContain('actions/checkout@v6');
 
         expect(fs.existsSync(path.join(destRoot, 'menu-wrapper.sh'))).toBe(false);
         expect(fs.existsSync(path.join(destRoot, 'menu-wrapper.js'))).toBe(true);
         expect(fs.existsSync(path.join(destRoot, 'README.md'))).toBe(true);
         expect(fs.readFileSync(path.join(destRoot, 'assets', 'custom.css'), 'utf8')).toBe('user-custom { color: red; }\n');
+    });
+
+    test('replaces a differing workflow when forceWorkflows is set', () => {
+        copySystemFiles(destRoot, { forceWorkflows: true });
+
+        const menu = fs.readFileSync(path.join(destRoot, '.github', 'workflows', 'menu.yml'), 'utf8');
+        expect(menu).not.toBe('stale-menu\n');
+        expect(menu).toContain('npm run custom-update -- --yes');
+        expect(menu).toContain('Do not pass --force-workflows here.');
     });
 
     test('does not overwrite an existing README.md', () => {

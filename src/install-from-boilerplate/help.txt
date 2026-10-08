@@ -20,8 +20,14 @@ The command prints a plan and asks before it writes. The plan lists
 scripts, files, dependencies, .gitignore patterns, npm install, and
 per-spec snapshot or legacy-dir changes.
 
-  spec-up-t custom-update --dry-run   print the plan only
-  spec-up-t custom-update --yes       apply without asking
+  spec-up-t custom-update --dry-run            print the plan only
+  spec-up-t custom-update --yes                apply without asking
+  spec-up-t custom-update --force-workflows    replace workflows that differ
+
+A workflow that differs from the boilerplate is kept. --force-workflows
+replaces menu.yml, render-and-deploy.yml, and zenodo-update.yml. Run that
+locally and commit. The GitHubUi button does not pass --force-workflows,
+and GITHUB_TOKEN cannot push changes under .github/workflows/.
 
 Upgrading to 2.2.0: GitHub Actions has no prompt. Until menu.yml
 contains the line below, the GitHubUi Custom Update button prints

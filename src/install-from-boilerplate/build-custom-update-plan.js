@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {
     systemFiles,
+    systemWorkflows,
     systemFilesNoOverwrite,
     systemFilesToRemove,
 } = require('./config-system-files');
@@ -123,7 +124,7 @@ function planExtraWorkflows(destRoot) {
     }
 
     const managed = new Set(
-        [...systemFiles, ...systemFilesToRemove]
+        [...systemFiles, ...systemWorkflows, ...systemFilesToRemove]
             .filter((item) => item.startsWith(WORKFLOWS_PREFIX))
             .map((item) => path.basename(item))
     );
@@ -263,8 +264,10 @@ function planSpecs(destRoot) {
  * npm install, and per-spec snapshot copies or tracked-dir renames.
  *
  * @param {string} [destRoot]
+ * @param {{ forceWorkflows?: boolean }} [options]
  */
-function buildCustomUpdatePlan(destRoot = process.cwd()) {
+function buildCustomUpdatePlan(destRoot = process.cwd(), options = {}) {
+    const forceWorkflows = options.forceWorkflows === true;
     const sourceDir = path.join(__dirname, 'boilerplate');
     const packageJson = readPackageJson(destRoot);
 
@@ -274,6 +277,19 @@ function buildCustomUpdatePlan(destRoot = process.cwd()) {
         if (action !== 'same') {
             write.push({ action, path: item });
         }
+    }
+
+    const keep = [];
+    for (const item of systemWorkflows) {
+        const action = classifyOverwrite(sourceDir, destRoot, item);
+        if (action === 'same') {
+            continue;
+        }
+        if (action === 'replace' && !forceWorkflows) {
+            keep.push(item);
+            continue;
+        }
+        write.push({ action, path: item });
     }
 
     const skip = [];
@@ -301,6 +317,7 @@ function buildCustomUpdatePlan(destRoot = process.cwd()) {
         scripts: packageJson ? planScripts(packageJson) : [],
         files: {
             write,
+            keep,
             remove,
             leave: planExtraWorkflows(destRoot),
             skip,
@@ -342,8 +359,10 @@ function formatCustomUpdatePlan(plan) {
 
     lines.push('');
     lines.push('Files:');
+    const kept = plan.files.keep || [];
     const fileLines = [
         ...plan.files.write.map((item) => fileLine(item.action, item.path)),
+        ...kept.map((item) => fileLine('keep', item)),
         ...plan.files.remove.map((item) => fileLine('remove', item)),
         ...plan.files.leave.map((item) => fileLine('leave', item)),
         ...plan.files.skip.map((item) => fileLine('skip', item)),
@@ -352,6 +371,12 @@ function formatCustomUpdatePlan(plan) {
         lines.push('  (no changes)');
     } else {
         lines.push(...fileLines);
+    }
+    if (kept.length > 0) {
+        lines.push('');
+        lines.push('Kept workflows differ from the boilerplate and were not overwritten.');
+        lines.push('Re-run with --force-workflows to replace them.');
+        lines.push('Do that locally. GitHub Actions cannot push .github/workflows changes with GITHUB_TOKEN.');
     }
 
     lines.push('');

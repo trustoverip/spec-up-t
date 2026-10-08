@@ -23,14 +23,26 @@ describe('spec-up-t CLI', () => {
 
     test('runs custom-update and passes flags', async () => {
         await main(['node', 'spec-up-t', 'custom-update']);
-        expect(customUpdate).toHaveBeenCalledWith({ yes: false, dryRun: false });
+        expect(customUpdate).toHaveBeenCalledWith({
+            yes: false,
+            dryRun: false,
+            forceWorkflows: false,
+        });
         expect(process.exitCode).toBe(0);
 
         await main(['node', 'spec-up-t', 'custom-update', '--yes']);
-        expect(customUpdate).toHaveBeenLastCalledWith({ yes: true, dryRun: false });
+        expect(customUpdate).toHaveBeenLastCalledWith({
+            yes: true,
+            dryRun: false,
+            forceWorkflows: false,
+        });
 
-        await main(['node', 'spec-up-t', 'custom-update', '--dry-run', '-y']);
-        expect(customUpdate).toHaveBeenLastCalledWith({ yes: true, dryRun: true });
+        await main(['node', 'spec-up-t', 'custom-update', '--dry-run', '-y', '--force-workflows']);
+        expect(customUpdate).toHaveBeenLastCalledWith({
+            yes: true,
+            dryRun: true,
+            forceWorkflows: true,
+        });
     });
 
     test('exits 1 for an unknown custom-update option', async () => {

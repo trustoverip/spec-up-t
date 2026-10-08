@@ -49,10 +49,11 @@ describe('buildCustomUpdatePlan', () => {
         expect(plan.scripts.map((change) => change.key)).not.toContain('render');
 
         expect(plan.files.write).toEqual(expect.arrayContaining([
-            { action: 'replace', path: '.github/workflows/menu.yml' },
             { action: 'add', path: '.github/workflows/render-and-deploy.yml' },
             { action: 'add', path: '.github/workflows/zenodo-update.yml' },
         ]));
+        expect(plan.files.write.map((item) => item.path)).not.toContain('.github/workflows/menu.yml');
+        expect(plan.files.keep).toEqual(['.github/workflows/menu.yml']);
         expect(plan.files.remove).toEqual(expect.arrayContaining([
             'menu-wrapper.sh',
             '.github/workflows/set-gh-pages.yml',
@@ -73,6 +74,8 @@ describe('buildCustomUpdatePlan', () => {
         expect(text).toContain('Scripts:');
         expect(text).toContain('custom-update');
         expect(text).toContain('Files:');
+        expect(text).toContain('keep    .github/workflows/menu.yml');
+        expect(text).toContain('Re-run with --force-workflows to replace them.');
         expect(text).toContain('leave   .github/workflows/repo-specific.yml');
         expect(text).toContain('remove  .github/workflows/set-gh-pages.yml');
         expect(text).toContain('Dependencies:');
@@ -169,6 +172,19 @@ describe('buildCustomUpdatePlan', () => {
         const plan = buildCustomUpdatePlan(destRoot);
 
         expect(plan.files.write.map((item) => item.path)).not.toContain('.github/workflows/menu.yml');
+        expect(plan.files.keep).not.toContain('.github/workflows/menu.yml');
+    });
+
+    test('replaces a differing workflow when forceWorkflows is set', () => {
+        const plan = buildCustomUpdatePlan(destRoot, { forceWorkflows: true });
+        const text = formatCustomUpdatePlan(plan);
+
+        expect(plan.files.keep).toEqual([]);
+        expect(plan.files.write).toEqual(expect.arrayContaining([
+            { action: 'replace', path: '.github/workflows/menu.yml' },
+        ]));
+        expect(text).toContain('replace .github/workflows/menu.yml');
+        expect(text).not.toContain('--force-workflows');
     });
 
     test('reports a missing package.json without throwing', () => {
