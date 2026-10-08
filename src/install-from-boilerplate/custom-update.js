@@ -108,10 +108,12 @@ function migrateAllSpecs() {
 
 /**
  * Runs the in-place upgrade of the consuming repository (process.cwd()).
- * @param {{ yes?: boolean, dryRun?: boolean, confirm?: () => Promise<boolean>|boolean }} [options]
+ * @param {{ yes?: boolean, dryRun?: boolean, forceWorkflows?: boolean, confirm?: () => Promise<boolean>|boolean }} [options]
  */
 async function customUpdate(options = {}) {
-    const plan = buildCustomUpdatePlan();
+    const plan = buildCustomUpdatePlan(process.cwd(), {
+        forceWorkflows: options.forceWorkflows === true,
+    });
     process.stdout.write(formatCustomUpdatePlan(plan));
 
     if (options.dryRun) {
@@ -129,9 +131,9 @@ async function customUpdate(options = {}) {
         throw new Error(MISSING_PACKAGE_JSON);
     }
 
-    // Copy known boilerplate files (including menu.yml) and remove stale
-    // files. Extra workflows are not deleted.
-    copySystemFiles();
+    // Writes plan.files.write and removes plan.files.remove. Workflows listed
+    // as kept are not copied. Extra workflows are not deleted.
+    copySystemFiles(process.cwd(), { plan });
 
     // Must complete before updateDependencies — both write package.json.
     addScriptsKeys(configScriptsKeys, configOverwriteScriptsKeys);

@@ -1,10 +1,6 @@
 const fs = require('fs-extra');
 const path = require('node:path');
-const {
-    systemFiles,
-    systemFilesNoOverwrite,
-    systemFilesToRemove,
-} = require('./config-system-files.js');
+const { buildCustomUpdatePlan } = require('./build-custom-update-plan');
 const Logger = require('../utils/logger');
 
 /**
@@ -34,39 +30,36 @@ function removeStaleFiles(destRoot, files) {
 }
 
 /**
- * Copies system files from the boilerplate directory to the root of the project.
- * System files are defined in the `config-system-files.js` file.
- * Files in `systemFiles` are copied and can be safely overwritten. Workflow
- * files are individual entries, so extra workflows in the consuming repo stay.
- * Files in `systemFilesNoOverwrite` are only copied when they do not already
- * exist, so user customisations are preserved across updates.
- * Files in `systemFilesToRemove` are deleted from the consuming project.
+ * Copies the files the custom-update plan said it would write, and removes
+ * the stale files the plan said it would remove. Pass `plan` from the printed
+ * plan so the write matches that text. Without a plan, one is built for
+ * `destRoot`.
+ *
+ * Workflow files that differ from the boilerplate are not in `plan.files.write`
+ * unless the plan was built with `forceWorkflows`.
+ *
+ * @param {string} [destRoot]
+ * @param {{ plan?: object, forceWorkflows?: boolean }} [options]
  */
-function copySystemFiles(destRoot = process.cwd()) {
+function copySystemFiles(destRoot = process.cwd(), options = {}) {
+    const plan = options.plan || buildCustomUpdatePlan(destRoot, {
+        forceWorkflows: options.forceWorkflows === true,
+    });
     const sourceDir = path.join(__dirname, './', 'boilerplate');
 
-    for (const item of systemFiles) {
+    for (const item of plan.files.write) {
         try {
-            copySingleFile(sourceDir, destRoot, item);
+            copySingleFile(sourceDir, destRoot, item.path);
         } catch (error) {
-            Logger.error(`Failed to copy ${item}:`, error);
+            Logger.error(`Failed to copy ${item.path}:`, error);
         }
     }
 
-    for (const item of systemFilesNoOverwrite) {
-        const destPath = path.join(destRoot, item);
-        if (fs.existsSync(destPath)) {
-            Logger.info(`Skipped ${item} (already exists)`);
-            continue;
-        }
-        try {
-            copySingleFile(sourceDir, destRoot, item);
-        } catch (error) {
-            Logger.error(`Failed to copy ${item}:`, error);
-        }
+    for (const item of plan.files.keep || []) {
+        Logger.info(`Kept ${item} (differs from boilerplate)`);
     }
 
-    removeStaleFiles(destRoot, systemFilesToRemove);
+    removeStaleFiles(destRoot, plan.files.remove);
 
     Logger.success('Copied system files to current directory');
 }

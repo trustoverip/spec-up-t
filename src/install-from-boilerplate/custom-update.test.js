@@ -3,7 +3,7 @@ jest.mock('./build-custom-update-plan', () => ({
     buildCustomUpdatePlan: jest.fn(() => ({
         packageJson: 'present',
         scripts: [],
-        files: { write: [], remove: [], leave: [], skip: [] },
+        files: { write: [], keep: [], remove: [], leave: [], skip: [] },
         dependencies: [],
     })),
     formatCustomUpdatePlan: jest.fn(() => 'Custom update plan\n'),
@@ -82,7 +82,10 @@ describe('customUpdate', () => {
         expect(stdout).toHaveBeenCalledWith('Custom update plan\n');
         expect(buildCustomUpdatePlan.mock.invocationCallOrder[0])
             .toBeLessThan(copySystemFiles.mock.invocationCallOrder[0]);
-        expect(copySystemFiles).toHaveBeenCalledTimes(1);
+        expect(buildCustomUpdatePlan).toHaveBeenCalledWith(process.cwd(), { forceWorkflows: false });
+        expect(copySystemFiles).toHaveBeenCalledWith(process.cwd(), {
+            plan: expect.objectContaining({ packageJson: 'present' }),
+        });
         expect(addScriptsKeys).toHaveBeenCalledWith(configScriptsKeys, configOverwriteScriptsKeys);
         expect(updateGitignore).toHaveBeenCalledTimes(1);
         expect(updateDependencies).toHaveBeenCalledTimes(1);
@@ -144,9 +147,9 @@ describe('customUpdate', () => {
         buildCustomUpdatePlan.mockReturnValueOnce({
             packageJson: 'missing',
             scripts: [],
-            files: { write: [], remove: [], leave: [], skip: [] },
+            files: { write: [], keep: [], remove: [], leave: [], skip: [] },
             dependencies: [],
-            gitignore: [],
+            gitignore: { add: [], remove: [], move: [] },
             specs: { status: 'missing', items: [] },
         });
 
@@ -161,8 +164,9 @@ describe('customUpdate', () => {
             specs: [{ output_path: './docs' }],
         }));
 
-        await customUpdate({ confirm: async () => true });
+        await customUpdate({ confirm: async () => true, forceWorkflows: true });
 
+        expect(buildCustomUpdatePlan).toHaveBeenCalledWith(process.cwd(), { forceWorkflows: true });
         expect(copySystemFiles).toHaveBeenCalledTimes(1);
         expect(Logger.success).toHaveBeenCalledWith('Custom update done');
     });

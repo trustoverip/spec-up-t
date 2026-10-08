@@ -21,8 +21,13 @@ Commands:
   custom-update   Upgrade this Spec-Up-T repo in place (scripts, files, deps)
 
 custom-update prints a plan, then asks before it writes.
-  --dry-run       Print the plan and do not write
-  --yes, -y       Apply the plan without asking (GitHub Actions; menu.yml)
+  --dry-run            Print the plan and do not write
+  --yes, -y            Apply the plan without asking (GitHub Actions; menu.yml)
+  --force-workflows    Replace workflow files that differ from the boilerplate
+
+Workflow files that differ are kept. --force-workflows replaces them.
+Run that locally and commit. The GitHubUi button does not pass this flag,
+and GITHUB_TOKEN cannot push changes under .github/workflows/.
 
 From 1.x, or if npm run custom-update does nothing (old node -e script):
   npx spec-up-t@latest custom-update

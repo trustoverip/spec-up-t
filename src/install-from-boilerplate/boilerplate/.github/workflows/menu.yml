@@ -99,6 +99,9 @@ jobs:
               ;;
             custom-update)
               # --yes applies the printed plan. Actions has no prompt.
+              # Do not pass --force-workflows here. A workflow that differs
+              # from the boilerplate is kept. GITHUB_TOKEN cannot push
+              # changes under .github/workflows/.
               npm run custom-update -- --yes
               ;;
             collectExternalReferences)
